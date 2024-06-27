@@ -1,0 +1,42 @@
+Robot project journal
+Started: Monday 6/10/2024
+By: Calvin
+
+Monday I worked on assembling everything except the robot itself. I physically mounted the UR controller box, the MachineMotionV2, the robot safety module, and the emergency stop. To do this I had to take all the boxes apart and find the screws, allen wrenches, 
+No instructions. No wiring diagram
+Had to wire all the shit together. Screwdriver
+Found weights to counterbalance
+Got the robot mounted on with a forklift
+Needed to know that my ip address wasn’t going to be in the pool of florida ip addresses
+Robot safety module was preventing the lift column from operating so I removed that
+Installed the urcap software via the usb drive onto the ur
+Linked machinemotion and ur via static ip addresses and ethernet cable. 
+I learned that program files are saved as program files on the pendant.
+I learned that installation setups are saves as installation files on the pendant. If you plug in a usb into the pendant, I think you can transfer files into or out of the ur.
+I think you don’t need the vention usb inserted into the pendant to access urcap functionality. It installs the program on the pendant itself and connects via the ethernet cable and staticip.
+I got the robot oriented correctly in virtual 3D space, saved it as default.installation, backed it up onto flash drive, and saved it to github. 
+I calibrated the TCP and payload for a robot with no end effector. 
+Reminder: On page 125 of the manual, it talks about Manual Mode vs automatic mode. Manual Reduced Speed is the default. I need to figure out how to switch to Manual High Speed and have it set to do that as the default. 
+Reminder: Installation -> Safety -> Tool Position has a warning symbol. I need to read section 1.24 in the manual Software Safety Configuration to figure out what the warning is. 
+Reminder: set the Home position
+Software Safety Settings. Password is plastic
+Discovered joint limits for every axis is 363 degrees to -363. So, almost two full rotations around. The maximum speed for each joint in “Normal” or “Reduced” mode is 131 degrees per second, or 221 degrees per second for the wrist joints. 161 for elbow. So far, the robot has not come close to that speed. 
+I was able to do a full backup of the robot. I went to the pendant’s hamburger menu -> settings -> backup restore or whatever. I gave a huge .urb file, which I think included the entire operating system of the robot, not just programs, installations, and variables. I was able to push this file into fork on the local branch, but I couldn’t push it to github because the file size was too large. So, I “Reset main to here” in fork to remove that commit. The file is one folder up in the “C:\Users\cbaumgartner\Documents\UPF source code”. 
+I successfully made a square motion program!
+I tried to make a peg welding program but received an error. Joint acceleration failed to pass sanity check. I think it’s because I tried to do a MoveL directly over the base. Anyways it errored and locked me out. When I try to restart the robot (safety system), (the 5 step process), when it releases the brakes it keeps erroring. It says “Fault: Robot cannot maintain its current position. Check if payload is correct”. Weird. 
+The urp files are all gibberish, the ones I made myself. It looks like the original ones like the one that came preinstalled on the robot contain xml like structures, but the ones I made are compressed. 
+I installed python to make a script to decompress those files. 
+
+Big breakthrough
+I talked to Luca from vention. For the robot stopping and faulting, we figured that out. I set the payload to 0.o kg (down from 1.3). That was what was breaking the program, that it was off by 1 kg. Sometimes the payload wizard in UR is not very accurate. So he recommends weighing the payload and getting that exact by hand and entering it in. For the payload center of gravity and the tcp position, you can use the wizard. 
+He agrees with me that the initial breakage was caused by using a moveL in a large movement over the base. moveL should only be for smaller movements or movements that you know aren’t going to be too close to singularities. After changing the payload to 0, I ran the same program (with the moveL). The program stopped because it said “cannot achieve the requested position” or something like that. However, it did not power off the robot. I just hit enable and had to angular move the joints manually (fourth tab) to get myself out of the knot. 
+Next, I set up the urcap. My computer was not connecting to the machinemotion at 192.168.7.2. Luca emailed me directions for how to set up the urcap connection to allow the robot to control the lift column. I called justin to get the connection working. 
+Computer was not connecting to 192.168.7.2 in chrome. What I had to do was unplug my ethernet cable from both sides. Turn off machinemotion. Unplug machinemotin’s power cqable. Hold down its power button for 20 seconds to release any stored energy in capacitors. Then turn it back on. After this, my Ethernet – Network 3 icon in control panel -> network and internet -> network connections changed from no connection to ethernet. And going to the chrome ip worked. 
+Next, I wanted to get it so the robot could control the lift column. I went to http://192.168.7.2/networkConfig. Under ethernet settings, I clicked LAN1 which is where the cord is plugged into. I set that to 192.168.3.52. Justin had to look in dhcp to find one in our network that wasn’t being used, because I don’t have that permission anymore. He then said he reserved that ip for me. 
+Then I went into UR settings on the pendant and changed the robot’s ipaddress to 192.168.3.53, which was also available. Justin also reserved this for me. I then went into installation->urcaps and configured it to be 192.168.3.52. and saved the configuration. 
+I then created a new program to test whether the urcap works. It does! When I played my program in automatic mode, it did raise thelift column by 10mm (which I specified). 
+Also, when I clicked the UR+ button and jogged it, it did raise the lift column as well. 
+The UR+ button only works when in automatic mode, or it does work in manual mode but only when you have the 3pe button pressed. If youre in automatic mode and jog the column, then switch to manual mode, the column will continue its jog but then will not take any more inputs unless the 3pe is pressed. You can hold the 3pe, press the jog button, wait for the column to start moving, and then let go of the button. It will finish its move. 
+Reminder: you should figure out a way to change the settings so that you don’t have to hold the 3pe even in manual mode because that’s annoying. OR find out how to enable everything from automatic mode
+
+
