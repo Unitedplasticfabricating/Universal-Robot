@@ -43,6 +43,10 @@ def copy_file(source_location, filename, destination_location):
         print(f"Error: Failed to copy '{src_file}' to '{dst_file}'. Error: {e}")
         
 def copy_folder(source_folder, destination_folder):
+    '''
+    recursive copying of the entire folder. returns true if there is no error in copying files in any place, and false if it did. if there is an error, it does try to continue copying though. sometimes. 
+    '''
+    ret = True
     try:
         # Create the destination folder if it doesn't exist
         if not os.path.exists(destination_folder):
@@ -55,14 +59,14 @@ def copy_folder(source_folder, destination_folder):
             
             # Recursively copy subdirectories and their contents
             if os.path.isdir(source_item):
-                copy_folder(source_item, destination_item)
+                ret2 = copy_folder(source_item, destination_item)
+                ret = ret and ret2
             else:
                 # Copy file from source to destination, overwriting if necessary
                 shutil.copy2(source_item, destination_item)
                 print(f"Copied '{source_item}' to '{destination_item}'")
         
         print(f"Successfully copied folder '{source_folder}' to '{destination_folder}'")
-        return True
     except FileNotFoundError:
         print(f"Error: Source folder '{source_folder}' not found.")
         return False
@@ -72,17 +76,21 @@ def copy_folder(source_folder, destination_folder):
     except Exception as e:
         print(f"Error: Failed to copy folder '{source_folder}' to '{destination_folder}'. Error: {e}")
         return False
+    return ret
 
-        
 def copyFilesFromFlashDrive():
+    '''
+    deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
+    '''
     source_folder = 'D:\\programs'
     destination_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
-        shutil.rmtree(destination_folder)
+        if os.path.isdir(destination_folder):
+            shutil.rmtree(destination_folder)
         copied = copy_folder(source_folder, destination_folder)
         if copied == True:
-            shutil.rmtree(destination_folder)
+            shutil.rmtree(source_folder)
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
         
