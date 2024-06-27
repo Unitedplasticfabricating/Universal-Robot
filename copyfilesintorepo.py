@@ -100,7 +100,7 @@ def copyFilesFromFlashDrive():
 
 def extractUncFiles():
     '''
-    Takes the .unc files in the Universal-Robot/programs folder and extracts them into other .unc files in the extracted folder.
+    Takes the .unc files in the Universal-Robot/programs folder and extracts them into other .urp files in the extracted folder.
     Currently does nothing for nested folders. 
     '''
     source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
@@ -118,15 +118,26 @@ def extractUncFiles():
         if os.path.isdir(source_item):
             continue # do nothing
         filename, file_extension = os.path.splitext(source_item)
-        if file_extension != '.unc':
+        if file_extension != '.urp':
             continue # do nothing
         # at this point, the file is a .unc file
+        #debug output string
+        print(f"extracting '{source_item}' .")
         gzip_file = source_item
         extract_folder = destination_folder
         decompress_gzip(gzip_file, extract_folder)
         
 def decompress_gzip(gzip_file, extract_folder):
+    '''
+    In summary, the actual decompression from GZIP format to the decompressed format happens during the execution of shutil.copyfileobj(f_in, f_out). 
+    This line reads the compressed data from the GZIP file (f_in) and writes the decompressed data to the output file (f_out), effectively achieving the extraction process.
+    '''
     try:
+        # Check if the file is a valid GZIP file
+        with gzip.open(gzip_file, 'rb') as f:
+            f.read(1)  # Try to read one byte from the file
+            f.seek(0)  # Reset file pointer to the beginning
+            
         with gzip.open(gzip_file, 'rb') as f_in:
             # Extract the filename from the path
             filename = os.path.basename(gzip_file)
