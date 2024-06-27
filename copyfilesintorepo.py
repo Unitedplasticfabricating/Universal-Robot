@@ -3,6 +3,7 @@
 import shutil
 import os
 from pathlib import Path
+import gzip
 
 def main():
     user_input = input('Copy Journal? (Y/N): ')
@@ -11,6 +12,9 @@ def main():
     user_input = input('Copy Files From Flash Drive? (Y/N): ')
     if isUserInputYes(user_input):
         copyFilesFromFlashDrive()
+    user_input = input('Extract .unc files? (Y/N): ')
+    if isUserInputYes(user_input):
+        extractUncFiles()
     
 def isUserInputYes(input_string):
     # Convert input string to lowercase for case-insensitive comparison
@@ -93,9 +97,54 @@ def copyFilesFromFlashDrive():
             shutil.rmtree(source_folder)
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
-        
-    
 
+def extractUncFiles():
+    '''
+    Takes the .unc files in the Universal-Robot/programs folder and extracts them into other .unc files in the extracted folder.
+    Currently does nothing for nested folders. 
+    '''
+    source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    destination_folder = os.path.join('C:\\Dev\\universal-robot', 'extracted')
+    # first, delete the extacted folder
+    if os.path.isdir(destination_folder):
+        shutil.rmtree(destination_folder)
+    # create the extracted folder
+    os.makedirs(destination_folder)
+    
+    # iterate through the contents of the source folder
+    for item in os.listdir(source_folder):
+        source_item = os.path.join(source_folder, item)
+        ###destination_item = os.path.join(destination_folder, item)
+        if os.path.isdir(source_item):
+            continue # do nothing
+        filename, file_extension = os.path.splitext(source_item)
+        if file_extension != '.unc':
+            continue # do nothing
+        # at this point, the file is a .unc file
+        gzip_file = source_item
+        extract_folder = destination_folder
+        decompress_gzip(gzip_file, extract_folder)
+        
+def decompress_gzip(gzip_file, extract_folder):
+    try:
+        with gzip.open(gzip_file, 'rb') as f_in:
+            # Extract the filename from the path
+            filename = os.path.basename(gzip_file)
+            # Remove the .gz extension from the filename
+            filename = filename.replace('.unc', '')
+            # Construct the output path
+            output_path = os.path.join(extract_folder, filename)
+            # Open the output file
+            with open(output_path, 'wb') as f_out:
+                # Copy data from input to output
+                shutil.copyfileobj(f_in, f_out)
+        print(f"Successfully decompressed '{gzip_file}' to '{output_path}'")
+    except FileNotFoundError:
+        print(f"Error: '{gzip_file}' not found.")
+    except gzip.BadGzipFile:
+        print(f"Error: '{gzip_file}' is not a valid GZIP file.")
+    except Exception as e:
+        print(f"Error: Failed to decompress '{gzip_file}'. Error: {e}")
 
 
 
