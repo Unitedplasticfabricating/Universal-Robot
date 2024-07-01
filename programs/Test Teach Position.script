@@ -152,20 +152,22 @@ def Test_Teach_Position():
   global freedrive_m_var=  False  
   global Waypoint_1_p=p[.574920139234, .290181243295, .475641456904, -.083548844531, 2.369773198085, -.198339248333]
   global Waypoint_1_q=[0.947482705116272, -1.4870131772807618, -2.5590596199035645, -0.2591535610011597, 0.8874344825744629, 2.3016035556793213]
-  $ 11 "Thread_1"
+  $ 13 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 12 "Loop  True "
+      $ 14 "Loop  True "
       while (  True  ):
-        $ 13 "If freedrive_m_var≟ True "
+        $ 15 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 14 "freedrive_mode()"
+          $ 16 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 15 "Else" "noBreak"
-          $ 16 "end_freedrive_mode()"
+          $ 17 "Else" "noBreak"
+          $ 18 "end_freedrive_mode()"
           end_freedrive_mode()
         end
+        $ 19 "sync()"
+        sync()
       end
     end
   end
@@ -184,6 +186,10 @@ def Test_Teach_Position():
   popup("Move the robot to the peg center, then click OK", "Message", False, False, blocking=True)
   $ 9 "freedrive_m_var≔ False "
   global freedrive_m_var=  False  
-  $ 10 "Home"
+  $ 10 "Wait: 0.25"
+  sleep(0.25)
+  $ 11 "sync()"
+  sync()
+  $ 12 "Home"
   movej([-1.5370344946663685, -1.5288164776614686, -2.7875118543223336, -0.3724559904209972, 1.623548359823722, -0.03990680376161748], a=1.3962634015954636, v=1.0471975511965976)
 end
