@@ -54,3 +54,61 @@ https://forum.universal-robots.com/t/open-and-close-the-freedrive-switch-while-t
 save tcp pose as a variable: https://forum.universal-robots.com/t/creating-a-variable-waypoint/19366
 
 the types of variables are: bool, int, float, string, pose, list (page 163). 
+
+I need to learn about rotation vectors in UR. i want to align my tcp perpendicular to a cardinal plane. But i have no idea how rx, ry, and rz work or what they mean. 
+Apparently (according to the internet), UR uses axis-angle representation of rotation vector (opposed to RPY roll-pitch-yaw. I don't know what that is either). 
+
+Coordinates/directions:
+
+Feature: view. this is when i aligned the robot with the direction i wanted it to face
+Rx=0, RY=0, Rz=0 is with the tcp pointing straight up
+The x direction is straight out in front of the robot. specifically, -x.
+the y direction is to the right. positive y is right. negative y is left
+
+Feature: Base. this is the preset orientation of the robot. in this view, pushing the forward button makes the robot come back towards me at an angle
+Rx=0, RY=0, Rz=0 is with the tcp pointing straight up
+
+
+I watched some good courses on virtual reality and representation of 3d space by this guy from University of Illinois at some IIT school. I learned different representations of orientation in 3d space. 
+1. Euler's yaw, pitch, roll with respect to airplanes (commutative, respect to horizon, not uniform especially when approaching vertical)
+2. Euler's yaw, pitch, roll with respect to fixed cartesian axes. (not commutative)
+Axis angle representations: length of v is 1 (unit vector). 
+3. axis-angle representation in Exponential syntax 
+	[(v1, v2, v3), theta] -> (v1*theta, v2*theta, v3*theta)
+4. axis-angle representation in Quaternion syntax
+	[(v1, v2, v3), theta] -> (cos(th/2), v1*sin(th/2), v2*sin(th/2), v2*sin(th/2))
+	
+Based on that info i came back and ran the robot in Base mode. Here the buttons are labelled. 
+
+zeroing out all the Rx, ry, rz made the robot point straight up. 
+pressing each button worked the same as rx:
+	i press rx and the tool moves. Imagine an axis through the tcp parallel to the fixed cartesian x axis. The tool rotates around that axis. I then send the tool back home.
+	while i am going, ry and rz values remain at 0. 
+	rx value increases consistently, hitting .785 when the robot has rotated 45 degrees, 1.57 when the robot has rotated 90 degrees. 
+going back to 0,0,0 rotation and using the other buttons worked the same way. they rotated the tcp about their axis. 
+entering a value of 7 resulted in a value of .717 (7 - 2 pi)
+crossing the 6.28 barrier manually moving results in the angle dropping back down to 0.01
+
+next experiment:
+i set the tool orientation to 0,0,0
+i rotated rx to +.785 using the rx+ button. 
+i then pressed the ry+ button. it rotated the tcp with respect to the y axis. not only did the ry value change as i went, the rx value changed as well. so did the z value. 
+rx decreased to -.741, ry went from 0 to .760, rz went from 0 to -.318
+
+Based on this, I hypothesize that the rx, ry, and rz values in the upper right corner (orientation coordinates) are defined using axis-angle representations in Exponential syntax. 
+
+I also hypothesize that pressing the rx+, ry+, etc. buttons do not simply increase the rx coordinate and calculate the resulting position. 
+	They send a small increment of a transform about the x axis (something like a (0.1, 0, 0) transform vector and calculate the resulting exponential syntax of that transform. 
+	This is why the other values sometimes change when you give a simple ry+ command. 
+	so, holding down the ry+ button will make the robot perform a rotation about the y axis. But a rotation about the y axis most likely will change all 3 values in exponential syntax. 
+	
+You can set the rotation vectors to (90deg, 90, 0) or (.785, .785, 0). It looks like it's pretty close to a 45 degree rotation in both the x and y axis but i'm not sure. 
+An example of this is that I set rx = 90deg (1.57), ry = 90deg (1.57), rz=0. it found the position. 
+	the robot was pointed slightly down and at an angle. it was not orthogonal to any of the major axes. 
+	however, projecting onto the x-y plane, the robot was at a 45 angle to the major axes. 
+	this only makes sense if you understand axis-angle representaion with Exponential syntax. 
+	
+I need to make a list of the common orthogonal positions and common 45 (45 degrees with respect to one plane, ortho/parrallel with respect to the final axis) positions and their Exponential representation
+	so that i can quickly position my robot in that orientation at a given position. 
+
+
