@@ -1,7 +1,13 @@
-def Test_Teach_Position():
+def Test_Homing_On_Corner():
   global _hidden_verificationVariable=0
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
+  step_count_4006b123_a33a_4112_ac64_874e6d630da5 = 0.0
+  thread Step_Counter_Thread_3d86c9af_8b2f_4e32_a036_5bf01179d500():
+    while (True):
+      step_count_4006b123_a33a_4112_ac64_874e6d630da5 = step_count_4006b123_a33a_4112_ac64_874e6d630da5 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_3d86c9af_8b2f_4e32_a036_5bf01179d500()
   set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -11,11 +17,13 @@ def Test_Teach_Position():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_target_payload(0.000000, [0.000000, 0.000000, 0.000000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,62 +150,11 @@ def Test_Teach_Position():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff = 0.0
-  thread Step_Counter_Thread_56b64e94_5d09_4db4_b575_c7e0c5305c4e():
-    while (True):
-      step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff = step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff + 1.0
-      sync()
-    end
+  while (True):
+    $ 2 "Robot Program"
+    $ 3 "'After Manual Adjust close, run this program to home in on the precise location of the corner. '"
+    # 'After Manual Adjust close, run this program to home in on the precise location of the corner. '
+    $ 4 "'Finds a bottom right corner facing you'"
+    # 'Finds a bottom right corner facing you'
   end
-  run Step_Counter_Thread_56b64e94_5d09_4db4_b575_c7e0c5305c4e()
-  global freedrive_m_var=  False  
-  global Waypoint_1_p=p[.574920139234, .290181243295, .475641456904, -.083548844531, 2.369773198085, -.198339248333]
-  global Waypoint_1_q=[0.947482705116272, -1.4870131772807618, -2.5590596199035645, -0.2591535610011597, 0.8874344825744629, 2.3016035556793213]
-  $ 17 "Thread_1"
-  thread Thread_1():
-    while (True):
-      $ 18 "Loop  True "
-      while (  True  ):
-        $ 19 "If freedrive_m_var≟ True "
-        if (freedrive_m_var ==   True  ):
-          $ 20 "freedrive_mode()"
-          freedrive_mode()
-        else:
-          $ 21 "Else" "noBreak"
-          $ 22 "end_freedrive_mode()"
-          end_freedrive_mode()
-        end
-        $ 23 "sync()"
-        sync()
-      end
-    end
-  end
-  threadId_Thread_1 = run Thread_1()
-  $ 2 "Robot Program"
-  $ 3 "Home"
-  movej([-1.5370344946663685, -1.5288164776614686, -2.7875118543223336, -0.3724559904209972, 1.623548359823722, -0.03990680376161748], a=1.3962634015954636, v=1.0471975511965976)
-  $ 4 "MoveJ"
-  $ 5 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 6 "freedrive_m_var≔ False "
-  global freedrive_m_var=  False  
-  $ 7 "freedrive_m_var≔ True "
-  global freedrive_m_var=  True  
-  $ 8 "Popup: Move the robot to the peg center, then click 'Continue'"
-  popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
-  $ 9 "freedrive_m_var≔ False "
-  global freedrive_m_var=  False  
-  $ 10 "Wait: 0.25"
-  sleep(0.25)
-  $ 11 "sync()"
-  sync()
-  $ 12 "tcp_pose≔get_actual_joint_positions()"
-  global tcp_pose= get_actual_joint_positions ()
-  $ 13 "Home"
-  movej([-1.5370344946663685, -1.5288164776614686, -2.7875118543223336, -0.3724559904209972, 1.623548359823722, -0.03990680376161748], a=1.3962634015954636, v=1.0471975511965976)
-  $ 14 "MoveJ"
-  $ 15 "tcp_pose" "breakAfter"
-  movej(tcp_pose, a=1.3962634015954636, v=1.0471975511965976)
-  $ 16 "Home"
-  movej([-1.5370344946663685, -1.5288164776614686, -2.7875118543223336, -0.3724559904209972, 1.623548359823722, -0.03990680376161748], a=1.3962634015954636, v=1.0471975511965976)
 end

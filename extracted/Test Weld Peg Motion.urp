@@ -10,185 +10,34 @@
     <InitVariablesNode/>
     <MainProgram runOnlyOnce="true" InitVariablesNode="false">
       <children>
-        <Comment comment="Start Point: Home"/>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Comment comment="This program starts at the taught location (tcp and joint position) that was taught by the operator"/>
+        <Comment comment="straighten out z axis"/>
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
           <children>
-            <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-1.537032429371969, -1.5288156133941193, -2.7874608039855957, -0.37245316923175054, 1.6235363483428955, -0.039901081715719044"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
+            <gui.program.direction.MoveDirectionNode selectedDirection="ZPlus">
+              <children>
+                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
+                  <Distance>0.03</Distance>
+                  <motionParameters blendRadius="0.0"/>
+                </Until>
+              </children>
+            </gui.program.direction.MoveDirectionNode>
           </children>
         </Move>
+        <Script type="Line">
+          <expression/>
+        </Script>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
-            <Comment comment="Lift gun out of holder"/>
-            <Waypoint type="Fixed" name="Waypoint_2" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-1.536710564290182, -1.051842288380005, -2.485320568084717, -1.151641921406128, 1.623323917388916, -0.03959972063173467"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-            <Comment comment="Move to bucket"/>
-            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-2.372910801564352, -1.4850519385984917, -2.211073398590088, -1.0397523206523438, 1.6244484186172485, -0.8769753615008753"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-2.3729708830462855, -1.6909362278380335, -2.3691084384918213, -0.6758066576770325, 1.6245042085647583, -0.876960579548971"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
+            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
+              <children>
+                <Until type="NONE" allowActions="false"/>
+              </children>
+            </gui.program.direction.MoveDirectionNode>
           </children>
         </Move>
-        <Comment comment="extrude out a foot"/>
-        <Wait type="Sleep">
-          <waitTime>6.0</waitTime>
-        </Wait>
-        <Move motionType="MoveL" speed="0.04" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <Comment comment="slice over knife"/>
-            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-2.4164188543902796, -1.661666055718893, -2.403520107269287, -0.6729421776584168, 1.6234378814697266, -0.9204791227923792"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="-1">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-2.4163671175586146, -1.5014494222453614, -2.2964284420013428, -0.9402617973140259, 1.6233742237091064, -0.9204691092120569"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <Comment comment="go to weld peg"/>
-            <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="0.7997124791145325, -1.4218644362739106, -2.375715732574463, -0.8945852679065247, 1.5170187950134277, 2.2957448959350586"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <Comment comment="tilt head"/>
-            <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="0.9491087198257446, -1.462498539393284, -2.5431790351867676, -0.2930680078319092, 0.8888055682182312, 2.3030025959014893"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_9" kinematicsFlags="4">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="0.9490954875946045, -1.486842469578125, -2.5559353828430176, -0.2559672159007569, 0.8888285756111145, 2.303004741668701"/>
-                <TCPOffset pose="-4.516483728619642E-6, -4.494070941040221E-6, -3.385497268221845E-5, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Comment/>
-        <Wait type="Sleep">
-          <waitTime>8.0</waitTime>
-        </Wait>
       </children>
     </MainProgram>
   </children>
