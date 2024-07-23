@@ -4,6 +4,7 @@
      'Use this program when tool is already positioned close to corner (back right bottom corner)'
      'tool flange will seek all 3 sides and then bring tcp to the corner'
      Call align_tcp_left
+     'right side'
      MoveL
        Direction: Base X+
          Until (distance)
@@ -28,6 +29,64 @@
        Direction: Base X-
          Until (distance)
      Call align_tcp_forward
+     'back side'
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     'regroup for up turn'
+     MoveL
+       Direction: Base X-
+         Until (distance)
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     Call align_tcp_up
+     MoveL
+       Direction: Base X+
+         Until (distance)
+       Direction: Base Y+
+         Until (distance)
+     'bottom side'
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (distance)
+       Direction: Base Y-
+         Until (distance)
+   align_tcp_up
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
+     MoveJ
+       aligned_y_pose
    align_tcp_forward
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
