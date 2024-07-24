@@ -45,6 +45,8 @@ I completed copyfilesintorepo.py which is sweet. i plug in the flash drive, run 
 
 Programs can be saved as files and run as a subprogram. To do this, start editing the main toplevel program. Click robot program. Click SubProg. Under subprogram file, select your file. This will open the file as a subprogram. 
 By default, making changes to this subprogram will not affect the parent file. 
+By default, making changes to the parent subprogram will not affect the loaded subprogram. 
+If you want to change a subprogram, you can change the parent subprogram and save. then go into the parent program, loaded subprogram, and reload to pull the changes. 
 
 How to enter freedrive mode mid program:
 You can look at using the “freedrive_mode” script call to set the robot into freedrive mode and the corresponding “end_freedrive_mode” call to stop it. You can look at the URScript manual for understanding both of these functions.
@@ -122,3 +124,20 @@ ill look up how to create my own function . cant
 coordinate system:
 i found out that the X+ direction is out away from the base. forward
 
+for homing, use a tcp on the side of the gun. if the gun is attached sideways, then have a "rubber tip" "through" the gun (parrallel to robot arm). 
+set this as a separate tcp in installation, and call the homing commands using that tcp.
+
+the homing program wasnt working because of how the test box was mountd on the table. when it was homing on the bottom face, it was hitting into the table and faulting. 
+i looked at the station in the express cell line and this isn't going to be a problem out there.
+we are going to change the attachment of the test box to the table. in the mean time, i will adjust my program to avoid the table. 
+
+i made a Main Method, and put test teach position into it. the thread that was part of test teach position did not come. running the program did not put the robot into freedrive mode at the correct time. 
+copying over the variables setup and the thread into Test Main Program did make the program work. 
+
+god damn it. 
+it doesnt like nested subprograms.
+i have some programs for aligning the tcp with a cardinal direction. 
+my program corner homing brb contains calls to those alignment subprograms
+i tried to put corner homing brb into my main program as a subprogram. robot didnt like that. 
+it said 'the subprogram contains one or more calls to other subprograms. open corner homing brb and remove any contained subprograms, save, and then try again to add it.'
+https://forum.universal-robots.com/t/subroutine-within-subprogram/12634 says you can do it as a subroutine, as a subprogram within a script block, or as a user-defined function

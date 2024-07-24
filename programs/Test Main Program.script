@@ -1,4 +1,4 @@
-def Test_Teach_Position():
+def Test_Main_Program():
   global _hidden_verificationVariable=0
   step_count_08763e1c_dac9_43b2_9a85_2458cf71825a = 0.0
   thread Step_Counter_Thread_f6bba85d_fe83_4c87_9c7a_9fbef6558408():
@@ -153,44 +153,49 @@ def Test_Teach_Position():
   global freedrive_m_var=  False  
   global Waypoint_1_p=p[.574920139234, .290181243295, .475641456904, -.083548844531, 2.369773198085, -.198339248333]
   global Waypoint_1_q=[0.947482705116272, -1.4870131772807618, -2.5590596199035645, -0.2591535610011597, 0.8874344825744629, 2.3016035556793213]
-  $ 13 "Thread_1"
+  def Test_Teach_Position():
+    $ 4 "Test_Teach_Position" "noBreak"
+    $ 5 "Home"
+    movej([-1.5170843647311099, -1.5158497260128607, -2.7841243917726795, -0.41321753639026504, 1.5709639287378314, 0.053750737405604376], a=1.3962634015954636, v=1.0471975511965976)
+    $ 6 "MoveJ"
+    $ 7 "Waypoint_1" "breakAfter"
+    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 8 "freedrive_m_var≔ False "
+    global freedrive_m_var=  False  
+    $ 9 "freedrive_m_var≔ True "
+    global freedrive_m_var=  True  
+    $ 10 "Popup: Move the robot to the peg center, then click 'Continue'"
+    popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
+    $ 11 "freedrive_m_var≔ False "
+    global freedrive_m_var=  False  
+    $ 12 "Wait: 0.25"
+    sleep(0.25)
+    $ 13 "sync()"
+    sync()
+    $ 14 "tcp_pose≔get_actual_joint_positions()"
+    global tcp_pose= get_actual_joint_positions ()
+  end
+  $ 15 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 14 "Loop  True "
+      $ 16 "Loop  True "
       while (  True  ):
-        $ 15 "If freedrive_m_var≟ True "
+        $ 17 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 16 "freedrive_mode()"
+          $ 18 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 17 "Else" "noBreak"
-          $ 18 "end_freedrive_mode()"
+          $ 19 "Else" "noBreak"
+          $ 20 "end_freedrive_mode()"
           end_freedrive_mode()
         end
-        $ 19 "sync()"
+        $ 21 "sync()"
         sync()
       end
     end
   end
   threadId_Thread_1 = run Thread_1()
   $ 2 "Robot Program"
-  $ 3 "Home"
-  movej([-1.5170843647311099, -1.5158497260128607, -2.7841243917726795, -0.41321753639026504, 1.5709639287378314, 0.053750737405604376], a=1.3962634015954636, v=1.0471975511965976)
-  $ 4 "MoveJ"
-  $ 5 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 6 "freedrive_m_var≔ False "
-  global freedrive_m_var=  False  
-  $ 7 "freedrive_m_var≔ True "
-  global freedrive_m_var=  True  
-  $ 8 "Popup: Move the robot to the peg center, then click 'Continue'"
-  popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
-  $ 9 "freedrive_m_var≔ False "
-  global freedrive_m_var=  False  
-  $ 10 "Wait: 0.25"
-  sleep(0.25)
-  $ 11 "sync()"
-  sync()
-  $ 12 "tcp_pose≔get_actual_joint_positions()"
-  global tcp_pose= get_actual_joint_positions ()
+  $ 3 "Call Test_Teach_Position"
+  Test_Teach_Position()
 end
