@@ -379,7 +379,7 @@
         </Move>
         <CallSubProgram>
           <subprogram name="align_tcp_up" keepHidden="false" keepSynchronizedWithDisk="false">
-            <programFile resolves-to="file">/programs/align_tcp_up.urp</programFile>
+            <programFile>/programs/align_tcp_up.urp</programFile>
             <children>
               <Comment comment="this program aligns the tcp parallel to the y direction"/>
               <Assignment valueSource="Expression">
@@ -447,18 +447,21 @@
             <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
               <children>
                 <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.4</Distance>
+                  <Distance>0.2</Distance>
                   <motionParameters blendRadius="0.0"/>
                 </Until>
               </children>
             </gui.program.direction.MoveDirectionNode>
           </children>
         </Move>
+        <Wait type="Sleep">
+          <waitTime>6.0</waitTime>
+        </Wait>
         <Comment comment="bottom side"/>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../CallSubProgram/subprogram/children/Move/feature"/>
           <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
+            <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
               <children>
                 <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
                   <Distance>0.1</Distance>
