@@ -151,45 +151,685 @@ def Test_Main_Program():
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
   global freedrive_m_var=  False  
+  def calculate_point_to_move_towards(feature, direction, position_distance):
+    local posDir=[direction[0], direction[1], direction[2]]
+    if (norm(posDir) < 1e-6):
+      return get_target_waypoint()
+    end
+    local direction_vector_normalized=normalize(posDir)
+    local displacement_pose=p[direction_vector_normalized[0] * position_distance,direction_vector_normalized[1] * position_distance,direction_vector_normalized[2] * position_distance,0,0,0]
+    local wanted_displacement_in_base_frame=pose_sub(pose_trans(feature, displacement_pose), feature)
+    return pose_add(get_target_waypoint(), wanted_displacement_in_base_frame)
+  end
   global Waypoint_1_p=p[.574920139234, .290181243295, .475641456904, -.083548844531, 2.369773198085, -.198339248333]
   global Waypoint_1_q=[0.947482705116272, -1.4870131772807618, -2.5590596199035645, -0.2591535610011597, 0.8874344825744629, 2.3016035556793213]
+  def Corner_Homing_BRB():
+    $ 5 "Corner_Homing_BRB" "noBreak"
+    $ 6 "'Use this program when tool is already positioned close to corner (back right bottom corner)'"
+    # 'Use this program when tool is already positioned close to corner (back right bottom corner)'
+    $ 7 "'tool flange will seek all 3 sides and then bring tcp to the corner'"
+    # 'tool flange will seek all 3 sides and then bring tcp to the corner'
+    $ 8 "align_tcp_left()"
+    align_tcp_left()
+    $ 9 "'right side'"
+    # 'right side'
+    $ 10 "MoveL"
+    $ 11 "Direction: Base X+"
+    global move_thread_flag_11=0
+    thread move_thread_11():
+      enter_critical
+      move_thread_flag_11 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_11 = 2
+      exit_critical
+    end
+    move_thread_flag_11 = 0
+    move_thread_han_11 = run move_thread_11()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_11 > 1):
+        join move_thread_han_11
+        $ 12 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 13 "MoveL"
+    $ 14 "Direction: Base Y+"
+    global move_thread_flag_14=0
+    thread move_thread_14():
+      enter_critical
+      move_thread_flag_14 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 1000.0)
+      movel(towardsPos, a=1.2, v=0.05)
+      move_thread_flag_14 = 2
+      exit_critical
+    end
+    move_thread_flag_14 = 0
+    move_thread_han_14 = run move_thread_14()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_14
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 15 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 16 "p11≔get_actual_tcp_pose()"
+    global p11= get_actual_tcp_pose ()
+    $ 17 "MoveL"
+    $ 18 "Direction: Base Y-"
+    global move_thread_flag_18=0
+    thread move_thread_18():
+      enter_critical
+      move_thread_flag_18 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_18 = 2
+      exit_critical
+    end
+    move_thread_flag_18 = 0
+    move_thread_han_18 = run move_thread_18()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_18 > 1):
+        join move_thread_han_18
+        $ 19 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 20 "MoveL"
+    $ 21 "Direction: Base X+"
+    global move_thread_flag_21=0
+    thread move_thread_21():
+      enter_critical
+      move_thread_flag_21 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_21 = 2
+      exit_critical
+    end
+    move_thread_flag_21 = 0
+    move_thread_han_21 = run move_thread_21()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_21 > 1):
+        join move_thread_han_21
+        $ 22 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 23 "MoveL"
+    $ 24 "Direction: Base Y+"
+    global move_thread_flag_24=0
+    thread move_thread_24():
+      enter_critical
+      move_thread_flag_24 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 1000.0)
+      movel(towardsPos, a=1.2, v=0.05)
+      move_thread_flag_24 = 2
+      exit_critical
+    end
+    move_thread_flag_24 = 0
+    move_thread_han_24 = run move_thread_24()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_24
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 25 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 26 "p12≔get_actual_tcp_pose()"
+    global p12= get_actual_tcp_pose ()
+    $ 27 "MoveL"
+    $ 28 "Direction: Base Y-"
+    global move_thread_flag_28=0
+    thread move_thread_28():
+      enter_critical
+      move_thread_flag_28 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_28 = 2
+      exit_critical
+    end
+    move_thread_flag_28 = 0
+    move_thread_han_28 = run move_thread_28()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_28 > 1):
+        join move_thread_han_28
+        $ 29 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 30 "MoveL"
+    $ 31 "Direction: Base X-"
+    global move_thread_flag_31=0
+    thread move_thread_31():
+      enter_critical
+      move_thread_flag_31 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.2)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_31 = 2
+      exit_critical
+    end
+    move_thread_flag_31 = 0
+    move_thread_han_31 = run move_thread_31()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_31 > 1):
+        join move_thread_han_31
+        $ 32 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 33 "align_tcp_forward()"
+    align_tcp_forward()
+    $ 34 "'back side'"
+    # 'back side'
+    $ 35 "MoveL"
+    $ 36 "Direction: Base Y+"
+    global move_thread_flag_36=0
+    thread move_thread_36():
+      enter_critical
+      move_thread_flag_36 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.1)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_36 = 2
+      exit_critical
+    end
+    move_thread_flag_36 = 0
+    move_thread_han_36 = run move_thread_36()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_36 > 1):
+        join move_thread_han_36
+        $ 37 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 38 "MoveL"
+    $ 39 "Direction: Base X+"
+    global move_thread_flag_39=0
+    thread move_thread_39():
+      enter_critical
+      move_thread_flag_39 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 1000.0)
+      movel(towardsPos, a=1.2, v=0.05)
+      move_thread_flag_39 = 2
+      exit_critical
+    end
+    move_thread_flag_39 = 0
+    move_thread_han_39 = run move_thread_39()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_39
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 40 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 41 "p21≔get_actual_tcp_pose()"
+    global p21= get_actual_tcp_pose ()
+    $ 42 "MoveL"
+    $ 43 "Direction: Base X-"
+    global move_thread_flag_43=0
+    thread move_thread_43():
+      enter_critical
+      move_thread_flag_43 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_43 = 2
+      exit_critical
+    end
+    move_thread_flag_43 = 0
+    move_thread_han_43 = run move_thread_43()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_43 > 1):
+        join move_thread_han_43
+        $ 44 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 45 "MoveL"
+    $ 46 "Direction: Base Y+"
+    global move_thread_flag_46=0
+    thread move_thread_46():
+      enter_critical
+      move_thread_flag_46 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_46 = 2
+      exit_critical
+    end
+    move_thread_flag_46 = 0
+    move_thread_han_46 = run move_thread_46()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_46 > 1):
+        join move_thread_han_46
+        $ 47 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 48 "MoveL"
+    $ 49 "Direction: Base X+"
+    global move_thread_flag_49=0
+    thread move_thread_49():
+      enter_critical
+      move_thread_flag_49 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 1000.0)
+      movel(towardsPos, a=1.2, v=0.05)
+      move_thread_flag_49 = 2
+      exit_critical
+    end
+    move_thread_flag_49 = 0
+    move_thread_han_49 = run move_thread_49()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_49
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 50 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 51 "p22≔get_actual_tcp_pose()"
+    global p22= get_actual_tcp_pose ()
+    $ 52 "MoveL"
+    $ 53 "Direction: Base X-"
+    global move_thread_flag_53=0
+    thread move_thread_53():
+      enter_critical
+      move_thread_flag_53 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_53 = 2
+      exit_critical
+    end
+    move_thread_flag_53 = 0
+    move_thread_han_53 = run move_thread_53()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_53 > 1):
+        join move_thread_han_53
+        $ 54 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 55 "'regroup for up turn'"
+    # 'regroup for up turn'
+    $ 56 "MoveL"
+    $ 57 "Direction: Base X-"
+    global move_thread_flag_57=0
+    thread move_thread_57():
+      enter_critical
+      move_thread_flag_57 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.2)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_57 = 2
+      exit_critical
+    end
+    move_thread_flag_57 = 0
+    move_thread_han_57 = run move_thread_57()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_57 > 1):
+        join move_thread_han_57
+        $ 58 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 59 "Direction: Base Y-"
+    global move_thread_flag_59=0
+    thread move_thread_59():
+      enter_critical
+      move_thread_flag_59 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.4)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_59 = 2
+      exit_critical
+    end
+    move_thread_flag_59 = 0
+    move_thread_han_59 = run move_thread_59()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_59 > 1):
+        join move_thread_han_59
+        $ 60 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 61 "MoveL"
+    $ 62 "Direction: Base Z-"
+    global move_thread_flag_62=0
+    thread move_thread_62():
+      enter_critical
+      move_thread_flag_62 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 0.1)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_62 = 2
+      exit_critical
+    end
+    move_thread_flag_62 = 0
+    move_thread_han_62 = run move_thread_62()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_62 > 1):
+        join move_thread_han_62
+        $ 63 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 64 "align_tcp_up()"
+    align_tcp_up()
+    $ 65 "MoveL"
+    $ 66 "Direction: Base X+"
+    global move_thread_flag_66=0
+    thread move_thread_66():
+      enter_critical
+      move_thread_flag_66 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.2)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_66 = 2
+      exit_critical
+    end
+    move_thread_flag_66 = 0
+    move_thread_han_66 = run move_thread_66()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_66 > 1):
+        join move_thread_han_66
+        $ 67 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 68 "Direction: Base Y+"
+    global move_thread_flag_68=0
+    thread move_thread_68():
+      enter_critical
+      move_thread_flag_68 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.2)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_68 = 2
+      exit_critical
+    end
+    move_thread_flag_68 = 0
+    move_thread_han_68 = run move_thread_68()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_68 > 1):
+        join move_thread_han_68
+        $ 69 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 70 "'bottom side'"
+    # 'bottom side'
+    $ 71 "MoveL"
+    $ 72 "Direction: Base Y+"
+    global move_thread_flag_72=0
+    thread move_thread_72():
+      enter_critical
+      move_thread_flag_72 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.12)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_72 = 2
+      exit_critical
+    end
+    move_thread_flag_72 = 0
+    move_thread_han_72 = run move_thread_72()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_72 > 1):
+        join move_thread_han_72
+        $ 73 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 74 "MoveL"
+    $ 75 "Direction: Base Z+"
+    global move_thread_flag_75=0
+    thread move_thread_75():
+      enter_critical
+      move_thread_flag_75 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
+      movel(towardsPos, a=1.2, v=0.05)
+      move_thread_flag_75 = 2
+      exit_critical
+    end
+    move_thread_flag_75 = 0
+    move_thread_han_75 = run move_thread_75()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_75
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 76 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 77 "p3≔get_actual_tcp_pose()"
+    global p3= get_actual_tcp_pose ()
+    $ 78 "MoveL"
+    $ 79 "Direction: Base Z-"
+    global move_thread_flag_79=0
+    thread move_thread_79():
+      enter_critical
+      move_thread_flag_79 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 0.05)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_79 = 2
+      exit_critical
+    end
+    move_thread_flag_79 = 0
+    move_thread_han_79 = run move_thread_79()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_79 > 1):
+        join move_thread_han_79
+        $ 80 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 81 "MoveL"
+    $ 82 "Direction: Base X-"
+    global move_thread_flag_82=0
+    thread move_thread_82():
+      enter_critical
+      move_thread_flag_82 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.1)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_82 = 2
+      exit_critical
+    end
+    move_thread_flag_82 = 0
+    move_thread_han_82 = run move_thread_82()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_82 > 1):
+        join move_thread_han_82
+        $ 83 "Until (distance)"
+        break
+      end
+      sync()
+    end
+    $ 84 "Direction: Base Y-"
+    global move_thread_flag_84=0
+    thread move_thread_84():
+      enter_critical
+      move_thread_flag_84 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.1)
+      movel(towardsPos, a=1.2, v=0.25)
+      move_thread_flag_84 = 2
+      exit_critical
+    end
+    move_thread_flag_84 = 0
+    move_thread_han_84 = run move_thread_84()
+    while (True):
+      sleep(1.0E-10)
+      if (move_thread_flag_84 > 1):
+        join move_thread_han_84
+        $ 85 "Until (distance)"
+        break
+      end
+      sync()
+    end
+  end
   def Test_Teach_Position():
-    $ 4 "Test_Teach_Position" "noBreak"
-    $ 5 "Home"
+    $ 86 "Test_Teach_Position" "noBreak"
+    $ 87 "Home"
     movej([-1.5170843647311099, -1.5158497260128607, -2.7841243917726795, -0.41321753639026504, 1.5709639287378314, 0.053750737405604376], a=1.3962634015954636, v=1.0471975511965976)
-    $ 6 "MoveJ"
-    $ 7 "Waypoint_1" "breakAfter"
+    $ 88 "MoveJ"
+    $ 89 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 8 "freedrive_m_var≔ False "
+    $ 90 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 9 "freedrive_m_var≔ True "
+    $ 91 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 10 "Popup: Move the robot to the peg center, then click 'Continue'"
+    $ 92 "Popup: Move the robot to the peg center, then click 'Continue'"
     popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 11 "freedrive_m_var≔ False "
+    $ 93 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 12 "Wait: 0.25"
+    $ 94 "Wait: 0.25"
     sleep(0.25)
-    $ 13 "sync()"
+    $ 95 "sync()"
     sync()
-    $ 14 "tcp_pose≔get_actual_joint_positions()"
+    $ 96 "tcp_pose≔get_actual_joint_positions()"
     global tcp_pose= get_actual_joint_positions ()
   end
-  $ 15 "Thread_1"
+  def align_tcp_forward():
+    $ 97 "align_tcp_forward" "noBreak"
+    $ 98 "'this program aligns the tcp parallel to the y direction'"
+    # 'this program aligns the tcp parallel to the y direction'
+    $ 99 "cp≔get_actual_tcp_pose()"
+    global cp= get_actual_tcp_pose ()
+    $ 100 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,1.570796,0]"
+    global aligned_y_pose=p[cp[0],cp[1],cp[2],0,1.570796,0]
+    $ 101 "MoveJ"
+    $ 102 "aligned_y_pose" "breakAfter"
+    movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
+  end
+  def align_tcp_left():
+    $ 103 "align_tcp_left" "noBreak"
+    $ 104 "'this program aligns the tcp parallel to the y direction'"
+    # 'this program aligns the tcp parallel to the y direction'
+    $ 105 "cp≔get_actual_tcp_pose()"
+    global cp= get_actual_tcp_pose ()
+    $ 106 "aligned_y_pose≔p[cp[0],cp[1],cp[2],-1.570796,0,0]"
+    global aligned_y_pose=p[cp[0],cp[1],cp[2],-1.570796,0,0]
+    $ 107 "MoveJ"
+    $ 108 "aligned_y_pose" "breakAfter"
+    movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
+  end
+  def align_tcp_up():
+    $ 109 "align_tcp_up" "noBreak"
+    $ 110 "'this program aligns the tcp parallel to the y direction'"
+    # 'this program aligns the tcp parallel to the y direction'
+    $ 111 "cp≔get_actual_tcp_pose()"
+    global cp= get_actual_tcp_pose ()
+    $ 112 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
+    global aligned_y_pose=p[cp[0],cp[1],cp[2],0,0,0]
+    $ 113 "MoveJ"
+    $ 114 "aligned_y_pose" "breakAfter"
+    movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
+  end
+  $ 115 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 16 "Loop  True "
+      $ 116 "Loop  True "
       while (  True  ):
-        $ 17 "If freedrive_m_var≟ True "
+        $ 117 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 18 "freedrive_mode()"
+          $ 118 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 19 "Else" "noBreak"
-          $ 20 "end_freedrive_mode()"
+          $ 119 "Else" "noBreak"
+          $ 120 "end_freedrive_mode()"
           end_freedrive_mode()
         end
-        $ 21 "sync()"
+        $ 121 "sync()"
         sync()
       end
     end
@@ -198,4 +838,6 @@ def Test_Main_Program():
   $ 2 "Robot Program"
   $ 3 "Call Test_Teach_Position"
   Test_Teach_Position()
+  $ 4 "Call Corner_Homing_BRB"
+  Corner_Homing_BRB()
 end

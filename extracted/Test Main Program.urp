@@ -20,7 +20,7 @@
       <children>
         <CallSubProgram>
           <subprogram name="Test_Teach_Position" keepHidden="false" keepSynchronizedWithDisk="false">
-            <programFile resolves-to="file">/programs/Test Teach Position.urp</programFile>
+            <programFile>/programs/Test Teach Position.urp</programFile>
             <children>
               <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
@@ -96,7 +96,26 @@
             <children>
               <Comment comment="Use this program when tool is already positioned close to corner (back right bottom corner)"/>
               <Comment comment="tool flange will seek all 3 sides and then bring tcp to the corner"/>
-              <CallSubProgram/>
+              <Script type="Line">
+                <expression>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="l"/>
+                  <ExpressionChar character="i"/>
+                  <ExpressionChar character="g"/>
+                  <ExpressionChar character="n"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="c"/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="l"/>
+                  <ExpressionChar character="e"/>
+                  <ExpressionChar character="f"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="("/>
+                  <ExpressionChar character=")"/>
+                </expression>
+              </Script>
               <Comment comment="right side"/>
               <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../CallSubProgram/subprogram/children/Move/feature"/>
@@ -203,7 +222,29 @@
                   </gui.program.direction.MoveDirectionNode>
                 </children>
               </Move>
-              <CallSubProgram/>
+              <Script type="Line">
+                <expression>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="l"/>
+                  <ExpressionChar character="i"/>
+                  <ExpressionChar character="g"/>
+                  <ExpressionChar character="n"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="c"/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="f"/>
+                  <ExpressionChar character="o"/>
+                  <ExpressionChar character="r"/>
+                  <ExpressionChar character="w"/>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="r"/>
+                  <ExpressionChar character="d"/>
+                  <ExpressionChar character="("/>
+                  <ExpressionChar character=")"/>
+                </expression>
+              </Script>
               <Comment comment="back side"/>
               <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../CallSubProgram/subprogram/children/Move/feature"/>
@@ -332,7 +373,24 @@
                   </gui.program.direction.MoveDirectionNode>
                 </children>
               </Move>
-              <CallSubProgram/>
+              <Script type="Line">
+                <expression>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="l"/>
+                  <ExpressionChar character="i"/>
+                  <ExpressionChar character="g"/>
+                  <ExpressionChar character="n"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="c"/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="u"/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="("/>
+                  <ExpressionChar character=")"/>
+                </expression>
+              </Script>
               <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../CallSubProgram/subprogram/children/Move/feature"/>
                 <children>
@@ -354,9 +412,6 @@
                   </gui.program.direction.MoveDirectionNode>
                 </children>
               </Move>
-              <Wait type="Sleep">
-                <waitTime>6.0</waitTime>
-              </Wait>
               <Comment comment="bottom side"/>
               <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../CallSubProgram/subprogram/children/Move/feature"/>
@@ -364,7 +419,7 @@
                   <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
                     <children>
                       <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                        <Distance>0.1</Distance>
+                        <Distance>0.12</Distance>
                         <motionParameters blendRadius="0.0"/>
                       </Until>
                     </children>
@@ -433,7 +488,7 @@
     <SubProgram reference="../MainProgram/children/CallSubProgram[2]/subprogram"/>
     <SubProgram reference="../MainProgram/children/CallSubProgram/subprogram"/>
     <SubProgram name="align_tcp_forward" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/align_tcp_forward.urp</programFile>
+      <programFile>/programs/align_tcp_forward.urp</programFile>
       <children>
         <Comment comment="this program aligns the tcp parallel to the y direction"/>
         <Assignment valueSource="Expression">
@@ -491,7 +546,125 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[2]/variable"/>
+              <variable name="aligned_y_pose" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Waypoint>
+          </children>
+        </Move>
+      </children>
+    </SubProgram>
+    <SubProgram name="align_tcp_left" keepHidden="false" keepSynchronizedWithDisk="false">
+      <programFile resolves-to="file">/programs/align_tcp_left.urp</programFile>
+      <children>
+        <Comment comment="this program aligns the tcp parallel to the y direction"/>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../SubProgram[3]/children/Assignment/variable"/>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../SubProgram[3]/children/Assignment[2]/variable"/>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="-"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="7"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="7"/>
+            <ExpressionChar character="9"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move/children/Waypoint/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+      </children>
+    </SubProgram>
+    <SubProgram name="align_tcp_up" keepHidden="false" keepSynchronizedWithDisk="false">
+      <programFile resolves-to="file">/programs/align_tcp_up.urp</programFile>
+      <children>
+        <Comment comment="this program aligns the tcp parallel to the y direction"/>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../SubProgram[3]/children/Assignment/variable"/>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../SubProgram[3]/children/Assignment[2]/variable"/>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
