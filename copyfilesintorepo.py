@@ -118,7 +118,7 @@ def extractUncFiles():
         if os.path.isdir(source_item):
             continue # do nothing
         filename, file_extension = os.path.splitext(source_item)
-        if file_extension != '.urp':
+        if ((file_extension != '.urp') and (file_extension != '.installation') and (file_extension != '.variables')):
             continue # do nothing
         # at this point, the file is a .unc file
         #debug output string
