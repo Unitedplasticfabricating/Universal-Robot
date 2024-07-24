@@ -1,13 +1,10 @@
 def Corner_Homing_BRB():
   global _hidden_verificationVariable=0
-  step_count_08763e1c_dac9_43b2_9a85_2458cf71825a = 0.0
-  thread Step_Counter_Thread_f6bba85d_fe83_4c87_9c7a_9fbef6558408():
-    while (True):
-      step_count_08763e1c_dac9_43b2_9a85_2458cf71825a = step_count_08763e1c_dac9_43b2_9a85_2458cf71825a + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_f6bba85d_fe83_4c87_9c7a_9fbef6558408()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -16,14 +13,9 @@ def Corner_Homing_BRB():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_safety_mode_transition_hardness(1)
   set_target_payload(0.000000, [0.000000, 0.000000, 0.000000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -150,6 +142,14 @@ def Corner_Homing_BRB():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
+  step_count_979067ff_679f_4144_afd9_9b85c8f03e2c = 0.0
+  thread Step_Counter_Thread_e3cf1dff_90e1_4e45_ab26_aa66707a049c():
+    while (True):
+      step_count_979067ff_679f_4144_afd9_9b85c8f03e2c = step_count_979067ff_679f_4144_afd9_9b85c8f03e2c + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_e3cf1dff_90e1_4e45_ab26_aa66707a049c()
   def calculate_point_to_move_towards(feature, direction, position_distance):
     local posDir=[direction[0], direction[1], direction[2]]
     if (norm(posDir) < 1e-6):
@@ -626,7 +626,7 @@ def Corner_Homing_BRB():
   thread move_thread_63():
     enter_critical
     move_thread_flag_63 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.2)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.25)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_63 = 2
     exit_critical
@@ -647,7 +647,7 @@ def Corner_Homing_BRB():
   thread move_thread_65():
     enter_critical
     move_thread_flag_65 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.2)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.3)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_65 = 2
     exit_critical
