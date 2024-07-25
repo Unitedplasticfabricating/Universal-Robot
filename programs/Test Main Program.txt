@@ -3,8 +3,12 @@
    Robot Program
      Test_Teach_Position()
      Corner_Homing_BRB()
+     extrude_knife()
    Test_Teach_Position
      Home
+     MoveL
+       Waypoint_8
+       'move welder up out of holder'
      MoveJ
        Waypoint_2
      freedrive_m_var≔ False 
@@ -95,6 +99,20 @@
          Until (distance)
        Direction: Base Y+
          Until (distance)
+   extrude_knife
+     'Move to bucket'
+     MoveJ
+       Waypoint_3
+     MoveL
+       Waypoint_4
+     'extrude out a foot'
+     Wait: 6.0
+     MoveL
+       'slice over knife'
+       Waypoint_5
+     MoveL
+       Waypoint_6
+       'raise up away from knife'
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()

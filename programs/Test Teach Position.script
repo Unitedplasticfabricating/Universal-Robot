@@ -151,23 +151,25 @@ def Test_Teach_Position():
   end
   run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
   global freedrive_m_var=  False  
+  global Waypoint_1_p=p[.183612702909, .373491415748, .464002429884, -.000031211095, 3.141572859461, .000004622808]
+  global Waypoint_1_q=[-2.527531687413351, -2.1028810940184535, 2.591139856969015, -2.0582763157286585, -1.5713656584369105, 2.1834325790405273]
   global Waypoint_2_p=p[-.545552386461, .384638463642, .171639485768, .668511604681, -1.949272130073, 1.726627182696]
   global Waypoint_2_q=[-1.0565226713763636, -1.0868892234614869, 2.1878750959979456, -1.2335426074317475, -1.0471814314471644, 2.53226637840271]
-  $ 13 "Thread_1"
+  $ 16 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 14 "Loop  True "
+      $ 17 "Loop  True "
       while (  True  ):
-        $ 15 "If freedrive_m_var≟ True "
+        $ 18 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 16 "freedrive_mode()"
+          $ 19 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 17 "Else" "noBreak"
-          $ 18 "end_freedrive_mode()"
+          $ 20 "Else" "noBreak"
+          $ 21 "end_freedrive_mode()"
           end_freedrive_mode()
         end
-        $ 19 "sync()"
+        $ 22 "sync()"
         sync()
       end
     end
@@ -176,21 +178,26 @@ def Test_Teach_Position():
   $ 2 "Robot Program"
   $ 3 "Home"
   movej([-2.5278157671606145, -1.852465766610969, 2.7650339410037645, -2.482569784177298, -1.5711424260709022, 2.183095047178716], a=1.3962634015954636, v=1.0471975511965976)
-  $ 4 "MoveJ"
-  $ 5 "Waypoint_2" "breakAfter"
+  $ 4 "MoveL"
+  $ 5 "Waypoint_1" "breakAfter"
+  movel(Waypoint_1_p, a=1.2, v=0.25)
+  $ 6 "'move welder up out of holder'"
+  # 'move welder up out of holder'
+  $ 7 "MoveJ"
+  $ 8 "Waypoint_2" "breakAfter"
   movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 6 "freedrive_m_var≔ False "
-  global freedrive_m_var=  False  
-  $ 7 "freedrive_m_var≔ True "
-  global freedrive_m_var=  True  
-  $ 8 "Popup: Move the robot to the peg center, then click 'Continue'"
-  popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
   $ 9 "freedrive_m_var≔ False "
   global freedrive_m_var=  False  
-  $ 10 "Wait: 0.25"
+  $ 10 "freedrive_m_var≔ True "
+  global freedrive_m_var=  True  
+  $ 11 "Popup: Move the robot to the peg center, then click 'Continue'"
+  popup("Move the robot to the peg center, then click 'Continue'", "Message", False, False, blocking=True)
+  $ 12 "freedrive_m_var≔ False "
+  global freedrive_m_var=  False  
+  $ 13 "Wait: 0.25"
   sleep(0.25)
-  $ 11 "sync()"
+  $ 14 "sync()"
   sync()
-  $ 12 "tcp_pose≔get_actual_joint_positions()"
+  $ 15 "tcp_pose≔get_actual_joint_positions()"
   global tcp_pose= get_actual_joint_positions ()
 end

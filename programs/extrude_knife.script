@@ -1,4 +1,4 @@
-def Test_Startup_Sequence():
+def extrude_knife():
   global _hidden_verificationVariable=0
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
@@ -150,10 +150,6 @@ def Test_Startup_Sequence():
     end
   end
   run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
-  global Waypoint_1_p=p[.183612711122, .373501396638, .314686313100, -.000001030413, 3.141579073679, .000021090412]
-  global Waypoint_1_q=[-2.5278103987323206, -1.8524648151793421, 2.765024487172262, -2.4825779400267542, -1.5711377302752894, 2.1830997467041016]
-  global Waypoint_2_p=p[.183601364056, .373496709761, .463987247102, .000002727321, -3.141570340848, -.000016662496]
-  global Waypoint_2_q=[-2.5275164286242884, -2.102866312066549, 2.591151301060812, -2.058272501031393, -1.5713351408587855, 2.1834659576416016]
   global Waypoint_3_p=p[.432120633847, .373496143704, .463992564600, -.000014136521, -3.141567738104, -.000014867905]
   global Waypoint_3_q=[-2.7853482405291956, -1.8143698177733363, 2.4549508730517786, -2.210560461083883, -1.5711315313922327, 1.9254603385925293]
   global Waypoint_4_p=p[.432136735069, .373501596410, .340883510249, -.000031606225, -3.141589553529, -.000013823620]
@@ -163,32 +159,26 @@ def Test_Startup_Sequence():
   global Waypoint_6_p=p[.432128063058, .281346135716, .478493221894, .000013346378, -3.141574975494, -.000002942308]
   global Waypoint_6_q=[-2.961463991795675, -1.9219290218748988, 2.4929660002337855, -2.141019483605856, -1.571230713521139, 1.7493857145309448]
   $ 2 "Robot Program"
-  $ 3 "'Start Point: Home'"
-  # 'Start Point: Home'
-  $ 4 "MoveJ"
-  $ 5 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 6 "MoveL"
-  $ 7 "'Lift gun out of holder'"
-  # 'Lift gun out of holder'
-  $ 8 "Waypoint_2" "breakAfter"
-  movel(Waypoint_2_p, a=1.2, v=0.25)
-  $ 9 "'Move to bucket'"
+  $ 3 "'Move to bucket'"
   # 'Move to bucket'
-  $ 10 "Waypoint_3" "breakAfter"
-  movel(Waypoint_3_p, a=1.2, v=0.25)
-  $ 11 "Waypoint_4" "breakAfter"
+  $ 4 "MoveJ"
+  $ 5 "Waypoint_3" "breakAfter"
+  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 6 "MoveL"
+  $ 7 "Waypoint_4" "breakAfter"
   movel(Waypoint_4_p, a=1.2, v=0.25)
-  $ 12 "'extrude out a foot'"
+  $ 8 "'extrude out a foot'"
   # 'extrude out a foot'
-  $ 13 "Wait: 6.0"
+  $ 9 "Wait: 6.0"
   sleep(6.0)
-  $ 14 "MoveL"
-  $ 15 "'slice over knife'"
+  $ 10 "MoveL"
+  $ 11 "'slice over knife'"
   # 'slice over knife'
-  $ 16 "Waypoint_5" "breakAfter"
+  $ 12 "Waypoint_5" "breakAfter"
   movel(Waypoint_5_p, a=1.2, v=0.04)
-  $ 17 "MoveL"
-  $ 18 "Waypoint_6" "breakAfter"
+  $ 13 "MoveL"
+  $ 14 "Waypoint_6" "breakAfter"
   movel(Waypoint_6_p, a=1.2, v=0.25)
+  $ 15 "'raise up away from knife'"
+  # 'raise up away from knife'
 end
