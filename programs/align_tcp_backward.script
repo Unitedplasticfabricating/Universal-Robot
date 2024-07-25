@@ -1,8 +1,13 @@
 def align_tcp_backward():
   global _hidden_verificationVariable=0
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -10,12 +15,7 @@ def align_tcp_backward():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.000000, [0.000000, 0.000000, 0.000000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,21 +142,21 @@ def align_tcp_backward():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff = 0.0
-  thread Step_Counter_Thread_56b64e94_5d09_4db4_b575_c7e0c5305c4e():
+  step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = 0.0
+  thread Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6():
     while (True):
-      step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff = step_count_63b3c8ef_7fa2_432a_b551_05f123a967ff + 1.0
+      step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_56b64e94_5d09_4db4_b575_c7e0c5305c4e()
+  run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
   $ 2 "Robot Program"
   $ 3 "'this program aligns the tcp parallel to the y direction'"
   # 'this program aligns the tcp parallel to the y direction'
   $ 4 "cp≔get_actual_tcp_pose()"
   global cp= get_actual_tcp_pose ()
-  $ 5 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
-  global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
+  $ 5 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,1.570796,0]"
+  global aligned_y_pose=p[cp[0],cp[1],cp[2],0,1.570796,0]
   $ 6 "MoveJ"
   $ 7 "aligned_y_pose" "breakAfter"
   movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
