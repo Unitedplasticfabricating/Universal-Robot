@@ -1,3 +1,69 @@
+# comment get the z
 zcoord=p3[2]
+
+# get the raw points from the first line
 l1p1x=p11[0]
 l1p1y=p11[1]
+l1p2x=p12[0]
+l1p2y=p12[1]
+
+# equate the first line in 2d space
+ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+# b = y - mx
+bl1 = l1p1y - ml1 * l1p1x
+
+# get the raw points from the second line
+l2p1x=p21[0]
+l2p1y=p21[1]
+l2p2x=p22[0]
+l2p2y=p22[1]
+
+# equate the second line in 2d space
+ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+# b = y - mx
+bl2 = l2p1y - ml2 * l2p1x
+
+
+# find the intersection of the two lines
+# m1x+b1 = m2x+b2
+# m1x - m2x = b2 - b1
+# x = (b2-b1) / (m1-m2)
+xintersect = (bl2-bl1) / (ml1-ml2)
+yintersect = ml1 * xintersect + bl1
+
+
+% find locations 8 inches away from  intersect point
+% CONST
+welddistance = 8
+% inches
+wd = welddistance * 25.4 / 1000
+
+%define a vector from the intersection to the second point on the first line
+l1delxfull = l1p2x - xintersect
+l1delyfull = l1p2y - yintersect
+
+l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+l1delxunit = l1delxfull / l1delmag
+l1delyunit = l1delyfull / l1delmag
+
+% now we have the unit vector. extend the weld distance from the intersection
+xstart = xintersect + l1delxunit * wd
+ystart = yintersect + l1delyunit * wd
+
+%define a vector from the intersection to the second point on the second line
+l2delxfull = l2p2x - xintersect
+l2delyfull = l2p2y - yintersect
+
+l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+l2delxunit = l2delxfull / l2delmag
+l2delyunit = l2delyfull / l2delmag
+
+% now we have the unit vector. extend the weld distance from the intersection
+xend = xintersect + l2delxunit * wd
+yend = yintersect + l2delyunit * wd
+
+
