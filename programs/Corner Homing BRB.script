@@ -5,7 +5,9 @@ def Corner_Homing_BRB():
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -13,9 +15,7 @@ def Corner_Homing_BRB():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.000000, [0.000000, 0.000000, 0.000000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,14 +142,14 @@ def Corner_Homing_BRB():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_979067ff_679f_4144_afd9_9b85c8f03e2c = 0.0
-  thread Step_Counter_Thread_e3cf1dff_90e1_4e45_ab26_aa66707a049c():
+  step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = 0.0
+  thread Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6():
     while (True):
-      step_count_979067ff_679f_4144_afd9_9b85c8f03e2c = step_count_979067ff_679f_4144_afd9_9b85c8f03e2c + 1.0
+      step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_e3cf1dff_90e1_4e45_ab26_aa66707a049c()
+  run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
   def calculate_point_to_move_towards(feature, direction, position_distance):
     local posDir=[direction[0], direction[1], direction[2]]
     if (norm(posDir) < 1e-6):
@@ -172,26 +172,26 @@ def Corner_Homing_BRB():
     $ 88 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
-  def align_tcp_forward():
-    $ 89 "align_tcp_forward" "noBreak"
+  def align_tcp_left():
+    $ 89 "align_tcp_left" "noBreak"
     $ 90 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
     $ 91 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 92 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,1.570796,0]"
-    global aligned_y_pose=p[cp[0],cp[1],cp[2],0,1.570796,0]
+    $ 92 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
+    global aligned_y_pose=p[cp[0],cp[1],cp[2],1.570796,0,0]
     $ 93 "MoveJ"
     $ 94 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
-  def align_tcp_left():
-    $ 95 "align_tcp_left" "noBreak"
+  def align_tcp_forward():
+    $ 95 "align_tcp_forward" "noBreak"
     $ 96 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
     $ 97 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 98 "aligned_y_pose≔p[cp[0],cp[1],cp[2],-1.570796,0,0]"
-    global aligned_y_pose=p[cp[0],cp[1],cp[2],-1.570796,0,0]
+    $ 98 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
+    global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
     $ 99 "MoveJ"
     $ 100 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
@@ -206,12 +206,12 @@ def Corner_Homing_BRB():
   $ 6 "'right side'"
   # 'right side'
   $ 7 "MoveL"
-  $ 8 "Direction: Base X+"
+  $ 8 "Direction: Base X-"
   global move_thread_flag_8=0
   thread move_thread_8():
     enter_critical
     move_thread_flag_8 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_8 = 2
     exit_critical
@@ -228,12 +228,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 10 "MoveL"
-  $ 11 "Direction: Base Y+"
+  $ 11 "Direction: Base Y-"
   global move_thread_flag_11=0
   thread move_thread_11():
     enter_critical
     move_thread_flag_11 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 1000.0)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 1000.0)
     movel(towardsPos, a=1.2, v=0.05)
     move_thread_flag_11 = 2
     exit_critical
@@ -264,12 +264,12 @@ def Corner_Homing_BRB():
   $ 13 "p11≔get_actual_tcp_pose()"
   global p11= get_actual_tcp_pose ()
   $ 14 "MoveL"
-  $ 15 "Direction: Base Y-"
+  $ 15 "Direction: Base Y+"
   global move_thread_flag_15=0
   thread move_thread_15():
     enter_critical
     move_thread_flag_15 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_15 = 2
     exit_critical
@@ -286,12 +286,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 17 "MoveL"
-  $ 18 "Direction: Base X+"
+  $ 18 "Direction: Base X-"
   global move_thread_flag_18=0
   thread move_thread_18():
     enter_critical
     move_thread_flag_18 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_18 = 2
     exit_critical
@@ -308,12 +308,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 20 "MoveL"
-  $ 21 "Direction: Base Y+"
+  $ 21 "Direction: Base Y-"
   global move_thread_flag_21=0
   thread move_thread_21():
     enter_critical
     move_thread_flag_21 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 1000.0)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 1000.0)
     movel(towardsPos, a=1.2, v=0.05)
     move_thread_flag_21 = 2
     exit_critical
@@ -344,12 +344,12 @@ def Corner_Homing_BRB():
   $ 23 "p12≔get_actual_tcp_pose()"
   global p12= get_actual_tcp_pose ()
   $ 24 "MoveL"
-  $ 25 "Direction: Base Y-"
+  $ 25 "Direction: Base Y+"
   global move_thread_flag_25=0
   thread move_thread_25():
     enter_critical
     move_thread_flag_25 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_25 = 2
     exit_critical
@@ -366,12 +366,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 27 "MoveL"
-  $ 28 "Direction: Base X-"
+  $ 28 "Direction: Base X+"
   global move_thread_flag_28=0
   thread move_thread_28():
     enter_critical
     move_thread_flag_28 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.2)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.2)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_28 = 2
     exit_critical
@@ -392,12 +392,12 @@ def Corner_Homing_BRB():
   $ 31 "'back side'"
   # 'back side'
   $ 32 "MoveL"
-  $ 33 "Direction: Base Y+"
+  $ 33 "Direction: Base Y-"
   global move_thread_flag_33=0
   thread move_thread_33():
     enter_critical
     move_thread_flag_33 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.1)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.1)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_33 = 2
     exit_critical
@@ -414,12 +414,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 35 "MoveL"
-  $ 36 "Direction: Base X+"
+  $ 36 "Direction: Base X-"
   global move_thread_flag_36=0
   thread move_thread_36():
     enter_critical
     move_thread_flag_36 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 1000.0)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
     movel(towardsPos, a=1.2, v=0.05)
     move_thread_flag_36 = 2
     exit_critical
@@ -450,12 +450,12 @@ def Corner_Homing_BRB():
   $ 38 "p21≔get_actual_tcp_pose()"
   global p21= get_actual_tcp_pose ()
   $ 39 "MoveL"
-  $ 40 "Direction: Base X-"
+  $ 40 "Direction: Base X+"
   global move_thread_flag_40=0
   thread move_thread_40():
     enter_critical
     move_thread_flag_40 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_40 = 2
     exit_critical
@@ -472,12 +472,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 42 "MoveL"
-  $ 43 "Direction: Base Y+"
+  $ 43 "Direction: Base Y-"
   global move_thread_flag_43=0
   thread move_thread_43():
     enter_critical
     move_thread_flag_43 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_43 = 2
     exit_critical
@@ -494,12 +494,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 45 "MoveL"
-  $ 46 "Direction: Base X+"
+  $ 46 "Direction: Base X-"
   global move_thread_flag_46=0
   thread move_thread_46():
     enter_critical
     move_thread_flag_46 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 1000.0)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
     movel(towardsPos, a=1.2, v=0.05)
     move_thread_flag_46 = 2
     exit_critical
@@ -530,12 +530,12 @@ def Corner_Homing_BRB():
   $ 48 "p22≔get_actual_tcp_pose()"
   global p22= get_actual_tcp_pose ()
   $ 49 "MoveL"
-  $ 50 "Direction: Base X-"
+  $ 50 "Direction: Base X+"
   global move_thread_flag_50=0
   thread move_thread_50():
     enter_critical
     move_thread_flag_50 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.05)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.05)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_50 = 2
     exit_critical
@@ -554,12 +554,12 @@ def Corner_Homing_BRB():
   $ 52 "'regroup for up turn'"
   # 'regroup for up turn'
   $ 53 "MoveL"
-  $ 54 "Direction: Base X-"
+  $ 54 "Direction: Base X+"
   global move_thread_flag_54=0
   thread move_thread_54():
     enter_critical
     move_thread_flag_54 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.2)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.2)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_54 = 2
     exit_critical
@@ -575,12 +575,12 @@ def Corner_Homing_BRB():
     end
     sync()
   end
-  $ 56 "Direction: Base Y-"
+  $ 56 "Direction: Base Y+"
   global move_thread_flag_56=0
   thread move_thread_56():
     enter_critical
     move_thread_flag_56 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.4)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.4)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_56 = 2
     exit_critical
@@ -621,12 +621,12 @@ def Corner_Homing_BRB():
   $ 61 "align_tcp_up()"
   align_tcp_up()
   $ 62 "MoveL"
-  $ 63 "Direction: Base X+"
+  $ 63 "Direction: Base X-"
   global move_thread_flag_63=0
   thread move_thread_63():
     enter_critical
     move_thread_flag_63 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.25)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.25)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_63 = 2
     exit_critical
@@ -642,12 +642,12 @@ def Corner_Homing_BRB():
     end
     sync()
   end
-  $ 65 "Direction: Base Y+"
+  $ 65 "Direction: Base Y-"
   global move_thread_flag_65=0
   thread move_thread_65():
     enter_critical
     move_thread_flag_65 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.3)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.3)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_65 = 2
     exit_critical
@@ -666,12 +666,12 @@ def Corner_Homing_BRB():
   $ 67 "'bottom side'"
   # 'bottom side'
   $ 68 "MoveL"
-  $ 69 "Direction: Base Y+"
+  $ 69 "Direction: Base Y-"
   global move_thread_flag_69=0
   thread move_thread_69():
     enter_critical
     move_thread_flag_69 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.12)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.12)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_69 = 2
     exit_critical
@@ -746,12 +746,12 @@ def Corner_Homing_BRB():
     sync()
   end
   $ 78 "MoveL"
-  $ 79 "Direction: Base X-"
+  $ 79 "Direction: Base X+"
   global move_thread_flag_79=0
   thread move_thread_79():
     enter_critical
     move_thread_flag_79 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 0.1)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.1)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_79 = 2
     exit_critical
@@ -767,12 +767,12 @@ def Corner_Homing_BRB():
     end
     sync()
   end
-  $ 81 "Direction: Base Y-"
+  $ 81 "Direction: Base Y+"
   global move_thread_flag_81=0
   thread move_thread_81():
     enter_critical
     move_thread_flag_81 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,-1.0,0.0], 0.1)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,1.0,0.0], 0.1)
     movel(towardsPos, a=1.2, v=0.25)
     move_thread_flag_81 = 2
     exit_critical

@@ -6,68 +6,68 @@
      align_tcp_left()
      'right side'
      MoveL
-       Direction: Base X+
+       Direction: Base X-
          Until (distance)
      MoveL
-       Direction: Base Y+
+       Direction: Base Y-
          Until (tool_contact_detection)
      p11≔get_actual_tcp_pose()
      MoveL
-       Direction: Base Y-
-         Until (distance)
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     MoveL
        Direction: Base Y+
-         Until (tool_contact_detection)
-     p12≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base Y-
          Until (distance)
      MoveL
        Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X+
          Until (distance)
      align_tcp_forward()
      'back side'
      MoveL
-       Direction: Base Y+
+       Direction: Base Y-
          Until (distance)
      MoveL
-       Direction: Base X+
+       Direction: Base X-
          Until (tool_contact_detection)
      p21≔get_actual_tcp_pose()
      MoveL
-       Direction: Base X-
-         Until (distance)
-     MoveL
-       Direction: Base Y+
-         Until (distance)
-     MoveL
        Direction: Base X+
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base X-
          Until (tool_contact_detection)
      p22≔get_actual_tcp_pose()
      MoveL
-       Direction: Base X-
+       Direction: Base X+
          Until (distance)
      'regroup for up turn'
      MoveL
-       Direction: Base X-
+       Direction: Base X+
          Until (distance)
-       Direction: Base Y-
+       Direction: Base Y+
          Until (distance)
      MoveL
        Direction: Base Z-
          Until (distance)
      align_tcp_up()
      MoveL
-       Direction: Base X+
+       Direction: Base X-
          Until (distance)
-       Direction: Base Y+
+       Direction: Base Y-
          Until (distance)
      'bottom side'
      MoveL
-       Direction: Base Y+
+       Direction: Base Y-
          Until (distance)
      MoveL
        Direction: Base Z+
@@ -77,9 +77,9 @@
        Direction: Base Z-
          Until (distance)
      MoveL
-       Direction: Base X-
+       Direction: Base X+
          Until (distance)
-       Direction: Base Y-
+       Direction: Base Y+
          Until (distance)
    align_tcp_up
      'this program aligns the tcp parallel to the y direction'
@@ -87,15 +87,15 @@
      aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
      MoveJ
        aligned_y_pose
-   align_tcp_forward
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,1.570796,0]
-     MoveJ
-       aligned_y_pose
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],-1.570796,0,0]
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
+     MoveJ
+       aligned_y_pose
+   align_tcp_forward
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]
      MoveJ
        aligned_y_pose
