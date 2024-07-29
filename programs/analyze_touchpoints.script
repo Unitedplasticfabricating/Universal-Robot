@@ -34,13 +34,17 @@ xintersect = (bl2-bl1) / (ml1-ml2)
 yintersect = ml1 * xintersect + bl1
 
 
-% find locations 8 inches away from  intersect point
-% CONST
+# find locations 8 inches away from  intersect point
+# CONST
 welddistance = 8
-% inches
+roundoverdistance = .25
+zup = .375
+# inches
 wd = welddistance * 25.4 / 1000
+rod = roundoverdistance * 25.4 / 1000
+zup = zup * 25.4 / 1000
 
-%define a vector from the intersection to the second point on the first line
+#define a vector from the intersection to the second point on the first line
 l1delxfull = l1p2x - xintersect
 l1delyfull = l1p2y - yintersect
 
@@ -49,11 +53,19 @@ l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
 l1delxunit = l1delxfull / l1delmag
 l1delyunit = l1delyfull / l1delmag
 
-% now we have the unit vector. extend the weld distance from the intersection
-xstart = xintersect + l1delxunit * wd
-ystart = yintersect + l1delyunit * wd
+# now we have the unit vector. extend the weld distance from the intersection
+x = xintersect + l1delxunit * wd
+y = yintersect + l1delyunit * wd
+z = zcoord + zup
 
-%define a vector from the intersection to the second point on the second line
+point1 = p[x,y,z,0,0,0] # dummy orientation for now
+
+x = xintersect + l1delxunit * rod
+y = yintersect + l1delyunit * rod
+
+point2 = p[x,y,z,0,0,0]
+
+#define a vector from the intersection to the second point on the second line
 l2delxfull = l2p2x - xintersect
 l2delyfull = l2p2y - yintersect
 
@@ -62,8 +74,25 @@ l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
 l2delxunit = l2delxfull / l2delmag
 l2delyunit = l2delyfull / l2delmag
 
-% now we have the unit vector. extend the weld distance from the intersection
-xend = xintersect + l2delxunit * wd
-yend = yintersect + l2delyunit * wd
+# now we have the unit vector. extend the weld distance from the intersection
+x = xintersect + l2delxunit * wd
+y = yintersect + l2delyunit * wd
+
+point4 = p[x,y,z,0,0,0]
+
+x = xintersect + l2delxunit * rod
+y = yintersect + l2delyunit * rod
+
+point3 = p[x,y,z,0,0,0]
+
+
+# the orthogonal direction 1 IS the vector direction 2 (and vice versa)
+
+# but for now, just use orthogonal angles
+
+
+
+
+
 
 
