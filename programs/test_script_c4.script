@@ -1,4 +1,4 @@
-def test_script_calcs3():
+def test_script_c4():
   global _hidden_verificationVariable=0
   step_count_39305044_0c16_4ec6_a48b_bb11e4ceb519 = 0.0
   thread Step_Counter_Thread_1612d609_c27e_4fb2_a3a6_b8d1164a790d():
@@ -150,15 +150,42 @@ def test_script_calcs3():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
+  global Waypoint_1_p=p[.432124322022, .281346835271, .478482105416, .000035438216, -3.141552364466, -.000016284538]
+  global Waypoint_1_q=[-2.961465660725729, -1.9219213924803675, 2.492974821721212, -2.141015192071432, -1.5712183157550257, 1.7493699789047241]
+  def calculate_point_to_move_towards(feature, direction, position_distance):
+    local posDir=[direction[0], direction[1], direction[2]]
+    if (norm(posDir) < 1e-6):
+      return get_target_waypoint()
+    end
+    local direction_vector_normalized=normalize(posDir)
+    local displacement_pose=p[direction_vector_normalized[0] * position_distance,direction_vector_normalized[1] * position_distance,direction_vector_normalized[2] * position_distance,0,0,0]
+    local wanted_displacement_in_base_frame=pose_sub(pose_trans(feature, displacement_pose), feature)
+    return pose_add(get_target_waypoint(), wanted_displacement_in_base_frame)
+  end
   $ 2 "Robot Program"
-  $ 3 "foo≔10"
-  global foo=10
-  $ 4 "foo=42"
-  foo=42
-  $ 5 "Script: pp11.script"
-  pp11=p[1.1,0,0,0,0,0]
-  $ 6 "Script: pp11ass.script"
-  foo=pp11[0]
-  $ 7 "Popup"
-  popup(str_cat("",foo), "Message", False, False, blocking=True)
+  $ 3 "MoveJ"
+  $ 4 "Waypoint_1" "breakAfter"
+  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 5 "MoveL"
+  $ 6 "Direction: Base X+"
+  global move_thread_flag_6=0
+  thread move_thread_6():
+    enter_critical
+    move_thread_flag_6 = 1
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.001)
+    movel(towardsPos, a=1.2, v=0.25)
+    move_thread_flag_6 = 2
+    exit_critical
+  end
+  move_thread_flag_6 = 0
+  move_thread_han_6 = run move_thread_6()
+  while (True):
+    sleep(1.0E-10)
+    if (move_thread_flag_6 > 1):
+      join move_thread_han_6
+      $ 7 "Until (distance)"
+      break
+    end
+    sync()
+  end
 end
