@@ -138,6 +138,10 @@ y = yintersect + l2delyunit * rod
 
 point3 = p[x,y,z,0,-1.570796,0]
 
+pointintersect = p[xintersect,yintersect,zcoord,1.570796,0,0]
+pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
+pointapproach2 = p[point1[0] + 0.1, point1[1], point1[2], point1[3], point1[4], point1[5]]
+
 
 # the orthogonal direction 1 IS the vector direction 2 (and vice versa)
 
@@ -147,9 +151,28 @@ point3 = p[x,y,z,0,-1.570796,0]
 
 
 
-
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
+        </Script>
+        <Script type="File">
+          <cachedContents># this script actually moves the robot along the path
+# for testing. no welder attached, no orientation decided
+
+movej(pointapproach1, a=1.2, v=0.25)
+
+movel(pointapproach2, a=1.2, v=0.25)
+
+movel(point1, a=1.2, v=0.25)
+
+movel(point2, a=1.2, v=0.25)
+
+movel(point3, a=1.2, v=0.25)
+
+movel(point4, a=1.2, v=0.25)
+
+movel(pointapproach1, a=1.2, v=0.25)
+</cachedContents>
+          <file resolves-to="file">/programs/move_weld_brb.script</file>
         </Script>
       </children>
     </MainProgram>

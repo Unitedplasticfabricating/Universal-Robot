@@ -156,3 +156,22 @@ i learned that a subroutine is just a call to a subprogram.
 script commands can be done using a single line or via a file
 i need to try out this file script editor. 
 
+i got the robot to follow the path on both sides, but when it goes around the corner, the angle dips. it does not maintain level orientation. 
+
+maybe i need to do a "circle move" as part of a moveP command while welding and going across the corner. 
+
+i try making a test circle move program out in space. it does not work very well. 
+when the orientation switches from left to forward, the arm does a weird swivel to orient itself. it seems like an unnecessary swivel. when i use those points in the program of a moveP, the robot faults out. 
+it is trying to maintain its speed (a pretty slow speed), but it needs to rearrange its joint angles to move just the slightest in tcp. 
+i believe this is called approaching a singularity
+
+i set a position by manually rotating the joints (instead of using the Move screen's rz+) and that did result in the robot not doing its weird dip. 
+but it faulted because it needed to move at a constant speed and the distance was super small and the direction change was a lot.
+
+motherfucker i dropped the speed down from 250 to 20 on the entire path.
+it went so slow on the straight part, "sped up" a little on the curved part and then partway through the curved section stopped. 
+warning: sanity check
+protective stop: path sanity check failed: sudden stop
+i will try ensuring that the three points on the path for a smooth curved
+6.35 mm = .25 inches
+

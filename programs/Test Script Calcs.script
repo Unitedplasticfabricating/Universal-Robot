@@ -917,6 +917,10 @@ def Test_Script_Calcs():
     
     point3 = p[x,y,z,0,-1.570796,0]
     
+    pointintersect = p[xintersect,yintersect,zcoord,1.570796,0,0]
+    pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
+    pointapproach2 = p[point1[0] + 0.1, point1[1], point1[2], point1[3], point1[4], point1[5]]
+    
     
     # the orthogonal direction 1 IS the vector direction 2 (and vice versa)
     
@@ -926,59 +930,75 @@ def Test_Script_Calcs():
     
     
     
+    $ 122 "Script: move_weld_brb.script"
+    # this script actually moves the robot along the path
+    # for testing. no welder attached, no orientation decided
     
+    movej(pointapproach1, a=1.2, v=0.25)
+    
+    movel(pointapproach2, a=1.2, v=0.25)
+    
+    movel(point1, a=1.2, v=0.25)
+    
+    movel(point2, a=1.2, v=0.25)
+    
+    movel(point3, a=1.2, v=0.25)
+    
+    movel(point4, a=1.2, v=0.25)
+    
+    movel(pointapproach1, a=1.2, v=0.25)
   end
   def align_tcp_left():
-    $ 122 "align_tcp_left" "noBreak"
-    $ 123 "'this program aligns the tcp parallel to the y direction'"
+    $ 123 "align_tcp_left" "noBreak"
+    $ 124 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 124 "cp≔get_actual_tcp_pose()"
+    $ 125 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 125 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
+    $ 126 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],1.570796,0,0]
-    $ 126 "MoveJ"
-    $ 127 "aligned_y_pose" "breakAfter"
+    $ 127 "MoveJ"
+    $ 128 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_up():
-    $ 128 "align_tcp_up" "noBreak"
-    $ 129 "'this program aligns the tcp parallel to the y direction'"
+    $ 129 "align_tcp_up" "noBreak"
+    $ 130 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 130 "cp≔get_actual_tcp_pose()"
+    $ 131 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 131 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
+    $ 132 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,0,0]
-    $ 132 "MoveJ"
-    $ 133 "aligned_y_pose" "breakAfter"
+    $ 133 "MoveJ"
+    $ 134 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_forward():
-    $ 134 "align_tcp_forward" "noBreak"
-    $ 135 "'this program aligns the tcp parallel to the y direction'"
+    $ 135 "align_tcp_forward" "noBreak"
+    $ 136 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 136 "cp≔get_actual_tcp_pose()"
+    $ 137 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 137 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
+    $ 138 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
-    $ 138 "MoveJ"
-    $ 139 "aligned_y_pose" "breakAfter"
+    $ 139 "MoveJ"
+    $ 140 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
-  $ 140 "Thread_1"
+  $ 141 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 141 "Loop  True "
+      $ 142 "Loop  True "
       while (  True  ):
-        $ 142 "If freedrive_m_var≟ True "
+        $ 143 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 143 "freedrive_mode()"
+          $ 144 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 144 "Else" "noBreak"
-          $ 145 "end_freedrive_mode()"
+          $ 145 "Else" "noBreak"
+          $ 146 "end_freedrive_mode()"
           end_freedrive_mode()
         end
-        $ 146 "sync()"
+        $ 147 "sync()"
         sync()
       end
     end
