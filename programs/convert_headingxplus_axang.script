@@ -9,20 +9,22 @@
 # axisxraw, axisyraw, axiszraw, magnitude, axisxunit, axisyunit, axiszunit, angle
 # rxout, ryout, rzout
 
-axisxraw = -1 * sin(heading)
-axisyraw = cos(heading) + 1
-axiszraw = sin(heading)
+def convert_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
 
-magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
 
-axisxunit = axisxraw / magnitude
-axisyunit = axisyraw / magnitude
-axiszunit = axiszraw / magnitude
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
 
-angle = arccos( (cos(heading) - 1) / 2 )
+ angle = acos( (cos(heading) - 1) / 2 )
 
-rxout = axisxunit * angle
-ryout = axisyunit * angle
-rzout = axiszunit * angle
-
-
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return (rxout, ryout, rzout)
+end
