@@ -95,7 +95,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   point4 = p[x,y,z,0,-1.570796,0]
 
   #DEFINE APPROACH POINTS
-  pointintersect = p[xintersect,yintersect,zcoord,1.570796,0,0]
+  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
   pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
   pointapproach2 = p[point1[0], point1[1]+0.1, point1[2], point1[3], point1[4], point1[5]]
   pointreturn1 = p[point5[0]+0.1, point5[1], point5[2], point5[3], point5[4], point5[5]]
@@ -108,7 +108,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   heading2 = (headingvector1 + headingvector2)/2
   # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
   heading1 = headingvector1 + pi/2
-  heading2 = headingvector2 - pi/2
+  heading3 = headingvector2 - pi/2
   
   #FIND POINT 3
   # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
@@ -127,6 +127,28 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
   point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
   
+  #APPLY ACTUAL RXRYRZ TO POINTS
+  # convert the headings to rxryrz and insert those values into the relevant points
+  rxryrz = convert_heading_to_axang(heading1)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  pointapproach1 = p[pointapproach1[0], pointapproach1[1], pointapproach1[2], rx, ry, rz]
+  pointapproach2 = p[pointapproach2[0], pointapproach2[1], pointapproach2[2], rx, ry, rz]
+  point1 = p[point1[0], point1[1], point1[2], rx, ry, rz]
+  point2 = p[point2[0], point2[1], point2[2], rx, ry, rz]
+  rxryrz = convert_heading_to_axang(heading2)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
+  rxryrz = convert_heading_to_axang(heading3)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  point4 = p[point4[0], point4[1], point4[2], rx, ry, rz]
+  point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
+  pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
   #RETURN STRUCT
   ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
@@ -187,6 +209,27 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
   zf = zi + uvz * delta
   ret = [xf, yf, zf]
   return ret
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+def convert_heading_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
 end
 
 
