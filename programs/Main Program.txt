@@ -1,6 +1,27 @@
  Program
    Variables Setup
    Robot Program
+     Test_Teach_Position()
+     Corner_Homing_BRB()
+     extrude_knife()
+     Script: analyze_touchpoints.script
+     path1≔analyze_touchpoints(p11,p12,p21,p22,p3)
+     move_path_1()
+   Test_Teach_Position
+     Home
+     MoveL
+       Waypoint_1
+       'move welder up out of holder'
+     MoveJ
+       Waypoint_2
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Popup: Move the robot to the peg center, then click 'Continue'
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+     tcp_pose≔get_actual_joint_positions()
+   Corner_Homing_BRB
      'Use this program when tool is already positioned close to corner (back right bottom corner)'
      'tool flange will seek all 3 sides. will save those 5 locs in p__'
      align_tcp_left()
@@ -78,16 +99,60 @@
          Until (distance)
        Direction: Base Y+
          Until (distance)
-   align_tcp_up
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
+   extrude_knife
+     'Move to bucket'
      MoveJ
-       aligned_y_pose
+       Waypoint_3
+     MoveL
+       Waypoint_4
+     'extrude out a foot'
+     Wait: 6.0
+     MoveL
+       'slice over knife'
+       Waypoint_5
+     MoveL
+       Waypoint_6
+       'raise up away from knife'
+   move_path_1
+     pa1≔path1[1]
+     pa2≔path1[2]
+     p1≔path1[3]
+     p2≔path1[4]
+     p3≔path1[5]
+     p4≔path1[6]
+     p5≔path1[7]
+     pr1≔path1[8]
+     MoveJ
+       Waypoint_7
+     MoveJ
+       pa1
+     MoveL
+       pa2
+     MoveL
+       p1
+     Wait: 1.0
+     MoveP
+       p2
+     MoveP
+       CircleMove
+         p3
+         p4
+     MoveP
+       p5
+     MoveL
+       pr1
+     MoveJ
+       Waypoint_8
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
      aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
+     MoveJ
+       aligned_y_pose
+   align_tcp_up
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
      MoveJ
        aligned_y_pose
    align_tcp_forward
@@ -96,3 +161,10 @@
      aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]
      MoveJ
        aligned_y_pose
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+       Else
+         end_freedrive_mode()
+       sync()
