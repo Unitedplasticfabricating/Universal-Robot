@@ -1,99 +1,193 @@
-# comment get the z
-zcoord=p3[2]
+# this file creates the function for analyzing touchpoints
+  # define pi
+  pi = 3.1415926535
 
-# get the raw points from the first line
-l1p1x=p11[0]
-l1p1y=p11[1]
-l1p2x=p12[0]
-l1p2y=p12[1]
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3)
+def analyze_touchpoints(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
 
-# equate the first line in 2d space
-ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
 
-# b = y - mx
-bl1 = l1p1y - ml1 * l1p1x
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
 
-# get the raw points from the second line
-l2p1x=p21[0]
-l2p1y=p21[1]
-l2p2x=p22[0]
-l2p2y=p22[1]
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
 
-# equate the second line in 2d space
-ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
 
-# b = y - mx
-bl2 = l2p1y - ml2 * l2p1x
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
 
-
-# find the intersection of the two lines
-# m1x+b1 = m2x+b2
-# m1x - m2x = b2 - b1
-# x = (b2-b1) / (m1-m2)
-xintersect = (bl2-bl1) / (ml1-ml2)
-yintersect = ml1 * xintersect + bl1
-
-
-# find locations 8 inches away from  intersect point
-# CONST
-welddistance = 8
-roundoverdistance = .25
-zup = .375
-# inches
-wd = welddistance * 25.4 / 1000
-rod = roundoverdistance * 25.4 / 1000
-zup = zup * 25.4 / 1000
-
-#define a vector from the intersection to the second point on the first line
-l1delxfull = l1p2x - xintersect
-l1delyfull = l1p2y - yintersect
-
-l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
-
-l1delxunit = l1delxfull / l1delmag
-l1delyunit = l1delyfull / l1delmag
-
-# now we have the unit vector. extend the weld distance from the intersection
-x = xintersect + l1delxunit * wd
-y = yintersect + l1delyunit * wd
-z = zcoord + zup
-
-point1 = p[x,y,z,1.570796,0,0] # dummy orientation for now
-
-x = xintersect + l1delxunit * rod
-y = yintersect + l1delyunit * rod
-
-point2 = p[x,y,z,1.570796,0,0]
-
-#define a vector from the intersection to the second point on the second line
-l2delxfull = l2p2x - xintersect
-l2delyfull = l2p2y - yintersect
-
-l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
-
-l2delxunit = l2delxfull / l2delmag
-l2delyunit = l2delyfull / l2delmag
-
-# now we have the unit vector. extend the weld distance from the intersection
-x = xintersect + l2delxunit * wd
-y = yintersect + l2delyunit * wd
-
-point4 = p[x,y,z,0,-1.570796,0]
-
-x = xintersect + l2delxunit * rod
-y = yintersect + l2delyunit * rod
-
-point3 = p[x,y,z,0,-1.570796,0]
-
-pointintersect = p[xintersect,yintersect,zcoord,1.570796,0,0]
-pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
-pointapproach2 = p[point1[0], point1[1]+0.1, point1[2], point1[3], point1[4], point1[5]]
-pointapproach3 = p[point1[0]+0.1, point1[1], point1[2], point1[3], point1[4], point1[5]]
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
 
 
-# the orthogonal direction 1 IS the vector direction 2 (and vice versa)
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
 
-# but for now, just use orthogonal angles
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  # FIND THE FOUR POINTS ON THE LINES
+  # find locations 8 inches away from  intersect point
+  # CONST
+  welddistance = 8
+  roundoverdistance = .25
+  zup = .375
+  # inches
+  wd = welddistance * 25.4 / 1000
+  rod = roundoverdistance * 25.4 / 1000
+  zup = zup * 25.4 / 1000
+
+  # now we have the unit vector. extend the weld distance from the intersection
+  x = xintersect + l1delxunit * wd
+  y = yintersect + l1delyunit * wd
+  z = zcoord + zup
+
+  point1 = p[x,y,z,1.570796,0,0] # dummy orientation for now
+
+  x = xintersect + l1delxunit * rod
+  y = yintersect + l1delyunit * rod
+
+  point2 = p[x,y,z,1.570796,0,0]
+
+  # now we have the unit vector. extend the weld distance from the intersection
+  x = xintersect + l2delxunit * wd
+  y = yintersect + l2delyunit * wd
+
+  point5 = p[x,y,z,0,-1.570796,0]
+
+  x = xintersect + l2delxunit * rod
+  y = yintersect + l2delyunit * rod
+
+  point4 = p[x,y,z,0,-1.570796,0]
+
+  #DEFINE APPROACH POINTS
+  pointintersect = p[xintersect,yintersect,zcoord,1.570796,0,0]
+  pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
+  pointapproach2 = p[point1[0], point1[1]+0.1, point1[2], point1[3], point1[4], point1[5]]
+  pointreturn1 = p[point5[0]+0.1, point5[1], point5[2], point5[3], point5[4], point5[5]]
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading2 = headingvector2 - pi/2
+  
+  #FIND POINT 3
+  # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
+  # the direction of movement is from pointintersect in the direction of heading2
+  # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
+  # first, find the perpendicular lines through points 2 and 4
+  perp2 = find_perpendicular_line(ml1, p2[0], p2[1])
+  perp4 = find_perpendicular_line(ml2, p4[0], p4[1])
+  # next, find the intersection of those two lines
+  perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
+  radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, p2[0], p2[1], 0)
+  # find a vector the direction of heading2
+  uvx = cos(heading2)
+  uvy = sin(heading2)
+  # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+  point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
+  point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
+  
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+  return ret
+end
+
+# this function converts a unit vector to its heading angle ccw from x+ axis
+# takes uvx and uvy
+# returns heading in radians
+def convert_uv_to_heading(uvx, uvy):
+  baseang = atan(uvy/uvx)
+  if uvx < 0:
+    ang = baseang + pi
+  elif uvy < 0:
+    ang = baseang + pi * 2
+  else:
+    ang = baseang
+  return ang
+end
+
+# this function finds the equation of a line, perpendicular to a given line, and going through a given point
+# takes 3 arguments: m (the original line's slope), x (point's x coord), y (point's y coord). the b of the original line is not needed
+# returns a list of [m,b] (the slope and intercept of the new line)
+def find_perpendicular_line(origm, x, y):
+  m = (1/origm) * -1
+  b = y - m*x
+  ret = [m, b]
+  return ret
+end
+
+# this function finds the intersection point between two lines in the xy plane
+# takes 4 arguments: m1, b1, m2, b2
+# returns a list of [x,y] (the point of intersection)
+def find_intersection(m1, b1, m2, b2):
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  x = (b2-b1) / (m1-m2)
+  y = m1 * x + b1
+  ret = [x, y]
+  return ret
+end
+
+# this function finds the distance between 2 points in 3d space
+# it takes 6 arguments: x1, y1, z1, x2, y2, z2
+# it returns a distance
+def distance_between(x1, y1, z1, x2, y2, z2):
+  distsquared = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1)
+  dist = sqrt(distsquared)
+  return dist
+end
+
+# this function takes a point, a unit vector, and a distance, and adds the distance to the point in the direction of the unit vector (3d space)
+# it returns a point as a list of coordinates
+def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
+  xf = xi + uvx * delta
+  yf = yi + uvy * delta
+  zf = zi + uvz * delta
+  ret = [xf, yf, zf]
+  return ret
+end
 
 
 
