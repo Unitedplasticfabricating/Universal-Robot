@@ -1,4 +1,4 @@
-def move_path_1():
+def test_apply_force():
   global _hidden_verificationVariable=0
   set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
@@ -150,78 +150,33 @@ def move_path_1():
     end
   end
   run Step_Counter_Thread_94f6cc6b_1f2a_473f_a2d3_717f7a1a870f()
-  global Waypoint_1_p=p[-.372860657265, .716170383118, .314676530127, 1.570809017190, -.000000152759, .000003968716]
-  global Waypoint_1_q=[-1.3816140333758753, -1.0546258252910157, 1.8334205786334437, -0.7777959269336243, -1.3827489058123987, 6.28196907043457]
-  while (True):
-    $ 2 "Robot Program"
-    $ 3 "pa1≔path1[1]"
-    global pa1=path1[1]
-    $ 4 "pa2≔path1[2]"
-    global pa2=path1[2]
-    $ 5 "p1≔path1[3]"
-    global p1=path1[3]
-    $ 6 "p2≔path1[4]"
-    global p2=path1[4]
-    $ 7 "p3≔path1[5]"
-    global p3=path1[5]
-    $ 8 "p4≔path1[6]"
-    global p4=path1[6]
-    $ 9 "p5≔path1[7]"
-    global p5=path1[7]
-    $ 10 "pr1≔path1[8]"
-    global pr1=path1[8]
-    $ 11 "Popup"
-    popup(str_cat("",pa1), "Message", False, False, blocking=True)
-    $ 12 "Popup"
-    popup(str_cat("",pa2), "Message", False, False, blocking=True)
-    $ 13 "Popup"
-    popup(str_cat("",p1), "Message", False, False, blocking=True)
-    $ 14 "Popup"
-    popup(str_cat("",p2), "Message", False, False, blocking=True)
-    $ 15 "Popup"
-    popup(str_cat("",p3), "Message", False, False, blocking=True)
-    $ 16 "Popup"
-    popup(str_cat("",p4), "Message", False, False, blocking=True)
-    $ 17 "Popup"
-    popup(str_cat("",p5), "Message", False, False, blocking=True)
-    $ 18 "Popup"
-    popup(str_cat("",pr1), "Message", False, False, blocking=True)
-    $ 19 "MoveJ"
-    $ 20 "Waypoint_1" "breakAfter"
-    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 21 "MoveJ"
-    $ 22 "pa1" "breakAfter"
-    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 23 "MoveL"
-    $ 24 "pa2" "breakAfter"
-    movel(pa2, a=1.2, v=0.2)
-    $ 25 "MoveL"
-    $ 26 "p1" "breakAfter"
-    movel(p1, a=1.2, v=0.05)
-    $ 27 "Wait: 1.0"
-    sleep(1.0)
-    $ 28 "Force"
-    sleep(0.02)
-    zero_ftsensor()
-    force_mode(tool_pose(), [0, 0, 1, 0, 0, 0], [0.0, 0.0, 2.0, 0.0, 0.0, 0.0], 2, [0.1, 0.1, 0.15, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659])
-    $ 29 "MoveP" "noBreak"
-    $ 30 "p2" "noBreak"
-    movep(p2, a=1.2, v=0.012, r=0.025)
-    $ 31 "MoveP" "noBreak"
-    $ 32 "CircleMove" "noBreak"
-    $ 33 "p3" "noBreak"
-    $ 34 "p4" "noBreak"
-    movec(p3, p4, a=1.2, v=0.006, r=0.025, mode=1)
-    $ 35 "MoveP" "noBreak"
-    $ 36 "p5" "noBreak"
-    movep(p5, a=1.2, v=0.012, r=0.0)
-    end_force_mode()
-    stopl(5.0)
-    $ 37 "MoveL"
-    $ 38 "pr1" "breakAfter"
-    movel(pr1, a=1.2, v=0.25)
-    $ 39 "MoveJ"
-    $ 40 "Waypoint_1" "breakAfter"
-    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  end
+  global Waypoint_1_p=p[-.372868224195, .716172915014, .314671973280, 1.570827932971, .000015783478, -.000001470419]
+  global Waypoint_1_q=[-1.3816054503070276, -1.0546223682216187, 1.833416763936178, -0.7778148216060181, -1.382746998463766, 6.281959056854248]
+  global Waypoint_2_p=p[-.881131998911, .550792734717, .000590644370, 1.570794030344, -.000021987248, .000010309058]
+  global Waypoint_2_q=[-0.8628481070147913, -0.6355059903911133, 1.5747531096087855, -0.9369339507869263, -0.8638346830951136, 6.280580520629883]
+  global Waypoint_3_p=p[-1.208456403725, .601628964406, .000589153079, 1.570808461792, .000009205741, -.000024226774]
+  global Waypoint_3_q=[-0.7088230291949671, -0.36661751688037114, 0.9239414373980921, -0.5541952413371583, -0.70978290239443, 6.2797136306762695]
+  $ 2 "Robot Program"
+  $ 3 "'no subprogs or variables just a force movement'"
+  # 'no subprogs or variables just a force movement'
+  $ 4 "MoveJ"
+  $ 5 "Waypoint_1" "breakAfter"
+  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 6 "Waypoint_2" "breakAfter"
+  movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 7 "Wait: 2.0"
+  sleep(2.0)
+  $ 8 "Force"
+  sleep(0.02)
+  zero_ftsensor()
+  force_mode(tool_pose(), [0, 0, 1, 0, 0, 0], [0.0, 0.0, 5.0, 0.0, 0.0, 0.0], 2, [0.1, 0.1, 0.15, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659])
+  $ 9 "MoveP" "noBreak"
+  $ 10 "Waypoint_3" "noBreak"
+  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+  movep(Waypoint_3_p, a=1.2, v=0.02, r=0.0)
+  end_force_mode()
+  stopl(5.0)
+  $ 11 "MoveJ"
+  $ 12 "Waypoint_1" "breakAfter"
+  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
 end

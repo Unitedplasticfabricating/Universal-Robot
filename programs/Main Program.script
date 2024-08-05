@@ -849,75 +849,87 @@ def Main_Program():
     movel(p1, a=1.2, v=0.05)
     $ 140 "Wait: 1.0"
     sleep(1.0)
-    $ 141 "MoveP"
-    $ 142 "p2" "breakAfter"
+    $ 141 "Force"
+    sleep(0.02)
+    zero_ftsensor()
+    force_mode(tool_pose(), [0, 0, 1, 0, 0, 0], [0.0, 0.0, 20.0, 0.0, 0.0, 0.0], 2, [0.1, 0.1, 0.15, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659])
+    $ 142 "MoveP" "noBreak"
+    $ 143 "p2" "noBreak"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movep(p2, a=1.2, v=0.012, r=0.025)
-    $ 143 "MoveP"
-    $ 144 "CircleMove"
-    $ 145 "p3" "noBreak"
-    $ 146 "p4" "breakAfter"
+    $ 144 "MoveP" "noBreak"
+    $ 145 "CircleMove" "noBreak"
+    $ 146 "p3" "noBreak"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    $ 147 "p4" "noBreak"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movec(p3, p4, a=1.2, v=0.006, r=0.025, mode=1)
-    $ 147 "MoveP"
-    $ 148 "p5" "breakAfter"
+    $ 148 "MoveP" "noBreak"
+    $ 149 "p5" "noBreak"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movep(p5, a=1.2, v=0.012, r=0.0)
-    $ 149 "MoveL"
-    $ 150 "pr1" "breakAfter"
+    end_force_mode()
+    stopl(5.0)
+    $ 150 "MoveL"
+    $ 151 "pr1" "breakAfter"
     movel(pr1, a=1.2, v=0.25)
-    $ 151 "MoveJ"
-    $ 152 "Waypoint_8" "breakAfter"
+    $ 152 "MoveJ"
+    $ 153 "Waypoint_8" "breakAfter"
     movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 154 "Popup"
+    popup(str_cat("",path1), "Message", False, False, blocking=True)
   end
   def align_tcp_left():
-    $ 153 "align_tcp_left" "noBreak"
-    $ 154 "'this program aligns the tcp parallel to the y direction'"
+    $ 155 "align_tcp_left" "noBreak"
+    $ 156 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 155 "cp≔get_actual_tcp_pose()"
+    $ 157 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 156 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
+    $ 158 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],1.570796,0,0]
-    $ 157 "MoveJ"
-    $ 158 "aligned_y_pose" "breakAfter"
+    $ 159 "MoveJ"
+    $ 160 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_up():
-    $ 159 "align_tcp_up" "noBreak"
-    $ 160 "'this program aligns the tcp parallel to the y direction'"
+    $ 161 "align_tcp_up" "noBreak"
+    $ 162 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 161 "cp≔get_actual_tcp_pose()"
+    $ 163 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 162 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
+    $ 164 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,0,0]
-    $ 163 "MoveJ"
-    $ 164 "aligned_y_pose" "breakAfter"
+    $ 165 "MoveJ"
+    $ 166 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_forward():
-    $ 165 "align_tcp_forward" "noBreak"
-    $ 166 "'this program aligns the tcp parallel to the y direction'"
+    $ 167 "align_tcp_forward" "noBreak"
+    $ 168 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 167 "cp≔get_actual_tcp_pose()"
+    $ 169 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 168 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
+    $ 170 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
-    $ 169 "MoveJ"
-    $ 170 "aligned_y_pose" "breakAfter"
+    $ 171 "MoveJ"
+    $ 172 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
-  $ 171 "Thread_1"
+  $ 173 "Thread_1"
   thread Thread_1():
     while (True):
-      $ 172 "Loop  True "
+      $ 174 "Loop  True "
       while (  True  ):
-        $ 173 "If freedrive_m_var≟ True "
+        $ 175 "If freedrive_m_var≟ True "
         if (freedrive_m_var ==   True  ):
-          $ 174 "freedrive_mode()"
+          $ 176 "freedrive_mode()"
           freedrive_mode()
         else:
-          $ 175 "Else" "noBreak"
-          $ 176 "end_freedrive_mode()"
+          $ 177 "Else" "noBreak"
+          $ 178 "end_freedrive_mode()"
           end_freedrive_mode()
         end
-        $ 177 "sync()"
+        $ 179 "sync()"
         sync()
       end
     end

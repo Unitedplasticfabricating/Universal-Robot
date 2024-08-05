@@ -1,10 +1,10 @@
 <URProgram name="move_path_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
-  <kinematics status="NOT_LINEARIZED" validChecksum="false">
+  <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
     <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
     <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-    <jointChecksum value="-1, -1, -1, -1, -1, -1"/>
+    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
   </kinematics>
   <children>
     <InitVariablesNode/>
@@ -204,37 +204,46 @@
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+        <Force type="Simple">
+          <feature referencedName="Joint_6_name"/>
+          <selection value="0, 0, 1, 0, 0, 0"/>
+          <wrench value="0.0, 0.0, 2.0, 0.0, 0.0, 0.0"/>
+          <limitsForce value="0.15, 0.15, 0.15, 1.0471975511965976, 1.0471975511965976, 1.0471975511965976"/>
+          <limitsMotion value="0.1, 0.1, 0.1, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659"/>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <variable reference="../../../../Assignment[4]/variable"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Move motionType="MoveP" speed="0.006" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <CircleMove OrientationMode="FIXED">
+            <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
               <children>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[5]/variable"/>
-                </Waypoint>
-                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[6]/variable"/>
+                  <variable reference="../../../../../../Assignment[4]/variable"/>
                 </Waypoint>
               </children>
-            </CircleMove>
+            </Move>
+            <Move motionType="MoveP" speed="0.006" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <CircleMove OrientationMode="FIXED">
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <variable reference="../../../../../../../../Assignment[5]/variable"/>
+                    </Waypoint>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <variable reference="../../../../../../../../Assignment[6]/variable"/>
+                    </Waypoint>
+                  </children>
+                </CircleMove>
+              </children>
+            </Move>
+            <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <variable reference="../../../../../../Assignment[7]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
-        <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-          <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <variable reference="../../../../Assignment[7]/variable"/>
-            </Waypoint>
-          </children>
-        </Move>
+        </Force>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>

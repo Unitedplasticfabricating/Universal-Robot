@@ -189,5 +189,25 @@ super weird. could my intersection calculations be off?
 
 i added popups to the program so i can see what the coordinates are for all the points its calculating
 i plotted the points and the points look fine
+lucas took a video for me while i was performing the circle move. the tcp (end of robot) is in contact with the box and thats why it stops. 
+BUT its supposed to be in contact with it. in the video, you can see the robot performing the desired motion. 
+It is not "trying to go through" the box as much as it is just sliding around the corner of the box
+so, the contact here is good. I don't need to change the motion, I need to tell the robot to not Fault out when it feels contact
+I think i can achieve this by adding a force effect
+additionally, after faulting out, i clicked Enable and continued the motion and it worked as intended, went to its desired position point 3
 
+I made a test program to test whether the Force command actually worked
+i set two waypoints a few mm off the side of the box, and moveP'd the robot from one point to the other. the robot did not touch the box
+I then put that move command inside a Force command of 5N. It now touched the box and i couldnt fit a piece of paper or plastic in between the toolhead and the box while it was running
+
+adding the force command to the main program still results in a protective stop while rounding the corner. i wll try specifying the tcp and also trying a larger newton value.
+another thing to consider if this doesnt work is temporarily turning down the protective stop sensitivity, hopefully just while performing that force move
+
+found a video on protective stops: https://video.universal-robots.com/tech-talk-understanding-protective
+faults, violations, and protective stops are the three ways the robot can stop due to itself observing that something is wrong
+a protective stop is issued when the robot can no longer perform the intended motion
+a violation is when a safety system observes that a safety limit is exceeded
+a fault is when the safety system detects a fault in the hardware or software
+
+i will try changing the variable in the program to .03 inches (a 32nd of an inch) down from 0.25 inches, so that it doesn't try to go into the box
 
