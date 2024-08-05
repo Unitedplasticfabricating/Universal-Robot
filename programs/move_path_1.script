@@ -1,14 +1,6 @@
 def move_path_1():
   global _hidden_verificationVariable=0
-  set_gravity([0.0, 0.0, 9.82])
   set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -16,6 +8,14 @@ def move_path_1():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,14 +142,14 @@ def move_path_1():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_30dde134_44ee_45f3_a788_0d20d90966b5 = 0.0
-  thread Step_Counter_Thread_040dc9d6_fe81_47c8_8e4b_61a51216e877():
+  step_count_ae501e31_18ef_4e12_ad1d_4b730113aac2 = 0.0
+  thread Step_Counter_Thread_94f6cc6b_1f2a_473f_a2d3_717f7a1a870f():
     while (True):
-      step_count_30dde134_44ee_45f3_a788_0d20d90966b5 = step_count_30dde134_44ee_45f3_a788_0d20d90966b5 + 1.0
+      step_count_ae501e31_18ef_4e12_ad1d_4b730113aac2 = step_count_ae501e31_18ef_4e12_ad1d_4b730113aac2 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_040dc9d6_fe81_47c8_8e4b_61a51216e877()
+  run Step_Counter_Thread_94f6cc6b_1f2a_473f_a2d3_717f7a1a870f()
   global Waypoint_1_p=p[-.372860657265, .716170383118, .314676530127, 1.570809017190, -.000000152759, .000003968716]
   global Waypoint_1_q=[-1.3816140333758753, -1.0546258252910157, 1.8334205786334437, -0.7777959269336243, -1.3827489058123987, 6.28196907043457]
   while (True):
@@ -170,36 +170,52 @@ def move_path_1():
     global p5=path1[7]
     $ 10 "pr1≔path1[8]"
     global pr1=path1[8]
-    $ 11 "MoveJ"
-    $ 12 "Waypoint_1" "breakAfter"
+    $ 11 "Popup"
+    popup(str_cat("",pa1), "Message", False, False, blocking=True)
+    $ 12 "Popup"
+    popup(str_cat("",pa2), "Message", False, False, blocking=True)
+    $ 13 "Popup"
+    popup(str_cat("",p1), "Message", False, False, blocking=True)
+    $ 14 "Popup"
+    popup(str_cat("",p2), "Message", False, False, blocking=True)
+    $ 15 "Popup"
+    popup(str_cat("",p3), "Message", False, False, blocking=True)
+    $ 16 "Popup"
+    popup(str_cat("",p4), "Message", False, False, blocking=True)
+    $ 17 "Popup"
+    popup(str_cat("",p5), "Message", False, False, blocking=True)
+    $ 18 "Popup"
+    popup(str_cat("",pr1), "Message", False, False, blocking=True)
+    $ 19 "MoveJ"
+    $ 20 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 13 "MoveJ"
-    $ 14 "pa1" "breakAfter"
+    $ 21 "MoveJ"
+    $ 22 "pa1" "breakAfter"
     movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 15 "MoveL"
-    $ 16 "pa2" "breakAfter"
+    $ 23 "MoveL"
+    $ 24 "pa2" "breakAfter"
     movel(pa2, a=1.2, v=0.2)
-    $ 17 "MoveL"
-    $ 18 "p1" "breakAfter"
+    $ 25 "MoveL"
+    $ 26 "p1" "breakAfter"
     movel(p1, a=1.2, v=0.05)
-    $ 19 "Wait: 1.0"
+    $ 27 "Wait: 1.0"
     sleep(1.0)
-    $ 20 "MoveP"
-    $ 21 "p2" "breakAfter"
+    $ 28 "MoveP"
+    $ 29 "p2" "breakAfter"
     movep(p2, a=1.2, v=0.012, r=0.025)
-    $ 22 "MoveP"
-    $ 23 "CircleMove"
-    $ 24 "p3" "noBreak"
-    $ 25 "p4" "breakAfter"
+    $ 30 "MoveP"
+    $ 31 "CircleMove"
+    $ 32 "p3" "noBreak"
+    $ 33 "p4" "breakAfter"
     movec(p3, p4, a=1.2, v=0.006, r=0.025, mode=1)
-    $ 26 "MoveP"
-    $ 27 "p5" "breakAfter"
+    $ 34 "MoveP"
+    $ 35 "p5" "breakAfter"
     movep(p5, a=1.2, v=0.012, r=0.0)
-    $ 28 "MoveL"
-    $ 29 "pr1" "breakAfter"
+    $ 36 "MoveL"
+    $ 37 "pr1" "breakAfter"
     movel(pr1, a=1.2, v=0.25)
-    $ 30 "MoveJ"
-    $ 31 "Waypoint_1" "breakAfter"
+    $ 38 "MoveJ"
+    $ 39 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
   end
 end
