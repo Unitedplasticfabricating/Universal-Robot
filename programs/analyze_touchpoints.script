@@ -64,7 +64,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   # find locations 8 inches away from  intersect point
   # CONST
   welddistance = 8
-  roundoverdistance = .25
+  roundoverdistance = 0
   zup = .375
   # inches
   wd = welddistance * 25.4 / 1000
@@ -115,17 +115,17 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   # the direction of movement is from pointintersect in the direction of heading2
   # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
   # first, find the perpendicular lines through points 2 and 4
-  perp2 = find_perpendicular_line(ml1, point2[0], point2[1])
-  perp4 = find_perpendicular_line(ml2, point4[0], point4[1])
+  #perp2 = find_perpendicular_line(ml1, point2[0], point2[1])
+  #perp4 = find_perpendicular_line(ml2, point4[0], point4[1])
   # next, find the intersection of those two lines
-  perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
-  radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point2[0], point2[1], 0)
+  #perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
+  #radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point2[0], point2[1], 0)
   # find a vector the direction of heading2
-  uvx = cos(heading2)
-  uvy = sin(heading2)
+  #uvx = cos(heading2)
+  #uvy = sin(heading2)
   # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
-  point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
-  point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
+  #point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
+  #point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
   
   #APPLY ACTUAL RXRYRZ TO POINTS
   # convert the headings to rxryrz and insert those values into the relevant points
@@ -141,7 +141,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   rx = rxryrz[0]
   ry = rxryrz[1]
   rz = rxryrz[2]
-  point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
+  #point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
   rxryrz = convert_heading_to_axang(heading3)
   rx = rxryrz[0]
   ry = rxryrz[1]
@@ -151,7 +151,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point2, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
   return ret
 end
 
