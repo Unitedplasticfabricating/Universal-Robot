@@ -71,21 +71,6 @@
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable name="p3" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="h"/>
-            <ExpressionChar character="1"/>
-            <ExpressionChar character="["/>
-            <ExpressionChar character="5"/>
-            <ExpressionChar character="]"/>
-          </expression>
-        </Assignment>
-        <Assignment valueSource="Expression">
           <variable name="p4" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
           </variable>
@@ -130,30 +115,6 @@
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[2]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[3]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[4]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[5]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[6]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[7]/variable"/>
-        </Popup>
-        <Popup type="Message" haltProgram="false" inputType="Variable">
-          <variable reference="../../Assignment[8]/variable"/>
-        </Popup>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
           <children>
@@ -204,52 +165,60 @@
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Force type="Simple">
-          <feature referencedName="Joint_6_name"/>
-          <selection value="0, 0, 1, 0, 0, 0"/>
-          <wrench value="0.0, 0.0, 2.0, 0.0, 0.0, 0.0"/>
-          <limitsForce value="0.15, 0.15, 0.15, 1.0471975511965976, 1.0471975511965976, 1.0471975511965976"/>
-          <limitsMotion value="0.1, 0.1, 0.1, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659"/>
+        <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
-            <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
-              <children>
-                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[4]/variable"/>
-                </Waypoint>
-              </children>
-            </Move>
-            <Move motionType="MoveP" speed="0.006" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
-              <children>
-                <CircleMove OrientationMode="FIXED">
-                  <children>
-                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                      <variable reference="../../../../../../../../Assignment[5]/variable"/>
-                    </Waypoint>
-                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                      <variable reference="../../../../../../../../Assignment[6]/variable"/>
-                    </Waypoint>
-                  </children>
-                </CircleMove>
-              </children>
-            </Move>
-            <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
-              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
-              <children>
-                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[7]/variable"/>
-                </Waypoint>
-              </children>
-            </Move>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <variable reference="../../../../Assignment[4]/variable"/>
+            </Waypoint>
           </children>
-        </Force>
+        </Move>
+        <Script type="File">
+          <cachedContents>#rot_speed=0.1
+#current_pose=get_actual_tcp_pose()
+#time_int = 5
+#target_pose=pose_trans(current_pose, p[0,0,0,0,0,rot_speed*time_int])
+#speedl(pose_sub(target_pose, current_pose), rot_speed, time_int)
+
+#get the headings and compare
+#current heading
+heading1=path1[9]
+#destination heading
+heading3 = path1[11]
+headingdelta = heading3 - heading1
+time_int = 3 #const
+rot_speed = headingdelta/time_int 
+
+speedl([0,0,0,0,0,rot_speed],0.5,time_int)
+</cachedContents>
+          <file>/programs/speedl_test2.script</file>
+        </Script>
+        <Move motionType="MoveP" speed="0.012" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <variable reference="../../../../Assignment[6]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <SuppressedNode>
+          <suppressedNode class="Force" type="Simple">
+            <feature referencedName="Joint_6_name"/>
+            <selection value="0, 0, 1, 0, 0, 0"/>
+            <wrench value="0.0, 0.0, 2.0, 0.0, 0.0, 0.0"/>
+            <limitsForce value="0.15, 0.15, 0.15, 1.0471975511965976, 1.0471975511965976, 1.0471975511965976"/>
+            <limitsMotion value="0.1, 0.1, 0.1, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659"/>
+            <children>
+              <Placeholder/>
+            </children>
+          </suppressedNode>
+        </SuppressedNode>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[8]/variable"/>
+              <variable reference="../../../../Assignment[7]/variable"/>
             </Waypoint>
           </children>
         </Move>

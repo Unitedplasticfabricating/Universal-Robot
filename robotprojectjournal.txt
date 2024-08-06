@@ -210,4 +210,11 @@ a violation is when a safety system observes that a safety limit is exceeded
 a fault is when the safety system detects a fault in the hardware or software
 
 i will try changing the variable in the program to .03 inches (a 32nd of an inch) down from 0.25 inches, so that it doesn't try to go into the box
+I got rid of the radius and changed the rotation command from a moveP to a speedl() in script. 
+when i do it in the main program, it sometimes gets singularity errors
+it sometimes gets protective stops because point2 is stopping too early and turning into the box. but when i look at the intersection point, it is accurate
+i figured out one of the problems. i switched the moveP from p1 to p2 into a moveL, and now it stops at the correct point. 
+I believe it was stopping early before it got to point 2, because of a blend radius (25 mm = 1 inch). that would explain why it was stopping one inch too short. 
+the singularity thing is still there when i do the speedl() command
+
 

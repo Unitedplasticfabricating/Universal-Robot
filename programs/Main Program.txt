@@ -21,6 +21,36 @@
      Wait: 0.25
      sync()
      tcp_pose≔get_actual_joint_positions()
+   move_path_1
+     pa1≔path1[1]
+     pa2≔path1[2]
+     p1≔path1[3]
+     p2≔path1[4]
+     p4≔path1[6]
+     p5≔path1[7]
+     pr1≔path1[8]
+     Popup
+     Popup
+     MoveJ
+       Waypoint_7
+     MoveJ
+       pa1
+     MoveL
+       pa2
+     MoveL
+       p1
+     Wait: 1.0
+     MoveL
+       p2
+     Wait: 3.0
+     Script: speedl_test2.script
+     MoveP
+       p5
+     'Force'
+     MoveL
+       pr1
+     MoveJ
+       Waypoint_8
    Corner_Homing_BRB
      'Use this program when tool is already positioned close to corner (back right bottom corner)'
      'tool flange will seek all 3 sides. will save those 5 locs in p__'
@@ -106,53 +136,13 @@
      MoveL
        Waypoint_4
      'extrude out a foot'
-     Wait: 6.0
+     Wait: 1.0
      MoveL
        'slice over knife'
        Waypoint_5
      MoveL
        Waypoint_6
        'raise up away from knife'
-   move_path_1
-     pa1≔path1[1]
-     pa2≔path1[2]
-     p1≔path1[3]
-     p2≔path1[4]
-     p3≔path1[5]
-     p4≔path1[6]
-     p5≔path1[7]
-     pr1≔path1[8]
-     Popup
-     Popup
-     Popup
-     Popup
-     Popup
-     Popup
-     Popup
-     Popup
-     MoveJ
-       Waypoint_7
-     MoveJ
-       pa1
-     MoveL
-       pa2
-     MoveL
-       p1
-     Wait: 1.0
-     Force
-       MoveP
-         p2
-       MoveP
-         CircleMove
-           p3
-           p4
-       MoveP
-         p5
-     MoveL
-       pr1
-     MoveJ
-       Waypoint_8
-     Popup
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
