@@ -1,7 +1,19 @@
 def Main_Program():
   global _hidden_verificationVariable=0
+  step_count_e751192d_b33a_4499_abc3_9e625180c6c7 = 0.0
+  thread Step_Counter_Thread_9bca54ff_a688_40d0_972a_e2c68936f46f():
+    while (True):
+      step_count_e751192d_b33a_4499_abc3_9e625180c6c7 = step_count_e751192d_b33a_4499_abc3_9e625180c6c7 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_9bca54ff_a688_40d0_972a_e2c68936f46f()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_safety_mode_transition_hardness(1)
-  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
   set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -11,11 +23,7 @@ def Main_Program():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_gravity([0.0, 0.0, 9.82])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,14 +150,6 @@ def Main_Program():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_b6769266_33de_4752_af55_3dc400468a10 = 0.0
-  thread Step_Counter_Thread_a3a9a8b8_ecd1_489a_9825_c3976ba1e7ab():
-    while (True):
-      step_count_b6769266_33de_4752_af55_3dc400468a10 = step_count_b6769266_33de_4752_af55_3dc400468a10 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_a3a9a8b8_ecd1_489a_9825_c3976ba1e7ab()
   global freedrive_m_var=  False  
   global Waypoint_1_p=p[.183612702909, .373491415748, .464002429884, -.000031211095, 3.141572859461, .000004622808]
   global Waypoint_1_q=[-2.527531687413351, -2.1028810940184535, 2.591139856969015, -2.0582763157286585, -1.5713656584369105, 2.1834325790405273]
@@ -1044,21 +1044,28 @@ def Main_Program():
     heading3 = headingvector2 - pi/2
   
     #FIND POINT 3
-    # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
-    # the direction of movement is from pointintersect in the direction of heading2
-    # how much movement though? this will depend on whether it is actually a 90 degree angle or not.
-    # first, find the perpendicular lines through points 2 and 4
-    #perp2 = find_perpendicular_line(ml1, point2[0], point2[1])
-    #perp4 = find_perpendicular_line(ml2, point4[0], point4[1])
-    # next, find the intersection of those two lines
-    #perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
-    #radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point2[0], point2[1], 0)
-    # find a vector the direction of heading2
-    #uvx = cos(heading2)
-    #uvy = sin(heading2)
-    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
-    #point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
-    #point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
+    #see if we have to / can find point 3
+    findpoint3 = True
+    if roundoverdistance = 0:
+      findpoint3 = False
+    end
+    if findpoint3:
+      # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
+      # the direction of movement is from pointintersect in the direction of heading2
+      # how much movement though? this will depend on whether it is actually a 90 degree angle or not.
+      # first, find the perpendicular lines through points 2 and 4
+      perp2 = find_perpendicular_line(ml1, point2[0], point2[1])
+      perp4 = find_perpendicular_line(ml2, point4[0], point4[1])
+      # next, find the intersection of those two lines
+      perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
+      radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point2[0], point2[1], 0)
+      # find a vector the direction of heading2
+      uvx = cos(heading2)
+      uvy = sin(heading2)
+      # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+      point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
+      point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
+    end
   
     #APPLY ACTUAL RXRYRZ TO POINTS
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -1074,7 +1081,11 @@ def Main_Program():
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    #point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
+    if findpoint3:
+      point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
+    else:
+      point3 = point2
+    end
     rxryrz = convert_heading_to_axang(heading3)
     rx = rxryrz[0]
     ry = rxryrz[1]
@@ -1084,7 +1095,7 @@ def Main_Program():
     pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
     #RETURN STRUCT
-    ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point2, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+    ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
     return ret
   end
   
@@ -1165,7 +1176,6 @@ def Main_Program():
   
    return [rxout, ryout, rzout]
   end
-  
   
   
   

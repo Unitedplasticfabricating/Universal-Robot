@@ -208,6 +208,8 @@ faults, violations, and protective stops are the three ways the robot can stop d
 a protective stop is issued when the robot can no longer perform the intended motion
 a violation is when a safety system observes that a safety limit is exceeded
 a fault is when the safety system detects a fault in the hardware or software
+a torque window is the amount of current the robot expects to use in order to accomplish the necessary motion. if it needs more than that (outside the window), this is an indcator that the robot is blocked by someone or something.
+"scaling" is lowering the acceleration for normal payloads or heavier payloads. 
 
 i will try changing the variable in the program to .03 inches (a 32nd of an inch) down from 0.25 inches, so that it doesn't try to go into the box
 I got rid of the radius and changed the rotation command from a moveP to a speedl() in script. 
@@ -217,4 +219,8 @@ i figured out one of the problems. i switched the moveP from p1 to p2 into a mov
 I believe it was stopping early before it got to point 2, because of a blend radius (25 mm = 1 inch). that would explain why it was stopping one inch too short. 
 the singularity thing is still there when i do the speedl() command
 
+I figured out why the singularity is happening. 
+when all 4 axes are aligned, this is an example of a singularity. when it spins from the first edge to the second edge, it passes through a position where all 4 robot axes are aligned. 
+i think the robot can make it through this position if it is part of a move command, but stops if it is part of a speedl() command or a manual move (fourth tab on pendant).
+i have a video from july 30 where the robot is performing the "around the corner" motion in space, and it hits the singularity, drops its wrist below (which interrupts the motion), but then continues on. 
 
