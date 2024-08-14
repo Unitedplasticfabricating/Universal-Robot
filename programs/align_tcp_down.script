@@ -1,13 +1,6 @@
 def align_tcp_down():
   global _hidden_verificationVariable=0
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
   set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,7 +8,14 @@ def align_tcp_down():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
+  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[0.00855,-0.26517,0.10876999999999999,0.0,0.0,0.0])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,14 +142,14 @@ def align_tcp_down():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = 0.0
-  thread Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6():
+  step_count_a6063bf5_a347_4ea9_8577_395d01c54617 = 0.0
+  thread Step_Counter_Thread_b6f77990_97f6_48cf_9e01_eaf46dedeff0():
     while (True):
-      step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb + 1.0
+      step_count_a6063bf5_a347_4ea9_8577_395d01c54617 = step_count_a6063bf5_a347_4ea9_8577_395d01c54617 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
+  run Step_Counter_Thread_b6f77990_97f6_48cf_9e01_eaf46dedeff0()
   $ 2 "Robot Program"
   $ 3 "'this program aligns the tcp parallel to the y direction'"
   # 'this program aligns the tcp parallel to the y direction'
