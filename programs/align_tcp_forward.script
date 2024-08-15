@@ -1,13 +1,11 @@
 def align_tcp_forward():
   global _hidden_verificationVariable=0
+  set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,7 +13,9 @@ def align_tcp_forward():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
+  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,0.0,0.26035,0.0,0.0,0.0])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,14 +142,14 @@ def align_tcp_forward():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = 0.0
-  thread Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6():
+  step_count_0051c65f_c852_4209_9f2c_4b505770215d = 0.0
+  thread Step_Counter_Thread_5b8e0ddc_5ea6_4297_b154_0c0ef5e6be23():
     while (True):
-      step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb + 1.0
+      step_count_0051c65f_c852_4209_9f2c_4b505770215d = step_count_0051c65f_c852_4209_9f2c_4b505770215d + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
+  run Step_Counter_Thread_5b8e0ddc_5ea6_4297_b154_0c0ef5e6be23()
   $ 2 "Robot Program"
   $ 3 "'this program aligns the tcp parallel to the y direction'"
   # 'this program aligns the tcp parallel to the y direction'

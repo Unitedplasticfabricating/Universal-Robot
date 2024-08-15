@@ -263,3 +263,13 @@ i type this into the move screen and the robot barely moves, indicating it is co
 it must like that better. i know in axis angle representation there are always two equivalent rotations to get the result. 
 if you flip the axis and negate the angle you will get the exact same rotation. to avoid duplicates the robot program must have some rule where it chooses which one. this is fine. time to test. 
 
+testing worked golden for that part. now i need to adjust my programs so that it works with this new setup. 
+when it gets to the align_left() command in main program, it does not work well. it does align leftwards, but it also moves the tcp so that it misses the corner. 
+i tried changing the moveJ command inside align_left() and align_forward() from "Use active tcp" to "pretend_w_top". but that didnt work it still moved the tcp. 
+i paused the program mid program with a breakpoint. I went to the move screen and i saw that the active feature is Base and the active tcp is tcp_plate_1. this is a problem
+i need to figure out how to change the active tcp. the default tcp is already pretend_w_top. but how to change the active. apparently they are different. 
+use the set command
+
+running align_left() as a standalone program works perfectly. tcp stays the same and the gun rotates around the tcp. 
+but running align_left() within the Main Program does not. it moves the tcp when it aligns. 
+even after re-adding the align_left() subprogram to Main Program, it still rotates about the end of robot (old tcp) when performing align_left. 

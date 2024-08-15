@@ -1,13 +1,11 @@
 def Test_Teach_Position():
   global _hidden_verificationVariable=0
+  set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,7 +13,9 @@ def Test_Teach_Position():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
+  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,0.0,0.26035,0.0,0.0,0.0])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -142,19 +142,17 @@ def Test_Teach_Position():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = 0.0
-  thread Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6():
+  step_count_0051c65f_c852_4209_9f2c_4b505770215d = 0.0
+  thread Step_Counter_Thread_5b8e0ddc_5ea6_4297_b154_0c0ef5e6be23():
     while (True):
-      step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb = step_count_25c65f44_06b5_40e8_ab7a_4740e82bbebb + 1.0
+      step_count_0051c65f_c852_4209_9f2c_4b505770215d = step_count_0051c65f_c852_4209_9f2c_4b505770215d + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_70793aa9_04f0_4a00_a81a_f8e9561ae1e6()
+  run Step_Counter_Thread_5b8e0ddc_5ea6_4297_b154_0c0ef5e6be23()
   global freedrive_m_var=  False  
-  global Waypoint_1_p=p[.183612702909, .373491415748, .464002429884, -.000031211095, 3.141572859461, .000004622808]
-  global Waypoint_1_q=[-2.527531687413351, -2.1028810940184535, 2.591139856969015, -2.0582763157286585, -1.5713656584369105, 2.1834325790405273]
-  global Waypoint_2_p=p[-.545552386461, .384638463642, .171639485768, .668511604681, -1.949272130073, 1.726627182696]
-  global Waypoint_2_q=[-1.0565226713763636, -1.0868892234614869, 2.1878750959979456, -1.2335426074317475, -1.0471814314471644, 2.53226637840271]
+  global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
+  global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
   $ 16 "Thread_1"
   thread Thread_1():
     while (True):
@@ -177,14 +175,10 @@ def Test_Teach_Position():
   threadId_Thread_1 = run Thread_1()
   $ 2 "Robot Program"
   $ 3 "Home"
-  movej([-2.5278157671606145, -1.852465766610969, 2.7650339410037645, -2.482569784177298, -1.5711424260709022, 2.183095047178716], a=1.3962634015954636, v=1.0471975511965976)
-  $ 4 "MoveL"
-  $ 5 "Waypoint_1" "breakAfter"
-  movel(Waypoint_1_p, a=1.2, v=0.25)
-  $ 6 "'move welder up out of holder'"
-  # 'move welder up out of holder'
+  movej([-3.523764549353853, -1.8742328384451357, 2.4457816539194326, 0.058650484450722296, -0.22275931369636837, -0.6273979632655688], a=1.3962634015954636, v=1.0471975511965976)
   $ 7 "MoveJ"
   $ 8 "Waypoint_2" "breakAfter"
+  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
   movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 9 "freedrive_m_var≔ False "
   global freedrive_m_var=  False  
