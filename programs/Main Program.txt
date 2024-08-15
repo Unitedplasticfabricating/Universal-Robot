@@ -2,14 +2,17 @@
    Variables Setup
    Robot Program
      'start of main program'
+     Home
      Set
      Test_Teach_Position()
      Set
      Corner_Homing_BRB()
+     Set
      extrude_knife()
      Script: analyze_touchpoints.script
      path1≔analyze_touchpoints(p11,p12,p21,p22,p3)
      Call move_path_2
+     Home
    Test_Teach_Position
      Home
      'MoveL'
@@ -32,6 +35,7 @@
      p5≔path1[7]
      pr1≔path1[8]
      MoveJ
+       'Waypoint_9'
        Waypoint_7
      MoveJ
        pa1
@@ -50,8 +54,7 @@
        p5
      MoveL
        pr1
-     MoveJ
-       Waypoint_8
+     'MoveJ'
    Corner_Homing_BRB
      'Use this program when tool is already positioned close to corner (back right bottom corner)'
      'tool flange will seek all 3 sides. will save those 5 locs in p__'
@@ -144,6 +147,7 @@
      MoveL
        Waypoint_6
        'raise up away from knife'
+     Home
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
