@@ -273,3 +273,7 @@ use the set command
 running align_left() as a standalone program works perfectly. tcp stays the same and the gun rotates around the tcp. 
 but running align_left() within the Main Program does not. it moves the tcp when it aligns. 
 even after re-adding the align_left() subprogram to Main Program, it still rotates about the end of robot (old tcp) when performing align_left. 
+i went back to the move screen and now it says that the active tcp is tcp_1_plate. wtf.
+i step through and debug to figure out how this happened. i set a breakpoint after Set and after Test_Teach_Position(). at the start, tcp is plate1. after Set, tcp is w_top. after Test_TP(), tcp is plate1. 
+it could be that the sync() to the thread is causing the tcp to get switched back. 
+nope. there is a command in test_teach_position (moveJ) that sets the tcp to plate_1. stupid me. 
