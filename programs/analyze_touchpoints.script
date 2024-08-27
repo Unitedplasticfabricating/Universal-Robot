@@ -244,3 +244,33 @@ def convert_heading_to_axang(heading):
  return [rxout, ryout, rzout]
 end
 
+# this function is for getting the points along the path of the corner homing 45
+# point0 is the point where they touched
+def get_corner_homing_45_pathpoints(point0):
+  p0x = point0[0]
+  p0y = point0[1]
+  p0z = point0[2]
+  p0rx = point0[3]
+  p0ry = point0[4]
+  p0rz = point0[5]
+  
+  #constants
+  #distances of how far away from point the touchpoints are
+  d1 = 0.05
+  d2 = 0.02
+  sqrt2 = 0.707106781
+  
+  ph1 = p[p0x + .05, p0y, p0z + .05, p0rx, p0ry, p0rz] #approach point for turn
+  
+  ph2 = p[p0x+.05+.035-sqrt2*d1, p0y+.035+sqrt2*d1, p0z+.05, .445, -1.562, .483]
+  ph3 = p[p0x+.05+.035-sqrt2*d2, p0y+.035+sqrt2*d2, p0z+.05, .445, -1.562, .483]
+  ph4 = p[p0x+.05+.035-sqrt2*d1, p0y-.035-sqrt2*d1, p0z+.05, 1.699, 3.576, 1.841]
+  ph5 = p[p0x+.05+.035-sqrt2*d2, p0y-.035-sqrt2*d2, p0z+.05, 1.699, 3.576, 1.841]
+  
+  # go back to ph1
+  ph6 = p[p0x + .05, p0y, p0z -.05, 0, 0, 0] # approach point for under turn
+  # moveL from ph1 to ph6
+  ph7 = p[p0x-.05, p0y, p0z-.05, 0, 0, 0]
+  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7)
+  return ret
+end
