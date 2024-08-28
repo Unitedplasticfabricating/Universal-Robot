@@ -11,110 +11,56 @@
        Waypoint_2
      Wait: 1.0
      tp≔get_actual_tcp_pose()
-     'back up'
+     Script: analyze_touchpoints.script
+     path_pre≔get_corner_homing_45_pathpoints(tp)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     ph5≔path_pre[4]
+     ph6≔path_pre[5]
+     ph7≔path_pre[6]
+     MoveJ
+       ph1
+       ph2
      MoveL
-       Direction: Base X+
-         Until (distance)
-     Call align_tcp_45l
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     align_tcp_left()
-     'right side'
-     MoveL
-       Direction: Base X-
-         Until (distance)
-     MoveL
-       Direction: Base Y-
+       Direction: Base
          Until (tool_contact_detection)
      p11≔get_actual_tcp_pose()
+     MoveJ
+       ph3
      MoveL
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base X-
-         Until (distance)
-     MoveL
-       Direction: Base Y-
+       Direction: Base
          Until (tool_contact_detection)
      p12≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+       'ph1'
+       Waypoint_4
+       Waypoint_6
+       'Waypoint_3'
+       Waypoint_5
+       ph4
      MoveL
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     align_tcp_forward()
-     'back side'
-     MoveL
-       Direction: Base Y-
-         Until (distance)
-     MoveL
-       Direction: Base X-
+       Direction: Base
          Until (tool_contact_detection)
      p21≔get_actual_tcp_pose()
+     MoveJ
+       ph5
      MoveL
-       Direction: Base X+
-         Until (distance)
-     MoveL
-       Direction: Base Y-
-         Until (distance)
-     MoveL
-       Direction: Base X-
+       Direction: Base
          Until (tool_contact_detection)
      p22≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     'regroup for up turn'
-     MoveL
-       Direction: Base X+
-         Until (distance)
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base Z-
-         Until (distance)
-     align_tcp_up()
-     MoveL
-       Direction: Base X-
-         Until (distance)
-       Direction: Base Y-
-         Until (distance)
-     'bottom side'
-     MoveL
-       Direction: Base Z+
-         Until (tool_contact_detection)
-     p3≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base Z-
-         Until (distance)
-     MoveL
-       Direction: Base X+
-         Until (distance)
-       Direction: Base Y+
-         Until (distance)
-   align_tcp_45l
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],.445,-1.562,.483]
      MoveJ
-       aligned_y_pose
-   align_tcp_left
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
-     MoveJ
-       aligned_y_pose
-   align_tcp_up
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
-     MoveJ
-       aligned_y_pose
-   align_tcp_forward
-     'this program aligns the tcp parallel to the y direction'
-     cp≔get_actual_tcp_pose()
-     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]
-     MoveJ
-       aligned_y_pose
+       ph5
+       ph4
+       Waypoint_5
+       Waypoint_6
+       'Waypoint_4'
+     Home
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment

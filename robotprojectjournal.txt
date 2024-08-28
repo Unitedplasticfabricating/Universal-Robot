@@ -286,3 +286,18 @@ How to attach welder (fake):
 attach tcp plate to welder. 
 screw on mounting plate to tcp plate. (extension the same direction as the black dot on wrist 3)
 screw on welder to mounting plate (weld tip pointing same direction as black dot on wrist 3)
+
+corner homing 45 - want to make the corner homing more robust. for the normal corner homing, if the robot is too close to the tank, it hits itself when homing, going around the corner or under
+if the tank is too far away, when it tries to home on the left side, sometimes it maxes out the reach of the robot arm.
+there is a pretty small window for where the robot can be in relation to the tank and have it still work.
+in order to increase that window, we want to switch to a corner homing that's 45 degrees from both faces of the tank. that way we dont have any crazy reaches. 
+
+during corner homing 45, the first side works very well. when it goes over to the second side, it has a clamping error. 
+if i rotate the wrists differently, (and slightly move shoulder elbow up) i can achieve the same position and orientation without the clamping. 
+there are multiple joint angle combinations that result in the same position-orientation of tcp. 
+i want to prep the robot to use the joint angle combo that does not have clamping. I set a fixed waypoint (waypoint 5) that is close to the base and in the orientation that i want to use for ph4. if i go to this before moving to ph4, the robot will use the preferred joint angle combo at ph4.
+unfortunately, the preferred jointanglecombo at ph4 results in wrist3 rotation exceeds limit, with a wrist3 rotation of over 360 degrees. i need to do a 360 spin of wrist3 on the way to the preferred position. 
+
+when doing my complicated spin \ rearrange motion, i need to make sure there are no variables involved so it does the exact same thing every time. 
+i need to make sure i go from fixed waypoint to fixed waypoint before going to the variable waypoints again.
+i can do this as a combo just with waypoints, or i can also include a speedl of wrist3 in there to do the 360 spin
