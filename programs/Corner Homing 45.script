@@ -171,6 +171,8 @@ def Corner_Homing_45():
   global Waypoint_6_q=[-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636]
   global Waypoint_5_p=p[-.542919433581, .212782147188, .086749705211, -.745950140780, -1.570054240894, -.808284086705]
   global Waypoint_5_q=[-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154]
+  global Waypoint_3_p=p[-.343952006273, .632142227752, .615174722549, -.025948978133, -.008794819136, -.567469912202]
+  global Waypoint_3_q=[-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708]
   $ 2 "Robot Program"
   $ 3 "'Use this program when tool is already positioned close to corner at 45deg'"
   # 'Use this program when tool is already positioned close to corner at 45deg'
@@ -662,18 +664,71 @@ def Corner_Homing_45():
   movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 57 "Waypoint_6" "breakAfter"
   movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 59 "Home"
+  $ 58 "Waypoint_4" "breakAfter"
+  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 59 "Waypoint_3" "breakAfter"
+  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 60 "ph6" "breakAfter"
+  movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
+  $ 61 "ph7" "breakAfter"
+  movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
+  $ 62 "MoveL"
+  $ 63 "Direction: Base Z+"
+  global move_thread_flag_63=0
+  thread move_thread_63():
+    enter_critical
+    move_thread_flag_63 = 1
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
+    movel(towardsPos, a=0.1, v=0.05)
+    move_thread_flag_63 = 2
+    exit_critical
+  end
+  move_thread_flag_63 = 0
+  move_thread_han_63 = run move_thread_63()
+  while (True):
+    local targetTcpDirection=get_target_tcp_speed()
+    local stepsToRetract=tool_contact(direction=targetTcpDirection)
+    if (stepsToRetract > 0):
+      kill move_thread_han_63
+      stopl(3.0)
+      local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+      local contactPose=get_forward_kin(backTrackMovement)
+      local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+      local retractTo=contactPose
+      if (norm(posDir) > 1e-6):
+        local normalizedPosDir=normalize(posDir)
+        local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+        retractTo = pose_sub(contactPose, additionalRetraction)
+      end
+      movel(retractTo, a=3.0, v=0.1)
+      $ 64 "Until (tool_contact_detection)"
+      break
+    end
+    sync()
+  end
+  $ 65 "p3≔get_actual_tcp_pose()"
+  global p3= get_actual_tcp_pose ()
+  $ 66 "MoveJ"
+  $ 67 "ph7" "breakAfter"
+  movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
+  $ 68 "ph6" "breakAfter"
+  movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
+  $ 69 "Waypoint_3" "breakAfter"
+  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 70 "Waypoint_4" "breakAfter"
+  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 71 "Home"
   movej([-3.523764549353853, -1.8742328384451357, 2.4457816539194326, 0.058650484450722296, -0.22275931369636837, -0.6273979632655688], a=1.3962634015954636, v=1.0471975511965976)
-  $ 60 "Comment"
+  $ 72 "Comment"
   # Comment
-  $ 61 "Comment"
+  $ 73 "Comment"
   # Comment
-  $ 62 "Comment"
+  $ 74 "Comment"
   # Comment
-  $ 63 "Comment"
+  $ 75 "Comment"
   # Comment
-  $ 64 "Comment"
+  $ 76 "Comment"
   # Comment
-  $ 65 "Comment"
+  $ 77 "Comment"
   # Comment
 end
