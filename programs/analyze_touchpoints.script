@@ -163,9 +163,13 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   
   #find path2 (the part that goes up)
   four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
+  path2r1 = four_vertical_points[0]
+  path2r2 = four_vertical_points[1]
+  path2l1 = four_vertical_points[2]
+  path2l2 = four_vertical_points[3]
   
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
   return ret
 end
 
@@ -192,7 +196,14 @@ def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2d
   z = pointintersect[2] + offset
   # find rxryrz
   rxryrz = convert_heading_to_axang_preheatup(heading3)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2l1 = p[x, y, z, rx, ry, rz]
+  path2l2 = p[x, y, z + wd, rx, ry, rz]
   
+  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+  return ret  
 end
 
 # this function converts a unit vector to its heading angle ccw from x+ axis
