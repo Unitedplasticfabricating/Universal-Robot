@@ -3,7 +3,7 @@
 pi = 3.1415926535
 
 # it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3)
+# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -161,9 +161,38 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
   pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
+  #find path2 (the part that goes up)
+  four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
+  
   #RETURN STRUCT
   ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
   return ret
+end
+
+# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
+def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
+  
+  # find right side stuff
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l1delxunit * offset
+  y = pointintersect[1] + l1delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading1)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2r1 = p[x, y, z, rx, ry, rz]
+  path2r2 = p[x, y, z + wd, rx, ry, rz]
+  
+  # find left side 
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l2delxunit * offset
+  y = pointintersect[1] + l2delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading3)
+  
 end
 
 # this function converts a unit vector to its heading angle ccw from x+ axis
@@ -224,9 +253,37 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
 end
 
 # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
 def convert_heading_to_axang(heading):
  axisxraw = -1 * sin(heading)
  axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ # convert heading(ccw from +x axis) into heading (ccw from -y axis)
+ # the internal calculations
+ 
+ axisxraw = cos(heading) + 1
+ axisyraw = sin(heading)
  axiszraw = sin(heading)
 
  magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
