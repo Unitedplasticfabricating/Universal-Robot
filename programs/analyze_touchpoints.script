@@ -279,21 +279,18 @@ end
 # this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
 # the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
 def convert_heading_to_axang_preheatup(heading):
- # convert heading(ccw from +x axis) into heading (ccw from -y axis)
- # the internal calculations
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
  
- axisxraw = cos(heading) + 1
- axisyraw = sin(heading)
- axiszraw = sin(heading)
-
  magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
-
+ 
  axisxunit = axisxraw / magnitude
  axisyunit = axisyraw / magnitude
  axiszunit = axiszraw / magnitude
-
- angle = acos( (cos(heading) - 1) / 2 )
-
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
  rxout = axisxunit * angle
  ryout = axisyunit * angle
  rzout = axiszunit * angle
