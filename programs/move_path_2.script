@@ -1,20 +1,14 @@
 def move_path_2():
   global _hidden_verificationVariable=0
-  step_count_e751192d_b33a_4499_abc3_9e625180c6c7 = 0.0
-  thread Step_Counter_Thread_9bca54ff_a688_40d0_972a_e2c68936f46f():
+  step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a = 0.0
+  thread Step_Counter_Thread_3f57fde8_be87_45f6_b73f_8ef8e3528eee():
     while (True):
-      step_count_e751192d_b33a_4499_abc3_9e625180c6c7 = step_count_e751192d_b33a_4499_abc3_9e625180c6c7 + 1.0
+      step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a = step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_9bca54ff_a688_40d0_972a_e2c68936f46f()
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+  run Step_Counter_Thread_3f57fde8_be87_45f6_b73f_8ef8e3528eee()
+  set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -22,8 +16,15 @@ def move_path_2():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(0.310000, [0.000000, 0.000000, 0.009500], [0.000219, 0.000219, 0.000219, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[0.00855,-0.27152,0.102,1.2092,-1.2092,1.2092])
+  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
+  set_safety_mode_transition_hardness(1)
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  global Plane_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -150,54 +151,60 @@ def move_path_2():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  global Waypoint_1_p=p[-.372860657265, .716170383118, .314676530127, 1.570809017190, -.000000152759, .000003968716]
-  global Waypoint_1_q=[-1.3816140333758753, -1.0546258252910157, 1.8334205786334437, -0.7777959269336243, -1.3827489058123987, 6.28196907043457]
-  $ 2 "Robot Program"
-  $ 3 "pa1≔path1[1]"
-  global pa1=path1[1]
-  $ 4 "pa2≔path1[2]"
-  global pa2=path1[2]
-  $ 5 "p1≔path1[3]"
-  global p1=path1[3]
-  $ 6 "p2≔path1[4]"
-  global p2=path1[4]
-  $ 7 "p3≔path1[5]"
-  global p3=path1[5]
-  $ 8 "p4≔path1[6]"
-  global p4=path1[6]
-  $ 9 "p5≔path1[7]"
-  global p5=path1[7]
-  $ 10 "pr1≔path1[8]"
-  global pr1=path1[8]
-  $ 11 "MoveJ"
-  $ 12 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 13 "MoveJ"
-  $ 14 "pa1" "breakAfter"
-  movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-  $ 15 "MoveL"
-  $ 16 "pa2" "breakAfter"
-  movel(pa2, a=1.2, v=0.2)
-  $ 17 "MoveL"
-  $ 18 "p1" "breakAfter"
-  movel(p1, a=1.2, v=0.05)
-  $ 19 "Wait: 1.0"
-  sleep(1.0)
-  $ 20 "MoveL"
-  $ 21 "p2" "breakAfter"
-  movel(p2, a=1.2, v=0.012)
-  $ 22 "MoveP"
-  $ 23 "CircleMove"
-  $ 24 "p3" "noBreak"
-  $ 25 "p4" "breakAfter"
-  movec(p3, p4, a=1.2, v=0.001, r=0.0, mode=1)
-  $ 26 "MoveL"
-  $ 27 "p5" "breakAfter"
-  movel(p5, a=1.2, v=0.012)
-  $ 28 "MoveL"
-  $ 29 "pr1" "breakAfter"
-  movel(pr1, a=1.2, v=0.25)
-  $ 30 "MoveJ"
-  $ 31 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+  global Waypoint_7_p=p[-.308521933500, .606102555456, .242386727248, 1.369889596718, 1.066911649623, -1.257196952797]
+  global Waypoint_7_q=[-1.4778149763690394, -0.9869437378695984, 1.6503542105304163, 0.917081280345581, 1.657557487487793, 0.25378724932670593]
+  while (True):
+    $ 2 "Robot Program"
+    $ 3 "pa1≔path1[1]"
+    global pa1=path1[1]
+    $ 4 "pa2≔path1[2]"
+    global pa2=path1[2]
+    $ 5 "p1≔path1[3]"
+    global p1=path1[3]
+    $ 6 "p2≔path1[4]"
+    global p2=path1[4]
+    $ 7 "p3≔path1[5]"
+    global p3=path1[5]
+    $ 8 "p4≔path1[6]"
+    global p4=path1[6]
+    $ 9 "p5≔path1[7]"
+    global p5=path1[7]
+    $ 10 "pr1≔path1[8]"
+    global pr1=path1[8]
+    $ 11 "pvr1≔path1[12]"
+    global pvr1=path1[12]
+    $ 12 "pvr2≔path1[13]"
+    global pvr2=path1[13]
+    $ 13 "MoveJ"
+    $ 15 "Waypoint_7" "breakAfter"
+    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 16 "MoveJ"
+    $ 17 "pa1" "breakAfter"
+    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 18 "MoveL"
+    $ 19 "pa2" "breakAfter"
+    movel(pa2, a=1.2, v=0.2)
+    $ 20 "MoveL"
+    $ 21 "p1" "breakAfter"
+    movel(p1, a=1.2, v=0.05)
+    $ 22 "Wait: 1.0"
+    sleep(1.0)
+    $ 23 "MoveL"
+    $ 24 "p2" "breakAfter"
+    movel(p2, a=1.2, v=0.012)
+    $ 25 "MoveP"
+    $ 26 "CircleMove"
+    $ 27 "p3" "noBreak"
+    $ 28 "p4" "breakAfter"
+    movec(p3, p4, a=0.5, v=5.0E-4, r=0.0, mode=1)
+    $ 29 "MoveL"
+    $ 30 "p5" "breakAfter"
+    movel(p5, a=1.2, v=0.012)
+    $ 31 "MoveL"
+    $ 32 "pr1" "breakAfter"
+    movel(pr1, a=1.2, v=0.25)
+    $ 35 "MoveL"
+    $ 36 "pvr1" "breakAfter"
+    movel(pvr1, a=1.2, v=0.25)
+  end
 end

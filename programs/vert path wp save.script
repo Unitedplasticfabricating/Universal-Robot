@@ -1,4 +1,4 @@
-def move_path_1():
+def vert_path_wp_save():
   global _hidden_verificationVariable=0
   step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a = 0.0
   thread Step_Counter_Thread_3f57fde8_be87_45f6_b73f_8ef8e3528eee():
@@ -151,70 +151,39 @@ def move_path_1():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  global Waypoint_1_p=p[-.372860657265, .716170383118, .314676530127, 1.570809017190, -.000000152759, .000003968716]
-  global Waypoint_1_q=[-1.3816140333758753, -1.0546258252910157, 1.8334205786334437, -0.7777959269336243, -1.3827489058123987, 6.28196907043457]
+  global Waypoint_1_p=p[-.955652198299, .609645262545, 1.447606621703, -.000002586602, .000023983690, -.000044728674]
+  global Waypoint_1_q=[-0.6190655867206019, -0.3368618053248902, -0.41324496269226074, 3.89075676977124, 2.190887689590454, -4.6617189516240387E-4]
+  global Waypoint_2_p=p[-.646472006716, -.000005175669, .568192325689, -.000000485067, -.000006973981, -.000005045961]
+  global Waypoint_2_q=[-0.23332149187196904, 0.9707986551472167, -1.9700188636779785, 4.139979048366211, 1.8039493560791016, -2.5588670839482575E-4]
+  global Waypoint_3_p=p[-.247841618163, -.000001221844, 1.340099232237, 1.570793608201, -.000028410849, -.000016022498]
+  global Waypoint_3_q=[-0.8519218603717249, -0.33198924482379155, -1.6308417320251465, 5.1035817740257166, 2.42344331741333, 1.5703715085983276]
+  global Waypoint_4_p=p[-1.179747427322, .376142202196, .007542577009, 1.379988252251, -.891987002417, -.892019582121]
+  global Waypoint_4_q=[-0.7655184904681605, -0.2574165624431153, 1.2221644560443323, 2.1762491899677734, 1.189542293548584, 1.5704518556594849]
+  global Waypoint_5_p=p[-.308518516300, .606106971306, .242383883754, -2.133736308583, .349453533645, 2.130945814092]
+  global Waypoint_5_q=[-1.8566301504718226, -1.2938345235637208, 2.2087047735797327, 0.7414883810230712, 1.586585521697998, 1.5234099626541138]
+  global Waypoint_7_p=p[-.540145657443, .215928159451, .034626615128, -1.505818452622, 1.057589549975, 1.573496338188]
+  global Waypoint_7_q=[-0.4478219191180628, -1.1245789390853425, 2.485603157673971, 0.16253535329785151, 1.4958982467651367, 3.833399772644043]
+  global Waypoint_6_p=p[-1.314145372626, .215925160668, .034627130433, -1.505810875646, 1.057606245516, 1.573489538167]
+  global Waypoint_6_q=[-0.14954883257021123, -0.5748068255237122, 1.1567109266864222, 0.9217995840260009, 1.512316107749939, 4.131750583648682]
   while (True):
     $ 2 "Robot Program"
-    $ 3 "pa1≔path1[1]"
-    global pa1=path1[1]
-    $ 4 "pa2≔path1[2]"
-    global pa2=path1[2]
-    $ 5 "p1≔path1[3]"
-    global p1=path1[3]
-    $ 6 "p2≔path1[4]"
-    global p2=path1[4]
-    $ 7 "p4≔path1[6]"
-    global p4=path1[6]
-    $ 8 "p5≔path1[7]"
-    global p5=path1[7]
-    $ 9 "pr1≔path1[8]"
-    global pr1=path1[8]
-    $ 10 "pvr1≔path1[12]"
-    global pvr1=path1[12]
-    $ 11 "pvr2≔path1[13]"
-    global pvr2=path1[13]
-    $ 12 "MoveJ"
-    $ 13 "Waypoint_1" "breakAfter"
-    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 14 "MoveJ"
-    $ 15 "pa1" "breakAfter"
-    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 16 "MoveL"
-    $ 17 "pa2" "breakAfter"
-    movel(pa2, a=1.2, v=0.2)
-    $ 18 "MoveL"
-    $ 19 "p1" "breakAfter"
-    movel(p1, a=1.2, v=0.05)
-    $ 20 "Wait: 1.0"
-    sleep(1.0)
-    $ 21 "MoveP"
-    $ 22 "p2" "breakAfter"
-    movep(p2, a=1.2, v=0.012, r=0.025)
-    $ 23 "Script: speedl_test2.script"
-    #rot_speed=0.1
-    #current_pose=get_actual_tcp_pose()
-    #time_int = 5
-    #target_pose=pose_trans(current_pose, p[0,0,0,0,0,rot_speed*time_int])
-    #speedl(pose_sub(target_pose, current_pose), rot_speed, time_int)
-    
-    #get the headings and compare
-    #current heading
-    heading1=path1[9]
-    #destination heading
-    heading3 = path1[11]
-    headingdelta = heading3 - heading1
-    time_int = 3 #const
-    rot_speed = headingdelta/time_int
-    
-    speedl([0,0,0,0,0,rot_speed],0.5,time_int)
-    $ 24 "MoveP"
-    $ 25 "p5" "breakAfter"
-    movep(p5, a=1.2, v=0.012, r=0.025)
-    $ 28 "MoveL"
-    $ 29 "pr1" "breakAfter"
-    movel(pr1, a=1.2, v=0.25)
-    $ 30 "MoveJ"
-    $ 31 "Waypoint_1" "breakAfter"
-    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 3 "Home"
+    movej([-3.523764549353853, -1.8742328384451357, 2.4457816539194326, 0.058650484450722296, -0.22275931369636837, -0.6273979632655688], a=1.3962634015954636, v=1.0471975511965976)
+    $ 4 "MoveJ"
+    $ 5 "Waypoint_1" "breakAfter"
+    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), t=2.0)
+    $ 6 "Waypoint_2" "breakAfter"
+    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 7 "Waypoint_3" "breakAfter"
+    movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 8 "MoveJ"
+    $ 9 "Waypoint_4" "breakAfter"
+    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 10 "Waypoint_5" "breakAfter"
+    movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 11 "Waypoint_7" "breakAfter"
+    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 12 "Waypoint_6" "breakAfter"
+    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
   end
 end

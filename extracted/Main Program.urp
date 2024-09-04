@@ -101,7 +101,7 @@
 pi = 3.1415926535
 
 # it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3)
+# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -259,9 +259,49 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
   pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
+  #find path2 (the part that goes up)
+  four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
+  path2r1 = four_vertical_points[0]
+  path2r2 = four_vertical_points[1]
+  path2l1 = four_vertical_points[2]
+  path2l2 = four_vertical_points[3]
+  
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
   return ret
+end
+
+# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
+def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
+  
+  # find right side stuff
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l1delxunit * offset
+  y = pointintersect[1] + l1delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading1)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2r1 = p[x, y, z, rx, ry, rz]
+  path2r2 = p[x, y, z + wd, rx, ry, rz]
+  
+  # find left side 
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l2delxunit * offset
+  y = pointintersect[1] + l2delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading3)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2l1 = p[x, y, z, rx, ry, rz]
+  path2l2 = p[x, y, z + wd, rx, ry, rz]
+  
+  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+  return ret  
 end
 
 # this function converts a unit vector to its heading angle ccw from x+ axis
@@ -322,6 +362,8 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
 end
 
 # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
 def convert_heading_to_axang(heading):
  axisxraw = -1 * sin(heading)
  axisyraw = cos(heading) + 1
@@ -335,6 +377,29 @@ def convert_heading_to_axang(heading):
 
  angle = acos( (cos(heading) - 1) / 2 )
 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
  rxout = axisxunit * angle
  ryout = axisyunit * angle
  rzout = axiszunit * angle
@@ -423,7 +488,7 @@ end
           </expression>
         </Assignment>
         <CallSubProgram>
-          <subprogram name="move_path_1" keepHidden="false" keepSynchronizedWithDisk="false">
+          <subprogram name="move_path_2" keepHidden="false" keepSynchronizedWithDisk="false">
             <programFile>/programs/move_path_2.urp</programFile>
             <children>
               <Assignment valueSource="Expression">
@@ -546,6 +611,38 @@ end
                   <ExpressionChar character="]"/>
                 </expression>
               </Assignment>
+              <Assignment valueSource="Expression">
+                <variable name="pvr1" prefersPersistentValue="false" favourite="false">
+                  <initializeExpression/>
+                </variable>
+                <expression>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="h"/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character="2"/>
+                  <ExpressionChar character="]"/>
+                </expression>
+              </Assignment>
+              <Assignment valueSource="Expression">
+                <variable name="pvr2" prefersPersistentValue="false" favourite="false">
+                  <initializeExpression/>
+                </variable>
+                <expression>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="h"/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character="3"/>
+                  <ExpressionChar character="]"/>
+                </expression>
+              </Assignment>
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
                 <children>
@@ -611,7 +708,7 @@ end
                 </children>
               </Move>
               <Wait type="Sleep">
-                <waitTime>9.0</waitTime>
+                <waitTime>1.0</waitTime>
               </Wait>
               <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../Move/feature"/>
@@ -622,7 +719,7 @@ end
                   </Waypoint>
                 </children>
               </Move>
-              <Move motionType="MoveP" speed="5.0E-4" acceleration="0.005" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+              <Move motionType="MoveP" speed="5.0E-4" acceleration="0.5" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../Move/feature"/>
                 <children>
                   <CircleMove OrientationMode="FIXED">
@@ -661,6 +758,17 @@ end
                 <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                   <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
                   <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../Assignment/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
+                  <children>
                     <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
                       <motionParameters/>
                       <position>
@@ -679,6 +787,59 @@ end
                   </children>
                 </suppressedNode>
               </SuppressedNode>
+              <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                <children>
+                  <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="1">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-0.44783002534975225, -1.1245759588531037, 2.4855971972094935, 0.16254345952954097, 1.4959094524383545, 3.833388090133667"/>
+                      <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                  <Waypoint type="Fixed" name="Waypoint_21" kinematicsFlags="1">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-1.856617275868551, -1.293832616215088, 2.208712879811422, 0.7414688306995849, 1.5865871906280518, 1.5234200954437256"/>
+                      <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                </children>
+              </Move>
+              <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                <children>
+                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                    <motionParameters/>
+                    <variable reference="../../../../Assignment[9]/variable"/>
+                  </Waypoint>
+                </children>
+              </Move>
+              <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                <children>
+                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                    <motionParameters/>
+                    <variable reference="../../../../Assignment[10]/variable"/>
+                  </Waypoint>
+                </children>
+              </Move>
             </children>
           </subprogram>
         </CallSubProgram>
@@ -1451,7 +1612,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="Corner_Homing_45" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/Corner Homing 45.urp</programFile>
+      <programFile>/programs/Corner Homing 45.urp</programFile>
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
@@ -1518,7 +1679,7 @@ end
 pi = 3.1415926535
 
 # it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3)
+# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -1676,9 +1837,49 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
   pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
+  #find path2 (the part that goes up)
+  four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
+  path2r1 = four_vertical_points[0]
+  path2r2 = four_vertical_points[1]
+  path2l1 = four_vertical_points[2]
+  path2l2 = four_vertical_points[3]
+  
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
   return ret
+end
+
+# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
+def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
+  
+  # find right side stuff
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l1delxunit * offset
+  y = pointintersect[1] + l1delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading1)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2r1 = p[x, y, z, rx, ry, rz]
+  path2r2 = p[x, y, z + wd, rx, ry, rz]
+  
+  # find left side 
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l2delxunit * offset
+  y = pointintersect[1] + l2delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading3)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2l1 = p[x, y, z, rx, ry, rz]
+  path2l2 = p[x, y, z + wd, rx, ry, rz]
+  
+  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+  return ret  
 end
 
 # this function converts a unit vector to its heading angle ccw from x+ axis
@@ -1739,6 +1940,8 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
 end
 
 # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
 def convert_heading_to_axang(heading):
  axisxraw = -1 * sin(heading)
  axisyraw = cos(heading) + 1
@@ -1752,6 +1955,29 @@ def convert_heading_to_axang(heading):
 
  angle = acos( (cos(heading) - 1) / 2 )
 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
  rxout = axisxunit * angle
  ryout = axisyunit * angle
  rzout = axiszunit * angle
