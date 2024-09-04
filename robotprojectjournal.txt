@@ -313,3 +313,21 @@ i put the welder into 0 orientation. at this point, the tip of the welder is fac
 i need to figure out a rotation that will put the welder within a yaw of correct, no matter what angle the box is at. 
 i need to put the welder with the tip facing the x+ axis, with the preheat (right side) facing up. 
 a rx of 90 degrees (from 0,0,0) puts the welder tip facing the y- axis with preheat up. 
+
+I also want to to a full heating pass before I start welding. I will use a separate TCP (welder_preheat) that is like a centimeter out farther than the actual tip of the welder, and make it follow the same points the weld is going to go. 
+
+
+I got the full program working for how I thought the weld path shouldve went. clockwise from right to left along the bottom edge, then moving back and welding up from bottom to top. 
+It works pretty smooth and doesnt tangle itself. 
+
+However, Andrew wants a different weld path procedure. 
+Ron sent a video of what they are doing in florida. first you come down from the top, then fork right (if its a right side weld). then you go back to the weld path intersection, and turning clockwise, go around the corner and continue onto the left side. 
+This path involves two turns instead of just one. One L turn, and then a wraparound turn. 
+Personally I think this way of doing it is going to be less good. More turns means more places for potential error or leaks, plus its harder to code. But its not my company. 
+Before I can connect the points I need to find more equations for heading_to_axang: the orientation of the vertical weld going straight down, and the orientation of the weld moving to the right (ccw). 
+
+for the vertical weld moving downwards, the first turn is about the x axis the other direction. and then -pi/2 not +pi/2 for the heading angle. 
+
+for the ccw weld around, rotate about the y axis 90 degrees, opposite of the first equation. then for final result add pi to heading. 
+
+
