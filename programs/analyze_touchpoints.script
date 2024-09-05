@@ -4,7 +4,7 @@ pi = 3.1415926535
 
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
-def analyze_touchpoints(p11, p12, p21, p22, p3):
+def analyze_touchpoints_oldfull(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
   zcoord=p3[2]
@@ -170,6 +170,79 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   
   #RETURN STRUCT
   ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+  return ret
+end
+
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3)
+def analyze_touchpoints(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
+
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
+
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
+
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
+
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
+
+
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
+  
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading3 = headingvector2 - pi/2
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3)
   return ret
 end
 
