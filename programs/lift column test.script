@@ -1,22 +1,10 @@
 def lift_column_test():
   global _hidden_verificationVariable=0
-  step_count_30365161_1156_4a67_b8b8_4478c27b7649 = 0.0
-  thread Step_Counter_Thread_71d02eff_d0fe_4432_9dd6_b944c87aef43():
-    while (True):
-      step_count_30365161_1156_4a67_b8b8_4478c27b7649 = step_count_30365161_1156_4a67_b8b8_4478c27b7649 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_71d02eff_d0fe_4432_9dd6_b944c87aef43()
-  set_target_payload(0.000000, [0.000000, 0.000000, 0.000000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-4.516483728619642E-6,-4.494070941040221E-6,-3.385497268221845E-5,0.0,0.0,0.0])
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -24,6 +12,11 @@ def lift_column_test():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_target_payload(7.750000, [0.000000, -0.007000, 0.070000], [0.046720, 0.046720, 0.046720, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[-0.0013712378760815103,-0.2753369639926759,0.11977626843188505,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
+  global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -149,6 +142,14 @@ def lift_column_test():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
+  step_count_9cf05246_26af_4d6e_9d20_768e6e66095a = 0.0
+  thread Step_Counter_Thread_493332aa_a819_4815_9477_a1a7a613adaf():
+    while (True):
+      step_count_9cf05246_26af_4d6e_9d20_768e6e66095a = step_count_9cf05246_26af_4d6e_9d20_768e6e66095a + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_493332aa_a819_4815_9477_a1a7a613adaf()
   $ 2 "Robot Program"
   # begin: URCap Program Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -177,7 +178,7 @@ def lift_column_test():
   end
   sendString("SET speed_v2 600000.000", "Ack", "MachineMotion1")
   sendString("SET acceleration_v2 50000.000", "Ack", "MachineMotion1")
-  sendString("SET de_move_rel_1 10000.000", "Ack", "MachineMotion1")
+  sendString("SET de_move_rel_1 100000.000", "Ack", "MachineMotion1")
   sendString("de_move_rel_exec", "Ack", "MachineMotion1")
   isVentionParallelMovementSendingScriptMachineMotion1 = False
   pollString("isMotionCompleted", "MachineMotion isMotionCompleted = true", "MachineMotion1")
