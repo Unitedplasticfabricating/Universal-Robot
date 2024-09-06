@@ -338,37 +338,9 @@ def calculate_DOtA_points(struct1):
     point_4 = p[x, y, z, rx, ry, rz]
     
     #FIND POINT 3
-    
-    
-    #see if we have to / can find point 3
-    findpoint3 = True
-    if roundoverdistance == 0:
-      findpoint3 = False
-      point_3 = point_2
-    end
-    if findpoint3:
-      # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
-      # the direction of movement is from pointintersect in the direction of heading2
-      # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
-      # first, find the perpendicular lines through points 2 and 4
-      ml1 = tan(heading1)
-      ml2 = tan(heading3)
-      perp2 = find_perpendicular_line(ml1, point_2[0], point_2[1])
-      perp4 = find_perpendicular_line(ml2, point_4[0], point_4[1])
-      # next, find the intersection of those two lines
-      perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
-      radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point_2[0], point_2[1], 0)
-      # find a vector the direction of heading2
-      uvx = cos(heading2)
-      uvy = sin(heading2)
-      # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
-      point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
-      rxryrz = convert_heading_to_axang(heading2)
-      rx = rxryrz[0]
-      ry = rxryrz[1]
-      rz = rxryrz[2]
-      point_3 = p[point3coords[0], point3coords[1], point3coords[2], rx, ry, rz]
-    end
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
     
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
