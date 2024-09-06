@@ -10,11 +10,54 @@
      Set
      extrude_knife()
      Script: analyze_touchpoints.script
-     path1≔analyze_touchpoints(p11,p12,p21,p22,p3)
-     Call move_path_1
-     MoveJ
-       Waypoint_19
+     'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
+     'Call move_path_1'
+     'MoveJ'
+     pathturn≔main_calculate_right(p11,p12,p21,p22,p3)
+     Popup
+     Call move_path_3
      Home
+   move_path_3
+     'this is the path for Down, Over, then Back Around'
+     Comment
+     Home
+     MoveJ
+       Waypoint_22
+       Waypoint_23
+       'Waypoint_1'
+       'Waypoint_2'
+       'Waypoint_3'
+       'Home'
+     Comment
+     p1≔pathturn[0]
+     MoveJ
+       p1
+     Comment
+     Comment
+     'pa1≔path1[1]'
+     'pa2≔path1[2]'
+     'p1≔path1[3]'
+     'p2≔path1[4]'
+     'p3≔path1[5]'
+     'p4≔path1[6]'
+     'p5≔path1[7]'
+     'pr1≔path1[8]'
+     'pvr1≔path1[12]'
+     'pvr2≔path1[13]'
+     'MoveJ'
+     'MoveJ'
+     'MoveL'
+     'MoveL'
+     'Wait: 1.0'
+     'MoveL'
+     'MoveP'
+     'MoveL'
+     'MoveL'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveL'
    Test_Teach_Position
      Home
      'MoveL'
@@ -27,46 +70,7 @@
      Wait: 0.25
      sync()
      tcp_pose≔get_actual_joint_positions()
-   move_path_1
-     pa1≔path1[1]
-     pa2≔path1[2]
-     p1≔path1[3]
-     p2≔path1[4]
-     p3≔path1[5]
-     p4≔path1[6]
-     p5≔path1[7]
-     pr1≔path1[8]
-     pvr1≔path1[12]
-     pvr2≔path1[13]
-     MoveJ
-       'Waypoint_9'
-       Waypoint_7
-     MoveJ
-       pa1
-     MoveL
-       pa2
-     MoveL
-       p1
-     Wait: 1.0
-     MoveL
-       p2
-     MoveP
-       CircleMove
-         p3
-         p4
-     MoveL
-       p5
-     MoveL
-       pr1
-     'MoveJ'
-     'MoveJ'
-     MoveJ
-       Waypoint_20
-       Waypoint_21
-     MoveJ
-       pvr1
-     MoveL
-       pvr2
+   'move_path_1'
    Corner_Homing_BRB
      'Use this program when tool is already positioned close to corner (back right bottom corner)'
      'tool flange will seek all 3 sides. will save those 5 locs in p__'

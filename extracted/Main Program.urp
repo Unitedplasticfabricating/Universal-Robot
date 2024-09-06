@@ -1,4 +1,4 @@
-<URProgram name="Main Program" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="Main Program" installation="munsch" installationRelativePath="munsch" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -100,8 +100,19 @@
 # define pi
 pi = 3.1415926535
 
+# this is the main entry point for calculations.
+# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge
+def main_calculate_right(p11, p12, p21, p22, p3):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    struct2 = calculate_DOtA_points(struct1)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
+# specifically for Around then Up (AtU)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -271,6 +282,137 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   return ret
 end
 
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+def analyze_touchpoints_only(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
+
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
+
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
+
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
+
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
+
+
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
+  
+  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading3 = headingvector2 - pi/2
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+  return ret
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+def calculate_DOtA_points(struct1):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance = 8
+    zup = .375
+    # inches
+    wd = welddistance * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
+    z = pointintersect[2] + zup
+    
+    #APPLY ACTUAL RXRYRZ TO POINTS
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x, y, z + wd, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd
+    y = y + l1delyunit * wd
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    
+    
+    
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5)
+    return struct2
+end
+
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
 def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
   
@@ -407,6 +549,52 @@ def convert_heading_to_axang_preheatup(heading):
  return [rxout, ryout, rzout]
 end
 
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
 # this function is for getting the points along the path of the corner homing 45
 # point0 is the point where they touched
 def get_corner_homing_45_pathpoints(point0):
@@ -441,30 +629,477 @@ end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
+        <SuppressedNode>
+          <suppressedNode class="Assignment" valueSource="Expression">
+            <variable name="path1" prefersPersistentValue="false" favourite="false">
+              <initializeExpression/>
+            </variable>
+            <expression>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="l"/>
+              <ExpressionChar character="y"/>
+              <ExpressionChar character="z"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="c"/>
+              <ExpressionChar character="h"/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="1"/>
+              <ExpressionChar character="1"/>
+              <ExpressionChar character=","/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="1"/>
+              <ExpressionChar character="2"/>
+              <ExpressionChar character=","/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="2"/>
+              <ExpressionChar character="1"/>
+              <ExpressionChar character=","/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="2"/>
+              <ExpressionChar character="2"/>
+              <ExpressionChar character=","/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="3"/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="CallSubProgram">
+            <subprogram name="move_path_1" keepHidden="false" keepSynchronizedWithDisk="false">
+              <programFile>/programs/move_path_2.urp</programFile>
+              <children>
+                <Assignment valueSource="Expression">
+                  <variable name="pa1" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="pa2" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="p1" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="p2" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="p3" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="p4" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="6"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="p5" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="pr1" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="pvr1" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable name="pvr2" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </Assignment>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+                  <children>
+                    <SuppressedNode>
+                      <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_9" kinematicsFlags="3">
+                        <motionParameters/>
+                        <position>
+                          <JointAngles angles="-1.4417169729815882, -1.7059112987914027, 2.358598534260885, 4.01385943471875, -1.5016587416278284, -2.9246543089496058"/>
+                          <TCPOffset pose="0.0, 0.0, 0.26, 0.0, 0.0, 0.0"/>
+                          <Kinematics status="LINEARIZED" validChecksum="true">
+                            <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                            <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                            <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                            <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                            <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                          </Kinematics>
+                        </position>
+                        <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                      </suppressedNode>
+                    </SuppressedNode>
+                    <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-1.4778149763690394, -0.9869437378695984, 1.6503542105304163, 0.917081280345581, 1.657557487487793, 0.25378724932670593"/>
+                        <TCPOffset pose="0.00855, -0.26517, 0.10876999999999999, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="pa1" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveL" speed="0.2" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="pa2" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="p1" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Wait type="Sleep">
+                  <waitTime>1.0</waitTime>
+                </Wait>
+                <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="p2" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveP" speed="5.0E-4" acceleration="0.5" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <CircleMove OrientationMode="FIXED">
+                      <children>
+                        <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                          <variable name="p3" prefersPersistentValue="false" favourite="false">
+                            <initializeExpression/>
+                          </variable>
+                        </Waypoint>
+                        <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                          <variable name="p4" prefersPersistentValue="false" favourite="false">
+                            <initializeExpression/>
+                          </variable>
+                        </Waypoint>
+                      </children>
+                    </CircleMove>
+                  </children>
+                </Move>
+                <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="p5" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="pr1" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <SuppressedNode>
+                  <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                    <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
+                    <children>
+                      <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                        <motionParameters/>
+                        <variable reference="../../../../../Move[2]/children/Waypoint/variable"/>
+                      </Waypoint>
+                    </children>
+                  </suppressedNode>
+                </SuppressedNode>
+                <SuppressedNode>
+                  <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                    <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
+                    <children>
+                      <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
+                        <motionParameters/>
+                        <position>
+                          <JointAngles angles="-1.3816140333758753, -1.0546258252910157, 1.8334205786334437, -0.7777959269336243, -1.3827489058123987, 6.28196907043457"/>
+                          <TCPOffset pose="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
+                          <Kinematics status="LINEARIZED" validChecksum="true">
+                            <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                            <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                            <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                            <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                            <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                          </Kinematics>
+                        </position>
+                        <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                      </Waypoint>
+                    </children>
+                  </suppressedNode>
+                </SuppressedNode>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-0.44783002534975225, -1.1245759588531037, 2.4855971972094935, 0.16254345952954097, 1.4959094524383545, 3.833388090133667"/>
+                        <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="Waypoint_21" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-1.856617275868551, -1.293832616215088, 2.208712879811422, 0.7414688306995849, 1.5865871906280518, 1.5234200954437256"/>
+                        <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="pvr1" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable name="pvr2" prefersPersistentValue="false" favourite="false">
+                        <initializeExpression/>
+                      </variable>
+                    </Waypoint>
+                  </children>
+                </Move>
+              </children>
+            </subprogram>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+            <feature class="GeomFeatureReference" reference="../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+            <children>
+              <Waypoint type="Fixed" name="Waypoint_19" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-0.7325146834002894, -1.1100619596293946, 2.5569477717029017, 0.15985266744580073, 1.4753735065460205, 3.3034157752990723"/>
+                  <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </Waypoint>
+            </children>
+          </suppressedNode>
+        </SuppressedNode>
         <Assignment valueSource="Expression">
-          <variable name="path1" prefersPersistentValue="false" favourite="false">
+          <variable name="pathturn" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
           </variable>
           <expression>
+            <ExpressionChar character="m"/>
             <ExpressionChar character="a"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="y"/>
-            <ExpressionChar character="z"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="c"/>
-            <ExpressionChar character="h"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="o"/>
             <ExpressionChar character="i"/>
             <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="a"/>
             <ExpressionChar character="t"/>
-            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
             <ExpressionChar character="("/>
             <ExpressionChar character="p"/>
             <ExpressionChar character="1"/>
@@ -487,171 +1122,55 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Assignment>
+        <Popup type="Message" haltProgram="false" inputType="Variable">
+          <variable reference="../../Assignment/variable"/>
+        </Popup>
         <CallSubProgram>
-          <subprogram name="move_path_1" keepHidden="false" keepSynchronizedWithDisk="false">
-            <programFile>/programs/move_path_2.urp</programFile>
+          <subprogram name="move_path_3" keepHidden="false" keepSynchronizedWithDisk="false">
+            <programFile resolves-to="file">/programs/move_path_3.urp</programFile>
             <children>
-              <Assignment valueSource="Expression">
-                <variable name="pa1" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="pa2" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="2"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="p1" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="3"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="p2" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="4"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="p3" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="5"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="p4" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="6"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="p5" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="7"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="pr1" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="8"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="pvr1" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="2"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
-              <Assignment valueSource="Expression">
-                <variable name="pvr2" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionChar character="p"/>
-                  <ExpressionChar character="a"/>
-                  <ExpressionChar character="t"/>
-                  <ExpressionChar character="h"/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="["/>
-                  <ExpressionChar character="1"/>
-                  <ExpressionChar character="3"/>
-                  <ExpressionChar character="]"/>
-                </expression>
-              </Assignment>
+              <Comment comment="this is the path for Down, Over, then Back Around"/>
+              <Comment/>
+              <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+                <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
+                  <Waypoint type="Fixed" name="Waypoint_22" kinematicsFlags="3">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-1.3071630636798304, -1.3366777312806626, 2.2083633581744593, 3.7187773424335937, -2.9519384543048304, 0.9132363796234131"/>
+                      <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                  <Waypoint type="Fixed" name="Waypoint_23" kinematicsFlags="1">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-0.9414032141314905, -1.501500443821289, 2.801856819783346, 4.981602895050802, -4.698942009602682, 1.571649193763733"/>
+                      <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
                   <SuppressedNode>
-                    <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_9" kinematicsFlags="3">
+                    <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_1" kinematicsFlags="1">
                       <motionParameters/>
                       <position>
-                        <JointAngles angles="-1.4417169729815882, -1.7059112987914027, 2.358598534260885, 4.01385943471875, -1.5016587416278284, -2.9246543089496058"/>
-                        <TCPOffset pose="0.0, 0.0, 0.26, 0.0, 0.0, 0.0"/>
+                        <JointAngles angles="-0.3601906935321253, -1.107013539677002, 2.106924835835592, 5.282478916435995, -4.117923561726705, 1.5714211463928223"/>
+                        <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
                         <Kinematics status="LINEARIZED" validChecksum="true">
                           <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
                           <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -663,111 +1182,366 @@ end
                       <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
                     </suppressedNode>
                   </SuppressedNode>
-                  <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="1">
-                    <motionParameters/>
-                    <position>
-                      <JointAngles angles="-1.4778149763690394, -0.9869437378695984, 1.6503542105304163, 0.917081280345581, 1.657557487487793, 0.25378724932670593"/>
-                      <TCPOffset pose="0.00855, -0.26517, 0.10876999999999999, 1.2092, -1.2092, 1.2092"/>
-                      <Kinematics status="LINEARIZED" validChecksum="true">
-                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                      </Kinematics>
-                    </position>
-                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-                  </Waypoint>
+                  <SuppressedNode>
+                    <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_2" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-0.9414032141314905, -1.501500443821289, 2.801856819783346, 4.981602895050802, -4.698942009602682, 1.571649193763733"/>
+                        <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <SuppressedNode>
+                    <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_3" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-1.3071630636798304, -1.3366777312806626, 2.2083633581744593, 3.7187773424335937, -2.9519384543048304, 0.9132363796234131"/>
+                        <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <SuppressedNode>
+                    <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+                  </SuppressedNode>
                 </children>
               </Move>
+              <Comment/>
+              <Assignment valueSource="Expression">
+                <variable reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[4]/children/Waypoint/variable"/>
+                <expression>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="h"/>
+                  <ExpressionChar character="t"/>
+                  <ExpressionChar character="u"/>
+                  <ExpressionChar character="r"/>
+                  <ExpressionChar character="n"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="0"/>
+                  <ExpressionChar character="]"/>
+                </expression>
+              </Assignment>
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+                <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
                   <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <variable reference="../../../../Assignment/variable"/>
+                    <variable reference="../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[4]/children/Waypoint/variable"/>
                   </Waypoint>
                 </children>
               </Move>
-              <Move motionType="MoveL" speed="0.2" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[2]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[3]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Wait type="Sleep">
-                <waitTime>1.0</waitTime>
-              </Wait>
-              <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[4]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Move motionType="MoveP" speed="5.0E-4" acceleration="0.5" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <CircleMove OrientationMode="FIXED">
-                    <children>
-                      <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                        <variable name="p3" prefersPersistentValue="false" favourite="false">
-                          <initializeExpression/>
-                        </variable>
-                      </Waypoint>
-                      <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                        <variable reference="../../../../../../Assignment[6]/variable"/>
-                      </Waypoint>
-                    </children>
-                  </CircleMove>
-                </children>
-              </Move>
-              <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[7]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[8]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
+              <Comment/>
+              <Comment/>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[2]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[3]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[4]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[5]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[6]/children/CircleMove/children/Waypoint[2]/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="6"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[7]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[8]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[10]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[11]/children/Waypoint/variable"/>
+                  <expression>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="a"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
               <SuppressedNode>
                 <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                  <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                   <children>
-                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                    <SuppressedNode>
+                      <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_9" kinematicsFlags="3">
+                        <motionParameters/>
+                        <position>
+                          <JointAngles angles="-1.4417169729815882, -1.7059112987914027, 2.358598534260885, 4.01385943471875, -1.5016587416278284, -2.9246543089496058"/>
+                          <TCPOffset pose="0.0, 0.0, 0.26, 0.0, 0.0, 0.0"/>
+                          <Kinematics status="LINEARIZED" validChecksum="true">
+                            <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                            <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                            <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                            <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                            <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                          </Kinematics>
+                        </position>
+                        <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                      </suppressedNode>
+                    </SuppressedNode>
+                    <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="1">
                       <motionParameters/>
-                      <variable reference="../../../../../Assignment/variable"/>
+                      <position>
+                        <JointAngles angles="-1.4778149763690394, -0.9869437378695984, 1.6503542105304163, 0.917081280345581, 1.657557487487793, 0.25378724932670593"/>
+                        <TCPOffset pose="0.00855, -0.26517, 0.10876999999999999, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
                     </Waypoint>
                   </children>
                 </suppressedNode>
               </SuppressedNode>
               <SuppressedNode>
                 <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                  <feature class="GeomFeatureReference" reference="../../../Move/feature"/>
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[2]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.2" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[3]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[4]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Wait" type="Sleep">
+                  <waitTime>1.0</waitTime>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[5]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveP" speed="5.0E-4" acceleration="0.5" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <CircleMove OrientationMode="FIXED">
+                      <children>
+                        <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                          <variable reference="../../../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[6]/children/CircleMove/children/Waypoint/variable"/>
+                        </Waypoint>
+                        <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                          <variable reference="../../../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[6]/children/CircleMove/children/Waypoint[2]/variable"/>
+                        </Waypoint>
+                      </children>
+                    </CircleMove>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[7]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[8]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[2]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                   <children>
                     <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
                       <motionParameters/>
@@ -787,92 +1561,79 @@ end
                   </children>
                 </suppressedNode>
               </SuppressedNode>
-              <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="1">
-                    <motionParameters/>
-                    <position>
-                      <JointAngles angles="-0.44783002534975225, -1.1245759588531037, 2.4855971972094935, 0.16254345952954097, 1.4959094524383545, 3.833388090133667"/>
-                      <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
-                      <Kinematics status="LINEARIZED" validChecksum="true">
-                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                      </Kinematics>
-                    </position>
-                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-                  </Waypoint>
-                  <Waypoint type="Fixed" name="Waypoint_21" kinematicsFlags="1">
-                    <motionParameters/>
-                    <position>
-                      <JointAngles angles="-1.856617275868551, -1.293832616215088, 2.208712879811422, 0.7414688306995849, 1.5865871906280518, 1.5234200954437256"/>
-                      <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
-                      <Kinematics status="LINEARIZED" validChecksum="true">
-                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                      </Kinematics>
-                    </position>
-                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[9]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
-              <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-                <feature class="GeomFeatureReference" reference="../../Move/feature"/>
-                <children>
-                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                    <motionParameters/>
-                    <variable reference="../../../../Assignment[10]/variable"/>
-                  </Waypoint>
-                </children>
-              </Move>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-0.44783002534975225, -1.1245759588531037, 2.4855971972094935, 0.16254345952954097, 1.4959094524383545, 3.833388090133667"/>
+                        <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="Waypoint_21" kinematicsFlags="1">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-1.856617275868551, -1.293832616215088, 2.208712879811422, 0.7414688306995849, 1.5865871906280518, 1.5234200954437256"/>
+                        <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[10]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
+              <SuppressedNode>
+                <suppressedNode class="Move" motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                      <motionParameters/>
+                      <variable reference="../../../../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move[11]/children/Waypoint/variable"/>
+                    </Waypoint>
+                  </children>
+                </suppressedNode>
+              </SuppressedNode>
             </children>
           </subprogram>
         </CallSubProgram>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../CallSubProgram/subprogram/children/Move/feature"/>
-          <children>
-            <Waypoint type="Fixed" name="Waypoint_19" kinematicsFlags="1">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-0.7325146834002894, -1.1100619596293946, 2.5569477717029017, 0.15985266744580073, 1.4753735065460205, 3.3034157752990723"/>
-                <TCPOffset pose="0.00855, -0.27152, 0.102, 1.2092, -1.2092, 1.2092"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
       </children>
     </MainProgram>
+    <SubProgram reference="../MainProgram/children/CallSubProgram/subprogram"/>
     <SubProgram name="Test_Teach_Position" keepHidden="false" keepSynchronizedWithDisk="false">
       <programFile>/programs/Test Teach Position.urp</programFile>
       <children>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="3">
                 <motionParameters/>
@@ -895,7 +1656,7 @@ end
         </SuppressedNode>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="false" positionType="CartesianPose">
           <tcp referencedName="TCP_1_plate"/>
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_2" kinematicsFlags="3">
               <motionParameters/>
@@ -960,7 +1721,9 @@ end
         </Assignment>
       </children>
     </SubProgram>
-    <SubProgram reference="../MainProgram/children/CallSubProgram/subprogram"/>
+    <SuppressedNode>
+      <suppressedNode class="SubProgram" reference="../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram"/>
+    </SuppressedNode>
     <SubProgram name="Corner_Homing_BRB" keepHidden="false" keepSynchronizedWithDisk="false">
       <programFile>/programs/Corner Homing BRB.urp</programFile>
       <children>
@@ -988,7 +1751,7 @@ end
         </Script>
         <Comment comment="right side"/>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
               <children>
@@ -1001,7 +1764,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
               <children>
@@ -1021,7 +1784,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
               <children>
@@ -1034,7 +1797,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
               <children>
@@ -1047,7 +1810,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
               <children>
@@ -1067,7 +1830,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
               <children>
@@ -1080,7 +1843,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
               <children>
@@ -1117,7 +1880,7 @@ end
         </Script>
         <Comment comment="back side"/>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
               <children>
@@ -1130,7 +1893,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
               <children>
@@ -1150,7 +1913,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
               <children>
@@ -1163,7 +1926,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
               <children>
@@ -1176,7 +1939,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
               <children>
@@ -1196,7 +1959,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
               <children>
@@ -1210,7 +1973,7 @@ end
         </Move>
         <Comment comment="regroup for up turn"/>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
               <children>
@@ -1231,7 +1994,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="ZMinus">
               <children>
@@ -1262,7 +2025,7 @@ end
           </expression>
         </Script>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
               <children>
@@ -1284,7 +2047,7 @@ end
         </Move>
         <Comment comment="bottom side"/>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="ZPlus">
               <children>
@@ -1294,7 +2057,7 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -1302,7 +2065,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="ZMinus">
               <children>
@@ -1315,7 +2078,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
               <children>
@@ -1342,7 +2105,7 @@ end
       <children>
         <Comment comment="Move to bucket"/>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="3">
               <motionParameters/>
@@ -1362,7 +2125,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
               <motionParameters/>
@@ -1386,7 +2149,7 @@ end
           <waitTime>6.0</waitTime>
         </Wait>
         <Move motionType="MoveL" speed="0.04" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Comment comment="slice over knife"/>
             <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
@@ -1407,7 +2170,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
               <motionParameters/>
@@ -1485,7 +2248,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -1547,7 +2310,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -1601,7 +2364,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -1625,7 +2388,7 @@ end
         </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="1">
                 <motionParameters/>
@@ -1678,8 +2441,19 @@ end
 # define pi
 pi = 3.1415926535
 
+# this is the main entry point for calculations.
+# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge
+def main_calculate_right(p11, p12, p21, p22, p3):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    struct2 = calculate_DOtA_points(struct1)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
+# specifically for Around then Up (AtU)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -1849,6 +2623,137 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   return ret
 end
 
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+def analyze_touchpoints_only(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
+
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
+
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
+
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
+
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
+
+
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
+  
+  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading3 = headingvector2 - pi/2
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+  return ret
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+def calculate_DOtA_points(struct1):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance = 8
+    zup = .375
+    # inches
+    wd = welddistance * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
+    z = pointintersect[2] + zup
+    
+    #APPLY ACTUAL RXRYRZ TO POINTS
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x, y, z + wd, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd
+    y = y + l1delyunit * wd
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    
+    
+    
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5)
+    return struct2
+end
+
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
 def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
   
@@ -1977,6 +2882,52 @@ def convert_heading_to_axang_preheatup(heading):
  axiszunit = axiszraw / magnitude
  
  angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle
@@ -2188,7 +3139,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2201,7 +3152,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -2234,7 +3185,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2243,7 +3194,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -2276,7 +3227,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2300,7 +3251,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_11" kinematicsFlags="3">
               <motionParameters/>
@@ -2335,7 +3286,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2344,7 +3295,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -2378,7 +3329,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2387,7 +3338,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -2421,7 +3372,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2502,7 +3453,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="ZPlus">
               <children>
@@ -2512,7 +3463,7 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -2520,7 +3471,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/CallSubProgram/subprogram/children/Move/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2581,7 +3532,7 @@ end
             <If type="If" checkContinuously="false">
               <expression>
                 <ExpressionVariable>
-                  <ProgramVariable reference="../../../../../../../../SubProgram/children/Assignment/variable"/>
+                  <ProgramVariable reference="../../../../../../../../SubProgram[2]/children/Assignment/variable"/>
                 </ExpressionVariable>
                 <ExpressionChar character="≟"/>
                 <ExpressionToken token=" True "/>

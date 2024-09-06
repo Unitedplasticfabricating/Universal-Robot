@@ -1,14 +1,20 @@
 def vert_path_wp_save():
   global _hidden_verificationVariable=0
-  step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a = 0.0
-  thread Step_Counter_Thread_3f57fde8_be87_45f6_b73f_8ef8e3528eee():
+  step_count_ef4628b7_3bf4_4344_8274_e41c2c4e5143 = 0.0
+  thread Step_Counter_Thread_73ad19e4_304f_4293_8782_e512d608e2cc():
     while (True):
-      step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a = step_count_bb260f9f_b35d_4fa5_9196_51f97d34692a + 1.0
+      step_count_ef4628b7_3bf4_4344_8274_e41c2c4e5143 = step_count_ef4628b7_3bf4_4344_8274_e41c2c4e5143 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_3f57fde8_be87_45f6_b73f_8ef8e3528eee()
-  set_gravity([0.0, 0.0, 9.82])
+  run Step_Counter_Thread_73ad19e4_304f_4293_8782_e512d608e2cc()
+  set_safety_mode_transition_hardness(1)
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_tcp(p[-0.0042110779091591305,-0.2798289119592719,0.10591607363377763,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -16,15 +22,8 @@ def vert_path_wp_save():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tcp(p[0.00855,-0.27152,0.102,1.2092,-1.2092,1.2092])
-  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  global Plane_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(7.750000, [0.000000, -0.007000, 0.070000], [0.046720, 0.046720, 0.046720, 0.000000, 0.000000, 0.000000])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -165,6 +164,14 @@ def vert_path_wp_save():
   global Waypoint_7_q=[-0.4478219191180628, -1.1245789390853425, 2.485603157673971, 0.16253535329785151, 1.4958982467651367, 3.833399772644043]
   global Waypoint_6_p=p[-1.314145372626, .215925160668, .034627130433, -1.505810875646, 1.057606245516, 1.573489538167]
   global Waypoint_6_q=[-0.14954883257021123, -0.5748068255237122, 1.1567109266864222, 0.9217995840260009, 1.512316107749939, 4.131750583648682]
+  global Waypoint_8_p=p[-1.176984186207, .138951843492, .230662448872, -.853039845257, -1.646036622552, 1.645998710548]
+  global Waypoint_8_q=[-0.36032039323915654, -1.1076604586890717, 2.1075623671161097, 5.283301162510671, 2.1654324531555176, 1.571500301361084]
+  global Waypoint_9_p=p[-1.048768812141, .138956774106, .230694324504, -.852992809458, -1.645996674702, 1.646006294918]
+  global Waypoint_9_q=[-0.4298151175128382, -1.2030371886542817, 2.2937310377704065, 5.192352074175634, 2.095982074737549, 1.5714231729507446]
+  global Waypoint_10_p=p[-1.044592918419, .163806109417, .230713077830, -.897773218539, -1.600868829001, 1.600908850228]
+  global Waypoint_10_q=[-0.4298151175128382, -1.2030299764922638, 2.2937288920031946, 5.192346173315801, -4.1211939493762415, 1.571419358253479]
+  global Waypoint_11_p=p[-1.176999957936, .138945371956, .230679149733, -.852011383486, -1.646009308825, 1.646012828723]
+  global Waypoint_11_q=[-0.3604524771319788, -1.107452170257904, 2.1078084150897425, 5.282046007900991, -4.11819297472109, 1.5714211463928223]
   while (True):
     $ 2 "Robot Program"
     $ 3 "Home"
@@ -185,5 +192,14 @@ def vert_path_wp_save():
     movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 12 "Waypoint_6" "breakAfter"
     movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 13 "MoveJ"
+    $ 14 "Waypoint_8" "breakAfter"
+    movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 15 "Waypoint_9" "breakAfter"
+    movej(get_inverse_kin(Waypoint_9_p, qnear=Waypoint_9_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 16 "Waypoint_10" "breakAfter"
+    movej(get_inverse_kin(Waypoint_10_p, qnear=Waypoint_10_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 17 "Waypoint_11" "breakAfter"
+    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
   end
 end
