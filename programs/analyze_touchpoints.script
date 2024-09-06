@@ -5,9 +5,11 @@ pi = 3.1415926535
 # this is the main entry point for calculations.
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
-def main_calculate(p11, p12, p21, p22, p3):
+# specifically for right-sided boxes (vertical weld on right side of edge
+def main_calculate_right(p11, p12, p21, p22, p3):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     struct2 = calculate_DOtA_points(struct1)
+    return struct2
 end
 
 # it takes 5 arguments as points
@@ -257,7 +259,58 @@ end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
 def calculate_DOtA_points(struct1):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
     
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance = 8
+    zup = .375
+    # inches
+    wd = welddistance * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
+    z = pointintersect[2] + zup
+    
+    #APPLY ACTUAL RXRYRZ TO POINTS
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x, y, z + wd, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd
+    y = y + l1delyunit * wd
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    
+    
+    
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5)
+    return struct2
 end
 
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
