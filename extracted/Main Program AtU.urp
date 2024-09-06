@@ -100,8 +100,19 @@
 # define pi
 pi = 3.1415926535
 
+# this is the main entry point for calculations.
+# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge
+def main_calculate_right(p11, p12, p21, p22, p3):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    struct2 = calculate_DOtA_points(struct1)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
+# specifically for Around then Up (AtU)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -271,6 +282,206 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   return ret
 end
 
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+def analyze_touchpoints_only(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
+
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
+
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
+
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
+
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
+
+
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
+  
+  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading3 = headingvector2 - pi/2
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+  return ret
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+def calculate_DOtA_points(struct1):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance = 8
+    zup = .375
+    # inches
+    wd = welddistance * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x, y, z + wd, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd
+    y = y + l1delyunit * wd
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l1delxunit * (zup)
+    y = pointintersect[1] + l1delyunit * zup
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l2delxunit * wd
+    y = pointintersect[1] + l2delyunit * wd
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_5 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    
+    
+    #see if we have to / can find point 3
+    findpoint3 = True
+    if roundoverdistance == 0:
+      findpoint3 = False
+      point_3 = point_2
+    end
+    if findpoint3:
+      # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
+      # the direction of movement is from pointintersect in the direction of heading2
+      # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
+      # first, find the perpendicular lines through points 2 and 4
+      ml1 = tan(heading1)
+      ml2 = tan(heading3)
+      perp2 = find_perpendicular_line(ml1, point_2[0], point_2[1])
+      perp4 = find_perpendicular_line(ml2, point_4[0], point_4[1])
+      # next, find the intersection of those two lines
+      perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
+      radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point_2[0], point_2[1], 0)
+      # find a vector the direction of heading2
+      uvx = cos(heading2)
+      uvy = sin(heading2)
+      # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+      point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
+      rxryrz = convert_heading_to_axang(heading2)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_3 = p[point3coords[0], point3coords[1], point3coords[2], rx, ry, rz]
+    end
+    
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a heading, (ccw from +x axis), find the mx+b slope
+# fails if exactly vertical
+
+def get_slope_from_heading(heading):
+    return tan(heading)
+end
+
+
+
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
 def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
   
@@ -399,6 +610,52 @@ def convert_heading_to_axang_preheatup(heading):
  axiszunit = axiszraw / magnitude
  
  angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle
@@ -1678,8 +1935,19 @@ end
 # define pi
 pi = 3.1415926535
 
+# this is the main entry point for calculations.
+# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge
+def main_calculate_right(p11, p12, p21, p22, p3):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    struct2 = calculate_DOtA_points(struct1)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
+# specifically for Around then Up (AtU)
 def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
@@ -1849,6 +2117,206 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   return ret
 end
 
+# it takes 5 arguments as points
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+def analyze_touchpoints_only(p11, p12, p21, p22, p3):
+  # FIND THE INTERSECTION
+  # comment get the z
+  zcoord=p3[2]
+
+  # get the raw points from the first line
+  l1p1x=p11[0]
+  l1p1y=p11[1]
+  l1p2x=p12[0]
+  l1p2y=p12[1]
+
+  # equate the first line in 2d space
+  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+  # b = y - mx
+  bl1 = l1p1y - ml1 * l1p1x
+
+  # get the raw points from the second line
+  l2p1x=p21[0]
+  l2p1y=p21[1]
+  l2p2x=p22[0]
+  l2p2y=p22[1]
+
+  # equate the second line in 2d space
+  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+
+  # b = y - mx
+  bl2 = l2p1y - ml2 * l2p1x
+
+
+  # find the intersection of the two lines
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  xintersect = (bl2-bl1) / (ml1-ml2)
+  yintersect = ml1 * xintersect + bl1
+  
+  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  
+  #FIND THE VECTORS
+  #define a vector from the intersection to the second point on the first line
+  l1delxfull = l1p2x - xintersect
+  l1delyfull = l1p2y - yintersect
+
+  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+
+  l1delxunit = l1delxfull / l1delmag
+  l1delyunit = l1delyfull / l1delmag
+  
+  #define a vector from the intersection to the second point on the second line
+  l2delxfull = l2p2x - xintersect
+  l2delyfull = l2p2y - yintersect
+
+  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+
+  l2delxunit = l2delxfull / l2delmag
+  l2delyunit = l2delyfull / l2delmag
+  
+  #FIND HEADINGS
+  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+  # find halfway heading
+  heading2 = (headingvector1 + headingvector2)/2
+  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+  heading1 = headingvector1 + pi/2
+  heading3 = headingvector2 - pi/2
+  
+  #RETURN STRUCT
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+  return ret
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+def calculate_DOtA_points(struct1):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance = 8
+    zup = .375
+    # inches
+    wd = welddistance * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x, y, z + wd, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd
+    y = y + l1delyunit * wd
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l1delxunit * (zup)
+    y = pointintersect[1] + l1delyunit * zup
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l2delxunit * wd
+    y = pointintersect[1] + l2delyunit * wd
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_5 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    
+    
+    #see if we have to / can find point 3
+    findpoint3 = True
+    if roundoverdistance == 0:
+      findpoint3 = False
+      point_3 = point_2
+    end
+    if findpoint3:
+      # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
+      # the direction of movement is from pointintersect in the direction of heading2
+      # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
+      # first, find the perpendicular lines through points 2 and 4
+      ml1 = tan(heading1)
+      ml2 = tan(heading3)
+      perp2 = find_perpendicular_line(ml1, point_2[0], point_2[1])
+      perp4 = find_perpendicular_line(ml2, point_4[0], point_4[1])
+      # next, find the intersection of those two lines
+      perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
+      radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point_2[0], point_2[1], 0)
+      # find a vector the direction of heading2
+      uvx = cos(heading2)
+      uvy = sin(heading2)
+      # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+      point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
+      rxryrz = convert_heading_to_axang(heading2)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_3 = p[point3coords[0], point3coords[1], point3coords[2], rx, ry, rz]
+    end
+    
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a heading, (ccw from +x axis), find the mx+b slope
+# fails if exactly vertical
+
+def get_slope_from_heading(heading):
+    return tan(heading)
+end
+
+
+
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
 def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
   
@@ -1977,6 +2445,52 @@ def convert_heading_to_axang_preheatup(heading):
  axiszunit = axiszraw / magnitude
  
  angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle

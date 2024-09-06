@@ -156,6 +156,10 @@ def move_path_3():
   global Waypoint_2_q=[-0.9414032141314905, -1.501500443821289, 2.801856819783346, 4.981602895050802, -4.698942009602682, 1.571649193763733]
   global Waypoint_4_p=p[-.308534453517, .606084664264, .242393158856, 1.369873371142, 1.066881263643, -1.257197506198]
   global Waypoint_4_q=[-1.4685500303851526, -0.9664557737163086, 1.6195090452777308, 0.9282776552387695, 1.6574476957321167, 0.2630845010280609]
+  global Waypoint_5_p=p[-.540166575654, .215949141041, .034631452617, -1.505795438113, 1.057579835594, 1.573514753692]
+  global Waypoint_5_q=[-0.46167117754091436, -1.1365486842444916, 2.508885685597555, 0.15223841249432368, 1.4952874183654785, 3.819530963897705]
+  global Waypoint_6_p=p[-.308525559537, .606096497354, .242373144855, -2.133742737559, .349425192770, 2.130939839044]
+  global Waypoint_6_q=[-1.8709262053119105, -1.2877716285041352, 2.192875687276022, 0.7510036665150146, 1.5878156423568726, 1.5091480016708374]
   while (True):
     $ 2 "Robot Program"
     $ 3 "'this is the path for Down, Over, then Back Around'"
@@ -221,26 +225,37 @@ def move_path_3():
     $ 40 "MoveJ"
     $ 41 "p_1" "breakAfter"
     movej(p_1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 42 "Comment"
+    $ 42 "MoveL"
+    $ 43 "p_2" "breakAfter"
+    movel(p_2, a=1.2, v=0.012)
+    $ 44 "MoveP"
+    $ 45 "CircleMove"
+    $ 46 "p_3" "noBreak"
+    $ 47 "p_4" "breakAfter"
+    movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
+    $ 48 "MoveL"
+    $ 49 "p_5" "breakAfter"
+    movel(p_5, a=1.2, v=0.012)
+    $ 50 "MoveJ"
+    $ 51 "Waypoint_5" "breakAfter"
+    movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 52 "Waypoint_6" "breakAfter"
+    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 53 "Comment"
     # Comment
-    $ 43 "MoveJ"
-    $ 44 "Waypoint_2" "breakAfter"
-    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 45 "Waypoint_3" "breakAfter"
-    movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 46 "Comment"
+    $ 54 "Comment"
     # Comment
-    $ 47 "Comment"
+    $ 55 "Comment"
     # Comment
-    $ 48 "Comment"
+    $ 56 "Comment"
     # Comment
-    $ 49 "Comment"
+    $ 57 "Comment"
     # Comment
-    $ 50 "Comment"
+    $ 58 "Comment"
     # Comment
-    $ 51 "Comment"
+    $ 59 "Comment"
     # Comment
-    $ 52 "Halt"
-    halt
+    $ 60 "Home"
+    movej([-3.523764549353853, -1.8742328384451357, 2.4457816539194326, 0.058650484450722296, -0.22275931369636837, -0.6273979632655688], a=1.3962634015954636, v=1.0471975511965976)
   end
 end
