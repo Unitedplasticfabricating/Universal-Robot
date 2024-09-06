@@ -2,9 +2,18 @@
 # define pi
 pi = 3.1415926535
 
+# this is the main entry point for calculations.
+# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+# specifically for Down, Over, then Around (DOtA)
+def main_calculate(p11, p12, p21, p22, p3):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    struct2 = calculate_DOtA_points(struct1)
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
-def analyze_touchpoints_oldfull(p11, p12, p21, p22, p3):
+# specifically for Around then Up (AtU)
+def analyze_touchpoints(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
   zcoord=p3[2]
@@ -174,8 +183,8 @@ def analyze_touchpoints_oldfull(p11, p12, p21, p22, p3):
 end
 
 # it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, heading1, heading2, heading3)
-def analyze_touchpoints(p11, p12, p21, p22, p3):
+# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+def analyze_touchpoints_only(p11, p12, p21, p22, p3):
   # FIND THE INTERSECTION
   # comment get the z
   zcoord=p3[2]
@@ -242,8 +251,13 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   heading3 = headingvector2 - pi/2
   
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3)
+  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
   return ret
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+def calculate_DOtA_points(struct1):
+    
 end
 
 # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
@@ -374,6 +388,52 @@ def convert_heading_to_axang_preheatup(heading):
  axiszunit = axiszraw / magnitude
  
  angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle
