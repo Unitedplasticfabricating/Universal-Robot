@@ -1,4 +1,4 @@
-<URProgram name="Main Program" installation="munsch" installationRelativePath="munsch" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="Main Program" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -1254,9 +1254,7 @@ end
               </Move>
               <Comment/>
               <Assignment valueSource="Expression">
-                <variable name="p1" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
+                <variable reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[3]/variable"/>
                 <expression>
                   <ExpressionChar character="p"/>
                   <ExpressionChar character="a"/>
@@ -1272,9 +1270,7 @@ end
                 </expression>
               </Assignment>
               <Assignment valueSource="Expression">
-                <variable name="p2" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
+                <variable reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[4]/variable"/>
                 <expression>
                   <ExpressionChar character="p"/>
                   <ExpressionChar character="a"/>
@@ -1290,9 +1286,7 @@ end
                 </expression>
               </Assignment>
               <Assignment valueSource="Expression">
-                <variable name="p4" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
+                <variable reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[6]/variable"/>
                 <expression>
                   <ExpressionChar character="p"/>
                   <ExpressionChar character="a"/>
@@ -1308,9 +1302,7 @@ end
                 </expression>
               </Assignment>
               <Assignment valueSource="Expression">
-                <variable name="p5" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
+                <variable reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[7]/variable"/>
                 <expression>
                   <ExpressionChar character="p"/>
                   <ExpressionChar character="a"/>
@@ -2807,37 +2799,9 @@ def calculate_DOtA_points(struct1):
     point_4 = p[x, y, z, rx, ry, rz]
     
     #FIND POINT 3
-    
-    
-    #see if we have to / can find point 3
-    findpoint3 = True
-    if roundoverdistance == 0:
-      findpoint3 = False
-      point_3 = point_2
-    end
-    if findpoint3:
-      # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
-      # the direction of movement is from pointintersect in the direction of heading2
-      # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
-      # first, find the perpendicular lines through points 2 and 4
-      ml1 = tan(heading1)
-      ml2 = tan(heading3)
-      perp2 = find_perpendicular_line(ml1, point_2[0], point_2[1])
-      perp4 = find_perpendicular_line(ml2, point_4[0], point_4[1])
-      # next, find the intersection of those two lines
-      perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
-      radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point_2[0], point_2[1], 0)
-      # find a vector the direction of heading2
-      uvx = cos(heading2)
-      uvy = sin(heading2)
-      # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
-      point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
-      rxryrz = convert_heading_to_axang(heading2)
-      rx = rxryrz[0]
-      ry = rxryrz[1]
-      rz = rxryrz[2]
-      point_3 = p[point3coords[0], point3coords[1], point3coords[2], rx, ry, rz]
-    end
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
     
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
