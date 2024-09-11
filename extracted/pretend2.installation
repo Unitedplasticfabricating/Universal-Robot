@@ -80,21 +80,47 @@
       </GeomPlaneNode>
     </GeomPlaneNode>
   </Features>
-  <SafeHomeSettings enabled="true" position="-3.5235366372186707, -1.9259070680664099, 2.3525050044875555, 0.20454112128959331, -0.22302944588515938, -0.6277049025321748"/>
-  <DefaultProgramSettings autoLoad="false"/>
+  <Profinet enabled="false" PLCIO="IGNORE" PLCREG1="IGNORE" PLCREG2="IGNORE"/>
   <SafetySettings>
-[WorkpieceConfiguration]
-toolSpheres = [[0.0, 0.0, 0.0, 0.0, 2], [0.0, 0.0, 0.0, 0.0, 1], [0.0, 0.0, 0.0, 0.0, 0]]
-toolSphereNames = [null, Tool_1, DISABLED]
-toolSphereIDs = [058bafa6-fb2a-43e7-9f8f-268f9eb48afd, 06b46dd5-b141-4660-a43a-665185f15353, 05cb2fa6-f92a-43e7-9f8f-268f9eb48afd]
-toolDirectionInclination = 0.0
-toolDirectionAzimuth = 0.0
+[SafetyIOConfiguration Inputs]
+emergencyStopInputA = 255
+emergencyStopInputB = 255
+reducedModeInputA = 255
+reducedModeInputB = 255
+safeguardStopResetInputA = 0
+safeguardStopResetInputB = 1
+threePositionEnablingInputA = 255
+threePositionEnablingInputB = 255
+operationalModeInputA = 255
+operationalModeInputB = 255
+automaticModeSafeguardStopInputA = 255
+automaticModeSafeguardStopInputB = 255
+automaticModeSafeguardStopResetInputA = 255
+automaticModeSafeguardStopResetInputB = 255
+freedriveOnRobotInputA = 255
+freedriveOnRobotInputB = 255
 
-[Profisafe]
-profisafeEnabled = 0
-profisafeSourceAddress = 0
-profisafeDestinationAddress = 0
-profisafeOperationalMode = 0
+[SafetyIOConfiguration Outputs]
+systemEmergencyStopOutputA = 255
+systemEmergencyStopOutputB = 255
+robotMovingOutputA = 255
+robotMovingOutputB = 255
+robotNotStoppingOutputA = 255
+robotNotStoppingOutputB = 255
+reducedModeOutputA = 255
+reducedModeOutputB = 255
+notReducedModeOutputA = 255
+notReducedModeOutputB = 255
+safeHomeOutputA = 255
+safeHomeOutputB = 255
+configOut0and1_OSSD = 0
+configOut2and3_OSSD = 0
+configOut4and5_OSSD = 0
+configOut6and7_OSSD = 0
+
+[ThreePositionEnabling]
+useTP3PE = 1
+allowManualHighSpeed = 1
 
 [SafetySetup]
 verified = true
@@ -104,9 +130,53 @@ withPositionLimits = [true, true, true, true, true, true]
 version = 5.8
 crc = 924418886
 
+[SafetyLimits Normal Values]
+maxTcpSpeed = 1.5
+maxForce = 150.0
+maxElbowSpeed = 1.5
+maxElbowForce = 150.0
+maxStoppingDistance = 0.5
+maxStoppingTime = 0.4
+maxPower = 300.0
+maxMomentum = 25.0
+
+[SafetyLimits Normal Joints]
+maxJointSpeed = [2.2944, 2.2944, 2.81799, 3.86519, 3.86519, 3.86519]
+minJointPosition = [6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586]
+maxJointPosition = [0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986]
+minJointRevolutions = [-2, -2, -2, -2, -2, -2]
+maxJointRevolutions = [1, 1, 1, 1, 1, 1]
+
+[SafetyLimits Reduced Values]
+maxTcpSpeed = 0.75
+maxForce = 120.0
+maxElbowSpeed = 0.75
+maxElbowForce = 120.0
+maxStoppingDistance = 0.3
+maxStoppingTime = 0.3
+maxPower = 200.0
+maxMomentum = 10.0
+
+[SafetyLimits Reduced Joints]
+maxJointSpeed = [2.2944, 2.2944, 2.81799, 3.86519, 3.86519, 3.86519]
+minJointPosition = [6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586]
+maxJointPosition = [0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986]
+minJointRevolutions = [-2, -2, -2, -2, -2, -2]
+maxJointRevolutions = [1, 1, 1, 1, 1, 1]
+
+[Profisafe]
+profisafeEnabled = 0
+profisafeSourceAddress = 0
+profisafeDestinationAddress = 0
+profisafeOperationalMode = 0
+
 [MiscConfiguration]
 teach_pendant = 2
 euromap67 = 0
+
+[SafeHome]
+safeHomeEnabled = 0
+safeHomePosition = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
 
 [SafetyLimits BoundaryPlane0]
 name = Safety plane 0
@@ -185,94 +255,23 @@ tcpOrientationVector = [0.0, 0.0, 1.0]
 maximumTcpOrientationDeviation = 3.159045946109736
 mode = DISABLED
 
-[SafeHome]
-safeHomeEnabled = 0
-safeHomePosition = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
-
-[SafetyIOConfiguration Inputs]
-emergencyStopInputA = 255
-emergencyStopInputB = 255
-reducedModeInputA = 255
-reducedModeInputB = 255
-safeguardStopResetInputA = 0
-safeguardStopResetInputB = 1
-threePositionEnablingInputA = 255
-threePositionEnablingInputB = 255
-operationalModeInputA = 255
-operationalModeInputB = 255
-automaticModeSafeguardStopInputA = 255
-automaticModeSafeguardStopInputB = 255
-automaticModeSafeguardStopResetInputA = 255
-automaticModeSafeguardStopResetInputB = 255
-freedriveOnRobotInputA = 255
-freedriveOnRobotInputB = 255
-
-[SafetyIOConfiguration Outputs]
-systemEmergencyStopOutputA = 255
-systemEmergencyStopOutputB = 255
-robotMovingOutputA = 255
-robotMovingOutputB = 255
-robotNotStoppingOutputA = 255
-robotNotStoppingOutputB = 255
-reducedModeOutputA = 255
-reducedModeOutputB = 255
-notReducedModeOutputA = 255
-notReducedModeOutputB = 255
-safeHomeOutputA = 255
-safeHomeOutputB = 255
-configOut0and1_OSSD = 0
-configOut2and3_OSSD = 0
-configOut4and5_OSSD = 0
-configOut6and7_OSSD = 0
-
-[ThreePositionEnabling]
-useTP3PE = 1
-allowManualHighSpeed = 1
-
-[SafetyLimits Normal Values]
-maxTcpSpeed = 1.5
-maxForce = 150.0
-maxElbowSpeed = 1.5
-maxElbowForce = 150.0
-maxStoppingDistance = 0.5
-maxStoppingTime = 0.4
-maxPower = 300.0
-maxMomentum = 25.0
-
-[SafetyLimits Normal Joints]
-maxJointSpeed = [2.2944, 2.2944, 2.81799, 3.86519, 3.86519, 3.86519]
-minJointPosition = [6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586]
-maxJointPosition = [0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986]
-minJointRevolutions = [-2, -2, -2, -2, -2, -2]
-maxJointRevolutions = [1, 1, 1, 1, 1, 1]
-
-[SafetyLimits Reduced Values]
-maxTcpSpeed = 0.75
-maxForce = 120.0
-maxElbowSpeed = 0.75
-maxElbowForce = 120.0
-maxStoppingDistance = 0.3
-maxStoppingTime = 0.3
-maxPower = 200.0
-maxMomentum = 10.0
-
-[SafetyLimits Reduced Joints]
-maxJointSpeed = [2.2944, 2.2944, 2.81799, 3.86519, 3.86519, 3.86519]
-minJointPosition = [6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586, 6.230825429179586]
-maxJointPosition = [0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986, 0.05235987799999986]
-minJointRevolutions = [-2, -2, -2, -2, -2, -2]
-maxJointRevolutions = [1, 1, 1, 1, 1, 1]
+[WorkpieceConfiguration]
+toolSpheres = [[0.0, 0.0, 0.0, 0.0, 2], [0.0, 0.0, 0.0, 0.0, 1], [0.0, 0.0, 0.0, 0.0, 0]]
+toolSphereNames = [null, Tool_1, DISABLED]
+toolSphereIDs = [058bafa6-fb2a-43e7-9f8f-268f9eb48afd, 06b46dd5-b141-4660-a43a-665185f15353, 05cb2fa6-f92a-43e7-9f8f-268f9eb48afd]
+toolDirectionInclination = 0.0
+toolDirectionAzimuth = 0.0
 
 </SafetySettings>
+  <SafeHomeSettings enabled="true" position="-3.5235366372186707, -1.9259070680664099, 2.3525050044875555, 0.20454112128959331, -0.22302944588515938, -0.6277049025321748"/>
+  <ToolCommSettings enabled="false" toolAnalogInput2="VOLTAGE" toolAnalogInput3="VOLTAGE" baudRate="BAUD_115200" parity="NONE" stopBits="ONE" rxIdleChars="1.5" txIdleChars="3.5" toolOutputMode="OUTPUT" toolDigitalOutput0="SINKING" toolDigitalOutput1="SINKING" toolOutputVoltage="ZERO"/>
+  <DefaultProgramSettings autoLoad="false"/>
   <PayloadSettings>
     <Payload name="Payload" mass="0.0" defaultPayload="false" centerOfGravity="0.0, 0.0, 0.0" inertiaParameters="0.0, 0.0, 0.0, 0.0, 0.0, 0.0" customInertiaEnabled="false"/>
     <Payload name="Payload_1_plate" mass="0.31" defaultPayload="false" centerOfGravity="0.0, 0.0, 0.0095" inertiaParameters="2.19E-4, 2.19E-4, 2.19E-4, 0.0, 0.0, 0.0" customInertiaEnabled="false"/>
     <Payload name="pretend_weld_pl" mass="2.76" defaultPayload="true" centerOfGravity="0.004, -0.022, 0.072" inertiaParameters="0.00836, 0.00836, 0.00836, 0.0, 0.0, 0.0" customInertiaEnabled="false"/>
   </PayloadSettings>
-  <SmoothTransitionSettings transitionHardness="SOFT"/>
-  <ResourceControlSettings/>
-  <ToolCommSettings enabled="false" toolAnalogInput2="VOLTAGE" toolAnalogInput3="VOLTAGE" baudRate="BAUD_115200" parity="NONE" stopBits="ONE" rxIdleChars="1.5" txIdleChars="3.5" toolOutputMode="OUTPUT" toolDigitalOutput0="SINKING" toolDigitalOutput1="SINKING" toolOutputVoltage="ZERO"/>
-  <TCPSettings activePose="TCP">
+  <TCPSettings activePose="pretend_welder">
     <availablePoses>
       <tcp id="e2d81958-7dad-4c27-89e5-fb7c06ed1400" name="TCP" offset="-0.0, -0.0, 0.0, 0.0, 0.0, 0.0"/>
       <tcp id="fa02818f-c7c5-4fdf-b5c8-534f85f8b388" name="TCP_1_plate" offset="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
@@ -281,7 +280,8 @@ maxJointRevolutions = [1, 1, 1, 1, 1, 1]
       <tcp id="fc13b815-c21f-4084-91cb-80fe18403bf6" name="pretend_welder1" offset="0.0, -0.275, 0.085, 1.2092, -1.2092, 1.2092"/>
     </availablePoses>
   </TCPSettings>
-  <Profinet enabled="false" PLCIO="IGNORE" PLCREG1="IGNORE" PLCREG2="IGNORE"/>
+  <SmoothTransitionSettings transitionHardness="SOFT"/>
+  <ResourceControlSettings/>
   <ContinuousPulse/>
   <Contributions>
     <URCaps>
