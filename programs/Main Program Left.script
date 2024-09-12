@@ -1,11 +1,6 @@
 def Main_Program_Left():
   global _hidden_verificationVariable=0
-  set_gravity([0.0, 0.0, 9.82])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_tcp(p[0.00838539968723857,-0.33324903375023873,0.07852362563148635,1.2092,-1.2092,1.2092])
   set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -14,8 +9,13 @@ def Main_Program_Left():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tcp(p[0.00838539968723857,-0.33324903375023873,0.07852362563148635,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   global Plane_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
@@ -143,14 +143,14 @@ def Main_Program_Left():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 = 0.0
-  thread Step_Counter_Thread_f54a7e5f_ec86_4eba_9df5_d12722c4c6bb():
+  step_count_c333318c_8a11_40df_b930_aae5c3004301 = 0.0
+  thread Step_Counter_Thread_90eac25c_8fca_4f9b_b86e_19c0804bd08f():
     while (True):
-      step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 = step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 + 1.0
+      step_count_c333318c_8a11_40df_b930_aae5c3004301 = step_count_c333318c_8a11_40df_b930_aae5c3004301 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_f54a7e5f_ec86_4eba_9df5_d12722c4c6bb()
+  run Step_Counter_Thread_90eac25c_8fca_4f9b_b86e_19c0804bd08f()
   global freedrive_m_var=  False  
   global Waypoint_1_p=p[-.161036555831, .970524399959, .722042384791, -.554954311189, .106465018540, .328580879483]
   global Waypoint_1_q=[-1.3071630636798304, -1.3366777312806626, 2.2083633581744593, 3.7187773424335937, -2.9519384543048304, 0.9132363796234131]
@@ -1396,7 +1396,7 @@ def Main_Program_Left():
         x = pointintersect[0] + l2delxunit * (zup)
         y = pointintersect[1] + l2delyunit * zup
         # convert the headings to rxryrz and insert those values into the relevant points
-        rxryrz = convert_heading_to_axang_ccw(heading1)
+        rxryrz = convert_heading_to_axang_ccw(heading3)
         rx = rxryrz[0]
         ry = rxryrz[1]
         rz = rxryrz[2]
@@ -1410,7 +1410,7 @@ def Main_Program_Left():
         x = pointintersect[0] + l1delxunit * wd
         y = pointintersect[1] + l1delyunit * wd
         # convert the headings to rxryrz and insert those values into the relevant points
-        rxryrz = convert_heading_to_axang_ccw(heading3)
+        rxryrz = convert_heading_to_axang_ccw(heading1)
         rx = rxryrz[0]
         ry = rxryrz[1]
         rz = rxryrz[2]
@@ -2368,7 +2368,7 @@ def Main_Program_Left():
       x = pointintersect[0] + l2delxunit * (zup)
       y = pointintersect[1] + l2delyunit * zup
       # convert the headings to rxryrz and insert those values into the relevant points
-      rxryrz = convert_heading_to_axang_ccw(heading1)
+      rxryrz = convert_heading_to_axang_ccw(heading3)
       rx = rxryrz[0]
       ry = rxryrz[1]
       rz = rxryrz[2]
@@ -2382,7 +2382,7 @@ def Main_Program_Left():
       x = pointintersect[0] + l1delxunit * wd
       y = pointintersect[1] + l1delyunit * wd
       # convert the headings to rxryrz and insert those values into the relevant points
-      rxryrz = convert_heading_to_axang_ccw(heading3)
+      rxryrz = convert_heading_to_axang_ccw(heading1)
       rx = rxryrz[0]
       ry = rxryrz[1]
       rz = rxryrz[2]
