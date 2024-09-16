@@ -15,13 +15,14 @@
      'MoveJ'
      pathturn≔main_calculate_right(p11,p12,p21,p22,p3)
      'Popup'
-     Call move_path_3
+     Call move_path_3right
      Home
-   move_path_3
+   move_path_3right
      'this is the path for Down, Over, then Back Around'
      Comment
      Home
      MoveJ
+       Waypoint_25
        Waypoint_1
        Waypoint_7
        'Waypoint_1'
@@ -90,84 +91,6 @@
      sync()
      tcp_pose≔get_actual_joint_positions()
    'move_path_1'
-   Corner_Homing_BRB
-     'Use this program when tool is already positioned close to corner (back right bottom corner)'
-     'tool flange will seek all 3 sides. will save those 5 locs in p__'
-     align_tcp_left()
-     'right side'
-     MoveL
-       Direction: Base X-
-         Until (distance)
-     MoveL
-       Direction: Base Y-
-         Until (tool_contact_detection)
-     p11≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base X-
-         Until (distance)
-     MoveL
-       Direction: Base Y-
-         Until (tool_contact_detection)
-     p12≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     align_tcp_forward()
-     'back side'
-     MoveL
-       Direction: Base Y-
-         Until (distance)
-     MoveL
-       Direction: Base X-
-         Until (tool_contact_detection)
-     p21≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     MoveL
-       Direction: Base Y-
-         Until (distance)
-     MoveL
-       Direction: Base X-
-         Until (tool_contact_detection)
-     p22≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base X+
-         Until (distance)
-     'regroup for up turn'
-     MoveL
-       Direction: Base X+
-         Until (distance)
-       Direction: Base Y+
-         Until (distance)
-     MoveL
-       Direction: Base Z-
-         Until (distance)
-     align_tcp_up()
-     MoveL
-       Direction: Base X-
-         Until (distance)
-       Direction: Base Y-
-         Until (distance)
-     'bottom side'
-     MoveL
-       Direction: Base Z+
-         Until (tool_contact_detection)
-     p3≔get_actual_tcp_pose()
-     MoveL
-       Direction: Base Z-
-         Until (distance)
-     MoveL
-       Direction: Base X+
-         Until (distance)
-       Direction: Base Y+
-         Until (distance)
    extrude_knife
      'Move to bucket'
      MoveJ
@@ -237,6 +160,7 @@
        Waypoint_10
      MoveJ
        Waypoint_11
+       'Waypoint_5'
        Waypoint_12
      MoveJ
        ph4
@@ -253,6 +177,7 @@
      MoveJ
        ph5
        ph4
+       'Waypoint_5'
        Waypoint_13
        Waypoint_14
        Waypoint_15

@@ -1,14 +1,19 @@
 def Corner_Homing_45():
   global _hidden_verificationVariable=0
-  set_safety_mode_transition_hardness(1)
+  step_count_9cec52a6_06cf_4ede_a755_f93a7c41a988 = 0.0
+  thread Step_Counter_Thread_3d968126_2323_453f_ae32_2ef2716ce7d3():
+    while (True):
+      step_count_9cec52a6_06cf_4ede_a755_f93a7c41a988 = step_count_9cec52a6_06cf_4ede_a755_f93a7c41a988 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_3d968126_2323_453f_ae32_2ef2716ce7d3()
   set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[0.0,0.0,0.246,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -16,7 +21,9 @@ def Corner_Homing_45():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  global Plane_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  set_target_payload(8.250000, [-0.001000, -0.057000, 0.067000], [0.051851, 0.051851, 0.051851, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.0011568140153006695,-0.095603710023444,0.2575950646467742,0.0,0.0,0.0])
+  set_safety_mode_transition_hardness(1)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -143,14 +150,6 @@ def Corner_Homing_45():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_90711d89_5167_4424_bf3b_c70d67655699 = 0.0
-  thread Step_Counter_Thread_db1c9d35_0721_4998_8b0a_71832bdc8964():
-    while (True):
-      step_count_90711d89_5167_4424_bf3b_c70d67655699 = step_count_90711d89_5167_4424_bf3b_c70d67655699 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_db1c9d35_0721_4998_8b0a_71832bdc8964()
   def calculate_point_to_move_towards(feature, direction, position_distance):
     local posDir=[direction[0], direction[1], direction[2]]
     if (norm(posDir) < 1e-6):
@@ -165,8 +164,8 @@ def Corner_Homing_45():
   global Waypoint_4_q=[-1.350241486226217, -0.9702387017062684, 2.492185179387228, -1.7834822140135707, -0.33723670641054326, 1.8489984273910522]
   global Waypoint_6_p=p[-.448862677341, .524599667441, -.175967040878, 2.473330473302, -1.874382924863, .205319206046]
   global Waypoint_6_q=[-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636]
-  global Waypoint_5_p=p[-.542919433581, .212782147188, .086749705211, -.745950140780, -1.570054240894, -.808284086705]
-  global Waypoint_5_q=[-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154]
+  global Waypoint_7_p=p[-.559130451394, .259233925829, .102445980692, -.822649281727, -1.486064670292, -.881476138414]
+  global Waypoint_7_q=[-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572]
   global Waypoint_3_p=p[-.343952006273, .632142227752, .615174722549, -.025948978133, -.008794819136, -.567469912202]
   global Waypoint_3_q=[-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708]
   $ 2 "Robot Program"
@@ -175,7 +174,7 @@ def Corner_Homing_45():
   $ 4 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
   # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
   $ 5 "Set"
-  set_tcp(p[0.0,0.0,0.246,0.0,0.0,0.0])
+  set_tcp(p[-0.0011568140153006695,-0.095603710023444,0.2575950646467742,0.0,0.0,0.0])
   $ 6 "'dummy move below for debug'"
   # 'dummy move below for debug'
   $ 11 "Wait: 1.0"
@@ -187,8 +186,29 @@ def Corner_Homing_45():
   # define pi
   pi = 3.1415926535
   
+  # this is the main entry point for calculations.
+  # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+  # specifically for Down, Over, then Around (DOtA)
+  # specifically for right-sided boxes (vertical weld on right side of edge)
+  def main_calculate_right(p11, p12, p21, p22, p3):
+      struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+      struct2 = calculate_DOtA_points_right(struct1)
+      return struct2
+  end
+  
+  # this is the main entry point for calculations.
+  # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
+  # specifically for Down, Over, then Around (DOtA)
+  # specifically for left-sided boxes (vertical weld on left side of edge)
+  def main_calculate_left(p11, p12, p21, p22, p3):
+      struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+      struct2 = calculate_DOtA_points_left(struct1)
+      return struct2
+  end
+  
   # it takes 5 arguments as points
-  # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3)
+  # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
+  # specifically for Around then Up (AtU)
   def analyze_touchpoints(p11, p12, p21, p22, p3):
     # FIND THE INTERSECTION
     # comment get the z
@@ -346,8 +366,312 @@ def Corner_Homing_45():
     point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
     pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
   
+    #find path2 (the part that goes up)
+    four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
+    path2r1 = four_vertical_points[0]
+    path2r2 = four_vertical_points[1]
+    path2l1 = four_vertical_points[2]
+    path2l2 = four_vertical_points[3]
+  
     #RETURN STRUCT
-    ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3)
+    ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+    return ret
+  end
+  
+  # it takes 5 arguments as points
+  # it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
+  def analyze_touchpoints_only(p11, p12, p21, p22, p3):
+    # FIND THE INTERSECTION
+    # comment get the z
+    zcoord=p3[2]
+  
+    # get the raw points from the first line
+    l1p1x=p11[0]
+    l1p1y=p11[1]
+    l1p2x=p12[0]
+    l1p2y=p12[1]
+  
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+  
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+  
+    # get the raw points from the second line
+    l2p1x=p21[0]
+    l2p1y=p21[1]
+    l2p2x=p22[0]
+    l2p2y=p22[1]
+  
+    # equate the second line in 2d space
+    ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
+  
+    # b = y - mx
+    bl2 = l2p1y - ml2 * l2p1x
+  
+  
+    # find the intersection of the two lines
+    # m1x+b1 = m2x+b2
+    # m1x - m2x = b2 - b1
+    # x = (b2-b1) / (m1-m2)
+    xintersect = (bl2-bl1) / (ml1-ml2)
+    yintersect = ml1 * xintersect + bl1
+  
+    pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  
+    #FIND THE VECTORS
+    #define a vector from the intersection to the second point on the first line
+    l1delxfull = l1p2x - xintersect
+    l1delyfull = l1p2y - yintersect
+  
+    l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+  
+    l1delxunit = l1delxfull / l1delmag
+    l1delyunit = l1delyfull / l1delmag
+  
+    #define a vector from the intersection to the second point on the second line
+    l2delxfull = l2p2x - xintersect
+    l2delyfull = l2p2y - yintersect
+  
+    l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+  
+    l2delxunit = l2delxfull / l2delmag
+    l2delyunit = l2delyfull / l2delmag
+  
+    #FIND HEADINGS
+    #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
+    headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
+    headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
+    # find halfway heading
+    heading2 = (headingvector1 + headingvector2)/2
+    # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
+    heading1 = headingvector1 + pi/2
+    heading3 = headingvector2 - pi/2
+  
+    #RETURN STRUCT
+    ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+    return ret
+  end
+  
+  # given a struct from analyze_touchpoints_only(), calculate the points
+  def calculate_DOtA_points_right(struct1):
+      # get the stuff from the struct
+      pointintersect = struct1[0]
+      heading1 = struct1[1]
+      heading2 = struct1[2]
+      heading3 = struct1[3]
+      l1delxunit = struct1[4]
+      l1delyunit = struct1[5]
+      l2delxunit = struct1[6]
+      l2delyunit = struct1[7]
+  
+      # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+      # find locations 8 inches away from  intersect point
+      # CONST
+      welddistance = 8
+      zup = .375
+      # inches
+      wd = welddistance * 25.4 / 1000
+      zup = zup * 25.4 / 1000
+  
+      x = pointintersect[0] + l1delxunit * zup
+      y = pointintersect[1] + l1delyunit * zup
+      z = pointintersect[2] + zup
+  
+      #apply actual rxryrz to points
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_preheatdown(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point1 = p[x, y, z + wd, rx, ry, rz]
+      point2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point4 = p[x, y, z, rx, ry, rz]
+      x = x + l1delxunit * wd
+      y = y + l1delyunit * wd
+      point5 = p[x, y, z, rx, ry, rz]
+  
+      # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+      roundoverdistance = 0.05
+      rod = roundoverdistance * 25.4 / 1000
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l1delxunit * (zup)
+      y = pointintersect[1] + l1delyunit * zup
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_1 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l1delxunit * rod
+      y = pointintersect[1] + l1delyunit * rod
+      point_2 = p[x, y, z, rx, ry, rz]
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l2delxunit * wd
+      y = pointintersect[1] + l2delyunit * wd
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_5 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l2delxunit * rod
+      y = pointintersect[1] + l2delyunit * rod
+      point_4 = p[x, y, z, rx, ry, rz]
+  
+      #FIND POINT 3
+      # by calling analyze_touchpoints()
+      atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+      point_3 = atret[5]
+  
+  
+      struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+      return struct2
+  end
+  
+  # given a struct from analyze_touchpoints_only(), calculate the points
+  def calculate_DOtA_points_left(struct1):
+      # get the stuff from the struct
+      pointintersect = struct1[0]
+      heading1 = struct1[1]
+      heading2 = struct1[2]
+      heading3 = struct1[3]
+      l1delxunit = struct1[4]
+      l1delyunit = struct1[5]
+      l2delxunit = struct1[6]
+      l2delyunit = struct1[7]
+  
+      # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+      # find locations 8 inches away from  intersect point
+      # CONST
+      welddistance = 8
+      zup = .375
+      # inches
+      wd = welddistance * 25.4 / 1000
+      zup = zup * 25.4 / 1000
+  
+      x = pointintersect[0] + l2delxunit * zup
+      y = pointintersect[1] + l2delyunit * zup
+      z = pointintersect[2] + zup
+  
+      #apply actual rxryrz to points
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_preheatdown(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point1 = p[x, y, z + wd, rx, ry, rz]
+      point2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point4 = p[x, y, z, rx, ry, rz]
+      x = x + l2delxunit * wd
+      y = y + l2delyunit * wd
+      point5 = p[x, y, z, rx, ry, rz]
+  
+      # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+      roundoverdistance = 0.05
+      rod = roundoverdistance * 25.4 / 1000
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l2delxunit * (zup)
+      y = pointintersect[1] + l2delyunit * zup
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_1 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l2delxunit * rod
+      y = pointintersect[1] + l2delyunit * rod
+      point_2 = p[x, y, z, rx, ry, rz]
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l1delxunit * wd
+      y = pointintersect[1] + l1delyunit * wd
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_5 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l1delxunit * rod
+      y = pointintersect[1] + l1delyunit * rod
+      point_4 = p[x, y, z, rx, ry, rz]
+  
+      #FIND POINT 3
+      # by calling analyze_touchpoints()
+      atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+      point_3 = atret[5]
+      #point 3 will not have the correct rxryrz though because now the gun needs to be face up.
+      rxryrz = convert_heading_to_axang_ccw(heading2)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+  
+      struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+      return struct2
+  end
+  
+  # given a heading, (ccw from +x axis), find the mx+b slope
+  # fails if exactly vertical
+  def get_slope_from_heading(heading):
+      return tan(heading)
+  end
+  
+  
+  
+  # this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
+  def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
+  
+    # find right side stuff
+    # find the point in 3d space that is .375 up and .375 over
+    x = pointintersect[0] + l1delxunit * offset
+    y = pointintersect[1] + l1delyunit * offset
+    z = pointintersect[2] + offset
+    # find rxryrz
+    rxryrz = convert_heading_to_axang_preheatup(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    path2r1 = p[x, y, z, rx, ry, rz]
+    path2r2 = p[x, y, z + wd, rx, ry, rz]
+  
+    # find left side
+    # find the point in 3d space that is .375 up and .375 over
+    x = pointintersect[0] + l2delxunit * offset
+    y = pointintersect[1] + l2delyunit * offset
+    z = pointintersect[2] + offset
+    # find rxryrz
+    rxryrz = convert_heading_to_axang_preheatup(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    path2l1 = p[x, y, z, rx, ry, rz]
+    path2l2 = p[x, y, z + wd, rx, ry, rz]
+  
+    ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
     return ret
   end
   
@@ -409,6 +733,8 @@ def Corner_Homing_45():
   end
   
   # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+  # this will point the gun in this heading with the bottom side of the gun facing up.
+  # the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
   def convert_heading_to_axang(heading):
    axisxraw = -1 * sin(heading)
    axisyraw = cos(heading) + 1
@@ -421,6 +747,75 @@ def Corner_Homing_45():
    axiszunit = axiszraw / magnitude
   
    angle = acos( (cos(heading) - 1) / 2 )
+  
+   rxout = axisxunit * angle
+   ryout = axisyunit * angle
+   rzout = axiszunit * angle
+  
+   return [rxout, ryout, rzout]
+  end
+  
+  # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+  # this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path.
+  # the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+  def convert_heading_to_axang_preheatup(heading):
+   axisxraw = -sin(heading) + 1
+   axisyraw = cos(heading)
+   axiszraw = cos(heading)
+  
+   magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+  
+   axisxunit = axisxraw / magnitude
+   axisyunit = axisyraw / magnitude
+   axiszunit = axiszraw / magnitude
+  
+   angle = acos( (-sin(heading) - 1) / 2 )
+  
+   rxout = axisxunit * angle
+   ryout = axisyunit * angle
+   rzout = axiszunit * angle
+  
+   return [rxout, ryout, rzout]
+  end
+  
+  # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+  # this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards.
+  # the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+  def convert_heading_to_axang_preheatdown(heading):
+   axisxraw = -sin(heading) - 1
+   axisyraw = cos(heading)
+   axiszraw = -cos(heading)
+  
+   magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+  
+   axisxunit = axisxraw / magnitude
+   axisyunit = axisyraw / magnitude
+   axiszunit = axiszraw / magnitude
+  
+   angle = acos( (sin(heading) - 1) / 2 )
+  
+   rxout = axisxunit * angle
+   ryout = axisyunit * angle
+   rzout = axiszunit * angle
+  
+   return [rxout, ryout, rzout]
+  end
+  
+  # this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+  # this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box.
+  # the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+  def convert_heading_to_axang_ccw(heading):
+   axisxraw = -sin(heading)
+   axisyraw = cos(heading) - 1
+   axiszraw = -sin(heading)
+  
+   magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+  
+   axisxunit = axisxraw / magnitude
+   axisyunit = axisyraw / magnitude
+   axiszunit = axiszraw / magnitude
+  
+   angle = acos( (-cos(heading) - 1) / 2 )
   
    rxout = axisxunit * angle
    ryout = axisyunit * angle
@@ -564,29 +959,29 @@ def Corner_Homing_45():
   $ 38 "MoveJ"
   $ 39 "Waypoint_6" "breakAfter"
   movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=0.3490658503988659)
-  $ 40 "Waypoint_5" "breakAfter"
-  movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=0.3490658503988659)
-  $ 41 "MoveJ"
-  $ 42 "ph4" "breakAfter"
+  $ 41 "Waypoint_7" "breakAfter"
+  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=0.3490658503988659)
+  $ 42 "MoveJ"
+  $ 43 "ph4" "breakAfter"
   movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-  $ 43 "MoveL"
-  $ 44 "Direction: Base"
-  global move_thread_flag_44=0
-  thread move_thread_44():
+  $ 44 "MoveL"
+  $ 45 "Direction: Base"
+  global move_thread_flag_45=0
+  thread move_thread_45():
     enter_critical
-    move_thread_flag_44 = 1
+    move_thread_flag_45 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_44 = 2
+    move_thread_flag_45 = 2
     exit_critical
   end
-  move_thread_flag_44 = 0
-  move_thread_han_44 = run move_thread_44()
+  move_thread_flag_45 = 0
+  move_thread_han_45 = run move_thread_45()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_44
+      kill move_thread_han_45
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -598,34 +993,34 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 45 "Until (tool_contact_detection)"
+      $ 46 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 46 "p21≔get_actual_tcp_pose()"
+  $ 47 "p21≔get_actual_tcp_pose()"
   global p21= get_actual_tcp_pose ()
-  $ 47 "MoveJ"
-  $ 48 "ph5" "breakAfter"
+  $ 48 "MoveJ"
+  $ 49 "ph5" "breakAfter"
   movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
-  $ 49 "MoveL"
-  $ 50 "Direction: Base"
-  global move_thread_flag_50=0
-  thread move_thread_50():
+  $ 50 "MoveL"
+  $ 51 "Direction: Base"
+  global move_thread_flag_51=0
+  thread move_thread_51():
     enter_critical
-    move_thread_flag_50 = 1
+    move_thread_flag_51 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_50 = 2
+    move_thread_flag_51 = 2
     exit_critical
   end
-  move_thread_flag_50 = 0
-  move_thread_han_50 = run move_thread_50()
+  move_thread_flag_51 = 0
+  move_thread_han_51 = run move_thread_51()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_50
+      kill move_thread_han_51
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -637,48 +1032,48 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 51 "Until (tool_contact_detection)"
+      $ 52 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 52 "p22≔get_actual_tcp_pose()"
+  $ 53 "p22≔get_actual_tcp_pose()"
   global p22= get_actual_tcp_pose ()
-  $ 53 "MoveJ"
-  $ 54 "ph5" "breakAfter"
+  $ 54 "MoveJ"
+  $ 55 "ph5" "breakAfter"
   movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
-  $ 55 "ph4" "breakAfter"
+  $ 56 "ph4" "breakAfter"
   movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-  $ 56 "Waypoint_5" "breakAfter"
-  movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 57 "Waypoint_6" "breakAfter"
+  $ 58 "Waypoint_7" "breakAfter"
+  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 59 "Waypoint_6" "breakAfter"
   movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 58 "Waypoint_4" "breakAfter"
+  $ 60 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 59 "Waypoint_3" "breakAfter"
+  $ 61 "Waypoint_3" "breakAfter"
   movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 60 "ph6" "breakAfter"
+  $ 62 "ph6" "breakAfter"
   movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-  $ 61 "ph7" "breakAfter"
+  $ 63 "ph7" "breakAfter"
   movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-  $ 62 "MoveL"
-  $ 63 "Direction: Base Z+"
-  global move_thread_flag_63=0
-  thread move_thread_63():
+  $ 64 "MoveL"
+  $ 65 "Direction: Base Z+"
+  global move_thread_flag_65=0
+  thread move_thread_65():
     enter_critical
-    move_thread_flag_63 = 1
+    move_thread_flag_65 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_63 = 2
+    move_thread_flag_65 = 2
     exit_critical
   end
-  move_thread_flag_63 = 0
-  move_thread_han_63 = run move_thread_63()
+  move_thread_flag_65 = 0
+  move_thread_han_65 = run move_thread_65()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_63
+      kill move_thread_han_65
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -690,28 +1085,24 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 64 "Until (tool_contact_detection)"
+      $ 66 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 65 "p3≔get_actual_tcp_pose()"
+  $ 67 "p3≔get_actual_tcp_pose()"
   global p3= get_actual_tcp_pose ()
-  $ 66 "MoveJ"
-  $ 67 "ph7" "breakAfter"
+  $ 68 "MoveJ"
+  $ 69 "ph7" "breakAfter"
   movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-  $ 68 "ph6" "breakAfter"
+  $ 70 "ph6" "breakAfter"
   movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-  $ 69 "Waypoint_3" "breakAfter"
+  $ 71 "Waypoint_3" "breakAfter"
   movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 70 "Waypoint_4" "breakAfter"
+  $ 72 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 71 "Home"
-  movej([-3.523764549353853, -1.8742328384451357, 2.4457816539194326, 0.058650484450722296, -0.22275931369636837, -0.6273979632655688], a=1.3962634015954636, v=1.0471975511965976)
-  $ 72 "Comment"
-  # Comment
-  $ 73 "Comment"
-  # Comment
+  $ 73 "Home"
+  movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
   $ 74 "Comment"
   # Comment
   $ 75 "Comment"
@@ -719,5 +1110,9 @@ def Corner_Homing_45():
   $ 76 "Comment"
   # Comment
   $ 77 "Comment"
+  # Comment
+  $ 78 "Comment"
+  # Comment
+  $ 79 "Comment"
   # Comment
 end

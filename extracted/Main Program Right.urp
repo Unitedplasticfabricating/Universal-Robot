@@ -1,4 +1,4 @@
-<URProgram name="Main Program Right" installation="munsch_plastic2" installationRelativePath="munsch_plastic2" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="Main Program Right" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -1259,8 +1259,8 @@ end
           </suppressedNode>
         </SuppressedNode>
         <CallSubProgram>
-          <subprogram name="move_path_3" keepHidden="false" keepSynchronizedWithDisk="false">
-            <programFile>/programs/move_path_3.urp</programFile>
+          <subprogram name="move_path_3right" keepHidden="false" keepSynchronizedWithDisk="false">
+            <programFile resolves-to="file">/programs/move_path_3right.urp</programFile>
             <children>
               <Comment comment="this is the path for Down, Over, then Back Around"/>
               <Comment/>
@@ -1268,6 +1268,21 @@ end
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
+                  <Waypoint type="Fixed" name="Waypoint_25" kinematicsFlags="3">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-2.398897949849264, -1.6062003574767054, 2.181026283894674, 1.1554807859608154, -1.1427205244647425, -0.13058835664858037"/>
+                      <TCPOffset pose="-0.005053217471465032, -0.33170982315522196, 0.10357409938002443, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
                   <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="3">
                     <motionParameters/>
                     <position>
@@ -1608,7 +1623,7 @@ end
                     <variable reference="../../../../Assignment[5]/variable"/>
                   </Waypoint>
                   <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
-                    <motionParameters/>
+                    <motionParameters jointSpeed="1.0471975511965976" jointAcceleration="1.3962634015954636" cartesianSpeed="0.25" cartesianAcceleration="1.2"/>
                     <position>
                       <JointAngles angles="-0.9414032141314905, -1.501500443821289, 2.801856819783346, 4.981602895050802, -4.698942009602682, 1.571649193763733"/>
                       <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
@@ -1848,382 +1863,6 @@ end
     <SuppressedNode>
       <suppressedNode class="SubProgram" reference="../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram"/>
     </SuppressedNode>
-    <SubProgram name="Corner_Homing_BRB" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile>/programs/Corner Homing BRB.urp</programFile>
-      <children>
-        <Comment comment="Use this program when tool is already positioned close to corner (back right bottom corner)"/>
-        <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="g"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="c"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="f"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
-        <Comment comment="right side"/>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
-              <children>
-                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Assignment valueSource="Expression">
-          <variable name="p11" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionToken token="get_actual_tcp_pose"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.15</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
-              <children>
-                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Assignment valueSource="Expression">
-          <variable name="p12" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionToken token="get_actual_tcp_pose"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.3</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="g"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="c"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="f"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="w"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
-        <Comment comment="back side"/>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.1</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
-              <children>
-                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Assignment valueSource="Expression">
-          <variable name="p21" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionToken token="get_actual_tcp_pose"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.15</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
-              <children>
-                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Assignment valueSource="Expression">
-          <variable name="p22" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionToken token="get_actual_tcp_pose"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Comment comment="regroup for up turn"/>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.2</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.5</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="ZMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.1</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="g"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="c"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.25</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.34</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Comment comment="bottom side"/>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="ZPlus">
-              <children>
-                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
-          <expression>
-            <ExpressionToken token="get_actual_tcp_pose"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="ZMinus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.05</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
-          <children>
-            <gui.program.direction.MoveDirectionNode selectedDirection="XPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.1</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-            <gui.program.direction.MoveDirectionNode selectedDirection="YPlus">
-              <children>
-                <Until type="DISTANCE" allowActions="false" deceleration="3.0" distanceNodeType="STOP">
-                  <Distance>0.1</Distance>
-                  <motionParameters blendRadius="0.0"/>
-                </Until>
-              </children>
-            </gui.program.direction.MoveDirectionNode>
-          </children>
-        </Move>
-      </children>
-    </SubProgram>
     <SubProgram name="extrude_knife" keepHidden="false" keepSynchronizedWithDisk="false">
       <programFile>/programs/extrude_knife.urp</programFile>
       <children>
@@ -2387,7 +2026,7 @@ end
       <children>
         <Comment comment="this program aligns the tcp parallel to the y direction"/>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[5]/children/Assignment/variable"/>
+          <variable reference="../../../../SubProgram[4]/children/Assignment/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -2395,7 +2034,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[5]/children/Assignment[2]/variable"/>
+          <variable reference="../../../../SubProgram[4]/children/Assignment[2]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -2438,7 +2077,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[5]/children/Assignment[2]/variable"/>
+              <variable reference="../../../../../../SubProgram[4]/children/Assignment[2]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -2449,7 +2088,7 @@ end
       <children>
         <Comment comment="this program aligns the tcp parallel to the y direction"/>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[5]/children/Assignment/variable"/>
+          <variable reference="../../../../SubProgram[4]/children/Assignment/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -2457,7 +2096,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[5]/children/Assignment[2]/variable"/>
+          <variable reference="../../../../SubProgram[4]/children/Assignment[2]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -2492,7 +2131,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[5]/children/Assignment[2]/variable"/>
+              <variable reference="../../../../../../SubProgram[4]/children/Assignment[2]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -3444,7 +3083,9 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment/variable"/>
+          <variable name="p11" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -3486,7 +3127,9 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[2]/variable"/>
+          <variable name="p12" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -3535,11 +3178,28 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_5" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154"/>
+                  <TCPOffset pose="0.0, 0.0, 0.246, 0.0, 0.0, 0.0"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
             <Waypoint type="Fixed" name="Waypoint_12" kinematicsFlags="1">
               <motionParameters/>
               <position>
-                <JointAngles angles="-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154"/>
-                <TCPOffset pose="0.0, 0.0, 0.246, 0.0, 0.0, 0.0"/>
+                <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
+                <TCPOffset pose="-0.0011568140153006695, -0.095603710023444, 0.2575950646467742, 0.0, 0.0, 0.0"/>
                 <Kinematics status="LINEARIZED" validChecksum="true">
                   <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
                   <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -3588,7 +3248,9 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[3]/variable"/>
+          <variable name="p21" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -3631,7 +3293,9 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[4]/variable"/>
+          <variable name="p22" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -3649,11 +3313,28 @@ end
               <motionParameters/>
               <variable reference="../../../../Assignment[6]/variable"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_13" kinematicsFlags="1">
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_5" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154"/>
+                  <TCPOffset pose="0.0, 0.0, 0.246, 0.0, 0.0, 0.0"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
+            <Waypoint type="Fixed" name="Waypoint_13" kinematicsFlags="-1">
               <motionParameters/>
               <position>
-                <JointAngles angles="-0.26738197008241826, -1.11244489372287, 2.793460194264547, -1.547202582736947, -4.00090462366213, 1.5620925426483154"/>
-                <TCPOffset pose="0.0, 0.0, 0.246, 0.0, 0.0, 0.0"/>
+                <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
+                <TCPOffset pose="-0.0011568140153006695, -0.095603710023444, 0.2575950646467742, 0.0, 0.0, 0.0"/>
                 <Kinematics status="LINEARIZED" validChecksum="true">
                   <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
                   <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
