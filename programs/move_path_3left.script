@@ -1,12 +1,21 @@
 def move_path_3left():
   global _hidden_verificationVariable=0
+  step_count_870d1848_0c03_44fe_a8fe_e2239aa0f969 = 0.0
+  thread Step_Counter_Thread_96f2895e_6f39_4b66_a651_e36e5d98eae2():
+    while (True):
+      step_count_870d1848_0c03_44fe_a8fe_e2239aa0f969 = step_count_870d1848_0c03_44fe_a8fe_e2239aa0f969 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_96f2895e_6f39_4b66_a651_e36e5d98eae2()
+  set_tcp(p[-0.005053217471465032,-0.33170982315522196,0.10357409938002443,1.2092,-1.2092,1.2092])
   set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(8.250000, [-0.001000, -0.057000, 0.067000], [0.051851, 0.051851, 0.051851, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(2.760000, [0.004000, -0.022000, 0.072000], [0.008360, 0.008360, 0.008360, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -14,9 +23,7 @@ def move_path_3left():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tcp(p[0.00838539968723857,-0.33324903375023873,0.07852362563148635,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
-  global Plane_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -143,14 +150,8 @@ def move_path_3left():
   sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
   sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
   # end: URCap Installation Node
-  step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 = 0.0
-  thread Step_Counter_Thread_f54a7e5f_ec86_4eba_9df5_d12722c4c6bb():
-    while (True):
-      step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 = step_count_7874a79c_0a2a_4171_ba02_5a59847e4fd2 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_f54a7e5f_ec86_4eba_9df5_d12722c4c6bb()
+  global Waypoint_13_p=p[-.157621040248, .513353603496, .815677694745, -.672699538592, -1.852318447516, -.055422773001]
+  global Waypoint_13_q=[-2.770456854497091, -1.8207680187621058, 2.3065691629992884, 1.0170823770710449, -1.0767205397235315, -0.8071182409869593]
   global Waypoint_1_p=p[-.161036555831, .970524399959, .722042384791, -.554954311189, .106465018540, .328580879483]
   global Waypoint_1_q=[-1.3071630636798304, -1.3366777312806626, 2.2083633581744593, 3.7187773424335937, -2.9519384543048304, 0.9132363796234131]
   global Waypoint_7_p=p[-.689650873132, .138963273545, .230691387978, -.851994598965, -1.645998530536, 1.646007616333]
@@ -163,6 +164,12 @@ def move_path_3left():
   global Waypoint_5_q=[0.36968713998794556, -0.5732358259013672, 2.138303581868307, 3.1253925996967773, -4.70385724702944, -1.2100523153888147]
   global Waypoint_12_p=p[-.826865752305, .369357632284, .043113676955, .574997346548, -1.492225541214, .597128135378]
   global Waypoint_12_q=[-1.0355513731585901, -0.33930082738909917, 2.126244846974508, 2.9386045175739746, -4.711197797452108, 1.7860286235809326]
+  global Waypoint_16_p=p[.191112811238, .567512170908, .815514010937, -.135771161622, .396053809900, .208825693369]
+  global Waypoint_16_q=[-1.6536315123187464, -1.762029310266012, 2.6225650946246546, 3.2891055780598144, -2.6549678484546106, 0.8520665764808655]
+  global Waypoint_17_p=p[-.254565633623, .502963426820, 1.135401557820, -.261910507478, -.749716086887, 1.349041636154]
+  global Waypoint_17_q=[-2.035229508076803, -1.8928028545775355, 2.468372408543722, 2.19391576826062, -1.167032543812887, -0.5091407934771937]
+  global Waypoint_18_p=p[-.009208376822, .593717720951, .505810027228, -1.424406033077, -2.344120510145, -.527630245278]
+  global Waypoint_18_q=[-2.9172328154193323, -1.9945279560484828, 2.3804522196399134, 0.6930715280720214, -0.5671199003802698, -1.1566088835345667]
   while (True):
     $ 2 "Robot Program"
     $ 3 "'this is the path for Down, Over, then Back Around'"
@@ -170,103 +177,112 @@ def move_path_3left():
     $ 4 "Comment"
     # Comment
     $ 5 "Home"
-    movej([-3.5235366372186707, -1.9259070680664099, 2.3525050044875555, 0.20454112128959331, -0.22302944588515938, -0.6277049025321748], a=1.3962634015954636, v=1.0471975511965976)
+    movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
     $ 6 "MoveJ"
-    $ 7 "Waypoint_1" "breakAfter"
+    $ 7 "Waypoint_13" "breakAfter"
+    movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 8 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 8 "Waypoint_7" "breakAfter"
+    $ 9 "Waypoint_7" "breakAfter"
     movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 9 "Waypoint_4" "breakAfter"
+    $ 10 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 14 "Comment"
+    $ 15 "Comment"
     # Comment
-    $ 15 "p1≔pathturn[0]"
+    $ 16 "p1≔pathturn[0]"
     global p1=pathturn[0]
-    $ 16 "p2≔pathturn[1]"
+    $ 17 "p2≔pathturn[1]"
     global p2=pathturn[1]
-    $ 17 "p4≔pathturn[2]"
+    $ 18 "p4≔pathturn[2]"
     global p4=pathturn[2]
-    $ 18 "p5≔pathturn[3]"
+    $ 19 "p5≔pathturn[3]"
     global p5=pathturn[3]
-    $ 19 "MoveJ"
-    $ 20 "p1" "breakAfter"
+    $ 20 "MoveJ"
+    $ 21 "p1" "breakAfter"
     movej(p1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 21 "Wait: 1.0"
+    $ 22 "Wait: 1.0"
     sleep(1.0)
-    $ 22 "MoveL"
-    $ 23 "p2" "breakAfter"
+    $ 23 "MoveL"
+    $ 24 "p2" "breakAfter"
     movel(p2, a=0.1, v=0.05)
-    $ 24 "Wait: 1.0"
+    $ 25 "Wait: 1.0"
     sleep(1.0)
-    $ 25 "MoveL"
-    $ 26 "p4" "breakAfter"
+    $ 26 "MoveL"
+    $ 27 "p4" "breakAfter"
     movel(p4, a=0.005, v=0.02)
-    $ 27 "MoveL"
-    $ 28 "p5" "breakAfter"
+    $ 28 "MoveL"
+    $ 29 "p5" "breakAfter"
     movel(p5, a=0.1, v=0.05)
-    $ 29 "Comment"
+    $ 30 "Comment"
     # Comment
-    $ 30 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
+    $ 31 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
     global pret1=p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
-    $ 31 "p_1≔pathturn[4]"
+    $ 32 "p_1≔pathturn[4]"
     global p_1=pathturn[4]
-    $ 32 "p_2≔pathturn[5]"
+    $ 33 "p_2≔pathturn[5]"
     global p_2=pathturn[5]
-    $ 33 "p_3≔pathturn[6]"
+    $ 34 "p_3≔pathturn[6]"
     global p_3=pathturn[6]
-    $ 34 "p_4≔pathturn[7]"
+    $ 35 "p_4≔pathturn[7]"
     global p_4=pathturn[7]
-    $ 35 "p_5≔pathturn[8]"
+    $ 36 "p_5≔pathturn[8]"
     global p_5=pathturn[8]
-    $ 36 "MoveJ"
-    $ 37 "pret1" "breakAfter"
+    $ 37 "MoveJ"
+    $ 38 "pret1" "breakAfter"
     movej(pret1, a=1.3962634015954636, v=0.3490658503988659)
-    $ 38 "Waypoint_4" "breakAfter"
+    $ 39 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=0.3490658503988659)
-    $ 39 "'now go into the ccw weld position'"
+    $ 40 "'now go into the ccw weld position'"
     # 'now go into the ccw weld position'
-    $ 40 "Waypoint_7" "breakAfter"
+    $ 41 "Waypoint_7" "breakAfter"
     movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=0.3490658503988659)
-    $ 41 "Comment"
+    $ 42 "Comment"
     # Comment
-    $ 42 "Waypoint_6" "breakAfter"
+    $ 43 "Waypoint_6" "breakAfter"
     movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=0.3490658503988659)
-    $ 43 "Waypoint_5" "breakAfter"
+    $ 44 "Waypoint_5" "breakAfter"
     movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=0.3490658503988659)
-    $ 52 "MoveJ"
-    $ 53 "p_1" "breakAfter"
+    $ 53 "MoveJ"
+    $ 54 "p_1" "breakAfter"
     movej(p_1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 54 "MoveL"
-    $ 55 "p_2" "breakAfter"
+    $ 55 "MoveL"
+    $ 56 "p_2" "breakAfter"
     movel(p_2, a=1.2, v=0.012)
-    $ 56 "MoveP"
-    $ 57 "CircleMove"
-    $ 58 "p_3" "noBreak"
-    $ 59 "p_4" "breakAfter"
+    $ 57 "MoveP"
+    $ 58 "CircleMove"
+    $ 59 "p_3" "noBreak"
+    $ 60 "p_4" "breakAfter"
     movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
-    $ 60 "MoveL"
-    $ 61 "p_5" "breakAfter"
+    $ 61 "MoveL"
+    $ 62 "p_5" "breakAfter"
     movel(p_5, a=1.2, v=0.012)
-    $ 66 "MoveJ"
-    $ 67 "Waypoint_12" "breakAfter"
+    $ 67 "MoveJ"
+    $ 68 "Waypoint_12" "breakAfter"
     movej(get_inverse_kin(Waypoint_12_p, qnear=Waypoint_12_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 68 "Waypoint_7" "breakAfter"
+    $ 69 "Waypoint_7" "breakAfter"
     movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 69 "Comment"
-    # Comment
     $ 70 "Comment"
     # Comment
-    $ 71 "Comment"
+    $ 71 "MoveJ"
+    $ 72 "Waypoint_16" "breakAfter"
+    movej(get_inverse_kin(Waypoint_16_p, qnear=Waypoint_16_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 73 "Waypoint_17" "breakAfter"
+    movej(get_inverse_kin(Waypoint_17_p, qnear=Waypoint_17_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 74 "Waypoint_18" "breakAfter"
+    movej(get_inverse_kin(Waypoint_18_p, qnear=Waypoint_18_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 77 "Comment"
     # Comment
-    $ 72 "Comment"
+    $ 78 "Comment"
     # Comment
-    $ 73 "Comment"
+    $ 79 "Comment"
     # Comment
-    $ 74 "Comment"
+    $ 80 "Comment"
     # Comment
-    $ 75 "Comment"
+    $ 81 "Comment"
     # Comment
-    $ 76 "Home"
-    movej([-3.5235366372186707, -1.9259070680664099, 2.3525050044875555, 0.20454112128959331, -0.22302944588515938, -0.6277049025321748], a=1.3962634015954636, v=1.0471975511965976)
+    $ 82 "Comment"
+    # Comment
+    $ 83 "Home"
+    movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
   end
 end
