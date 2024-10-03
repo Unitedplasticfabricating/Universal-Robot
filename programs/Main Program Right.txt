@@ -42,12 +42,14 @@
        p2
      Serial Bridge uR0
      Wait: 0.1
+     thread2trigger≔ True 
      MoveL
        p4
      Serial Bridge uR1
      MoveL
        p5
      Serial Bridge uR0
+     Wait: 1.0
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
      p_1≔pathturn[4]
@@ -109,7 +111,7 @@
        Waypoint_3
      'extrude out a foot'
      Serial Bridge uR1
-     Wait: 48.0
+     Wait: 24.0
      Serial Bridge uR0
      Popup: grab extrusion then press ok
      Home
@@ -207,4 +209,14 @@
          freedrive_mode()
        Else
          end_freedrive_mode()
+       sync()
+   Thread_2
+     Loop  True 
+       If thread2trigger≟ True 
+         'do the dot extrude'
+         Wait: 3.0
+         Serial Bridge uR1
+         Wait: 2.0
+         Serial Bridge uR0
+         thread2trigger≔ False 
        sync()
