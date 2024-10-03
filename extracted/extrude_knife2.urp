@@ -1,4 +1,4 @@
-<URProgram name="extrude_knife2" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="extrude_knife2_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -7,18 +7,34 @@
     <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
   </kinematics>
   <children>
-    <InitVariablesNode/>
+    <InitVariablesNode>
+      <variables>
+        <variable name="freedrive_m_var">
+          <expression>
+            <ExpressionToken token=" False "/>
+          </expression>
+        </variable>
+        <variable name="thread2trigger">
+          <expression>
+            <ExpressionToken token=" False "/>
+          </expression>
+        </variable>
+      </variables>
+    </InitVariablesNode>
     <MainProgram runOnlyOnce="true" InitVariablesNode="false">
       <children>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        <Set type="NoAction">
+          <tcp referencedName="pretend_welder"/>
+        </Set>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
           <children>
-            <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="3">
               <motionParameters/>
               <position>
-                <JointAngles angles="-3.181993071232931, -2.0569125614561976, 2.211938206349508, -0.22708065927539067, -0.19934207597841436, -0.10534269014467412"/>
-                <TCPOffset pose="-0.005053217471465032, -0.33170982315522196, 0.10357409938002443, 1.2092, -1.2092, 1.2092"/>
+                <JointAngles angles="-3.0947259108172815, -1.8717390499510707, 2.1334107557879847, -0.21609540403399663, -0.2287352720843714, -0.09839088121523076"/>
+                <TCPOffset pose="-0.00438, -0.33062, 0.10207, 1.2092, -1.2092, 1.2092"/>
                 <Kinematics status="LINEARIZED" validChecksum="true">
                   <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
                   <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
