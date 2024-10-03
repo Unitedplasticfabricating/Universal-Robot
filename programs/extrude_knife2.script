@@ -1,4 +1,4 @@
-def test_straight_weld():
+def extrude_knife2():
   global _hidden_verificationVariable=0
   set_target_payload(8.250000, [-0.001000, -0.057000, 0.067000], [0.051851, 0.051851, 0.051851, 0.000000, 0.000000, 0.000000])
   set_safety_mode_transition_hardness(1)
@@ -157,16 +157,6 @@ def test_straight_weld():
   run Step_Counter_Thread_98c53b8f_c26d_4c49_9e89_5a94eefd14b4()
   global Waypoint_8_p=p[.359081530006, .445185990121, .397106285345, 1.952918531567, 2.290647881540, .187158683275]
   global Waypoint_8_q=[-3.181993071232931, -2.0569125614561976, 2.211938206349508, -0.22708065927539067, -0.19934207597841436, -0.10534269014467412]
-  global Waypoint_1_p=p[-.363139328061, .469334526200, .372923313828, .321130277460, 3.110718699137, .105053753359]
-  global Waypoint_1_q=[-1.7868922392474573, -1.6437040768065394, 2.4420865217791956, 1.7428130346485595, 0.012459516525268555, -2.6093266646014612]
-  global Waypoint_4_p=p[-1.302621746323, .471672085666, .225000000000, 1.875615861259, .600131089111, -1.848319178363]
-  global Waypoint_4_q=[-0.7333633944516542, -0.6253910173667014, 0.9832326711779946, 1.2213119616333472, 1.580921504112931, 1.7818058886017758]
-  global Waypoint_5_p=p[-1.433411735503, .473471308954, .225000000000, 1.875280865003, .603722625115, -1.852311916154]
-  global Waypoint_5_q=[-0.6683792703713491, -0.4496419068197399, 0.6219213322793626, 1.4031259616167633, 1.580487111302169, 1.8475669599512976]
-  global Waypoint_6_p=p[-1.188017059666, .139834501007, .225000000000, 1.874814936175, .604332597686, -1.851808986183]
-  global Waypoint_6_q=[-0.5529802356444034, -0.9029593356437218, 1.5295972351126421, 0.9499579130159566, 1.5801176236410068, 1.9621564217352658]
-  global Waypoint_7_p=p[-.982135148678, .139822027395, .225000000000, 1.874813548707, .604322025756, -1.851786018405]
-  global Waypoint_7_q=[-0.6917578954213361, -1.0779895131704667, 1.8527459165188123, 0.8004401611371224, 1.5810879548689707, 1.8233982181559218]
   $ 2 "Robot Program"
   $ 3 "Home"
   movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
@@ -191,51 +181,6 @@ def test_straight_weld():
   # end: URCap Program Node
   $ 10 "Popup: grab extrusion then press ok"
   popup("grab extrusion then press ok", "Message", False, False, blocking=True)
-  $ 11 "'approach'"
-  # 'approach'
-  $ 12 "MoveJ"
-  $ 13 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 16 "Waypoint_4" "breakAfter"
-  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 17 "'get into position'"
-  # 'get into position'
-  $ 18 "MoveL"
-  $ 19 "Waypoint_5" "breakAfter"
-  movel(Waypoint_5_p, a=0.1, v=0.02)
-  $ 20 "'preheat'"
-  # 'preheat'
-  $ 21 "Wait: 8.0"
-  sleep(8.0)
-  $ 22 "'extrude'"
-  # 'extrude'
-  # begin: URCap Program Node
-  #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-  #   Type: WireTank Serial
-  $ 23 "Serial Bridge uR1"
-  SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,49], False)
-  # end: URCap Program Node
-  $ 24 "Wait: 0.1"
-  sleep(0.1)
-  $ 25 "MoveL"
-  $ 26 "Waypoint_6" "breakAfter"
-  movel(Waypoint_6_p, a=0.05, v=0.01)
-  # begin: URCap Program Node
-  #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-  #   Type: WireTank Serial
-  $ 27 "Serial Bridge uR0"
-  SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,48], False)
-  # end: URCap Program Node
-  $ 28 "MoveJ"
-  $ 29 "Waypoint_7" "breakAfter"
-  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 30 "'go back'"
-  # 'go back'
-  $ 31 "MoveJ"
-  $ 32 "Waypoint_4" "breakAfter"
-  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 35 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 36 "Home"
+  $ 11 "Home"
   movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
 end

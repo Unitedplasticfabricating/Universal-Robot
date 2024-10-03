@@ -8,7 +8,7 @@
      Set
      Corner_Homing_45()
      Set
-     extrude_knife2()
+     extrude_knife()
      Script: analyze_touchpoints.script
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
      'Call move_path_1'
@@ -22,7 +22,7 @@
      Comment
      Home
      MoveJ
-       Waypoint_6
+       Waypoint_25
        Waypoint_1
        Waypoint_7
        'Waypoint_1'
@@ -36,18 +36,14 @@
      p5≔pathturn[3]
      MoveJ
        p1
-     Wait: 8.0
-     Serial Bridge uR1
+     Wait: 6.0
      MoveL
        p2
-     Serial Bridge uR0
      Wait: 0.1
      MoveL
        p4
-     Serial Bridge uR1
      MoveL
        p5
-     Serial Bridge uR0
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
      p_1≔pathturn[4]
@@ -62,7 +58,6 @@
        Waypoint_22
      MoveJ
        p_1
-     Serial Bridge uR1
      MoveL
        p_2
      MoveP
@@ -71,7 +66,6 @@
          p_4
      MoveL
        p_5
-     Serial Bridge uR0
      MoveL
        Waypoint_23
      MoveJ
@@ -97,22 +91,27 @@
      sync()
      tcp_pose≔get_actual_joint_positions()
    'move_path_1'
+   extrude_knife
+     'Move to bucket'
+     MoveJ
+       Waypoint_3
+     MoveL
+       Waypoint_4
+     'extrude out a foot'
+     Wait: 6.0
+     MoveL
+       'slice over knife'
+       Waypoint_5
+     MoveL
+       Waypoint_6
+       'raise up away from knife'
+     Home
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
      aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
      MoveJ
        aligned_y_pose
-   extrude_knife2
-     Home
-     MoveJ
-       Waypoint_3
-     'extrude out a foot'
-     Serial Bridge uR1
-     Wait: 48.0
-     Serial Bridge uR0
-     Popup: grab extrusion then press ok
-     Home
    align_tcp_forward
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
