@@ -38,7 +38,7 @@
        p1
      Wait: 8.0
      Serial Bridge uR1
-     Wait: 0.5
+     Wait: 1.0
      MoveL
        p2
      Serial Bridge uR0
@@ -59,10 +59,17 @@
      p_3≔pathturn[6]
      p_4≔pathturn[7]
      p_5≔pathturn[8]
+     p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      MoveJ
        pret1
        Waypoint_8
        Waypoint_9
+       Waypoint_22
+     'preheat'
+     MoveJ
+       p_preheat
+     Wait: 8.0
+     MoveJ
        Waypoint_22
      Set
      MoveJ
@@ -75,12 +82,10 @@
        CircleMove
          p_3
          p_4
-     Serial Bridge uR0
-     Wait: 5.0
-     Serial Bridge uR1
      MoveL
        p_5
      Serial Bridge uR0
+     Wait: 2.0
      MoveL
        Waypoint_23
      MoveJ
@@ -224,7 +229,7 @@
          'do the dot extrude'
          Wait: 5.0
          Serial Bridge uR1
-         Wait: 4.0
+         Wait: 2.0
          Serial Bridge uR0
          thread2trigger≔ False 
        sync()
