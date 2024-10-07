@@ -1551,7 +1551,7 @@ end
                 </dataModel>
               </Contributed>
               <Wait type="Sleep">
-                <waitTime>1.0</waitTime>
+                <waitTime>2.0</waitTime>
               </Wait>
               <Comment/>
               <Assignment valueSource="Expression">
@@ -1746,6 +1746,9 @@ end
                   </Waypoint>
                 </children>
               </Move>
+              <Set type="NoAction">
+                <tcp referencedName="backofhole"/>
+              </Set>
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
@@ -1757,16 +1760,19 @@ end
               </Move>
               <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
                 <dataModel>
-                  <data key="byte_array" value="true"/>
                   <data key="NODE_TITLE" value="Serial Bridge uR1"/>
                   <data key="Command" value="[252,82,49]"/>
                   <data key="QUERY" value="false"/>
                   <data key="OUTPUT_ENTRY" value="Static"/>
+                  <data key="byte_array" value="true"/>
                   <Variable key="OUTPUT_VARIABLE">
-                    <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
+                    <variable reference="../../../../Contributed/dataModel/Variable/variable"/>
                   </Variable>
                 </dataModel>
               </Contributed>
+              <Wait type="Sleep">
+                <waitTime>1.0</waitTime>
+              </Wait>
               <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
@@ -1776,7 +1782,7 @@ end
                   </Waypoint>
                 </children>
               </Move>
-              <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+              <Move motionType="MoveP" speed="0.001" acceleration="0.02" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
                   <CircleMove OrientationMode="FIXED">
@@ -2030,7 +2036,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="extrude_knife2" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/extrude_knife2.urp</programFile>
+      <programFile>/programs/extrude_knife2.urp</programFile>
       <children>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <Set type="NoAction">
