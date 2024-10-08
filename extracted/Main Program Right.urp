@@ -388,10 +388,14 @@ def calculate_DOtA_points_right(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l1delxunit * zup
@@ -405,7 +409,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x, y, z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -415,8 +419,8 @@ def calculate_DOtA_points_right(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l1delxunit * wd
-    y = y + l1delyunit * wd
+    x = x + l1delxunit * wd2
+    y = y + l1delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -438,8 +442,8 @@ def calculate_DOtA_points_right(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
 
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * wd
-    y = pointintersect[1] + l2delyunit * wd
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading3)
     rx = rxryrz[0]
@@ -1495,14 +1499,16 @@ end
               <Wait type="Sleep">
                 <waitTime>0.5</waitTime>
               </Wait>
-              <Assignment valueSource="Expression">
-                <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-                <expression>
-                  <ExpressionToken token=" True "/>
-                </expression>
-              </Assignment>
+              <SuppressedNode>
+                <suppressedNode class="Assignment" valueSource="Expression">
+                  <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionToken token=" True "/>
+                  </expression>
+                </suppressedNode>
+              </SuppressedNode>
               <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
@@ -1747,12 +1753,69 @@ end
                   <ExpressionChar character="]"/>
                 </expression>
               </Assignment>
+              <Assignment valueSource="Expression">
+                <variable name="p_pre_ret" prefersPersistentValue="false" favourite="false">
+                  <initializeExpression/>
+                </variable>
+                <expression>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="3"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="0"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character="+"/>
+                  <ExpressionChar character="."/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character=","/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="3"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character="+"/>
+                  <ExpressionChar character="."/>
+                  <ExpressionChar character="1"/>
+                  <ExpressionChar character=","/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="3"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="2"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character=","/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="2"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="3"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character=","/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="2"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="4"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character=","/>
+                  <ExpressionChar character="p"/>
+                  <ExpressionChar character="_"/>
+                  <ExpressionChar character="2"/>
+                  <ExpressionChar character="["/>
+                  <ExpressionChar character="5"/>
+                  <ExpressionChar character="]"/>
+                  <ExpressionChar character="]"/>
+                </expression>
+              </Assignment>
               <Move motionType="MoveJ" speed="1.3962634015954636" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
                   <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <variable reference="../../../../Assignment[6]/variable"/>
+                    <variable reference="../../../../Assignment[5]/variable"/>
                   </Waypoint>
                   <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
                     <motionParameters jointSpeed="1.0471975511965976" jointAcceleration="1.3962634015954636" cartesianSpeed="0.25" cartesianAcceleration="1.2"/>
@@ -1809,6 +1872,10 @@ end
                     <motionParameters/>
                     <variable reference="../../../../Assignment[12]/variable"/>
                   </Waypoint>
+                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                    <motionParameters/>
+                    <variable reference="../../../../Assignment[11]/variable"/>
+                  </Waypoint>
                 </children>
               </Move>
               <Wait type="Sleep">
@@ -1817,20 +1884,9 @@ end
               <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                 <feature class="GeomFeatureReference" reference="../../../../../SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
                 <children>
-                  <Waypoint type="Fixed" name="Waypoint_22" kinematicsFlags="-1">
+                  <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <position>
-                      <JointAngles angles="-1.4685500303851526, -0.9664557737163086, 1.6195090452777308, 0.9282776552387695, 1.6574476957321167, 0.2630845010280609"/>
-                      <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
-                      <Kinematics status="LINEARIZED" validChecksum="true">
-                        <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                        <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                        <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                        <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                        <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                      </Kinematics>
-                    </position>
-                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    <variable reference="../../../../Assignment[12]/variable"/>
                   </Waypoint>
                 </children>
               </Move>
@@ -1842,7 +1898,7 @@ end
                 <children>
                   <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <variable reference="../../../../Assignment[7]/variable"/>
+                    <variable reference="../../../../Assignment[6]/variable"/>
                   </Waypoint>
                 </children>
               </Move>
@@ -1866,7 +1922,7 @@ end
                 <children>
                   <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <variable reference="../../../../Assignment[8]/variable"/>
+                    <variable reference="../../../../Assignment[7]/variable"/>
                   </Waypoint>
                 </children>
               </Move>
@@ -1876,10 +1932,10 @@ end
                   <CircleMove OrientationMode="FIXED">
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                        <variable reference="../../../../../../Assignment[9]/variable"/>
+                        <variable reference="../../../../../../Assignment[8]/variable"/>
                       </Waypoint>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                        <variable reference="../../../../../../Assignment[10]/variable"/>
+                        <variable reference="../../../../../../Assignment[9]/variable"/>
                       </Waypoint>
                     </children>
                   </CircleMove>
@@ -1890,7 +1946,7 @@ end
                 <children>
                   <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                     <motionParameters/>
-                    <variable reference="../../../../Assignment[11]/variable"/>
+                    <variable reference="../../../../Assignment[10]/variable"/>
                   </Waypoint>
                 </children>
               </Move>
@@ -2652,10 +2708,14 @@ def calculate_DOtA_points_right(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l1delxunit * zup
@@ -2669,7 +2729,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x, y, z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -2679,8 +2739,8 @@ def calculate_DOtA_points_right(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l1delxunit * wd
-    y = y + l1delyunit * wd
+    x = x + l1delxunit * wd2
+    y = y + l1delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -2702,8 +2762,8 @@ def calculate_DOtA_points_right(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
 
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * wd
-    y = pointintersect[1] + l2delyunit * wd
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading3)
     rx = rxryrz[0]
@@ -3776,7 +3836,7 @@ end
                   </dataModel>
                 </Contributed>
                 <Assignment valueSource="Expression">
-                  <variable reference="../../../../../../../../MainProgram/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+                  <variable reference="../../../../../../../../MainProgram/children/CallSubProgram/subprogram/children/SuppressedNode/suppressedNode/variable"/>
                   <expression>
                     <ExpressionToken token=" False "/>
                   </expression>
