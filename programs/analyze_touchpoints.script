@@ -284,10 +284,14 @@ def calculate_DOtA_points_right(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l1delxunit * zup
@@ -301,7 +305,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x, y, z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -311,8 +315,8 @@ def calculate_DOtA_points_right(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l1delxunit * wd
-    y = y + l1delyunit * wd
+    x = x + l1delxunit * wd2
+    y = y + l1delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -334,8 +338,8 @@ def calculate_DOtA_points_right(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
 
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * wd
-    y = pointintersect[1] + l2delyunit * wd
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading3)
     rx = rxryrz[0]
