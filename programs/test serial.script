@@ -1,20 +1,13 @@
 def test_serial():
   global _hidden_verificationVariable=0
-  step_count_85f52e7a_a4cf_42b3_b7ba_4203a53470ff = 0.0
-  thread Step_Counter_Thread_9bbfdab2_a068_4619_bda5_e795f8267298():
-    while (True):
-      step_count_85f52e7a_a4cf_42b3_b7ba_4203a53470ff = step_count_85f52e7a_a4cf_42b3_b7ba_4203a53470ff + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_9bbfdab2_a068_4619_bda5_e795f8267298()
+  set_tcp(p[-0.00438,-0.33062,0.10207,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_target_payload(8.250000, [-0.001000, -0.057000, 0.067000], [0.051851, 0.051851, 0.051851, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -22,8 +15,7 @@ def test_serial():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(8.250000, [-0.001000, -0.057000, 0.067000], [0.051851, 0.051851, 0.051851, 0.000000, 0.000000, 0.000000])
-  set_tcp(p[-0.00438,-0.33062,0.10207,1.2092,-1.2092,1.2092])
+  set_gravity([0.0, 0.0, 9.82])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -155,6 +147,14 @@ def test_serial():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_51af8de3_71b6_4904_b866_4a648f97dfbd = 0.0
+  thread Step_Counter_Thread_b894e04d_ed7b_4f14_91e2_7b90849917c2():
+    while (True):
+      step_count_51af8de3_71b6_4904_b866_4a648f97dfbd = step_count_51af8de3_71b6_4904_b866_4a648f97dfbd + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_b894e04d_ed7b_4f14_91e2_7b90849917c2()
   $ 2 "Robot Program"
   $ 3 "Popup: starting"
   popup("starting", "Message", False, False, blocking=True)
@@ -168,6 +168,12 @@ def test_serial():
   # end: URCap Program Node
   $ 6 "Wait: 5.0"
   sleep(5.0)
+  # begin: URCap Program Node
+  #   Source: WireTank Serial, 4.8.0, WireTank, LLC
+  #   Type: WireTank Serial
+  $ 7 "Serial Bridge uh?"
+  HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,104,63], True)
+  # end: URCap Program Node
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.8.0, WireTank, LLC
   #   Type: WireTank Serial
