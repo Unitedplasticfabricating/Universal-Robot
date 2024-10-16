@@ -457,9 +457,52 @@ end
 # this function analyzes the vertical points
 # calculates the slope of the edge in question
 # specifically, for each inch up in the z direction, what is the change in x and change in y direction
-# returns a struct of (xvertdel, yvertdel)
+# returns a list of [nx, ny]
 def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
-    
+    # first, find the equations of the planes from the 6 points
+    plane1 = findplane(p11, p12, p13)
+    plane2 = findplane(p21, p22, p23)
+    # Find the Direction Vector of the Line: The direction vector d of the line of intersection can be found by taking the cross product of the normal vectors of each plane (a, b, and c)
+    nx = plane1[1]*plane2[2] - plane1[2]*plane2[1]
+    ny = plane1[2]*plane2[0] - plane1[0]*plane2[2]
+    nz = plane1[0]*plane2[1] - plane1[1]*plane2[0]
+    # normalize the vector so the z length is 1
+    multiplier = 1 / nz
+    nx = nx * multiplier
+    ny = ny * multiplier
+    nz = nz * multiplier # should become equal to 1
+    ret = [nx, ny]
+    return ret
+end
+
+# given 3 points, this finds the plane and its equation
+# rereturns ax + by + cz + d = 0 in a list of [a, b, c, d]
+def findplane(p11, p12, p13):
+    # extract coordinates
+    x1 = p11[0]
+    y1 = p11[1]
+    z1 = p11[2]
+    x2 = p12[0]
+    y2 = p12[1]
+    z2 = p12[2]
+    x3 = p13[0]
+    y3 = p13[1]
+    z3 = p13[2]
+    # create vectors from the points
+    v1x = x2-x1
+    v1y = y2-y1
+    v1z = z2-z1
+    v2x = x3-x1
+    v2y = y3-y1
+    v2z = z3-z1
+    #calculate the normal vector using the cross product
+    nx = v1y*v2z - v1z*v2y # i component
+    ny = v1z*v2x - v1x*v2z # j component
+    nz = v1x*v2y - v1y*v2x # k component
+    # calculate d in the plane equation
+    d = -1 * (nx*x1 + ny*y1 + nz*z1)
+    ret = [nx, ny, nz, d]
+    return ret
 end
 
 # given a heading, (ccw from +x axis), find the mx+b slope
