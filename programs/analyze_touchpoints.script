@@ -657,8 +657,9 @@ def get_corner_homing_45_pathpoints(point0):
   #constants
   #distances of how far away from point the touchpoints are
   d0 = 0.15 # how far from the box to retreat and approach
-  d1 = 0.05
-  d2 = 0.2
+  d1 = 0.05 # first distance from init point
+  d2 = 0.2 # second distance from init point
+  d3 = 0.125 #vertical distance from first point
   sqrt2 = 0.707106781
   
   ph1 = p[p0x + d0, p0y, p0z + .05, p0rx, p0ry, p0rz] #approach point for turn
@@ -672,6 +673,10 @@ def get_corner_homing_45_pathpoints(point0):
   ph6 = p[p0x + .05, p0y, p0z -.05, 0, 0, 0] # approach point for under turn
   # moveL from ph1 to ph6
   ph7 = p[p0x-.05, p0y, p0z-.05, 0, 0, 0]
-  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7)
+  
+  # add the vertical touch points
+  ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
+  ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
   return ret
 end
