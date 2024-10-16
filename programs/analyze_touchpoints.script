@@ -8,7 +8,8 @@ pi = 3.1415926535
 # specifically for right-sided boxes (vertical weld on right side of edge)
 def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_right(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right(struct1, list1)
     return struct2
 end
 
@@ -270,7 +271,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_right(struct1):
+def calculate_DOtA_points_right(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -305,7 +306,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd1, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
