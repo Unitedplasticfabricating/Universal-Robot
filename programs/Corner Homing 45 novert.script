@@ -1,4 +1,4 @@
-def Corner_Homing_45():
+def Corner_Homing_45_novert():
   global _hidden_verificationVariable=0
   step_count_e6c505da_f58a_45bb_b993_633d9c8e2d74 = 0.0
   thread Step_Counter_Thread_b5100ddf_8e5e_4bd6_b482_7e35b90b5ffb():
@@ -937,33 +937,29 @@ def Corner_Homing_45():
   global ph6=path_pre[5]
   $ 21 "ph7≔path_pre[6]"
   global ph7=path_pre[6]
-  $ 22 "ph2up≔path_pre[7]"
-  global ph2up=path_pre[7]
-  $ 23 "ph4up≔path_pre[8]"
-  global ph4up=path_pre[8]
-  $ 24 "MoveJ"
-  $ 25 "ph1" "breakAfter"
+  $ 22 "MoveJ"
+  $ 23 "ph1" "breakAfter"
   movej(ph1, a=1.3962634015954636, v=1.0471975511965976)
-  $ 26 "ph2" "breakAfter"
+  $ 24 "ph2" "breakAfter"
   movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
-  $ 27 "MoveL"
-  $ 28 "Direction: Base"
-  global move_thread_flag_28=0
-  thread move_thread_28():
+  $ 25 "MoveL"
+  $ 26 "Direction: Base"
+  global move_thread_flag_26=0
+  thread move_thread_26():
     enter_critical
-    move_thread_flag_28 = 1
+    move_thread_flag_26 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_28 = 2
+    move_thread_flag_26 = 2
     exit_critical
   end
-  move_thread_flag_28 = 0
-  move_thread_han_28 = run move_thread_28()
+  move_thread_flag_26 = 0
+  move_thread_han_26 = run move_thread_26()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_28
+      kill move_thread_han_26
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -975,73 +971,34 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 29 "Until (tool_contact_detection)"
+      $ 27 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 30 "p11≔get_actual_tcp_pose()"
+  $ 28 "p11≔get_actual_tcp_pose()"
   global p11= get_actual_tcp_pose ()
-  $ 31 "MoveJ"
-  $ 32 "ph2up" "breakAfter"
-  movej(ph2up, a=1.3962634015954636, v=1.0471975511965976)
-  $ 33 "MoveL"
-  $ 34 "Direction: Base"
-  global move_thread_flag_34=0
-  thread move_thread_34():
-    enter_critical
-    move_thread_flag_34 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
-    movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_34 = 2
-    exit_critical
-  end
-  move_thread_flag_34 = 0
-  move_thread_han_34 = run move_thread_34()
-  while (True):
-    local targetTcpDirection=get_target_tcp_speed()
-    local stepsToRetract=tool_contact(direction=targetTcpDirection)
-    if (stepsToRetract > 0):
-      kill move_thread_han_34
-      stopl(3.0)
-      local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-      local contactPose=get_forward_kin(backTrackMovement)
-      local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-      local retractTo=contactPose
-      if (norm(posDir) > 1e-6):
-        local normalizedPosDir=normalize(posDir)
-        local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-        retractTo = pose_sub(contactPose, additionalRetraction)
-      end
-      movel(retractTo, a=3.0, v=0.1)
-      $ 35 "Until (tool_contact_detection)"
-      break
-    end
-    sync()
-  end
-  $ 36 "p13≔get_actual_tcp_pose()"
-  global p13= get_actual_tcp_pose ()
-  $ 37 "MoveJ"
-  $ 38 "ph3" "breakAfter"
+  $ 29 "MoveJ"
+  $ 30 "ph3" "breakAfter"
   movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-  $ 39 "MoveL"
-  $ 40 "Direction: Base"
-  global move_thread_flag_40=0
-  thread move_thread_40():
+  $ 31 "MoveL"
+  $ 32 "Direction: Base"
+  global move_thread_flag_32=0
+  thread move_thread_32():
     enter_critical
-    move_thread_flag_40 = 1
+    move_thread_flag_32 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_40 = 2
+    move_thread_flag_32 = 2
     exit_critical
   end
-  move_thread_flag_40 = 0
-  move_thread_han_40 = run move_thread_40()
+  move_thread_flag_32 = 0
+  move_thread_han_32 = run move_thread_32()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_40
+      kill move_thread_han_32
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -1053,44 +1010,44 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 41 "Until (tool_contact_detection)"
+      $ 33 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 42 "p12≔get_actual_tcp_pose()"
+  $ 34 "p12≔get_actual_tcp_pose()"
   global p12= get_actual_tcp_pose ()
-  $ 43 "MoveJ"
-  $ 44 "ph3" "breakAfter"
+  $ 35 "MoveJ"
+  $ 36 "ph3" "breakAfter"
   movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-  $ 45 "Waypoint_4" "breakAfter"
+  $ 37 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 46 "MoveJ"
-  $ 47 "Waypoint_6" "breakAfter"
+  $ 38 "MoveJ"
+  $ 39 "Waypoint_6" "breakAfter"
   movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=0.3490658503988659)
-  $ 49 "Waypoint_7" "breakAfter"
+  $ 41 "Waypoint_7" "breakAfter"
   movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=0.3490658503988659)
-  $ 50 "MoveJ"
-  $ 51 "ph4" "breakAfter"
+  $ 42 "MoveJ"
+  $ 43 "ph4" "breakAfter"
   movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-  $ 52 "MoveL"
-  $ 53 "Direction: Base"
-  global move_thread_flag_53=0
-  thread move_thread_53():
+  $ 44 "MoveL"
+  $ 45 "Direction: Base"
+  global move_thread_flag_45=0
+  thread move_thread_45():
     enter_critical
-    move_thread_flag_53 = 1
+    move_thread_flag_45 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_53 = 2
+    move_thread_flag_45 = 2
     exit_critical
   end
-  move_thread_flag_53 = 0
-  move_thread_han_53 = run move_thread_53()
+  move_thread_flag_45 = 0
+  move_thread_han_45 = run move_thread_45()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_53
+      kill move_thread_han_45
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -1102,34 +1059,34 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 54 "Until (tool_contact_detection)"
+      $ 46 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 55 "p21≔get_actual_tcp_pose()"
+  $ 47 "p21≔get_actual_tcp_pose()"
   global p21= get_actual_tcp_pose ()
-  $ 56 "MoveJ"
-  $ 57 "ph4up" "breakAfter"
-  movej(ph4up, a=1.3962634015954636, v=1.0471975511965976)
-  $ 58 "MoveL"
-  $ 59 "Direction: Base"
-  global move_thread_flag_59=0
-  thread move_thread_59():
+  $ 48 "MoveJ"
+  $ 49 "ph5" "breakAfter"
+  movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
+  $ 50 "MoveL"
+  $ 51 "Direction: Base"
+  global move_thread_flag_51=0
+  thread move_thread_51():
     enter_critical
-    move_thread_flag_59 = 1
+    move_thread_flag_51 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_59 = 2
+    move_thread_flag_51 = 2
     exit_critical
   end
-  move_thread_flag_59 = 0
-  move_thread_han_59 = run move_thread_59()
+  move_thread_flag_51 = 0
+  move_thread_han_51 = run move_thread_51()
   while (True):
     local targetTcpDirection=get_target_tcp_speed()
     local stepsToRetract=tool_contact(direction=targetTcpDirection)
     if (stepsToRetract > 0):
-      kill move_thread_han_59
+      kill move_thread_han_51
       stopl(3.0)
       local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
       local contactPose=get_forward_kin(backTrackMovement)
@@ -1141,23 +1098,37 @@ def Corner_Homing_45():
         retractTo = pose_sub(contactPose, additionalRetraction)
       end
       movel(retractTo, a=3.0, v=0.1)
-      $ 60 "Until (tool_contact_detection)"
+      $ 52 "Until (tool_contact_detection)"
       break
     end
     sync()
   end
-  $ 61 "p23≔get_actual_tcp_pose()"
-  global p23= get_actual_tcp_pose ()
-  $ 62 "MoveJ"
-  $ 63 "ph5" "breakAfter"
+  $ 53 "p22≔get_actual_tcp_pose()"
+  global p22= get_actual_tcp_pose ()
+  $ 54 "MoveJ"
+  $ 55 "ph5" "breakAfter"
   movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
+  $ 56 "ph4" "breakAfter"
+  movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
+  $ 58 "Waypoint_7" "breakAfter"
+  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 59 "Waypoint_6" "breakAfter"
+  movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 60 "Waypoint_4" "breakAfter"
+  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 61 "Waypoint_3" "breakAfter"
+  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 62 "ph6" "breakAfter"
+  movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
+  $ 63 "ph7" "breakAfter"
+  movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
   $ 64 "MoveL"
-  $ 65 "Direction: Base"
+  $ 65 "Direction: Base Z+"
   global move_thread_flag_65=0
   thread move_thread_65():
     enter_critical
     move_thread_flag_65 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
     movel(towardsPos, a=0.1, v=0.05)
     move_thread_flag_65 = 2
     exit_critical
@@ -1185,82 +1156,29 @@ def Corner_Homing_45():
     end
     sync()
   end
-  $ 67 "p22≔get_actual_tcp_pose()"
-  global p22= get_actual_tcp_pose ()
-  $ 68 "MoveJ"
-  $ 69 "ph5" "breakAfter"
-  movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
-  $ 70 "ph4" "breakAfter"
-  movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-  $ 72 "Waypoint_7" "breakAfter"
-  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 73 "Waypoint_6" "breakAfter"
-  movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 74 "Waypoint_4" "breakAfter"
-  movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 75 "Waypoint_3" "breakAfter"
-  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 76 "ph6" "breakAfter"
-  movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-  $ 77 "ph7" "breakAfter"
-  movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-  $ 78 "MoveL"
-  $ 79 "Direction: Base Z+"
-  global move_thread_flag_79=0
-  thread move_thread_79():
-    enter_critical
-    move_thread_flag_79 = 1
-    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
-    movel(towardsPos, a=0.1, v=0.05)
-    move_thread_flag_79 = 2
-    exit_critical
-  end
-  move_thread_flag_79 = 0
-  move_thread_han_79 = run move_thread_79()
-  while (True):
-    local targetTcpDirection=get_target_tcp_speed()
-    local stepsToRetract=tool_contact(direction=targetTcpDirection)
-    if (stepsToRetract > 0):
-      kill move_thread_han_79
-      stopl(3.0)
-      local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-      local contactPose=get_forward_kin(backTrackMovement)
-      local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-      local retractTo=contactPose
-      if (norm(posDir) > 1e-6):
-        local normalizedPosDir=normalize(posDir)
-        local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-        retractTo = pose_sub(contactPose, additionalRetraction)
-      end
-      movel(retractTo, a=3.0, v=0.1)
-      $ 80 "Until (tool_contact_detection)"
-      break
-    end
-    sync()
-  end
-  $ 81 "p3≔get_actual_tcp_pose()"
+  $ 67 "p3≔get_actual_tcp_pose()"
   global p3= get_actual_tcp_pose ()
-  $ 82 "MoveJ"
-  $ 83 "ph7" "breakAfter"
+  $ 68 "MoveJ"
+  $ 69 "ph7" "breakAfter"
   movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-  $ 84 "ph6" "breakAfter"
+  $ 70 "ph6" "breakAfter"
   movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-  $ 85 "Waypoint_3" "breakAfter"
+  $ 71 "Waypoint_3" "breakAfter"
   movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 86 "Waypoint_4" "breakAfter"
+  $ 72 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 87 "Home"
+  $ 73 "Home"
   movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
-  $ 88 "Comment"
+  $ 74 "Comment"
   # Comment
-  $ 89 "Comment"
+  $ 75 "Comment"
   # Comment
-  $ 90 "Comment"
+  $ 76 "Comment"
   # Comment
-  $ 91 "Comment"
+  $ 77 "Comment"
   # Comment
-  $ 92 "Comment"
+  $ 78 "Comment"
   # Comment
-  $ 93 "Comment"
+  $ 79 "Comment"
   # Comment
 end

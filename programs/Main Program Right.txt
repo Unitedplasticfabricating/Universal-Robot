@@ -13,7 +13,7 @@
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
      'Call move_path_1'
      'MoveJ'
-     pathturn≔main_calculate_right(p11,p12,p21,p22,p3)
+     pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23)
      'Popup'
      Call move_path_3right
      Home
@@ -163,6 +163,8 @@
      ph5≔path_pre[4]
      ph6≔path_pre[5]
      ph7≔path_pre[6]
+     ph2up≔path_pre[7]
+     ph4up≔path_pre[8]
      MoveJ
        ph1
        ph2
@@ -171,6 +173,12 @@
          Until (tool_contact_detection)
      p11≔get_actual_tcp_pose()
      MoveJ
+       ph2up
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p13≔get_actual_tcp_pose()
+     MoveJ
        ph3
      MoveL
        Direction: Base
@@ -178,17 +186,23 @@
      p12≔get_actual_tcp_pose()
      MoveJ
        ph3
-       Waypoint_10
+       Waypoint_4
      MoveJ
-       Waypoint_11
+       Waypoint_5
        'Waypoint_5'
-       Waypoint_12
+       Waypoint_10
      MoveJ
        ph4
      MoveL
        Direction: Base
          Until (tool_contact_detection)
      p21≔get_actual_tcp_pose()
+     MoveJ
+       ph4up
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p23≔get_actual_tcp_pose()
      MoveJ
        ph5
      MoveL
@@ -199,10 +213,10 @@
        ph5
        ph4
        'Waypoint_5'
+       Waypoint_11
+       Waypoint_12
+       Waypoint_4
        Waypoint_13
-       Waypoint_14
-       Waypoint_15
-       Waypoint_16
        ph6
        ph7
      MoveL
@@ -212,8 +226,8 @@
      MoveJ
        ph7
        ph6
-       Waypoint_17
-       Waypoint_18
+       Waypoint_14
+       Waypoint_4
      Home
      Comment
      Comment

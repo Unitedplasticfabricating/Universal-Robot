@@ -110,9 +110,10 @@ pi = 3.1415926535
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3):
+def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_right(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right(struct1, list1)
     return struct2
 end
 
@@ -374,7 +375,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_right(struct1):
+def calculate_DOtA_points_right(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -409,7 +410,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd1, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -556,6 +557,57 @@ def calculate_DOtA_points_left(struct1):
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
+end
+
+# this function analyzes the vertical points
+# calculates the slope of the edge in question
+# specifically, for each inch up in the z direction, what is the change in x and change in y direction
+# returns a list of [nx, ny]
+def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
+    # first, find the equations of the planes from the 6 points
+    plane1 = findplane(p11, p12, p13)
+    plane2 = findplane(p21, p22, p23)
+    # Find the Direction Vector of the Line: The direction vector d of the line of intersection can be found by taking the cross product of the normal vectors of each plane (a, b, and c)
+    nx = plane1[1]*plane2[2] - plane1[2]*plane2[1]
+    ny = plane1[2]*plane2[0] - plane1[0]*plane2[2]
+    nz = plane1[0]*plane2[1] - plane1[1]*plane2[0]
+    # normalize the vector so the z length is 1
+    multiplier = 1 / nz
+    nx = nx * multiplier
+    ny = ny * multiplier
+    nz = nz * multiplier # should become equal to 1
+    ret = [nx, ny]
+    return ret
+end
+
+# given 3 points, this finds the plane and its equation
+# rereturns ax + by + cz + d = 0 in a list of [a, b, c, d]
+def findplane(p11, p12, p13):
+    # extract coordinates
+    x1 = p11[0]
+    y1 = p11[1]
+    z1 = p11[2]
+    x2 = p12[0]
+    y2 = p12[1]
+    z2 = p12[2]
+    x3 = p13[0]
+    y3 = p13[1]
+    z3 = p13[2]
+    # create vectors from the points
+    v1x = x2-x1
+    v1y = y2-y1
+    v1z = z2-z1
+    v2x = x3-x1
+    v2y = y3-y1
+    v2z = z3-z1
+    #calculate the normal vector using the cross product
+    nx = v1y*v2z - v1z*v2y # i component
+    ny = v1z*v2x - v1x*v2z # j component
+    nz = v1x*v2y - v1y*v2x # k component
+    # calculate d in the plane equation
+    d = -1 * (nx*x1 + ny*y1 + nz*z1)
+    ret = [nx, ny, nz, d]
+    return ret
 end
 
 # given a heading, (ccw from +x axis), find the mx+b slope
@@ -1076,7 +1128,9 @@ end
                     <CircleMove OrientationMode="FIXED">
                       <children>
                         <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                          <variable reference="../../../../../../Assignment[5]/variable"/>
+                          <variable name="p3" prefersPersistentValue="false" favourite="false">
+                            <initializeExpression/>
+                          </variable>
                         </Waypoint>
                         <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                           <variable reference="../../../../../../Assignment[6]/variable"/>
@@ -1264,6 +1318,14 @@ end
             <ExpressionChar character="2"/>
             <ExpressionChar character=","/>
             <ExpressionChar character="p"/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="2"/>
             <ExpressionChar character="3"/>
             <ExpressionChar character=")"/>
           </expression>
@@ -2429,7 +2491,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="Corner_Homing_45" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile>/programs/Corner Homing 45.urp</programFile>
+      <programFile resolves-to="file">/programs/Corner Homing 45.urp</programFile>
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
@@ -2499,9 +2561,10 @@ pi = 3.1415926535
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3):
+def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_right(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right(struct1, list1)
     return struct2
 end
 
@@ -2763,7 +2826,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_right(struct1):
+def calculate_DOtA_points_right(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -2798,7 +2861,7 @@ def calculate_DOtA_points_right(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd1, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -2945,6 +3008,57 @@ def calculate_DOtA_points_left(struct1):
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
+end
+
+# this function analyzes the vertical points
+# calculates the slope of the edge in question
+# specifically, for each inch up in the z direction, what is the change in x and change in y direction
+# returns a list of [nx, ny]
+def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
+    # first, find the equations of the planes from the 6 points
+    plane1 = findplane(p11, p12, p13)
+    plane2 = findplane(p21, p22, p23)
+    # Find the Direction Vector of the Line: The direction vector d of the line of intersection can be found by taking the cross product of the normal vectors of each plane (a, b, and c)
+    nx = plane1[1]*plane2[2] - plane1[2]*plane2[1]
+    ny = plane1[2]*plane2[0] - plane1[0]*plane2[2]
+    nz = plane1[0]*plane2[1] - plane1[1]*plane2[0]
+    # normalize the vector so the z length is 1
+    multiplier = 1 / nz
+    nx = nx * multiplier
+    ny = ny * multiplier
+    nz = nz * multiplier # should become equal to 1
+    ret = [nx, ny]
+    return ret
+end
+
+# given 3 points, this finds the plane and its equation
+# rereturns ax + by + cz + d = 0 in a list of [a, b, c, d]
+def findplane(p11, p12, p13):
+    # extract coordinates
+    x1 = p11[0]
+    y1 = p11[1]
+    z1 = p11[2]
+    x2 = p12[0]
+    y2 = p12[1]
+    z2 = p12[2]
+    x3 = p13[0]
+    y3 = p13[1]
+    z3 = p13[2]
+    # create vectors from the points
+    v1x = x2-x1
+    v1y = y2-y1
+    v1z = z2-z1
+    v2x = x3-x1
+    v2y = y3-y1
+    v2z = z3-z1
+    #calculate the normal vector using the cross product
+    nx = v1y*v2z - v1z*v2y # i component
+    ny = v1z*v2x - v1x*v2z # j component
+    nz = v1x*v2y - v1y*v2x # k component
+    # calculate d in the plane equation
+    d = -1 * (nx*x1 + ny*y1 + nz*z1)
+    ret = [nx, ny, nz, d]
+    return ret
 end
 
 # given a heading, (ccw from +x axis), find the mx+b slope
@@ -3344,6 +3458,42 @@ end
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="ph2up" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="7"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="ph4up" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="8"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
@@ -3384,6 +3534,50 @@ end
         </Move>
         <Assignment valueSource="Expression">
           <variable name="p11" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[10]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+          <children>
+            <gui.program.direction.MoveDirectionNode>
+              <expression class="ExpressionBranch">
+                <ExpressionChar character="["/>
+                <ExpressionChar character="-"/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="-"/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="]"/>
+              </expression>
+              <children>
+                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
+              </children>
+            </gui.program.direction.MoveDirectionNode>
+          </children>
+        </Move>
+        <Assignment valueSource="Expression">
+          <variable name="p13" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
           </variable>
           <expression>
@@ -3443,7 +3637,7 @@ end
               <motionParameters/>
               <variable reference="../../../../Assignment[5]/variable"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_10" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702387017062684, 2.492185179387228, -1.7834822140135707, -0.33723670641054326, 1.8489984273910522"/>
@@ -3460,10 +3654,10 @@ end
             </Waypoint>
           </children>
         </Move>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
           <children>
-            <Waypoint type="Fixed" name="Waypoint_11" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636"/>
@@ -3495,7 +3689,7 @@ end
                 <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
               </suppressedNode>
             </SuppressedNode>
-            <Waypoint type="Fixed" name="Waypoint_12" kinematicsFlags="1">
+            <Waypoint type="Fixed" name="Waypoint_10" kinematicsFlags="1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
@@ -3549,6 +3743,51 @@ end
         </Move>
         <Assignment valueSource="Expression">
           <variable name="p21" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[11]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move/feature"/>
+          <children>
+            <gui.program.direction.MoveDirectionNode>
+              <expression class="ExpressionBranch">
+                <ExpressionChar character="["/>
+                <ExpressionChar character="-"/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="]"/>
+              </expression>
+              <children>
+                <Until type="TOOL_CONTACT_DETECTION" allowActions="false" retraction="0.0" decelerationAcceleration="3.0" decelerationAngularAcceleration="34.90658503988659"/>
+              </children>
+            </gui.program.direction.MoveDirectionNode>
+          </children>
+        </Move>
+        <Assignment valueSource="Expression">
+          <variable name="p23" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
           </variable>
           <expression>
@@ -3630,7 +3869,7 @@ end
                 <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
               </suppressedNode>
             </SuppressedNode>
-            <Waypoint type="Fixed" name="Waypoint_13" kinematicsFlags="-1">
+            <Waypoint type="Fixed" name="Waypoint_11" kinematicsFlags="-1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
@@ -3645,7 +3884,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_14" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_12" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636"/>
@@ -3660,7 +3899,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_15" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702387017062684, 2.492185179387228, -1.7834822140135707, -0.33723670641054326, 1.8489984273910522"/>
@@ -3675,7 +3914,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_16" kinematicsFlags="1">
+            <Waypoint type="Fixed" name="Waypoint_13" kinematicsFlags="1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708"/>
@@ -3711,7 +3950,7 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
+          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move[6]/children/CircleMove/children/Waypoint/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>
@@ -3729,7 +3968,7 @@ end
               <motionParameters/>
               <variable reference="../../../../Assignment[8]/variable"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_17" kinematicsFlags="-1">
+            <Waypoint type="Fixed" name="Waypoint_14" kinematicsFlags="-1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708"/>
@@ -3744,7 +3983,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_18" kinematicsFlags="-1">
+            <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="-1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702387017062684, 2.492185179387228, -1.7834822140135707, -0.33723670641054326, 1.8489984273910522"/>
