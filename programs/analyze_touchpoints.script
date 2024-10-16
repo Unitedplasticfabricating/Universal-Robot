@@ -6,7 +6,7 @@ pi = 3.1415926535
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3):
+def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     struct2 = calculate_DOtA_points_right(struct1)
     return struct2
@@ -452,6 +452,14 @@ def calculate_DOtA_points_left(struct1):
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
+end
+
+# this function analyzes the vertical points
+# calculates the slope of the edge in question
+# specifically, for each inch up in the z direction, what is the change in x and change in y direction
+# returns a struct of (xvertdel, yvertdel)
+def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
+    
 end
 
 # given a heading, (ccw from +x axis), find the mx+b slope
