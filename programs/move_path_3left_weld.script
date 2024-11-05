@@ -1,4 +1,4 @@
-def move_path_3left():
+def move_path_3left_weld():
   global _hidden_verificationVariable=0
   set_safety_mode_transition_hardness(1)
   set_tcp(p[-0.00438,-0.33062,0.10207,1.2092,-1.2092,1.2092])
@@ -217,141 +217,87 @@ def move_path_3left():
     $ 25 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 26 "Wait: 1.0"
+    $ 26 "MoveL"
+    $ 27 "p2" "breakAfter"
+    movel(p2, a=0.1, v=0.05)
+    $ 28 "Wait: 1.0"
     sleep(1.0)
-    $ 27 "MoveL"
-    $ 28 "p2" "breakAfter"
-    movel(p2, a=0.1, v=0.01)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 29 "Serial Bridge uR0"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,48], False)
-    # end: URCap Program Node
-    $ 30 "Wait: 0.5"
-    sleep(0.5)
+    $ 29 "MoveL"
+    $ 30 "p4" "breakAfter"
+    movel(p4, a=0.005, v=0.02)
     $ 31 "MoveL"
-    $ 32 "p4" "breakAfter"
-    movel(p4, a=0.01, v=0.12)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 33 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 34 "Wait: 1.0"
-    sleep(1.0)
-    $ 35 "MoveL"
-    $ 36 "p5" "breakAfter"
-    movel(p5, a=0.1, v=0.01)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 37 "Serial Bridge uR0"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,48], False)
-    # end: URCap Program Node
-    $ 38 "Wait: 2.0"
-    sleep(2.0)
-    $ 39 "Comment"
+    $ 32 "p5" "breakAfter"
+    movel(p5, a=0.1, v=0.05)
+    $ 33 "Comment"
     # Comment
-    $ 40 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
+    $ 34 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
     global pret1=p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
-    $ 41 "p_1≔pathturn[4]"
+    $ 35 "p_1≔pathturn[4]"
     global p_1=pathturn[4]
-    $ 42 "p_2≔pathturn[5]"
+    $ 36 "p_2≔pathturn[5]"
     global p_2=pathturn[5]
-    $ 43 "p_3≔pathturn[6]"
+    $ 37 "p_3≔pathturn[6]"
     global p_3=pathturn[6]
-    $ 44 "p_4≔pathturn[7]"
+    $ 38 "p_4≔pathturn[7]"
     global p_4=pathturn[7]
-    $ 45 "p_5≔pathturn[8]"
+    $ 39 "p_5≔pathturn[8]"
     global p_5=pathturn[8]
-    $ 46 "p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
-    global p_preheat=p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
-    $ 47 "p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]"
-    global p_pre_ret=p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]
-    $ 48 "p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
-    global p_pre_ret2=p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
-    $ 49 "MoveJ"
-    $ 50 "pret1" "breakAfter"
-    movej(pret1, a=1.3962634015954636, v=1.3962634015954636)
-    $ 51 "Waypoint_4" "breakAfter"
-    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 52 "'now go into the ccw weld position'"
+    $ 40 "MoveJ"
+    $ 41 "pret1" "breakAfter"
+    movej(pret1, a=1.3962634015954636, v=0.3490658503988659)
+    $ 42 "Waypoint_4" "breakAfter"
+    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=0.3490658503988659)
+    $ 43 "'now go into the ccw weld position'"
     # 'now go into the ccw weld position'
-    $ 53 "Waypoint_7" "breakAfter"
-    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 54 "Comment"
+    $ 44 "Waypoint_7" "breakAfter"
+    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=0.3490658503988659)
+    $ 45 "Comment"
     # Comment
-    $ 55 "Waypoint_6" "breakAfter"
-    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 56 "Waypoint_5" "breakAfter"
-    movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 65 "MoveJ"
-    $ 66 "p_pre_ret" "breakAfter"
-    movej(p_pre_ret, a=1.3962634015954636, v=1.0471975511965976)
-    $ 67 "p_pre_ret2" "breakAfter"
-    movej(p_pre_ret2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 68 "p_preheat" "breakAfter"
-    movej(p_preheat, a=1.3962634015954636, v=1.0471975511965976)
-    $ 69 "Wait: 8.0"
-    sleep(8.0)
-    $ 70 "MoveJ"
-    $ 71 "p_pre_ret2" "breakAfter"
-    movej(p_pre_ret2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 72 "p_pre_ret" "breakAfter"
-    movej(p_pre_ret, a=1.3962634015954636, v=1.0471975511965976)
-    $ 73 "Set"
-    set_tcp(p[0.00662,-0.33062,0.10207,1.2092,-1.2092,1.2092])
-    $ 74 "MoveL"
-    $ 75 "p_1" "breakAfter"
-    movel(p_1, a=1.2, v=0.05)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 76 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 77 "Wait: 1.0"
-    sleep(1.0)
-    $ 78 "MoveL"
-    $ 79 "p_2" "breakAfter"
-    movel(p_2, a=1.2, v=0.01)
-    $ 80 "MoveP"
-    $ 81 "CircleMove"
-    $ 82 "p_3" "noBreak"
-    $ 83 "p_4" "breakAfter"
+    $ 46 "Waypoint_6" "breakAfter"
+    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=0.3490658503988659)
+    $ 47 "Waypoint_5" "breakAfter"
+    movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=0.3490658503988659)
+    $ 56 "MoveJ"
+    $ 57 "p_1" "breakAfter"
+    movej(p_1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 58 "MoveL"
+    $ 59 "p_2" "breakAfter"
+    movel(p_2, a=1.2, v=0.012)
+    $ 60 "MoveP"
+    $ 61 "CircleMove"
+    $ 62 "p_3" "noBreak"
+    $ 63 "p_4" "breakAfter"
     movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
-    $ 84 "MoveL"
-    $ 85 "p_5" "breakAfter"
+    $ 64 "MoveL"
+    $ 65 "p_5" "breakAfter"
     movel(p_5, a=1.2, v=0.012)
-    $ 90 "MoveJ"
-    $ 91 "Waypoint_12" "breakAfter"
+    $ 70 "MoveJ"
+    $ 71 "Waypoint_12" "breakAfter"
     movej(get_inverse_kin(Waypoint_12_p, qnear=Waypoint_12_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 92 "Waypoint_7" "breakAfter"
+    $ 72 "Waypoint_7" "breakAfter"
     movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 93 "Comment"
+    $ 73 "Comment"
     # Comment
-    $ 94 "MoveJ"
-    $ 95 "Waypoint_16" "breakAfter"
+    $ 74 "MoveJ"
+    $ 75 "Waypoint_16" "breakAfter"
     movej(get_inverse_kin(Waypoint_16_p, qnear=Waypoint_16_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 96 "Waypoint_17" "breakAfter"
+    $ 76 "Waypoint_17" "breakAfter"
     movej(get_inverse_kin(Waypoint_17_p, qnear=Waypoint_17_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 97 "Waypoint_18" "breakAfter"
+    $ 77 "Waypoint_18" "breakAfter"
     movej(get_inverse_kin(Waypoint_18_p, qnear=Waypoint_18_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 100 "Comment"
+    $ 80 "Comment"
     # Comment
-    $ 101 "Comment"
+    $ 81 "Comment"
     # Comment
-    $ 102 "Comment"
+    $ 82 "Comment"
     # Comment
-    $ 103 "Comment"
+    $ 83 "Comment"
     # Comment
-    $ 104 "Comment"
+    $ 84 "Comment"
     # Comment
-    $ 105 "Comment"
+    $ 85 "Comment"
     # Comment
-    $ 106 "Home"
+    $ 86 "Home"
     movej([-3.4579734502641006, -2.05691362454537, 2.326567589830591, -0.22707360390354125, -0.19934432301767302, -0.10534790278823536], a=1.3962634015954636, v=1.0471975511965976)
   end
 end

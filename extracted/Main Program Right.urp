@@ -123,7 +123,8 @@ end
 # specifically for left-sided boxes (vertical weld on left side of edge)
 def main_calculate_left(p11, p12, p21, p22, p3):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_left(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left(struct1, list1)
     return struct2
 end
 
@@ -467,7 +468,7 @@ def calculate_DOtA_points_right(struct1, listleans):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_left(struct1):
+def calculate_DOtA_points_left(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -481,10 +482,14 @@ def calculate_DOtA_points_left(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l2delxunit * zup
@@ -498,7 +503,7 @@ def calculate_DOtA_points_left(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -508,8 +513,8 @@ def calculate_DOtA_points_left(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l2delxunit * wd
-    y = y + l2delyunit * wd
+    x = x + l2delxunit * wd2
+    y = y + l2delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -531,8 +536,8 @@ def calculate_DOtA_points_left(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * wd
-    y = pointintersect[1] + l1delyunit * wd
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading1)
     rx = rxryrz[0]
@@ -1128,9 +1133,7 @@ end
                     <CircleMove OrientationMode="FIXED">
                       <children>
                         <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                          <variable name="p3" prefersPersistentValue="false" favourite="false">
-                            <initializeExpression/>
-                          </variable>
+                          <variable reference="../../../../../../Assignment[5]/variable"/>
                         </Waypoint>
                         <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                           <variable reference="../../../../../../Assignment[6]/variable"/>
@@ -2491,7 +2494,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="Corner_Homing_45" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/Corner Homing 45.urp</programFile>
+      <programFile>/programs/Corner Homing 45.urp</programFile>
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
@@ -2574,7 +2577,8 @@ end
 # specifically for left-sided boxes (vertical weld on left side of edge)
 def main_calculate_left(p11, p12, p21, p22, p3):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_left(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left(struct1, list1)
     return struct2
 end
 
@@ -2918,7 +2922,7 @@ def calculate_DOtA_points_right(struct1, listleans):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_left(struct1):
+def calculate_DOtA_points_left(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -2932,10 +2936,14 @@ def calculate_DOtA_points_left(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l2delxunit * zup
@@ -2949,7 +2957,7 @@ def calculate_DOtA_points_left(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -2959,8 +2967,8 @@ def calculate_DOtA_points_left(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l2delxunit * wd
-    y = y + l2delyunit * wd
+    x = x + l2delxunit * wd2
+    y = y + l2delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -2982,8 +2990,8 @@ def calculate_DOtA_points_left(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * wd
-    y = pointintersect[1] + l1delyunit * wd
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading1)
     rx = rxryrz[0]
@@ -3950,7 +3958,7 @@ end
           </children>
         </Move>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Move[6]/children/CircleMove/children/Waypoint/variable"/>
+          <variable reference="../../../../MainProgram/children/SuppressedNode[2]/suppressedNode/subprogram/children/Assignment[5]/variable"/>
           <expression>
             <ExpressionToken token="get_actual_tcp_pose"/>
             <ExpressionChar character="("/>

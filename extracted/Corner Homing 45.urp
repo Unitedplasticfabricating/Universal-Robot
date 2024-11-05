@@ -1,4 +1,4 @@
-<URProgram name="Corner Homing 45" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="Corner_Homing_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -7,8 +7,21 @@
     <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
   </kinematics>
   <children>
-    <InitVariablesNode/>
-    <MainProgram runOnlyOnce="true" InitVariablesNode="false">
+    <InitVariablesNode>
+      <variables>
+        <variable name="freedrive_m_var">
+          <expression>
+            <ExpressionToken token=" False "/>
+          </expression>
+        </variable>
+        <variable name="thread2trigger">
+          <expression>
+            <ExpressionToken token=" False "/>
+          </expression>
+        </variable>
+      </variables>
+    </InitVariablesNode>
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
@@ -91,7 +104,8 @@ end
 # specifically for left-sided boxes (vertical weld on left side of edge)
 def main_calculate_left(p11, p12, p21, p22, p3):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    struct2 = calculate_DOtA_points_left(struct1)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left(struct1, list1)
     return struct2
 end
 
@@ -435,7 +449,7 @@ def calculate_DOtA_points_right(struct1, listleans):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_left(struct1):
+def calculate_DOtA_points_left(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -449,10 +463,14 @@ def calculate_DOtA_points_left(struct1):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance = 8
+    welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd = welddistance * 25.4 / 1000
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     
     x = pointintersect[0] + l2delxunit * zup
@@ -466,7 +484,7 @@ def calculate_DOtA_points_left(struct1):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x, y, z + wd, rx, ry, rz]
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -476,8 +494,8 @@ def calculate_DOtA_points_left(struct1):
     rz = rxryrz[2]
     
     point4 = p[x, y, z, rx, ry, rz]
-    x = x + l2delxunit * wd
-    y = y + l2delyunit * wd
+    x = x + l2delxunit * wd2
+    y = y + l2delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -499,8 +517,8 @@ def calculate_DOtA_points_left(struct1):
     point_2 = p[x, y, z, rx, ry, rz]
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * wd
-    y = pointintersect[1] + l1delyunit * wd
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading1)
     rx = rxryrz[0]
@@ -1174,7 +1192,7 @@ end
         <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode[2]/suppressedNode/feature"/>
           <children>
-            <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636"/>
@@ -1206,7 +1224,7 @@ end
                 <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
               </suppressedNode>
             </SuppressedNode>
-            <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="1">
+            <Waypoint type="Fixed" name="Waypoint_10" kinematicsFlags="1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
@@ -1386,7 +1404,7 @@ end
                 <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
               </suppressedNode>
             </SuppressedNode>
-            <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="-1">
+            <Waypoint type="Fixed" name="Waypoint_11" kinematicsFlags="-1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-0.556256119404928, -1.0744255942157288, 2.9114087263690394, -1.7763501606383265, -4.185837809239523, 1.5288889408111572"/>
@@ -1401,7 +1419,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_12" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.1354392210589808, -1.0039964479259034, 2.441021744404928, -2.875528474847311, -1.6043828169452112, 1.7329596281051636"/>
@@ -1431,7 +1449,7 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="1">
+            <Waypoint type="Fixed" name="Waypoint_13" kinematicsFlags="1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708"/>
@@ -1487,7 +1505,7 @@ end
               <motionParameters/>
               <variable reference="../../../../Assignment[8]/variable"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="-1">
+            <Waypoint type="Fixed" name="Waypoint_14" kinematicsFlags="-1">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708"/>
