@@ -1,4 +1,4 @@
-def Main_Program_Left():
+def Main_Program_Left_noweld():
   global _hidden_verificationVariable=0
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -453,8 +453,7 @@ def Main_Program_Left():
     # specifically for left-sided boxes (vertical weld on left side of edge)
     def main_calculate_left(p11, p12, p21, p22, p3):
         struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-        list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-        struct2 = calculate_DOtA_points_left(struct1, list1)
+        struct2 = calculate_DOtA_points_left(struct1)
         return struct2
     end
     
@@ -798,7 +797,7 @@ def Main_Program_Left():
     end
     
     # given a struct from analyze_touchpoints_only(), calculate the points
-    def calculate_DOtA_points_left(struct1, listleans):
+    def calculate_DOtA_points_left(struct1):
         # get the stuff from the struct
         pointintersect = struct1[0]
         heading1 = struct1[1]
@@ -812,14 +811,10 @@ def Main_Program_Left():
         # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
         # find locations 8 inches away from  intersect point
         # CONST
-        welddistance1 = 8 # vertical weld distance
-        welddistance2 = 6 # first path second leg
-        welddistance3 = 8 # second path second leg
+        welddistance = 8
         zup = .375
         # inches
-        wd1 = welddistance1 * 25.4 / 1000
-        wd2 = welddistance2 * 25.4 / 1000
-        wd3 = welddistance3 * 25.4 / 1000
+        wd = welddistance * 25.4 / 1000
         zup = zup * 25.4 / 1000
     
         x = pointintersect[0] + l2delxunit * zup
@@ -833,7 +828,7 @@ def Main_Program_Left():
         ry = rxryrz[1]
         rz = rxryrz[2]
     
-        point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+        point1 = p[x, y, z + wd, rx, ry, rz]
         point2 = p[x, y, z, rx, ry, rz]
     
         # convert the headings to rxryrz and insert those values into the relevant points
@@ -843,8 +838,8 @@ def Main_Program_Left():
         rz = rxryrz[2]
     
         point4 = p[x, y, z, rx, ry, rz]
-        x = x + l2delxunit * wd2
-        y = y + l2delyunit * wd2
+        x = x + l2delxunit * wd
+        y = y + l2delyunit * wd
         point5 = p[x, y, z, rx, ry, rz]
     
         # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -866,8 +861,8 @@ def Main_Program_Left():
         point_2 = p[x, y, z, rx, ry, rz]
     
         # now we have the unit vector. extend the weld distance from the intersection
-        x = pointintersect[0] + l1delxunit * wd3
-        y = pointintersect[1] + l1delyunit * wd3
+        x = pointintersect[0] + l1delxunit * wd
+        y = pointintersect[1] + l1delyunit * wd
         # convert the headings to rxryrz and insert those values into the relevant points
         rxryrz = convert_heading_to_axang_ccw(heading1)
         rx = rxryrz[0]
@@ -1491,8 +1486,7 @@ def Main_Program_Left():
   # specifically for left-sided boxes (vertical weld on left side of edge)
   def main_calculate_left(p11, p12, p21, p22, p3):
       struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-      list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-      struct2 = calculate_DOtA_points_left(struct1, list1)
+      struct2 = calculate_DOtA_points_left(struct1)
       return struct2
   end
   
@@ -1836,7 +1830,7 @@ def Main_Program_Left():
   end
   
   # given a struct from analyze_touchpoints_only(), calculate the points
-  def calculate_DOtA_points_left(struct1, listleans):
+  def calculate_DOtA_points_left(struct1):
       # get the stuff from the struct
       pointintersect = struct1[0]
       heading1 = struct1[1]
@@ -1850,14 +1844,10 @@ def Main_Program_Left():
       # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
       # find locations 8 inches away from  intersect point
       # CONST
-      welddistance1 = 8 # vertical weld distance
-      welddistance2 = 6 # first path second leg
-      welddistance3 = 8 # second path second leg
+      welddistance = 8
       zup = .375
       # inches
-      wd1 = welddistance1 * 25.4 / 1000
-      wd2 = welddistance2 * 25.4 / 1000
-      wd3 = welddistance3 * 25.4 / 1000
+      wd = welddistance * 25.4 / 1000
       zup = zup * 25.4 / 1000
   
       x = pointintersect[0] + l2delxunit * zup
@@ -1871,7 +1861,7 @@ def Main_Program_Left():
       ry = rxryrz[1]
       rz = rxryrz[2]
   
-      point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+      point1 = p[x, y, z + wd, rx, ry, rz]
       point2 = p[x, y, z, rx, ry, rz]
   
       # convert the headings to rxryrz and insert those values into the relevant points
@@ -1881,8 +1871,8 @@ def Main_Program_Left():
       rz = rxryrz[2]
   
       point4 = p[x, y, z, rx, ry, rz]
-      x = x + l2delxunit * wd2
-      y = y + l2delyunit * wd2
+      x = x + l2delxunit * wd
+      y = y + l2delyunit * wd
       point5 = p[x, y, z, rx, ry, rz]
   
       # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
@@ -1904,8 +1894,8 @@ def Main_Program_Left():
       point_2 = p[x, y, z, rx, ry, rz]
   
       # now we have the unit vector. extend the weld distance from the intersection
-      x = pointintersect[0] + l1delxunit * wd3
-      y = pointintersect[1] + l1delyunit * wd3
+      x = pointintersect[0] + l1delxunit * wd
+      y = pointintersect[1] + l1delyunit * wd
       # convert the headings to rxryrz and insert those values into the relevant points
       rxryrz = convert_heading_to_axang_ccw(heading1)
       rx = rxryrz[0]
