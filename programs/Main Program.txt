@@ -19,21 +19,15 @@
        Call move_path_3left
      Else
        pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23)
-       Call move_path_3right
+       move_path_3right()
      'Popup'
      Home
    move_path_3right
      'this is the path for Down, Over, then Back Around'
      Comment
      Home
-     MoveJ
-       Waypoint_6
-       Waypoint_1
-       Waypoint_7
-       'Waypoint_1'
-       'Waypoint_2'
-       'Waypoint_3'
-       'Home'
+     'MoveJ'
+     align_ready_for_welding()
      Comment
      p1≔pathturn[0]
      p2≔pathturn[1]
@@ -70,7 +64,7 @@
      MoveJ
        pret1
        Waypoint_8
-       Waypoint_9
+       'Waypoint_9'
        Waypoint_22
      'preheat'
      MoveJ
@@ -250,6 +244,13 @@
      aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
      MoveJ
        aligned_y_pose
+   align_ready_for_welding
+     'this program takes the welder from home to a position alined ready for welding (vertically down)'
+     MoveJ
+       oldhome
+       Waypoint_34
+       Waypoint_35
+       Waypoint_36
    Corner_Homing_45
      'Use this program when tool is already positioned close to corner at 45deg'
      'tool flange will seek all 3 sides. will save those 5 locs in p__'
