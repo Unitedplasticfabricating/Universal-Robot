@@ -713,23 +713,23 @@ def get_corner_homing_45_pathpoints(point0):
   
   #constants
   #distances of how far away from point the touchpoints are
-  d0 = 0.15 # how far from the box to retreat and approach
-  d1 = 0.05 # first distance from init point
-  d2 = 0.2 # second distance from init point
+  d0 = 0.10 # how far from the box to retreat and approach
+  d1 = 0.03 # first distance from init point
+  d2 = 0.15 # second distance from init point
   d3 = 0.125 #vertical distance from first point
-  sqrt2 = 0.707106781
+  sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
   
-  ph1 = p[p0x + d0, p0y, p0z + .05, p0rx, p0ry, p0rz] #approach point for turn
+  ph1 = p[p0x + d0, p0y, p0z + d1, p0rx, p0ry, p0rz] #approach point for turn
   
-  ph2 = p[p0x+d0-d0*sqrt2-sqrt2*d1, p0y+d0*sqrt2+sqrt2*d1, p0z+.05, .445, -1.562, .483]
-  ph3 = p[p0x+d0-d0*sqrt2-sqrt2*d2, p0y+d0*sqrt2+sqrt2*d2, p0z+.05, .445, -1.562, .483]
-  ph4 = p[p0x+d0-d0*sqrt2-sqrt2*d1, p0y-d0*sqrt2-sqrt2*d1, p0z+.05, 1.699, 3.576, 1.841]
-  ph5 = p[p0x+d0-d0*sqrt2-sqrt2*d2, p0y-d0*sqrt2-sqrt2*d2, p0z+.05, 1.699, 3.576, 1.841]
+  ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z+d1, .445, -1.562, .483]
+  ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z+d1, .445, -1.562, .483]
+  ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z+d1, 1.699, 3.576, 1.841]
+  ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 1.699, 3.576, 1.841]
   
   # go back to ph1
-  ph6 = p[p0x + .05, p0y, p0z -.05, 0, 0, 0] # approach point for under turn
+  ph6 = p[p0x + d0, p0y, p0z -d0, 0, 0, 0] # approach point for under turn
   # moveL from ph1 to ph6
-  ph7 = p[p0x-.05, p0y, p0z-.05, 0, 0, 0]
+  ph7 = p[p0x-d1, p0y, p0z-d0, 0, 0, 0]
   
   # add the vertical touch points
   ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
