@@ -1,6 +1,13 @@
 def Main_Program():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.005492233754671227,-0.3325814034474486,0.10639335834084135,1.2092,-1.2092,1.2092])
+  step_count_a88770b8_83e6_416b_8f7a_e67ff8f02bee = 0.0
+  thread Step_Counter_Thread_e4e539f7_d3cc_4061_8cde_2fe1ba8b4b7c():
+    while (True):
+      step_count_a88770b8_83e6_416b_8f7a_e67ff8f02bee = step_count_a88770b8_83e6_416b_8f7a_e67ff8f02bee + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_e4e539f7_d3cc_4061_8cde_2fe1ba8b4b7c()
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -8,14 +15,15 @@ def Main_Program():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_gravity([0.0, 0.0, 9.82])
   set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.0,-0.004,0.286,0.0,0.0,0.0])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(8.700000, [-0.001000, -0.057000, 0.067000], [0.056650, 0.056650, 0.056650, 0.000000, 0.000000, 0.000000])
-  set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,14 +155,6 @@ def Main_Program():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_e8bb07d3_0327_4b4a_ac19_3e13b3ce85b5 = 0.0
-  thread Step_Counter_Thread_ff1f77c6_40b8_4a39_bf45_5b4f0cf04a4c():
-    while (True):
-      step_count_e8bb07d3_0327_4b4a_ac19_3e13b3ce85b5 = step_count_e8bb07d3_0327_4b4a_ac19_3e13b3ce85b5 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_ff1f77c6_40b8_4a39_bf45_5b4f0cf04a4c()
   global freedrive_m_var=  False  
   global thread2trigger=  False  
   global Waypoint_8_p=p[-.689650873132, .138963273545, .230691387978, -.851994598965, -1.645998530536, 1.646007616333]
@@ -337,7 +337,7 @@ def Main_Program():
     $ 84 "p_pre_ret" "breakAfter"
     movej(p_pre_ret, a=1.3962634015954636, v=1.0471975511965976)
     $ 85 "Set"
-    set_tcp(p[0.00451,-0.33258,0.10639,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.00451,-0.33158,0.10639,1.2092,-1.2092,1.2092])
     $ 86 "MoveL"
     $ 87 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
@@ -518,7 +518,7 @@ def Main_Program():
     $ 182 "p_pre_ret" "breakAfter"
     movej(p_pre_ret, a=1.3962634015954636, v=1.0471975511965976)
     $ 183 "Set"
-    set_tcp(p[0.00451,-0.33258,0.10639,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.00451,-0.33158,0.10639,1.2092,-1.2092,1.2092])
     $ 184 "MoveL"
     $ 185 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
@@ -618,7 +618,7 @@ def Main_Program():
     $ 282 "Home"
     movej([-3.457960907612077, -2.0569125614558246, 2.3265898863420276, -0.2270763677409846, -0.1993520895578813, -0.10534269014486419], a=1.3962634015954636, v=1.0471975511965976)
     $ 283 "Set"
-    set_tcp(p[-0.005492233754671227,-0.3325814034474486,0.10639335834084135,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.00549,-0.33158,0.10639,1.2092,-1.2092,1.2092])
     $ 284 "MoveJ"
     $ 285 "Waypoint_3" "breakAfter"
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
@@ -688,7 +688,7 @@ def Main_Program():
     $ 313 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
     # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
     $ 314 "Set"
-    set_tcp(p[0.00188,-0.09959,0.2565,0.0,0.0,0.0])
+    set_tcp(p[0.0,-0.004,0.286,0.0,0.0,0.0])
     $ 315 "'dummy move below for debug'"
     # 'dummy move below for debug'
     $ 320 "Wait: 1.0"
@@ -1838,17 +1838,17 @@ def Main_Program():
   $ 4 "Home"
   movej([-3.457960907612077, -2.0569125614558246, 2.3265898863420276, -0.2270763677409846, -0.1993520895578813, -0.10534269014486419], a=1.3962634015954636, v=1.0471975511965976)
   $ 5 "Set"
-  set_tcp(p[0.00188,-0.09959,0.2565,0.0,0.0,0.0])
+  set_tcp(p[0.0,-0.004,0.286,0.0,0.0,0.0])
   $ 6 "leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'"
   global leftchoice=request_boolean_from_primary_client("Select Yes for a Left side weld, or select No for a Right Side weld.")
   $ 7 "Test_Teach_Position()"
   Test_Teach_Position()
   $ 8 "Set"
-  set_tcp(p[0.00188,-0.09959,0.2565,0.0,0.0,0.0])
+  set_tcp(p[0.0,-0.004,0.286,0.0,0.0,0.0])
   $ 9 "Corner_Homing_45()"
   Corner_Homing_45()
   $ 10 "Set"
-  set_tcp(p[-0.005492233754671227,-0.3325814034474486,0.10639335834084135,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.33158,0.10639,1.2092,-1.2092,1.2092])
   $ 11 "extrude_knife2()"
   extrude_knife2()
   $ 12 "Script: analyze_touchpoints.script"
