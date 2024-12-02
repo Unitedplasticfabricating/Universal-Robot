@@ -9,10 +9,10 @@
      Set
      Corner_Homing_45()
      Set
-     extrude_knife2()
+     extrude_knife3()
      Script: analyze_touchpoints.script
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
-     'Call move_path_1'
+     'Call '
      'MoveJ'
      If leftchoice≟ True 
        pathturn≔main_calculate_left(p11,p12,p21,p22,p3,p13,p23)
@@ -226,16 +226,28 @@
      aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
      MoveJ
        aligned_y_pose
-   extrude_knife2
+   extrude_knife3
      Home
      Set
      MoveJ
+       Waypoint_20
+       'above waypoint is home'
+     'move above bucket'
+     MoveJ
        Waypoint_3
      'extrude out a foot'
-     Serial Bridge uR1
-     Wait: 24.0
-     Serial Bridge uR0
-     Popup: grab extrusion then press ok
+     'Serial Bridge uR1'
+     'Wait: 24.0'
+     'Serial Bridge uR0'
+     'slice'
+     MoveL
+       Waypoint_21
+       Waypoint_42
+       Waypoint_43
+       Waypoint_44
+     MoveJ
+       Waypoint_45
+       'above waypoint is home'
      Home
    align_tcp_forward
      'this program aligns the tcp parallel to the y direction'
