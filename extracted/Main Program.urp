@@ -998,7 +998,9 @@ end
                 <children>
                   <Comment comment="this is the path for Down, Over, then Back Around"/>
                   <Comment/>
-                  <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+                  <SuppressedNode>
+                    <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+                  </SuppressedNode>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
                     <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
                     <children>
@@ -2163,7 +2165,9 @@ end
       <children>
         <Comment comment="this is the path for Down, Over, then Back Around"/>
         <Comment/>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        <SuppressedNode>
+          <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
             <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
@@ -3176,9 +3180,11 @@ end
       </children>
     </SubProgram>
     <SubProgram name="extrude_knife3" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/extrude_knife3.urp</programFile>
+      <programFile>/programs/extrude_knife3.urp</programFile>
       <children>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        <SuppressedNode>
+          <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        </SuppressedNode>
         <Set type="NoAction">
           <tcp reference="../../../../MainProgram/children/Set[3]/tcp"/>
         </Set>
@@ -3225,41 +3231,35 @@ end
           </children>
         </Move>
         <Comment comment="extrude out a foot"/>
-        <SuppressedNode>
-          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-            <dataModel>
-              <data key="byte_array" value="true"/>
-              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-              <data key="Command" value="[252,82,49]"/>
-              <data key="QUERY" value="false"/>
-              <data key="OUTPUT_ENTRY" value="Static"/>
-              <Variable key="OUTPUT_VARIABLE">
-                <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-              </Variable>
-            </dataModel>
-          </suppressedNode>
-        </SuppressedNode>
-        <SuppressedNode>
-          <suppressedNode class="Wait" type="Sleep">
-            <waitTime>24.0</waitTime>
-          </suppressedNode>
-        </SuppressedNode>
-        <SuppressedNode>
-          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-            <dataModel>
-              <data key="QUERY" value="false"/>
-              <data key="NODE_TITLE" value="Serial Bridge uR0"/>
-              <data key="Command" value="[252,82,48]"/>
-              <data key="byte_array" value="true"/>
-              <data key="OUTPUT_ENTRY" value="Static"/>
-              <Variable key="OUTPUT_VARIABLE">
-                <variable reference="../../../../../SuppressedNode/suppressedNode/dataModel/Variable/variable"/>
-              </Variable>
-            </dataModel>
-          </suppressedNode>
-        </SuppressedNode>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="byte_array" value="true"/>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Wait type="Sleep">
+          <waitTime>24.0</waitTime>
+        </Wait>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="QUERY" value="false"/>
+            <data key="NODE_TITLE" value="Serial Bridge uR0"/>
+            <data key="Command" value="[252,82,48]"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../../../SubProgram/children/Contributed[3]/dataModel/Variable/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
         <Comment comment="slice"/>
         <Move motionType="MoveL" speed="0.03" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
@@ -3347,7 +3347,9 @@ end
             <Comment comment="above waypoint is home"/>
           </children>
         </Move>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        <SuppressedNode>
+          <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        </SuppressedNode>
       </children>
     </SubProgram>
     <SubProgram name="align_tcp_forward" keepHidden="false" keepSynchronizedWithDisk="false">
@@ -5201,9 +5203,7 @@ end
                     <data key="QUERY" value="false"/>
                     <data key="OUTPUT_ENTRY" value="Static"/>
                     <Variable key="OUTPUT_VARIABLE">
-                      <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                        <initializeExpression/>
-                      </variable>
+                      <variable reference="../../../../../../../../../../SubProgram[5]/children/Contributed/dataModel/Variable/variable"/>
                     </Variable>
                   </dataModel>
                 </Contributed>
@@ -5225,7 +5225,7 @@ end
                   </dataModel>
                 </Contributed>
                 <Assignment valueSource="Expression">
-                  <variable reference="../../../../../../../../SubProgram/children/SuppressedNode[2]/suppressedNode/variable"/>
+                  <variable reference="../../../../../../../../SubProgram/children/SuppressedNode[3]/suppressedNode/variable"/>
                   <expression>
                     <ExpressionToken token=" False "/>
                   </expression>

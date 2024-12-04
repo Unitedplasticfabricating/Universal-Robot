@@ -1,17 +1,17 @@
 def extrude_knife3():
   global _hidden_verificationVariable=0
-  step_count_34c56969_024b_4e9f_8ae3_bf70adbab6f2 = 0.0
-  thread Step_Counter_Thread_d76e9671_c5a1_4ada_8a26_f2b1a85ca49b():
+  step_count_693bf010_bc34_427f_b9d7_5746530f6b11 = 0.0
+  thread Step_Counter_Thread_222abb0c_d4eb_4d14_830b_e81c806b4942():
     while (True):
-      step_count_34c56969_024b_4e9f_8ae3_bf70adbab6f2 = step_count_34c56969_024b_4e9f_8ae3_bf70adbab6f2 + 1.0
+      step_count_693bf010_bc34_427f_b9d7_5746530f6b11 = step_count_693bf010_bc34_427f_b9d7_5746530f6b11 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_d76e9671_c5a1_4ada_8a26_f2b1a85ca49b()
+  run Step_Counter_Thread_222abb0c_d4eb_4d14_830b_e81c806b4942()
   set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
   set_safety_mode_transition_hardness(1)
   set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -169,8 +169,6 @@ def extrude_knife3():
   global Waypoint_5_q=[-3.291912857686178, -1.705691476861471, 2.551997963582174, -0.5933647912791749, -0.0306323210345667, -0.32026607195009404]
   while (True):
     $ 2 "Robot Program"
-    $ 3 "Home"
-    movej([-3.263871279528736, -1.215675136732635, 1.6661372679627775, 0.6518080188827131, -0.009357010780473018, -1.165813237683837], a=1.3962634015954636, v=1.0471975511965976)
     $ 4 "Set"
     set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
     $ 5 "MoveJ"
@@ -185,23 +183,37 @@ def extrude_knife3():
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 11 "'extrude out a foot'"
     # 'extrude out a foot'
-    $ 15 "'slice'"
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 12 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 13 "Wait: 24.0"
+    sleep(24.0)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 14 "Serial Bridge uR0"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,82,48], False)
+    # end: URCap Program Node
+    $ 15 "Wait: 2.0"
+    sleep(2.0)
+    $ 16 "'slice'"
     # 'slice'
-    $ 16 "MoveL"
-    $ 17 "Waypoint_2" "breakAfter"
+    $ 17 "MoveL"
+    $ 18 "Waypoint_2" "breakAfter"
     movel(Waypoint_2_p, a=0.05, v=0.03)
-    $ 18 "Waypoint_4" "breakAfter"
+    $ 19 "Waypoint_4" "breakAfter"
     movel(Waypoint_4_p, a=0.05, v=0.03)
-    $ 19 "Waypoint_6" "breakAfter"
+    $ 20 "Waypoint_6" "breakAfter"
     movel(Waypoint_6_p, a=0.05, v=0.03)
-    $ 20 "Waypoint_5" "breakAfter"
+    $ 21 "Waypoint_5" "breakAfter"
     movel(Waypoint_5_p, a=0.05, v=0.03)
-    $ 21 "MoveJ"
-    $ 22 "Waypoint_1" "breakAfter"
+    $ 22 "MoveJ"
+    $ 23 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 23 "'above waypoint is home'"
+    $ 24 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 24 "Home"
-    movej([-3.263871279528736, -1.215675136732635, 1.6661372679627775, 0.6518080188827131, -0.009357010780473018, -1.165813237683837], a=1.3962634015954636, v=1.0471975511965976)
   end
 end
