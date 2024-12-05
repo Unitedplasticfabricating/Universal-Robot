@@ -488,6 +488,55 @@ so, i cannot use the new home as i had planned.
 i could use normal home fro the start and then go to newhome in between the tap and the weld (during extrude_knife). 
 but i dont think i want to. if i have to switch between oldhome and newhome ( and do that wrist-around) at least once during the operation, it might as well be as-needed (right before welding). 
 
+ryan wants the home position to be deeper inside the cup. 
+i tried keeping the home position just above the cup so i could get there easier if i needed to go home from a weird spot, 
+and then adding a separate starting point for the program. but ran into another problem. 
+the initial waypoint is tcp-specific point in 3d space, not joint angles. so if a different tcp is active, the position will be jacked up. collisions probable.
+
+i need to set the home position to be inside the cup. set the above cup as a waypoint in the program. 
+i also should look into safe home. 
+correction: dont use safe home in installation, use Add Before Start Sequence
+https://www.universal-robots.com/articles/ur/programming/creating-a-safe-home-routine/
+
+i began starting that safe home program. should probably be a subroutine. maybe that works maybe it wont. 
+maybe i have to leave it as a folder. should be able to copy and paste a folder anyways. 
+i need to figure out where in the process of the weld it was stopped in, and based on that, provide the safe rotations back to home. 
+figure it out based on current tcp pose. some characteristic about it. or joint angles. 
+i need to collect data on the twelve variables at different spots and formulate some patterns. 
+tomorrow.
+first, send üR0 to turn off extrusion
+
+(if x > 200)
+if it is close to the home position, then make it go to the above point, then go home
+
+(if wrist 2 > -50). this differentiates corner homing right/bottom vs left. (if wrist1 < 0
+if it is test teach position or corner homing right side, then go to waypoint 4. (waypoint 4 is set for welder_top tcp. translate this to welder tp). 
+then go to oldhome, above home, home. 
+
+protective stop - need to stop extrusion
+
+To send a signal to stop an external extrusion process when a protective stop occurs on a Universal Robot (UR), you can use the robot's digital outputs or IO signals to communicate with the external system (like the extrusion machine or control system). Here's how you can achieve this:
+
+Steps to Send a Signal for Extrusion Stop on a Protective Stop Event:
+1. Configure the Digital Outputs
+UR robots have digital outputs that can be used to send signals to external equipment. You can configure one of these outputs to stop the extrusion process when the robot performs a protective stop.
+2. Using URScript or Polyscope (Robot Interface)
+You can write a script using URScript (the robot's programming language) or use the Polyscope interface to set up the logic that triggers the signal upon a protective stop.
+3. Monitoring the Robot State
+Monitor the robot's state using the is_protective_stop() function in URScript. This function can check whether a protective stop has been triggered.
+Example of checking the protective stop in URScript:
+
+python
+Copy code
+if is_protective_stop():
+    set_digital_output(0, True)  # This will send a signal to stop the extrusion
+else:
+    set_digital_output(0, False)  # No protective stop, extrusion can continue
+In this example, set_digital_output(0, True) sends a signal to the external equipment when the protective stop is active, signaling it to stop the extrusion process.
+
+
+
+
 
 
 
