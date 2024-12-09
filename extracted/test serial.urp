@@ -8,9 +8,8 @@
   </kinematics>
   <children>
     <InitVariablesNode/>
-    <MainProgram runOnlyOnce="true" InitVariablesNode="false">
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
-        <Popup type="Message" haltProgram="false" message="starting" inputType="Text"/>
         <Assignment valueSource="Expression">
           <variable name="HwResp" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
@@ -36,28 +35,33 @@
             <data key="Command" value="[252,72,49]"/>
             <data key="NODE_TITLE" value="Serial Bridge uH1"/>
             <data key="byte_array" value="true"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="QUERY" value="false"/>
-            <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Assignment/variable"/>
-            </Variable>
-          </dataModel>
-        </Contributed>
-        <Wait type="Sleep">
-          <waitTime>5.0</waitTime>
-        </Wait>
-        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-          <dataModel>
-            <data key="NODE_TITLE" value="Serial Bridge uh?"/>
-            <data key="byte_array" value="true"/>
-            <data key="QUERY" value="true"/>
-            <data key="Command" value="[252,104,63]"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable reference="../../../../Assignment/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>5.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
+        <Popup type="Message" haltProgram="false" message="heating started. push to stop" inputType="Text"/>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="NODE_TITLE" value="Serial Bridge uh?"/>
+              <data key="byte_array" value="true"/>
+              <data key="Command" value="[252,104,63]"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <data key="QUERY" value="true"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../Assignment/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Popup" type="Message" haltProgram="false" inputType="Variable">
             <variable reference="../../../Assignment/variable"/>
@@ -72,14 +76,15 @@
           <dataModel>
             <data key="byte_array" value="true"/>
             <data key="Command" value="[252,72,48]"/>
-            <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uH0"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="QUERY" value="false"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable reference="../../../../Assignment/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
+        <Popup type="Message" haltProgram="false" message="heating stopped. push to start" inputType="Text"/>
       </children>
     </MainProgram>
   </children>

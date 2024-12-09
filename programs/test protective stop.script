@@ -1,4 +1,4 @@
-def test_serial():
+def test_protective_stop():
   global _hidden_verificationVariable=0
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -155,25 +155,22 @@ def test_serial():
     end
   end
   run Step_Counter_Thread_44ea01d2_b1ff_4cbc_87c6_cbe07699712e()
+  global Waypoint_1_p=p[.082420264973, .948230178948, .435005477911, .910325255844, 2.991541303040, .080969007831]
+  global Waypoint_1_q=[-2.1620000044452112, -1.2136948865703125, 1.588355843220846, 1.1061605650135498, -0.002363030110494435, -1.5343039671527308]
+  global Waypoint_2_p=p[-.203247966784, .523643298702, .235566536770, -.821110212065, -2.695038588020, .892364196206]
+  global Waypoint_2_q=[-2.161988083516256, -1.2136768859675904, 2.2821067015277308, 1.1061667638966064, -0.002366367970601857, -1.5343120733844202]
+  $ 2 "BeforeStart"
+  $ 3 "Set"
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   while (True):
-    $ 2 "Robot Program"
-    $ 3 "HwResp≔'placeholder'"
-    global HwResp="placeholder"
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 4 "Serial Bridge uH1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,72,49], False)
-    # end: URCap Program Node
-    $ 6 "Popup: heating started. push to stop"
-    popup("heating started. push to stop", "Message", False, False, blocking=True)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.8.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 10 "Serial Bridge uH0"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 5000, "None", "None", [252,72,48], False)
-    # end: URCap Program Node
-    $ 11 "Popup: heating stopped. push to start"
-    popup("heating stopped. push to start", "Message", False, False, blocking=True)
+    $ 4 "Robot Program"
+    $ 5 "MoveJ"
+    $ 6 "Waypoint_1" "breakAfter"
+    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 7 "Wait: 1.0"
+    sleep(1.0)
+    $ 8 "MoveJ"
+    $ 9 "Waypoint_2" "breakAfter"
+    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
   end
 end

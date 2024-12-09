@@ -38,7 +38,7 @@
                xback
            MoveJ
              Waypoint_54
-         ElseIf jp[3]<2.62 and jp[4]<-3.84
+         ElseIf jp[3]>2.62 and jp[4]<-3.84
            'if left side second half, then left weld ending sequence'
            If jp[5]<0.35
              MoveJ
@@ -52,6 +52,7 @@
              Waypoint_55
              'Waypoint_60'
              Waypoint_59
+             Waypoint_71
              Waypoint_58
              Waypoint_56
              Waypoint_57
@@ -196,6 +197,7 @@
        'above point is home'
        Waypoint_15
        Waypoint_25
+       Waypoint_72
        Waypoint_26
        Waypoint_27
        'Waypoint_1'
@@ -210,6 +212,7 @@
      pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
      MoveJ
        pa1
+     MoveJ
        p1
      Wait: 8.0
      Serial Bridge uR1
@@ -281,6 +284,7 @@
      MoveJ
        Waypoint_32
        Waypoint_33
+       Waypoint_73
      Comment
      MoveJ
        Waypoint_16
@@ -318,8 +322,11 @@
        Waypoint_3
      'extrude out a foot'
      Serial Bridge uR1
+     Set DO[0]=On
      Wait: 24.0
      Serial Bridge uR0
+     Wait: 1.0
+     Set DO[0]=Off
      'slice'
      MoveL
        Waypoint_21
@@ -448,13 +455,4 @@
        Else
          end_freedrive_mode()
        sync()
-   Thread_2
-     Loop  True 
-       If thread2trigger≟ True 
-         'do the dot extrude'
-         Wait: 5.0
-         Serial Bridge uR1
-         Wait: 2.0
-         Serial Bridge uR0
-         thread2trigger≔ False 
-       sync()
+   'Thread_2'
