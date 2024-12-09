@@ -8,7 +8,7 @@
   </kinematics>
   <children>
     <InitVariablesNode/>
-    <MainProgram runOnlyOnce="true" InitVariablesNode="false">
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <SuppressedNode>
           <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
@@ -38,9 +38,20 @@
             </Variable>
           </dataModel>
         </Contributed>
-        <Wait type="Sleep">
-          <waitTime>5.0</waitTime>
-        </Wait>
+        <Set type="DigitalOutput">
+          <pin referencedName="digital_out[0]"/>
+          <digitalValue>1</digitalValue>
+        </Set>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>5.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
+        <Popup type="Message" haltProgram="false" message="on" inputType="Text"/>
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -53,6 +64,7 @@
             </Variable>
           </dataModel>
         </Contributed>
+        <Popup type="Message" haltProgram="false" message="off" inputType="Text"/>
       </children>
     </MainProgram>
   </children>
