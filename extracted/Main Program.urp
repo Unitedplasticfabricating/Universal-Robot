@@ -31,7 +31,7 @@
               <tcp referencedName="pretend_welder"/>
             </Set>
             <Assignment valueSource="Expression">
-              <variable name="start_pose" prefersPersistentValue="false" favourite="false">
+              <variable name="sp" prefersPersistentValue="false" favourite="false">
                 <initializeExpression/>
               </variable>
               <expression>
@@ -50,8 +50,27 @@
                 <Comment comment="if first move is to a variable, skip automove"/>
               </children>
             </Move>
+            <Comment comment="turn off welder"/>
+            <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+              <dataModel>
+                <data key="QUERY" value="false"/>
+                <data key="NODE_TITLE" value="Serial Bridge uR0"/>
+                <data key="Command" value="[252,82,48]"/>
+                <data key="byte_array" value="true"/>
+                <data key="OUTPUT_ENTRY" value="Static"/>
+                <Variable key="OUTPUT_VARIABLE">
+                  <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Variable>
+              </dataModel>
+            </Contributed>
+            <Set type="DigitalOutput">
+              <pin referencedName="digital_out[0]"/>
+              <digitalValue>0</digitalValue>
+            </Set>
             <Assignment valueSource="Expression">
-              <variable name="joint_pos" prefersPersistentValue="false" favourite="false">
+              <variable name="jp" prefersPersistentValue="false" favourite="false">
                 <initializeExpression/>
               </variable>
               <expression>
@@ -63,15 +82,7 @@
             <If type="If" checkContinuously="false">
               <expression>
                 <ExpressionChar character="s"/>
-                <ExpressionChar character="t"/>
-                <ExpressionChar character="a"/>
-                <ExpressionChar character="r"/>
-                <ExpressionChar character="t"/>
-                <ExpressionChar character="_"/>
                 <ExpressionChar character="p"/>
-                <ExpressionChar character="o"/>
-                <ExpressionChar character="s"/>
-                <ExpressionChar character="e"/>
                 <ExpressionChar character="["/>
                 <ExpressionChar character="0"/>
                 <ExpressionChar character="]"/>
@@ -111,7 +122,585 @@
               <expression/>
               <children>
                 <Comment comment="for rules 2-8, finish with oldhome then above then home"/>
-                <Comment comment="insert"/>
+                <If type="If" checkContinuously="false">
+                  <expression>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="4"/>
+                  </expression>
+                  <children>
+                    <Comment comment="then go straight to oldhome"/>
+                  </children>
+                </If>
+                <If type="ElseIf" checkContinuously="false">
+                  <expression>
+                    <ExpressionChar character="s"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&gt;"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="6"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="7"/>
+                  </expression>
+                  <children>
+                    <Comment comment="if left side weld approach, left weld approach in reverse"/>
+                    <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                      <feature class="GeomFeatureReference" reference="../../../../../../Move/feature"/>
+                      <children>
+                        <Waypoint type="Fixed" name="Waypoint_50" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-0.021522347127095998, -1.2794721287539979, 2.4323821703540247, 5.090870934515753, -2.2996109167682093, 1.533644199371338"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_51" kinematicsFlags="1">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.1454814116107386, -1.5427037247321387, 2.8454700152026575, 4.979047852545538, -4.902958456669943, 1.5718834400177002"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_52" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.2978580633746546, -1.3217003357461472, 2.2583277861224573, 3.7025129038044433, -2.952825371419088, 0.9627944231033325"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_53" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-2.7676661650287073, -1.8206430874266566, 2.312763277684347, 1.0122546392628173, -1.0765226523028772, -0.8102834860431116"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                      </children>
+                    </Move>
+                  </children>
+                </If>
+                <If type="ElseIf" checkContinuously="false">
+                  <expression>
+                    <ExpressionChar character="s"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="6"/>
+                    <ExpressionChar character="2"/>
+                  </expression>
+                  <children>
+                    <Comment comment="if right side around, move back then wapoint 24 then oldhome"/>
+                    <If type="If" checkContinuously="false">
+                      <expression>
+                        <ExpressionChar character="s"/>
+                        <ExpressionChar character="p"/>
+                        <ExpressionChar character="["/>
+                        <ExpressionChar character="0"/>
+                        <ExpressionChar character="]"/>
+                        <ExpressionChar character="&lt;"/>
+                        <ExpressionChar character="-"/>
+                        <ExpressionChar character="1"/>
+                        <ExpressionChar character="."/>
+                        <ExpressionChar character="0"/>
+                      </expression>
+                      <children>
+                        <Assignment valueSource="Expression">
+                          <variable name="xback" prefersPersistentValue="false" favourite="false">
+                            <initializeExpression/>
+                          </variable>
+                          <expression>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="-"/>
+                            <ExpressionChar character="1"/>
+                            <ExpressionChar character="."/>
+                            <ExpressionChar character="0"/>
+                            <ExpressionChar character=","/>
+                            <ExpressionChar character="s"/>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="1"/>
+                            <ExpressionChar character="]"/>
+                            <ExpressionChar character=","/>
+                            <ExpressionChar character="s"/>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="2"/>
+                            <ExpressionChar character="]"/>
+                            <ExpressionChar character=","/>
+                            <ExpressionChar character="s"/>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="3"/>
+                            <ExpressionChar character="]"/>
+                            <ExpressionChar character=","/>
+                            <ExpressionChar character="s"/>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="4"/>
+                            <ExpressionChar character="]"/>
+                            <ExpressionChar character=","/>
+                            <ExpressionChar character="s"/>
+                            <ExpressionChar character="p"/>
+                            <ExpressionChar character="["/>
+                            <ExpressionChar character="5"/>
+                            <ExpressionChar character="]"/>
+                            <ExpressionChar character="]"/>
+                          </expression>
+                        </Assignment>
+                        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                          <feature class="GeomFeatureReference" reference="../../../../../../../../Move/feature"/>
+                          <children>
+                            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                              <motionParameters/>
+                              <variable reference="../../../../Assignment/variable"/>
+                            </Waypoint>
+                          </children>
+                        </Move>
+                      </children>
+                    </If>
+                    <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                      <feature class="GeomFeatureReference" reference="../../../../../../Move/feature"/>
+                      <children>
+                        <Waypoint type="Fixed" name="Waypoint_54" kinematicsFlags="-1">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.9617512861834925, -1.2994225782207032, 2.207935158406393, 0.745708628291748, 1.5955500602722168, 1.41863214969635"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                      </children>
+                    </Move>
+                  </children>
+                </If>
+                <If type="ElseIf" checkContinuously="false">
+                  <expression>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="6"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="4"/>
+                  </expression>
+                  <children>
+                    <Comment comment="if left side second half, then left weld ending sequence"/>
+                    <If type="If" checkContinuously="false">
+                      <expression>
+                        <ExpressionChar character="j"/>
+                        <ExpressionChar character="p"/>
+                        <ExpressionChar character="["/>
+                        <ExpressionChar character="5"/>
+                        <ExpressionChar character="]"/>
+                        <ExpressionChar character="&lt;"/>
+                        <ExpressionChar character="0"/>
+                        <ExpressionChar character="."/>
+                        <ExpressionChar character="3"/>
+                        <ExpressionChar character="5"/>
+                      </expression>
+                      <children>
+                        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                          <feature class="GeomFeatureReference" reference="../../../../../../../../Move/feature"/>
+                          <children>
+                            <Waypoint type="Fixed" name="Waypoint_65" kinematicsFlags="1">
+                              <motionParameters/>
+                              <position>
+                                <JointAngles angles="0.11527767777442932, -1.206728772526123, 2.660132948552267, 3.2525827127644042, -4.69939905801882, -0.18521625200380498"/>
+                                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                                <Kinematics status="LINEARIZED" validChecksum="true">
+                                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                                </Kinematics>
+                              </position>
+                              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                            </Waypoint>
+                          </children>
+                        </Move>
+                      </children>
+                    </If>
+                    <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                      <feature class="GeomFeatureReference" reference="../../../../../../Move/feature"/>
+                      <children>
+                        <SuppressedNode>
+                          <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_61" kinematicsFlags="1">
+                            <motionParameters/>
+                            <position>
+                              <JointAngles angles="-0.6650493780719202, -0.3235338491252442, 1.7927187124835413, 3.2544242578693847, -4.704199973736898, 1.262176513671875"/>
+                              <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                              <Kinematics status="LINEARIZED" validChecksum="true">
+                                <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                                <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                                <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                                <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                                <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                              </Kinematics>
+                            </position>
+                            <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                          </suppressedNode>
+                        </SuppressedNode>
+                        <SuppressedNode>
+                          <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_62" kinematicsFlags="1">
+                            <motionParameters/>
+                            <position>
+                              <JointAngles angles="-0.03908092180360967, -0.2939794820598145, 1.7487567106830042, 3.2439190584370117, -4.706024233494894, -0.9516757170306605"/>
+                              <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                              <Kinematics status="LINEARIZED" validChecksum="true">
+                                <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                                <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                                <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                                <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                                <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                              </Kinematics>
+                            </position>
+                            <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                          </suppressedNode>
+                        </SuppressedNode>
+                        <SuppressedNode>
+                          <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_63" kinematicsFlags="1">
+                            <motionParameters/>
+                            <position>
+                              <JointAngles angles="-0.5884297529803675, -1.2237849694541474, 2.732112232838766, 3.207263632411621, -4.698813978825704, 0.5185537934303284"/>
+                              <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                              <Kinematics status="LINEARIZED" validChecksum="true">
+                                <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                                <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                                <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                                <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                                <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                              </Kinematics>
+                            </position>
+                            <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                          </suppressedNode>
+                        </SuppressedNode>
+                        <SuppressedNode>
+                          <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_64" kinematicsFlags="1">
+                            <motionParameters/>
+                            <position>
+                              <JointAngles angles="0.11528298258781433, -1.206734911804535, 2.660121027623312, 3.252600832576416, -4.6993935743915, -0.18521625200380498"/>
+                              <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                              <Kinematics status="LINEARIZED" validChecksum="true">
+                                <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                                <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                                <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                                <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                                <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                              </Kinematics>
+                            </position>
+                            <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                          </suppressedNode>
+                        </SuppressedNode>
+                        <Comment comment="above is testing, below is real"/>
+                        <Waypoint type="Fixed" name="Waypoint_55" kinematicsFlags="1">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-0.89636737505068, -1.198587493305542, 2.6061368624316614, 3.3119169908710937, -4.700617257748739, 0.826545238494873"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_60" kinematicsFlags="1">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.0328291098224085, -0.2980014842799683, 2.121174160634176, 2.9023844438740234, -4.711147491131918, 1.783251166343689"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_59" kinematicsFlags="1">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.1454528013812464, -1.5427289356342335, 2.8454795519458216, 4.979044186859884, -4.902960960065023, 1.5718833208084106"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_58" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-1.651280705128805, -1.7712346516051234, 2.617981735860006, 3.3066598612019042, -2.656208101903097, 0.8563313484191895"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_56" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-2.0344861189471644, -1.9012485943236292, 2.469647232686178, 2.2012061315723876, -1.1677187124835413, -0.5094392935382288"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                        <Waypoint type="Fixed" name="Waypoint_57" kinematicsFlags="3">
+                          <motionParameters/>
+                          <position>
+                            <JointAngles angles="-2.920837704335348, -1.9932075939574183, 2.3856611887561243, 0.6815890508839111, -0.5688460508929651, -1.1506975332843226"/>
+                            <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                            <Kinematics status="LINEARIZED" validChecksum="true">
+                              <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                              <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                              <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                              <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                              <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                            </Kinematics>
+                          </position>
+                          <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                        </Waypoint>
+                      </children>
+                    </Move>
+                  </children>
+                </If>
+                <Comment comment="insert logic for how to get back to oldhome"/>
+                <Comment comment="finish with oldhome then above then home"/>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="Waypoint_49" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.4579480330096644, -2.0568953953185023, 2.3266006151782435, -0.2270372670939942, -0.1993797461139124, -0.10534602800478154"/>
+                        <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="Waypoint_48" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.266932551060812, -1.1745034915259858, 1.653294865285055, 1.0039614874073486, -0.002454582844869435, -1.5362089315997522"/>
+                        <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
               </children>
             </If>
           </children>
@@ -145,14 +734,14 @@
             </Waypoint>
           </children>
         </Move>
-        <Set type="NoAction">
-          <tcp referencedName="pretend_w_top"/>
-        </Set>
         <Assignment valueSource="Operator" message="Select Yes for a Left side weld, or select No for a Right Side weld." valueType="Boolean">
           <variable name="leftchoice" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
           </variable>
         </Assignment>
+        <Set type="NoAction">
+          <tcp referencedName="pretend_w_top"/>
+        </Set>
         <Script type="Line">
           <expression>
             <ExpressionChar character="T"/>
@@ -1409,7 +1998,7 @@ end
                     <waitTime>1.0</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin referencedName="digital_out[0]"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>1</digitalValue>
                   </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
@@ -1433,7 +2022,7 @@ end
                     <waitTime>0.5</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin reference="../../Set/pin"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>0</digitalValue>
                   </Set>
                   <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
@@ -1457,7 +2046,7 @@ end
                     <waitTime>1.0</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin reference="../../Set/pin"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>1</digitalValue>
                   </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
@@ -1481,7 +2070,7 @@ end
                     <waitTime>2.0</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin reference="../../Set/pin"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>0</digitalValue>
                   </Set>
                   <Comment/>
@@ -2004,7 +2593,7 @@ end
                     <waitTime>1.0</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin reference="../../Set/pin"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>1</digitalValue>
                   </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
@@ -2052,7 +2641,7 @@ end
                     <waitTime>2.0</waitTime>
                   </Wait>
                   <Set type="DigitalOutput">
-                    <pin reference="../../Set/pin"/>
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>0</digitalValue>
                   </Set>
                   <SuppressedNode>
@@ -2549,7 +3138,7 @@ end
           <waitTime>1.0</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
         </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
@@ -2569,9 +3158,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -2579,7 +3166,7 @@ end
           <waitTime>0.5</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>0</digitalValue>
         </Set>
         <SuppressedNode>
@@ -2619,7 +3206,7 @@ end
           <waitTime>1.0</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
         </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
@@ -2647,7 +3234,7 @@ end
           <waitTime>2.0</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>0</digitalValue>
         </Set>
         <Comment/>
@@ -3057,7 +3644,7 @@ end
           <waitTime>1.0</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
         </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
@@ -3098,10 +3685,10 @@ end
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -3109,7 +3696,7 @@ end
           <waitTime>2.0</waitTime>
         </Wait>
         <Set type="DigitalOutput">
-          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>0</digitalValue>
         </Set>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
