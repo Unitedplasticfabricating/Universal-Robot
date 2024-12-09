@@ -19,9 +19,10 @@
            Waypoint_47
          Home
        Else
+         Popup: retreating to home
          'for rules 2-8, finish with oldhome then above then home'
          If -1.74<jp[4] and jp[4]<1.05 and -1.74<jp[3] and jp[3]<1.74
-           'then go straight to oldhome'
+           'if oldhome, test teach, then go straight to oldhome'
          ElseIf sp[0]<-.5 and jp[3]>3.14 and -2.62<jp[4] and jp[4]<-0.87
            'if left side weld approach, left weld approach in reverse'
            MoveJ
@@ -49,11 +50,32 @@
              'Waypoint_64'
              'above is testing, below is real'
              Waypoint_55
-             Waypoint_60
+             'Waypoint_60'
              Waypoint_59
              Waypoint_58
              Waypoint_56
              Waypoint_57
+         ElseIf jp[3]<-2.09
+           'bottom homing'
+           MoveJ
+             'Waypoint_66'
+             Comment
+             If sp[0]<-0.84
+               xback≔p[-0.84,sp[1],sp[2],sp[3],sp[4],sp[5]]
+               MoveL
+                 xback
+             Waypoint_67
+         ElseIf jp[3]<0 and jp[4]<-3.14
+           'if left side homing, special unspin'
+           MoveJ
+             'Waypoint_68'
+             Comment
+             Waypoint_69
+             Waypoint_70
+         ElseIf 2>1
+           'if none of the other options, then error continuously'
+           Loop 2>1
+             Popup: Unknown Position. Find Calvin for Assistance
          'insert logic for how to get back to oldhome'
          'finish with oldhome then above then home'
          MoveJ
