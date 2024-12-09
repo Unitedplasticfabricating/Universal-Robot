@@ -1,8 +1,29 @@
  Program
    Variables Setup
+   BeforeStart
+     Safe Home Folder
+       'if robot is not at home, send it back to home safely'
+       'make sure the tcp is welder'
+       Set
+       start_pose≔get_actual_tcp_pose()
+       MoveL
+         start_pose
+         'if first move is to a variable, skip automove'
+       joint_pos≔get_actual_joint_positions()
+       If start_pose[0]>0.600
+         'if x > 600 then above then home'
+         MoveJ
+           Waypoint_47
+         Home
+       Else
+         'for rules 2-8, finish with oldhome then above then home'
+         'insert'
    Robot Program
      'start of main program'
+     Set
      Home
+     MoveJ
+       Waypoint_46
      Set
      leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'
      Test_Teach_Position()
@@ -21,11 +42,12 @@
        pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23)
        move_path_3right()
      'Popup'
+     MoveJ
+       Waypoint_46
      Home
    move_path_3right
      'this is the path for Down, Over, then Back Around'
      Comment
-     'Home'
      'MoveJ'
      align_ready_for_welding()
      Comment
@@ -38,19 +60,23 @@
      Wait: 8.0
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p2
      Serial Bridge uR0
      Wait: 0.5
+     Set DO[0]=Off
      'thread2trigger≔ True '
      MoveL
        p4
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
      p_1≔pathturn[4]
@@ -80,6 +106,7 @@
        p_1
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p_2
      MoveP
@@ -90,24 +117,16 @@
        p_5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      MoveL
        Waypoint_23
      MoveJ
        Waypoint_24
        Waypoint_39
        'above waypoint is home'
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Home
    move_path_3left
      'this is the path for Down, Over, then Back Around'
      Comment
-     'Home'
      MoveJ
        Waypoint_37
        'above point is home'
@@ -131,18 +150,22 @@
      Wait: 8.0
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p2
      Serial Bridge uR0
      Wait: 0.5
+     Set DO[0]=Off
      MoveL
        p4
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
      p_1≔pathturn[4]
@@ -177,6 +200,7 @@
        p_1
      Serial Bridge uR1
      Wait: 1.0
+     Set DO[0]=On
      MoveL
        p_2
      MoveP
@@ -187,6 +211,7 @@
        p_5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      'MoveL'
      'MoveJ'
      MoveJ
@@ -199,15 +224,7 @@
        Waypoint_18
        Waypoint_38
        'above point is home'
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Home
    Test_Teach_Position
-     Home
      'MoveL'
      MoveJ
        Waypoint_40

@@ -21,10 +21,130 @@
         </variable>
       </variables>
     </InitVariablesNode>
+    <SpecialSequence type="BeforeStart">
+      <children>
+        <Folder name="Safe Home Folder" keepHidden="false">
+          <children>
+            <Comment comment="if robot is not at home, send it back to home safely"/>
+            <Comment comment="make sure the tcp is welder"/>
+            <Set type="NoAction">
+              <tcp referencedName="pretend_welder"/>
+            </Set>
+            <Assignment valueSource="Expression">
+              <variable name="start_pose" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionToken token="get_actual_tcp_pose"/>
+                <ExpressionChar character="("/>
+                <ExpressionChar character=")"/>
+              </expression>
+            </Assignment>
+            <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+              <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../Assignment/variable"/>
+                </Waypoint>
+                <Comment comment="if first move is to a variable, skip automove"/>
+              </children>
+            </Move>
+            <Assignment valueSource="Expression">
+              <variable name="joint_pos" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionToken token="get_actual_joint_positions"/>
+                <ExpressionChar character="("/>
+                <ExpressionChar character=")"/>
+              </expression>
+            </Assignment>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="]"/>
+                <ExpressionChar character="&gt;"/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="6"/>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="0"/>
+              </expression>
+              <children>
+                <Comment comment="if x &gt; 600 then above then home"/>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+                  <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="Waypoint_47" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522"/>
+                        <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                          <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                          <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                          <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                          <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+                <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+              </children>
+            </If>
+            <If type="Else" checkContinuously="false">
+              <expression/>
+              <children>
+                <Comment comment="for rules 2-8, finish with oldhome then above then home"/>
+                <Comment comment="insert"/>
+              </children>
+            </If>
+          </children>
+        </Folder>
+      </children>
+    </SpecialSequence>
     <MainProgram runOnlyOnce="true" InitVariablesNode="true">
       <children>
         <Comment comment="start of main program"/>
+        <Set type="NoAction">
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
+        </Set>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_46" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.266944233571188, -1.1744955343059083, 1.6532734076129358, 1.003952904338501, -0.002457443867818654, -1.5361955801593226"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
         <Set type="NoAction">
           <tcp referencedName="pretend_w_top"/>
         </Set>
@@ -59,7 +179,7 @@
           </expression>
         </Script>
         <Set type="NoAction">
-          <tcp reference="../../Set/tcp"/>
+          <tcp reference="../../Set[2]/tcp"/>
         </Set>
         <Script type="Line">
           <expression>
@@ -84,7 +204,7 @@
           </expression>
         </Script>
         <Set type="NoAction">
-          <tcp referencedName="pretend_welder"/>
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
         </Set>
         <Script type="Line">
           <expression>
@@ -902,7 +1022,7 @@ end
         </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+            <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_19" kinematicsFlags="1">
                 <motionParameters/>
@@ -998,11 +1118,8 @@ end
                 <children>
                   <Comment comment="this is the path for Down, Over, then Back Around"/>
                   <Comment/>
-                  <SuppressedNode>
-                    <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
-                  </SuppressedNode>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Fixed" name="Waypoint_37" kinematicsFlags="3">
                         <motionParameters/>
@@ -1265,7 +1382,7 @@ end
                     </expression>
                   </Assignment>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1291,8 +1408,12 @@ end
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin referencedName="digital_out[0]"/>
+                    <digitalValue>1</digitalValue>
+                  </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1311,8 +1432,12 @@ end
                   <Wait type="Sleep">
                     <waitTime>0.5</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../Set/pin"/>
+                    <digitalValue>0</digitalValue>
+                  </Set>
                   <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1331,8 +1456,12 @@ end
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../Set/pin"/>
+                    <digitalValue>1</digitalValue>
+                  </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1351,6 +1480,10 @@ end
                   <Wait type="Sleep">
                     <waitTime>2.0</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../Set/pin"/>
+                    <digitalValue>0</digitalValue>
+                  </Set>
                   <Comment/>
                   <Assignment valueSource="Expression">
                     <variable name="pret1" prefersPersistentValue="false" favourite="false">
@@ -1659,7 +1792,7 @@ end
                     </expression>
                   </Assignment>
                   <Move motionType="MoveJ" speed="1.3962634015954636" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1765,7 +1898,7 @@ end
                   </Move>
                   <SuppressedNode>
                     <suppressedNode class="Move" motionType="MoveP" speed="0.02" acceleration="0.002" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
-                      <feature class="GeomFeatureReference" reference="../../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                      <feature class="GeomFeatureReference" reference="../../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                       <children>
                         <Comment comment="below (until next comment) are points for testing out ccw circle weld"/>
                         <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="1">
@@ -1815,7 +1948,7 @@ end
                     </suppressedNode>
                   </SuppressedNode>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1835,7 +1968,7 @@ end
                     <waitTime>8.0</waitTime>
                   </Wait>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1851,7 +1984,7 @@ end
                     <tcp referencedName="backofhole"/>
                   </Set>
                   <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1870,8 +2003,12 @@ end
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../Set/pin"/>
+                    <digitalValue>1</digitalValue>
+                  </Set>
                   <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1880,7 +2017,7 @@ end
                     </children>
                   </Move>
                   <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <CircleMove OrientationMode="FIXED">
                         <children>
@@ -1895,7 +2032,7 @@ end
                     </children>
                   </Move>
                   <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                         <motionParameters/>
@@ -1914,9 +2051,13 @@ end
                   <Wait type="Sleep">
                     <waitTime>2.0</waitTime>
                   </Wait>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../Set/pin"/>
+                    <digitalValue>0</digitalValue>
+                  </Set>
                   <SuppressedNode>
                     <suppressedNode class="Move" motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-                      <feature class="GeomFeatureReference" reference="../../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                      <feature class="GeomFeatureReference" reference="../../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                       <children>
                         <Waypoint type="Fixed" name="Waypoint_23" kinematicsFlags="-1">
                           <motionParameters/>
@@ -1938,7 +2079,7 @@ end
                   </SuppressedNode>
                   <SuppressedNode>
                     <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                      <feature class="GeomFeatureReference" reference="../../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                      <feature class="GeomFeatureReference" reference="../../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                       <children>
                         <Waypoint type="Fixed" name="Waypoint_24" kinematicsFlags="1">
                           <motionParameters/>
@@ -1959,7 +2100,7 @@ end
                     </suppressedNode>
                   </SuppressedNode>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Fixed" name="Waypoint_32" kinematicsFlags="1">
                         <motionParameters/>
@@ -1995,7 +2136,7 @@ end
                   </Move>
                   <Comment/>
                   <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-                    <feature class="GeomFeatureReference" reference="../../../../../../../SuppressedNode[3]/suppressedNode/feature"/>
+                    <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Fixed" name="Waypoint_16" kinematicsFlags="3">
                         <motionParameters/>
@@ -2060,13 +2201,6 @@ end
                       <Comment comment="above point is home"/>
                     </children>
                   </Move>
-                  <Comment/>
-                  <Comment/>
-                  <Comment/>
-                  <Comment/>
-                  <Comment/>
-                  <Comment/>
-                  <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
                 </children>
               </subprogram>
             </CallSubProgram>
@@ -2157,6 +2291,26 @@ end
             <variable reference="../../../If/children/Assignment/variable"/>
           </suppressedNode>
         </SuppressedNode>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_46" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.266944233571188, -1.1744955343059083, 1.6532734076129358, 1.003952904338501, -0.002457443867818654, -1.5361955801593226"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
       </children>
     </MainProgram>
@@ -2166,11 +2320,8 @@ end
         <Comment comment="this is the path for Down, Over, then Back Around"/>
         <Comment/>
         <SuppressedNode>
-          <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
-        </SuppressedNode>
-        <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+            <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
                 <motionParameters/>
@@ -2369,7 +2520,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2397,8 +2548,12 @@ end
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2423,6 +2578,10 @@ end
         <Wait type="Sleep">
           <waitTime>0.5</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <SuppressedNode>
           <suppressedNode class="Assignment" valueSource="Expression">
             <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
@@ -2434,7 +2593,7 @@ end
           </suppressedNode>
         </SuppressedNode>
         <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2459,8 +2618,12 @@ end
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2483,6 +2646,10 @@ end
         <Wait type="Sleep">
           <waitTime>2.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <Comment/>
         <Assignment valueSource="Expression">
           <variable reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Assignment[6]/variable"/>
@@ -2773,7 +2940,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.3962634015954636" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2830,7 +2997,7 @@ end
         </Move>
         <Comment comment="preheat"/>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2850,7 +3017,7 @@ end
           <waitTime>8.0</waitTime>
         </Wait>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2863,10 +3030,10 @@ end
           </children>
         </Move>
         <Set type="NoAction">
-          <tcp reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/tcp"/>
+          <tcp reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set[5]/tcp"/>
         </Set>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2889,8 +3056,12 @@ end
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2899,7 +3070,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <CircleMove OrientationMode="FIXED">
               <children>
@@ -2914,7 +3085,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -2937,8 +3108,12 @@ end
         <Wait type="Sleep">
           <waitTime>2.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../MainProgram/children/If/children/CallSubProgram/subprogram/children/Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_23" kinematicsFlags="-1">
               <motionParameters/>
@@ -2958,7 +3133,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_24" kinematicsFlags="1">
               <motionParameters/>
@@ -2993,24 +3168,15 @@ end
             <Comment comment="above waypoint is home"/>
           </children>
         </Move>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
       </children>
     </SubProgram>
     <SubProgram reference="../MainProgram/children/If/children/CallSubProgram/subprogram"/>
     <SubProgram name="Test_Teach_Position" keepHidden="false" keepSynchronizedWithDisk="false">
       <programFile>/programs/Test Teach Position.urp</programFile>
       <children>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+            <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="3">
                 <motionParameters/>
@@ -3033,7 +3199,7 @@ end
         </SuppressedNode>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="false" positionType="CartesianPose">
           <tcp referencedName="TCP_1_plate"/>
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_40" kinematicsFlags="3">
               <motionParameters/>
@@ -3169,7 +3335,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -3186,10 +3352,10 @@ end
           <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         </SuppressedNode>
         <Set type="NoAction">
-          <tcp reference="../../../../MainProgram/children/Set[3]/tcp"/>
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
         </Set>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="3">
               <motionParameters/>
@@ -3211,7 +3377,7 @@ end
         </Move>
         <Comment comment="move above bucket"/>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="3">
               <motionParameters/>
@@ -3262,7 +3428,7 @@ end
         </Contributed>
         <Comment comment="slice"/>
         <Move motionType="MoveL" speed="0.03" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_21" kinematicsFlags="3">
               <motionParameters/>
@@ -3327,7 +3493,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_45" kinematicsFlags="3">
               <motionParameters/>
@@ -3404,7 +3570,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -3458,7 +3624,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -3473,7 +3639,7 @@ end
       <children>
         <Comment comment="this program takes the welder from home to a position alined ready for welding (vertically down)"/>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="oldhome" kinematicsFlags="-1">
               <motionParameters/>
@@ -3545,7 +3711,7 @@ end
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
         <Set type="NoAction">
-          <tcp reference="../../../../MainProgram/children/Set/tcp"/>
+          <tcp reference="../../../../MainProgram/children/Set[2]/tcp"/>
         </Set>
         <Comment comment="dummy move below for debug"/>
         <SuppressedNode>
@@ -3553,7 +3719,7 @@ end
         </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-            <feature class="GeomFeatureReference" reference="../../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+            <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="1">
                 <motionParameters/>
@@ -4549,7 +4715,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4562,7 +4728,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4597,7 +4763,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4606,7 +4772,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4641,7 +4807,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4650,7 +4816,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4685,7 +4851,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4709,7 +4875,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
               <motionParameters/>
@@ -4761,7 +4927,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4770,7 +4936,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4806,7 +4972,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4815,7 +4981,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4851,7 +5017,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4860,7 +5026,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode>
               <expression class="ExpressionBranch">
@@ -4896,7 +5062,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -4994,7 +5160,7 @@ end
           </children>
         </Move>
         <Move motionType="MoveL" speed="0.05" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <gui.program.direction.MoveDirectionNode selectedDirection="ZPlus">
               <children>
@@ -5014,7 +5180,7 @@ end
           </expression>
         </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../MainProgram/children/SuppressedNode[3]/suppressedNode/feature"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
@@ -5225,7 +5391,7 @@ end
                   </dataModel>
                 </Contributed>
                 <Assignment valueSource="Expression">
-                  <variable reference="../../../../../../../../SubProgram/children/SuppressedNode[3]/suppressedNode/variable"/>
+                  <variable reference="../../../../../../../../SubProgram/children/SuppressedNode[2]/suppressedNode/variable"/>
                   <expression>
                     <ExpressionToken token=" False "/>
                   </expression>
