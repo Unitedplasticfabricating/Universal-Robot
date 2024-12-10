@@ -61,8 +61,8 @@
            MoveJ
              'Waypoint_66'
              Comment
-             If sp[0]<-0.84
-               xback≔p[-0.84,sp[1],sp[2],sp[3],sp[4],sp[5]]
+             If sp[0]<-0.95
+               xback≔p[-0.95,sp[1],sp[2],sp[3],sp[4],sp[5]]
                MoveL
                  xback
              Waypoint_67
@@ -83,6 +83,7 @@
            Waypoint_49
            Waypoint_48
          Home
+         'Press Continue to start a weld'
    Robot Program
      'start of main program'
      Set
@@ -93,18 +94,20 @@
      Set
      Test_Teach_Position()
      Set
+     kill threadId_Thread_1
      Corner_Homing_45()
      Set
-     extrude_knife3()
      Script: analyze_touchpoints.script
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
      'Call '
      'MoveJ'
      If leftchoice≟ True 
        pathturn≔main_calculate_left(p11,p12,p21,p22,p3,p13,p23)
+       extrude_knife3()
        Call move_path_3left
      Else
        pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23)
+       extrude_knife3()
        move_path_3right()
      'Popup'
      MoveJ
