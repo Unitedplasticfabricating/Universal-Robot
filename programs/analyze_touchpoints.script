@@ -748,19 +748,50 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
     # bad
     popuptext = "Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. "
     # infinite loop
-    while 1=1:
+    while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
-  # next, check if the corner is too close to the robot to do a left around weld (X>-1300)
-  if point0[0] > -1.300:
+  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
+  # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
+  
+  toocloseleftweld = False
+  if point0[1] < 0:
+    if point0[0] > -1.300:
+      toocloseleftweld = True
+    end
+  elif point0[1] < 0.480:
+    if point0[1] < (1.300 + point0[0])*8:
+      toocloseleftweld = True
+    end
+  else:
+    if point0[1] < (1.235 + point0[0])*4 + 0.500:
+      toocloseleftweld = True
+    end
+  end
+  if toocloseleftweld:
     # bad
     popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. "
     # infinite loop
-    while 1=1:
+    while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
   # next, check whether the touchpoints are reachable
+  structlength = 9
+  i = 0
+  while i < structlength:
+    curr = struct_touchpoints[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      # bad
+        popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. "
+        # infinite loop
+        while 1==1:
+          popup(popuptext, title="Robot Positioning Warning",blocking=True)
+        end
+    end
+    i = i + 1
+  end
   
 end
