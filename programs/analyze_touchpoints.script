@@ -752,9 +752,9 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
+  
   # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
   # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
-  
   toocloseleftweld = False
   if point0[1] < 0:
     if point0[0] > -1.300:
@@ -777,21 +777,29 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
+  
   # next, check whether the touchpoints are reachable
   structlength = 9
   i = 0
+  allvalid = True
+  listproblems = ""
   while i < structlength:
     curr = struct_touchpoints[i]
     valid = get_inverse_kin_has_solution(curr)
     if not valid:
-      # bad
-        popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. "
-        # infinite loop
-        while 1==1:
-          popup(popuptext, title="Robot Positioning Warning",blocking=True)
-        end
+      allvalid = False
+      listproblems = listproblems + i
     end
     i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
   end
   
 end
