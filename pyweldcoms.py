@@ -4,7 +4,7 @@ import time
 def main():
     # Configure the serial connection
     ser = serial.Serial(
-        port='COM5',        # Replace with your port
+        port='COM7',        # Replace with your port
         baudrate=1200,      # Baud rate
         bytesize=serial.EIGHTBITS,  # 8 data bits
         parity=serial.PARITY_NONE,   # No parity
@@ -23,11 +23,11 @@ def main():
                 break
 
             # Send the command
-            ser.write(command.encode('utf-8'))
+            ser.write(command.encode('latin-1'))
             print(f"Sent: {command}")
 
             # Read response from the device
-            response = ser.readline().decode('utf-8').strip()
+            response = ser.readline().decode('latin-1').strip()
             print(f"Received: {response}")
 
     except Exception as e:
