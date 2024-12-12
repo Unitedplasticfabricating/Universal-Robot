@@ -843,6 +843,48 @@ end
 
 # checks the validity of all points during a right weld
 def check_validity_right(struct1, struct2):
+  # first, check whether the right pivot will bonk itself
+  pointintersect = struct1[0]
+  heading1 = struct1[1]
   
+  #first, check whether the heading is just too far offset
+  # more than 15 degrees off of 45 is too much
+  # normal heading is 126 degrees
+  #111 degrees to 141 degrees
+  heading1degrees = heading1 * 180 / pi
+  if heading1degrees < 111 or heading1 > 141 :
+    # then out of range
+    popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + heading1degrees.toString()
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
+    
+  #TODO: add the checks for whether x is too close, given the heading
   
+  #next, check whether all the points in the weldpath are valid
+  structlength = 9
+  i = 0
+  allvalid = True
+  listproblems = ""
+  listnames = ["point1", "point2", "point4", "point5", "point_1", "point_2", "point_3", "point_4", "point_5"]
+  while i < structlength:
+    curr = struct2[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      allvalid = False
+      listproblems = listproblems + listnames[i]
+    end
+    i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
 end
