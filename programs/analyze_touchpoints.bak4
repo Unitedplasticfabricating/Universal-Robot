@@ -723,10 +723,10 @@ def get_corner_homing_45_pathpoints(point0):
   
   ph1 = p[p0x + d0, p0y, p0z + d1, p0rx, p0ry, p0rz] #approach point for turn
   
-  ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z+d1, 1.446, -0.8, -0.733]
-  ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z+d1, 1.446, -0.8, -0.733]
-  ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z+d1, 0.626, -1.993, -1.813]
-  ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 0.626, -1.993, -1.813]
+  ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z+d1, .445, -1.562, .483]
+  ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z+d1, .445, -1.562, .483]
+  ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z+d1, 1.699, 3.576, 1.841]
+  ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 1.699, 3.576, 1.841]
   
   # go back to ph1
   ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, 0] # approach point for under turn
@@ -845,16 +845,18 @@ end
 def check_validity_right(struct1, struct2):
   # first, check whether the right pivot will bonk itself
   pointintersect = struct1[0]
-  heading1 = struct1[1] # this is the direction that the welder will face when doing the right side of the box
+  heading1 = struct1[1]
   
   #first, check whether the heading is just too far offset
   # more than 15 degrees off of 45 is too much
-  # normal heading is 216 degrees
-  #201 degrees to 231 degrees
+  # normal heading is 126 degrees
+  #111 degrees to 141 degrees
   heading1degrees = heading1 * 180 / pi
-  if heading1degrees < 201 or heading1degrees > 231 :
+  if heading1degrees < 111 or heading1degrees > 141 :
     # then out of range
-    popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + str_cat("",heading1degrees)
+    # make a struct to convert float to string
+    structstring = struct(heading1degrees=heading1degrees)
+    popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + structstring.toString()
     # infinite loop
     while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
@@ -862,44 +864,6 @@ def check_validity_right(struct1, struct2):
   end
     
   #TODO: add the checks for whether x is too close, given the heading
-  # add checks for whether x is too close, given the heading
-  # different equations for whether heading offset > 5 degrees or less (inc. negative)
-  headingoffset = heading1degrees - 216
-  if headingoffset < 5:
-    # then calculate a and b
-    a = 0.4584 + -0.02369 * headingoffset
-    b = (-1151.4 + 13.83 * headingoffset) / 1000
-    # check whether x > a*y+b
-    if pointintersect[0] > a * pointintersect[1] + b:
-      # bad
-      popuptext = "Robot is too close to tank corner or not at the right angle. Collisions may occur. Stop Program and align robot. " 
-      # infinite loop
-      while 1==1:
-        popup(popuptext, title="Robot Positioning Warning",blocking=True)
-      end
-    end
-  else:
-    # headingoffset > 5 degrees
-    if pointintersect[1] < 0:
-      if pointintersect[0] > -1150.0 / 1000.0:
-        #bad
-        popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. " 
-        # infinite loop
-        while 1==1:
-          popup(popuptext, title="Robot Positioning Warning",blocking=True)
-        end
-      end
-    else:
-      # if x > .7736 y - 1101.9 then bad
-      if pointintersect[0] > 0.7736 * pointintersect[1] - 1101.9 / 1000:
-        popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. " 
-        # infinite loop
-        while 1==1:
-          popup(popuptext, title="Robot Positioning Warning",blocking=True)
-        end
-      end
-    end
-  end
   
   #next, check whether all the points in the weldpath are valid
   structlength = 9
@@ -924,82 +888,5 @@ def check_validity_right(struct1, struct2):
     while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
-  end
-end
-
-# this function sends a signal to turn extrusion on
-def turn_extrusion_on():
-  # send the signal
-  resp1 = send_serial_signal(["u", "R", "1"])
-  # if resp <> "uR1"
-  if resp1 <> [252,82,49]:
-    # turn off extrusion and heating. inform calvin
-    resp2 = send_serial_signal(["u", "R", "0"])
-    resp3 = send_serial_signal(["u", "H", "0"])
-    popuptext = "Error code encountered while trying to start extrusion. Find Calvin. "
-    while 1==1:
-      popup(popuptext, title="Extrusion Error Code",blocking=True)
-      popup(resp1, blocking=True)
-    end
-  popup(resp1)
-  
-end
-
-# this function sends a signal and receives a response
-# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
-def send_serial_signal(signal):
-  signal2char = signal[1]
-  signal3char = signal[2]
-  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
-  resp1 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", listsignal, True)
-  return resp1
-end
-
-# this function converts a letter into its ascii number
-def get_corr_number(letter):
-  if letter == "A":
-    return 65
-  elif letter == "H":
-    return 72
-  elif letter == "R":
-    return 82
-  elif letter == "M":
-    return 77
-  elif letter == "E":
-    return 69
-  elif letter == "a":
-    return 97
-  elif letter == "b":
-    return 98
-  elif letter == "h":
-    return 104
-  elif letter == "r":
-    return 114
-  elif letter == "s":
-    return 115
-  elif letter == "m":
-    return 109
-  elif letter == "0":
-    return 48
-  elif letter == "1":
-    return 49
-  elif letter == "2":
-    return 50
-  elif letter == "3":
-    return 51
-  elif letter == "4":
-    return 52
-  elif letter == "5":
-    return 53
-  elif letter == "6":
-    return 54
-  elif letter == "7":
-    return 55
-  elif letter == "8":
-    return 56
-  elif letter == "9":
-    return 57
-  elif letter == "?":
-    return 63
   end
 end

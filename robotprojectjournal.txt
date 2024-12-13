@@ -542,6 +542,23 @@ move leftweldcheck to after calculate_DOtA_points_left.
 add a check for all points after calculate_DOtA_points_left and calculate_DOtA_points_right
 the right weld check also checks heading 1 (to see if collision during pivot) and distance checker (to see if it is too close)
 
+i checked and yes i can send serial commands from code. functions within analyze touchpoints.script
+
+i completed turn_extrusion_on() function and put it into main program.
+i checked it by running it with heating off. main program got all the way to extrude_knife_3() and then errored (as designed)
+it said "error code encountered. find calvin" 
+"[252,82,48,252,72,49,252,72,48,252,82,48,252..."
+weird. it looks like it has recorded all the heating and extrusion start and stop commands.
+
+after trying a fix where i set resp0 to [] and then resp0 = WTSerialBridge.send_command(), i get a runtime error: resizing of list is not supported. 
+
+ohhhhhhh. i bet i know what it is. 
+every command that is not a query leaves the response sitting there in the RS232 converter. 
+then when you have one that is a query, all the stuff that was in the line gets read. 
+i need to flush the channel BEFORE sending the extrusion instructions
+and i need to undo those changes that i made that broke it
+flushing it worked. only the most recent signal appeared. fuck yeah im a genius. 
+
 
 
 

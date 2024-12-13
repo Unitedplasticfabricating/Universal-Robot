@@ -1,10 +1,10 @@
 <URProgram name="Main Program" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
-  <kinematics status="NOT_LINEARIZED" validChecksum="false">
+  <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
     <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
     <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-    <jointChecksum value="-1, -1, -1, -1, -1, -1"/>
+    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
   </kinematics>
   <children>
     <InitVariablesNode>
@@ -48,11 +48,11 @@
             <Comment comment="turn off welder"/>
             <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
               <dataModel>
-                <data key="QUERY" value="false"/>
                 <data key="NODE_TITLE" value="Serial Bridge uR0"/>
                 <data key="Command" value="[252,82,48]"/>
-                <data key="OUTPUT_ENTRY" value="Static"/>
                 <data key="byte_array" value="true"/>
+                <data key="OUTPUT_ENTRY" value="Static"/>
+                <data key="QUERY" value="false"/>
                 <Variable key="OUTPUT_VARIABLE">
                   <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                     <initializeExpression/>
@@ -2035,6 +2035,84 @@ def check_validity_right(struct1, struct2):
     end
   end
 end
+
+# this function sends a signal to turn extrusion on
+def turn_extrusion_on():
+  # flush the channel
+  resp0 = send_serial_signal([&quot;u&quot;, &quot;r&quot;, &quot;?&quot;])
+  # send the signal
+  resp1 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;1&quot;])
+  # if resp &lt;&gt; &quot;uR1&quot;
+  if resp1 != [252,82,49]:
+    # turn off extrusion and heating. inform calvin
+    resp2 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;0&quot;])
+    resp3 = send_serial_signal([&quot;u&quot;, &quot;H&quot;, &quot;0&quot;])
+    popuptext = &quot;Error code encountered while trying to start extrusion. Find Calvin. &quot;
+    while 1==1:
+      popup(popuptext, title=&quot;Extrusion Error Code&quot;,blocking=True)
+      popup(resp1, blocking=True)
+    end
+  end    
+end
+
+# this function sends a signal and receives a response
+# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
+def send_serial_signal(signal):
+  signal2char = signal[1]
+  signal3char = signal[2]
+  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
+  resp1 = WTSerialBridge.send_command(&quot;/dev/ttyUSB0&quot;,1200, 8, &quot;None&quot;, &quot;One&quot;, &quot;None&quot;, 1000, &quot;None&quot;, &quot;None&quot;, listsignal, True)
+  return resp1
+end
+
+# this function converts a letter into its ascii number
+def get_corr_number(letter):
+  if letter == &quot;A&quot;:
+    return 65
+  elif letter == &quot;H&quot;:
+    return 72
+  elif letter == &quot;R&quot;:
+    return 82
+  elif letter == &quot;M&quot;:
+    return 77
+  elif letter == &quot;E&quot;:
+    return 69
+  elif letter == &quot;a&quot;:
+    return 97
+  elif letter == &quot;b&quot;:
+    return 98
+  elif letter == &quot;h&quot;:
+    return 104
+  elif letter == &quot;r&quot;:
+    return 114
+  elif letter == &quot;s&quot;:
+    return 115
+  elif letter == &quot;m&quot;:
+    return 109
+  elif letter == &quot;0&quot;:
+    return 48
+  elif letter == &quot;1&quot;:
+    return 49
+  elif letter == &quot;2&quot;:
+    return 50
+  elif letter == &quot;3&quot;:
+    return 51
+  elif letter == &quot;4&quot;:
+    return 52
+  elif letter == &quot;5&quot;:
+    return 53
+  elif letter == &quot;6&quot;:
+    return 54
+  elif letter == &quot;7&quot;:
+    return 55
+  elif letter == &quot;8&quot;:
+    return 56
+  elif letter == &quot;9&quot;:
+    return 57
+  elif letter == &quot;?&quot;:
+    return 63
+  end
+end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
@@ -2506,14 +2584,39 @@ end
                   <Wait type="Sleep">
                     <waitTime>8.0</waitTime>
                   </Wait>
-                  <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-                    <dataModel>
-                      <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-                      <data key="byte_array" value="true"/>
-                      <data key="Command" value="[252,82,49]"/>
-                      <data key="OUTPUT_ENTRY" value="Static"/>
-                    </dataModel>
-                  </Contributed>
+                  <SuppressedNode>
+                    <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+                      <dataModel>
+                        <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+                        <data key="byte_array" value="true"/>
+                        <data key="Command" value="[252,82,49]"/>
+                        <data key="OUTPUT_ENTRY" value="Static"/>
+                      </dataModel>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <Script type="Line">
+                    <expression>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="e"/>
+                      <ExpressionChar character="x"/>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="s"/>
+                      <ExpressionChar character="i"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="("/>
+                      <ExpressionChar character=")"/>
+                    </expression>
+                  </Script>
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
@@ -2554,14 +2657,39 @@ end
                       </Waypoint>
                     </children>
                   </Move>
-                  <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-                    <dataModel>
-                      <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-                      <data key="byte_array" value="true"/>
-                      <data key="Command" value="[252,82,49]"/>
-                      <data key="OUTPUT_ENTRY" value="Static"/>
-                    </dataModel>
-                  </Contributed>
+                  <SuppressedNode>
+                    <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+                      <dataModel>
+                        <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+                        <data key="byte_array" value="true"/>
+                        <data key="Command" value="[252,82,49]"/>
+                        <data key="OUTPUT_ENTRY" value="Static"/>
+                      </dataModel>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <Script type="Line">
+                    <expression>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="e"/>
+                      <ExpressionChar character="x"/>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="s"/>
+                      <ExpressionChar character="i"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="("/>
+                      <ExpressionChar character=")"/>
+                    </expression>
+                  </Script>
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
@@ -3102,14 +3230,39 @@ end
                       </Waypoint>
                     </children>
                   </Move>
-                  <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-                    <dataModel>
-                      <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-                      <data key="byte_array" value="true"/>
-                      <data key="Command" value="[252,82,49]"/>
-                      <data key="OUTPUT_ENTRY" value="Static"/>
-                    </dataModel>
-                  </Contributed>
+                  <SuppressedNode>
+                    <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+                      <dataModel>
+                        <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+                        <data key="byte_array" value="true"/>
+                        <data key="Command" value="[252,82,49]"/>
+                        <data key="OUTPUT_ENTRY" value="Static"/>
+                      </dataModel>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <Script type="Line">
+                    <expression>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="e"/>
+                      <ExpressionChar character="x"/>
+                      <ExpressionChar character="t"/>
+                      <ExpressionChar character="r"/>
+                      <ExpressionChar character="u"/>
+                      <ExpressionChar character="s"/>
+                      <ExpressionChar character="i"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="_"/>
+                      <ExpressionChar character="o"/>
+                      <ExpressionChar character="n"/>
+                      <ExpressionChar character="("/>
+                      <ExpressionChar character=")"/>
+                    </expression>
+                  </Script>
                   <Wait type="Sleep">
                     <waitTime>1.0</waitTime>
                   </Wait>
@@ -3676,20 +3829,43 @@ end
         <Wait type="Sleep">
           <waitTime>8.0</waitTime>
         </Wait>
-        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-          <dataModel>
-            <data key="byte_array" value="true"/>
-            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-            <data key="Command" value="[252,82,49]"/>
-            <data key="QUERY" value="false"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
-            <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
-            </Variable>
-          </dataModel>
-        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="byte_array" value="true"/>
+              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+              <data key="Command" value="[252,82,49]"/>
+              <data key="QUERY" value="false"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="x"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
@@ -3714,7 +3890,9 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
@@ -3725,16 +3903,6 @@ end
           <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>0</digitalValue>
         </Set>
-        <SuppressedNode>
-          <suppressedNode class="Assignment" valueSource="Expression">
-            <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
-              <initializeExpression/>
-            </variable>
-            <expression>
-              <ExpressionToken token=" True "/>
-            </expression>
-          </suppressedNode>
-        </SuppressedNode>
         <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -3744,20 +3912,43 @@ end
             </Waypoint>
           </children>
         </Move>
-        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-          <dataModel>
-            <data key="byte_array" value="true"/>
-            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-            <data key="Command" value="[252,82,49]"/>
-            <data key="QUERY" value="false"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
-            <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
-            </Variable>
-          </dataModel>
-        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="byte_array" value="true"/>
+              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+              <data key="Command" value="[252,82,49]"/>
+              <data key="QUERY" value="false"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../Contributed/dataModel/Variable/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="x"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
@@ -3782,7 +3973,9 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4184,18 +4377,43 @@ end
             </Waypoint>
           </children>
         </Move>
-        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-          <dataModel>
-            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-            <data key="Command" value="[252,82,49]"/>
-            <data key="QUERY" value="false"/>
-            <data key="byte_array" value="true"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
-            <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
-            </Variable>
-          </dataModel>
-        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+              <data key="Command" value="[252,82,49]"/>
+              <data key="QUERY" value="false"/>
+              <data key="byte_array" value="true"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../Contributed[2]/dataModel/Variable/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="x"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
@@ -4244,7 +4462,7 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4540,18 +4758,43 @@ end
           </children>
         </Move>
         <Comment comment="extrude out a foot"/>
-        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-          <dataModel>
-            <data key="byte_array" value="true"/>
-            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-            <data key="Command" value="[252,82,49]"/>
-            <data key="QUERY" value="false"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
-            <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
-            </Variable>
-          </dataModel>
-        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="byte_array" value="true"/>
+              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+              <data key="Command" value="[252,82,49]"/>
+              <data key="QUERY" value="false"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="x"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Set type="DigitalOutput">
           <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
@@ -4567,7 +4810,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SubProgram/children/Contributed[3]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../SubProgram/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -5863,8 +6106,86 @@ def check_validity_right(struct1, struct2):
     end
   end
 end
+
+# this function sends a signal to turn extrusion on
+def turn_extrusion_on():
+  # flush the channel
+  resp0 = send_serial_signal([&quot;u&quot;, &quot;r&quot;, &quot;?&quot;])
+  # send the signal
+  resp1 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;1&quot;])
+  # if resp &lt;&gt; &quot;uR1&quot;
+  if resp1 != [252,82,49]:
+    # turn off extrusion and heating. inform calvin
+    resp2 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;0&quot;])
+    resp3 = send_serial_signal([&quot;u&quot;, &quot;H&quot;, &quot;0&quot;])
+    popuptext = &quot;Error code encountered while trying to start extrusion. Find Calvin. &quot;
+    while 1==1:
+      popup(popuptext, title=&quot;Extrusion Error Code&quot;,blocking=True)
+      popup(resp1, blocking=True)
+    end
+  end    
+end
+
+# this function sends a signal and receives a response
+# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
+def send_serial_signal(signal):
+  signal2char = signal[1]
+  signal3char = signal[2]
+  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
+  resp1 = WTSerialBridge.send_command(&quot;/dev/ttyUSB0&quot;,1200, 8, &quot;None&quot;, &quot;One&quot;, &quot;None&quot;, 1000, &quot;None&quot;, &quot;None&quot;, listsignal, True)
+  return resp1
+end
+
+# this function converts a letter into its ascii number
+def get_corr_number(letter):
+  if letter == &quot;A&quot;:
+    return 65
+  elif letter == &quot;H&quot;:
+    return 72
+  elif letter == &quot;R&quot;:
+    return 82
+  elif letter == &quot;M&quot;:
+    return 77
+  elif letter == &quot;E&quot;:
+    return 69
+  elif letter == &quot;a&quot;:
+    return 97
+  elif letter == &quot;b&quot;:
+    return 98
+  elif letter == &quot;h&quot;:
+    return 104
+  elif letter == &quot;r&quot;:
+    return 114
+  elif letter == &quot;s&quot;:
+    return 115
+  elif letter == &quot;m&quot;:
+    return 109
+  elif letter == &quot;0&quot;:
+    return 48
+  elif letter == &quot;1&quot;:
+    return 49
+  elif letter == &quot;2&quot;:
+    return 50
+  elif letter == &quot;3&quot;:
+    return 51
+  elif letter == &quot;4&quot;:
+    return 52
+  elif letter == &quot;5&quot;:
+    return 53
+  elif letter == &quot;6&quot;:
+    return 54
+  elif letter == &quot;7&quot;:
+    return 55
+  elif letter == &quot;8&quot;:
+    return 56
+  elif letter == &quot;9&quot;:
+    return 57
+  elif letter == &quot;?&quot;:
+    return 63
+  end
+end
 </cachedContents>
-          <file>/programs/analyze_touchpoints.script</file>
+          <file resolves-to="file">/programs/analyze_touchpoints.script</file>
         </Script>
         <Assignment valueSource="Expression">
           <variable name="path_pre" prefersPersistentValue="false" favourite="false">
@@ -6750,7 +7071,9 @@ end
                     </dataModel>
                   </Contributed>
                   <Assignment valueSource="Expression">
-                    <variable reference="../../../../../../../../../SubProgram/children/SuppressedNode[2]/suppressedNode/variable"/>
+                    <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
+                      <initializeExpression/>
+                    </variable>
                     <expression>
                       <ExpressionToken token=" False "/>
                     </expression>
