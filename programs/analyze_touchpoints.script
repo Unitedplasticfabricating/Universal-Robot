@@ -931,6 +931,7 @@ end
 def turn_extrusion_on():
   # send the signal
   resp1 = send_serial_signal(["u", "R", "1"])
+  respError = [resp1[0], resp1[1], resp1[2]]
   # if resp <> "uR1"
   if resp1 != [252,82,49]:
     # turn off extrusion and heating. inform calvin
@@ -950,7 +951,8 @@ def send_serial_signal(signal):
   signal2char = signal[1]
   signal3char = signal[2]
   listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
-  resp1 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", listsignal, True)
+  resp0 = []
+  resp0 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", listsignal, True)
   return resp1
 end
 
