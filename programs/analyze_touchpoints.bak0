@@ -10,6 +10,7 @@ def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right(struct1, list1)
+    validity = check_validity_right(struct1, struct2)
     return struct2
 end
 
@@ -21,6 +22,7 @@ def main_calculate_left(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left(struct1, list1)
+    validity = check_validity_left(struct1, struct2)
     return struct2
 end
 
@@ -748,19 +750,143 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
     # bad
     popuptext = "Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. "
     # infinite loop
-    while 1=1:
+    while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
-  # next, check if the corner is too close to the robot to do a left around weld (X>-1300)
-  if point0[0] > -1.300:
+  
+  
+  
+  # next, check whether the touchpoints are reachable
+  structlength = 9
+  i = 0
+  allvalid = True
+  listproblems = ""
+  listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
+  while i < structlength:
+    curr = struct_touchpoints[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      allvalid = False
+      listproblems = listproblems + listnames[i]
+    end
+    i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
+  
+end
+
+# checks the validity of all points during a left weld
+def check_validity_left(struct1, struct2):
+  #first, check whether robot is too close
+  pointintersect = struct1[0]
+  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
+  # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
+  toocloseleftweld = False
+  if pointintersect[1] < 0:
+    if pointintersect[0] > -1.300:
+      toocloseleftweld = True
+    end
+  elif pointintersect[1] < 0.480:
+    if pointintersect[1] < (1.300 + pointintersect[0])*8:
+      toocloseleftweld = True
+    end
+  else:
+    if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+      toocloseleftweld = True
+    end
+  end
+  if toocloseleftweld:
     # bad
     popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. "
     # infinite loop
-    while 1=1:
+    while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
-  # next, check whether the touchpoints are reachable
   
+  #next, check whether all the points in the weldpath are valid
+  structlength = 9
+  i = 0
+  allvalid = True
+  listproblems = ""
+  listnames = ["point1", "point2", "point4", "point5", "point_1", "point_2", "point_3", "point_4", "point_5"]
+  while i < structlength:
+    curr = struct2[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      allvalid = False
+      listproblems = listproblems + listnames[i]
+    end
+    i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
+  
+  
+end
+
+# checks the validity of all points during a right weld
+def check_validity_right(struct1, struct2):
+  # first, check whether the right pivot will bonk itself
+  pointintersect = struct1[0]
+  heading1 = struct1[1]
+  
+  #first, check whether the heading is just too far offset
+  # more than 15 degrees off of 45 is too much
+  # normal heading is 126 degrees
+  #111 degrees to 141 degrees
+  heading1degrees = heading1 * 180 / pi
+  if heading1degrees < 111 or heading1degrees > 141 :
+    # then out of range
+    # make a struct to convert float to string
+    structstring = struct(heading1degrees=heading1degrees)
+    popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + structstring.toString()
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
+    
+  #TODO: add the checks for whether x is too close, given the heading
+  
+  #next, check whether all the points in the weldpath are valid
+  structlength = 9
+  i = 0
+  allvalid = True
+  listproblems = ""
+  listnames = ["point1", "point2", "point4", "point5", "point_1", "point_2", "point_3", "point_4", "point_5"]
+  while i < structlength:
+    curr = struct2[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      allvalid = False
+      listproblems = listproblems + listnames[i]
+    end
+    i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
 end

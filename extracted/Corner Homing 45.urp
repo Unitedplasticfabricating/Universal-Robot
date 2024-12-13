@@ -1,4 +1,4 @@
-<URProgram name="Corner_Homing_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2">
+<URProgram name="Corner Homing 45" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -7,20 +7,7 @@
     <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
   </kinematics>
   <children>
-    <InitVariablesNode>
-      <variables>
-        <variable name="freedrive_m_var">
-          <expression>
-            <ExpressionToken token=" False "/>
-          </expression>
-        </variable>
-        <variable name="thread2trigger">
-          <expression>
-            <ExpressionToken token=" False "/>
-          </expression>
-        </variable>
-      </variables>
-    </InitVariablesNode>
+    <InitVariablesNode/>
     <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
@@ -820,7 +807,74 @@ def get_corner_homing_45_pathpoints(point0):
   ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
   ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
   ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
+  is_robot_at_reachable_spot(point0, ret)
   return ret
+end
+
+# this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
+# if everything looks good, it continues.
+# if it detects a problem, it infinite loops a popup
+def is_robot_at_reachable_spot(point0, struct_touchpoints):
+  # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -350)
+  if point0[2] &lt; -0.350:
+    # bad
+    popuptext = &quot;Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
+    end
+  end
+  
+  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X &gt; -1300)
+  # if y &lt; 0, then x &lt; -1300. if y &lt; 480, then y &gt; (1300+x)*8. if y &gt; 480, then y &gt; (1235+x)*4 + 500
+  toocloseleftweld = False
+  if point0[1] &lt; 0:
+    if point0[0] &gt; -1.300:
+      toocloseleftweld = True
+    end
+  elif point0[1] &lt; 0.480:
+    if point0[1] &lt; (1.300 + point0[0])*8:
+      toocloseleftweld = True
+    end
+  else:
+    if point0[1] &lt; (1.235 + point0[0])*4 + 0.500:
+      toocloseleftweld = True
+    end
+  end
+  if toocloseleftweld:
+    # bad
+    popuptext = &quot;Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
+    end
+  end
+  
+  # next, check whether the touchpoints are reachable
+  structlength = 9
+  i = 0
+  allvalid = True
+  listproblems = &quot;&quot;
+  listnames = [&quot;ph1&quot;, &quot;ph2&quot;, &quot;ph3&quot;, &quot;ph4&quot;, &quot;ph5&quot;, &quot;ph6&quot;, &quot;ph7&quot;, &quot;ph2up&quot;, &quot;ph4up&quot;]
+  while i &lt; structlength:
+    curr = struct_touchpoints[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      allvalid = False
+      listproblems = listproblems + listnames[i]
+    end
+    i = i + 1
+  end
+  
+  if not allvalid:
+    # display
+    popuptext = &quot;Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. &quot; + listproblems
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
+    end
+  end
+  
 end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>

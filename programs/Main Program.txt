@@ -73,6 +73,8 @@
              Comment
              Waypoint_69
              Waypoint_70
+         ElseIf (sp[4]<-3 or sp[4]>3) and -0.02<sp[5] and sp[5]<0.02
+           'go straight to home'
          ElseIf 2>1
            'if none of the other options, then error continuously'
            Loop 2>1
@@ -83,14 +85,13 @@
            Waypoint_49
            Waypoint_48
          Home
-         'Press Continue to start a weld'
    Robot Program
      'start of main program'
      Set
      Home
+     leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'
      MoveJ
        Waypoint_46
-     leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'
      Set
      Test_Teach_Position()
      Set
@@ -245,7 +246,7 @@
      p_5≔pathturn[8]
      p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]
-     p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     p_pre_ret2≔p[p_3[0]+.03,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      MoveJ
        pret1
        Waypoint_28
@@ -257,12 +258,12 @@
        'Waypoint_9'
        'Waypoint_22'
      'MoveP'
-     MoveJ
+     MoveL
        p_pre_ret
        p_pre_ret2
        p_preheat
      Wait: 8.0
-     MoveJ
+     MoveL
        p_pre_ret2
        p_pre_ret
      Set
@@ -336,6 +337,7 @@
        Waypoint_42
        Waypoint_43
        Waypoint_44
+       Waypoint_74
      MoveJ
        Waypoint_45
        'above waypoint is home'
