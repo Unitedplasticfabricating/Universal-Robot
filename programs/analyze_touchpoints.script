@@ -845,14 +845,14 @@ end
 def check_validity_right(struct1, struct2):
   # first, check whether the right pivot will bonk itself
   pointintersect = struct1[0]
-  heading1 = struct1[1]
+  heading1 = struct1[1] # this is the direction that the welder will face when doing the right side of the box
   
   #first, check whether the heading is just too far offset
   # more than 15 degrees off of 45 is too much
-  # normal heading is 126 degrees
-  #111 degrees to 141 degrees
+  # normal heading is 216 degrees
+  #201 degrees to 231 degrees
   heading1degrees = heading1 * 180 / pi
-  if heading1degrees < 111 or heading1degrees > 141 :
+  if heading1degrees < 201 or heading1degrees > 231 :
     # then out of range
     popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + str_cat("",heading1degrees)
     # infinite loop
@@ -862,6 +862,44 @@ def check_validity_right(struct1, struct2):
   end
     
   #TODO: add the checks for whether x is too close, given the heading
+  # add checks for whether x is too close, given the heading
+  # different equations for whether heading offset > 5 degrees or less (inc. negative)
+  headingoffset = heading1degrees - 216
+  if headingoffset < 5:
+    # then calculate a and b
+    a = 0.4584 + -0.02369 * headingoffset
+    b = (-1151.4 + 13.83 * headingoffset) / 1000
+    # check whether x > a*y+b
+    if pointintersect[0] > a * pointintersect[1] + b:
+      # bad
+      popuptext = "Robot is too close to tank corner or not at the right angle. Collisions may occur. Stop Program and align robot. " 
+      # infinite loop
+      while 1==1:
+        popup(popuptext, title="Robot Positioning Warning",blocking=True)
+      end
+    end
+  else:
+    # headingoffset > 5 degrees
+    if pointintersect[1] < 0:
+      if pointintersect[0] > -1150.0 / 1000.0:
+        #bad
+        popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. " 
+        # infinite loop
+        while 1==1:
+          popup(popuptext, title="Robot Positioning Warning",blocking=True)
+        end
+      end
+    else:
+      # if x > .7736 y - 1101.9 then bad
+      if pointintersect[0] > 0.7736 * pointintersect[1] - 1101.9 / 1000:
+        popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. " 
+        # infinite loop
+        while 1==1:
+          popup(popuptext, title="Robot Positioning Warning",blocking=True)
+        end
+      end
+    end
+  end
   
   #next, check whether all the points in the weldpath are valid
   structlength = 9
