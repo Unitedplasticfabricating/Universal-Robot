@@ -1,4 +1,4 @@
-def test_serial_2():
+def test_serial_query():
   global _hidden_verificationVariable=0
   step_count_c083da12_c088_44e4_86e2_368702bf93a6 = 0.0
   thread Step_Counter_Thread_2b585d60_45ad_46e5_9eb7_fcb77fea0485():
@@ -160,26 +160,22 @@ def test_serial_2():
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 4 "Serial Bridge uR1"
-    HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], True)
+    $ 4 "Serial Bridge uH1"
+    HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,72,49], True)
     # end: URCap Program Node
-    $ 5 "Set DO[0]=On"
-    set_standard_digital_out(0, True)
     $ 6 "popup(HwResp)"
     popup(HwResp)
-    $ 8 "Popup: on"
-    popup("on", "Message", False, False, blocking=True)
-    $ 9 "Set DO[0]=Off"
-    set_standard_digital_out(0, False)
+    $ 7 "Popup: heating started. push to stop"
+    popup("heating started. push to stop", "Message", False, False, blocking=True)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 10 "Serial Bridge uR0"
-    HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], True)
+    $ 11 "Serial Bridge uH0"
+    HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,72,48], True)
     # end: URCap Program Node
-    $ 11 "popup(HwResp)"
+    $ 12 "popup(HwResp)"
     popup(HwResp)
-    $ 12 "Popup: off"
-    popup("off", "Message", False, False, blocking=True)
+    $ 13 "Popup: heating stopped. push to start"
+    popup("heating stopped. push to start", "Message", False, False, blocking=True)
   end
 end

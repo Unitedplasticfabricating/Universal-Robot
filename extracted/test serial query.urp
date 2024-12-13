@@ -1,4 +1,4 @@
-<URProgram name="test serial 2" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="test serial query" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
     <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -11,73 +11,95 @@
     <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <SuppressedNode>
-          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-            <dataModel>
-              <data key="Command" value="[252,72,49]"/>
-              <data key="byte_array" value="true"/>
-              <data key="NODE_TITLE" value="Serial Bridge uH1"/>
-              <data key="QUERY" value="false"/>
-              <data key="OUTPUT_ENTRY" value="Static"/>
-              <Variable key="OUTPUT_VARIABLE">
-                <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-              </Variable>
-            </dataModel>
+          <suppressedNode class="Assignment" valueSource="Expression">
+            <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+              <initializeExpression/>
+            </variable>
+            <expression>
+              <ExpressionChar character="&quot;"/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="l"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="c"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="h"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="l"/>
+              <ExpressionChar character="d"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="&quot;"/>
+            </expression>
           </suppressedNode>
         </SuppressedNode>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
+            <data key="Command" value="[252,72,49]"/>
+            <data key="NODE_TITLE" value="Serial Bridge uH1"/>
             <data key="byte_array" value="true"/>
-            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-            <data key="Command" value="[252,82,49]"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="QUERY" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../SuppressedNode/suppressedNode/dataModel/Variable/variable"/>
+              <variable reference="../../../../SuppressedNode/suppressedNode/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
-        <Set type="DigitalOutput">
-          <pin referencedName="digital_out[0]"/>
-          <digitalValue>1</digitalValue>
-        </Set>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character="H"/>
-            <ExpressionChar character="w"/>
-            <ExpressionChar character="R"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="p"/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
         <SuppressedNode>
           <suppressedNode class="Wait" type="Sleep">
             <waitTime>5.0</waitTime>
           </suppressedNode>
         </SuppressedNode>
-        <Popup type="Message" haltProgram="false" message="on" inputType="Text"/>
-        <Set type="DigitalOutput">
-          <pin reference="../../Set/pin"/>
-          <digitalValue>0</digitalValue>
-        </Set>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character="H"/>
+            <ExpressionChar character="w"/>
+            <ExpressionChar character="R"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+        <Popup type="Message" haltProgram="false" message="heating started. push to stop" inputType="Text"/>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="NODE_TITLE" value="Serial Bridge uh?"/>
+              <data key="byte_array" value="true"/>
+              <data key="Command" value="[252,104,63]"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <data key="QUERY" value="true"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../SuppressedNode/suppressedNode/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Popup" type="Message" haltProgram="false" inputType="Variable">
+            <variable reference="../../../SuppressedNode/suppressedNode/variable"/>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>20.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
-            <data key="NODE_TITLE" value="Serial Bridge uR0"/>
-            <data key="Command" value="[252,82,48]"/>
             <data key="byte_array" value="true"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="Command" value="[252,72,48]"/>
+            <data key="NODE_TITLE" value="Serial Bridge uH0"/>
             <data key="QUERY" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../SuppressedNode/suppressedNode/dataModel/Variable/variable"/>
+              <variable reference="../../../../SuppressedNode/suppressedNode/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -98,7 +120,7 @@
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Popup type="Message" haltProgram="false" message="off" inputType="Text"/>
+        <Popup type="Message" haltProgram="false" message="heating stopped. push to start" inputType="Text"/>
       </children>
     </MainProgram>
   </children>
