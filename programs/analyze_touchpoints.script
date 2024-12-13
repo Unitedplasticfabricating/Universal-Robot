@@ -1004,3 +1004,20 @@ def get_corr_number(letter):
     return 63
   end
 end
+
+# this function checks whether the welder is in the ready state. 
+# to be called at the beginning of Main Program
+def welder_state_ready():
+  # flush the channel
+  resp0 = send_serial_signal(["u", "s", "?"])
+  # send the signal
+  resp1 = send_serial_signal(["u", "s", "?"])
+  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
+  if resp1 != [252,115,49]:
+    popuptext = "Welder is not ready for extrusion. Follow the instructions to start heating welder. "
+    while 1==1:
+      popup(popuptext, title="Welder Not Ready",blocking=True)
+    end
+  end
+  
+end
