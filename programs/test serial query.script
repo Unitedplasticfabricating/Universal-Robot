@@ -156,6 +156,14 @@ def test_serial_query():
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
   $ 2 "Robot Program"
+  # begin: URCap Program Node
+  #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+  #   Type: WireTank Serial
+  $ 14 "Serial Bridge us?"
+  HwResp = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,115,63], True)
+  # end: URCap Program Node
+  $ 15 "popup(HwResp)"
+  popup(HwResp)
   $ 16 "Script: analyze_touchpoints.script"
   # this file creates the function for analyzing touchpoints
   # define pi
@@ -1088,10 +1096,21 @@ def test_serial_query():
   
   # this function sends a signal to turn extrusion on
   def turn_extrusion_on():
+    # flush the channel
+    resp0 = send_serial_signal(["u", "r", "?"])
+    # send the signal
     resp1 = send_serial_signal(["u", "R", "1"])
-    #resp1 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,72,49], True)
-    popup(resp1)
-  
+    # if resp <> "uR1"
+    if resp1 != [252,82,49]:
+      # turn off extrusion and heating. inform calvin
+      resp2 = send_serial_signal(["u", "R", "0"])
+      resp3 = send_serial_signal(["u", "H", "0"])
+      popuptext = "Error code encountered while trying to start extrusion. Find Calvin. "
+      while 1==1:
+        popup(popuptext, title="Extrusion Error Code",blocking=True)
+        popup(resp1, blocking=True)
+      end
+    end
   end
   
   # this function sends a signal and receives a response
@@ -1152,6 +1171,4 @@ def test_serial_query():
       return 63
     end
   end
-  $ 17 "turn_extrusion_on()"
-  turn_extrusion_on()
 end

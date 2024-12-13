@@ -999,113 +999,6 @@
           <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
         </Set>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
-        <Assignment valueSource="Operator" message="Select Yes for a Left side weld, or select No for a Right Side weld." valueType="Boolean">
-          <variable name="leftchoice" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-        </Assignment>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
-          <children>
-            <Waypoint type="Fixed" name="Waypoint_46" kinematicsFlags="3">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-3.266944233571188, -1.1744955343059083, 1.6532734076129358, 1.003952904338501, -0.002457443867818654, -1.5361955801593226"/>
-                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
-          </children>
-        </Move>
-        <Set type="NoAction">
-          <tcp referencedName="pretend_w_top"/>
-        </Set>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="T"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="T"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="c"/>
-            <ExpressionChar character="h"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="P"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
-        <Set type="NoAction">
-          <tcp reference="../../Set[2]/tcp"/>
-        </Set>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="k"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character=" "/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="h"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="I"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="T"/>
-            <ExpressionChar character="h"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="1"/>
-          </expression>
-        </Script>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="C"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="H"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="m"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="g"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="4"/>
-            <ExpressionChar character="5"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
-        <Set type="NoAction">
-          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
-        </Set>
         <Script type="File">
           <cachedContents># this file creates the function for analyzing touchpoints
 # define pi
@@ -2113,9 +2006,157 @@ def get_corr_number(letter):
     return 63
   end
 end
+
+# this function checks whether the welder is in the ready state. 
+# to be called at the beginning of Main Program
+def welder_state_ready():
+  # flush the channel
+  resp0 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
+  # send the signal
+  resp1 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
+  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
+  if resp1 != [252,115,49]:
+    popuptext = &quot;Welder is not ready for extrusion. Follow the instructions to start heating welder. &quot;
+    while 1==1:
+      popup(popuptext, title=&quot;Welder Not Ready&quot;,blocking=True)
+    end
+  end
+  
+end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="w"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="y"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+        <Assignment valueSource="Operator" message="Select Yes for a Left side weld, or select No for a Right Side weld." valueType="Boolean">
+          <variable name="leftchoice" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+        </Assignment>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_46" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.266944233571188, -1.1744955343059083, 1.6532734076129358, 1.003952904338501, -0.002457443867818654, -1.5361955801593226"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Set type="NoAction">
+          <tcp referencedName="pretend_w_top"/>
+        </Set>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="T"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="T"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="P"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+        <Set type="NoAction">
+          <tcp reference="../../Set[2]/tcp"/>
+        </Set>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="k"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character=" "/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="I"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="T"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="1"/>
+          </expression>
+        </Script>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="C"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="H"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+        <Set type="NoAction">
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
+        </Set>
         <SuppressedNode>
           <suppressedNode class="Assignment" valueSource="Expression">
             <variable name="path1" prefersPersistentValue="false" favourite="false">
@@ -2594,6 +2635,11 @@ end
                       </dataModel>
                     </suppressedNode>
                   </SuppressedNode>
+                  <SuppressedNode>
+                    <suppressedNode class="Wait" type="Sleep">
+                      <waitTime>1.0</waitTime>
+                    </suppressedNode>
+                  </SuppressedNode>
                   <Script type="Line">
                     <expression>
                       <ExpressionChar character="t"/>
@@ -2617,9 +2663,6 @@ end
                       <ExpressionChar character=")"/>
                     </expression>
                   </Script>
-                  <Wait type="Sleep">
-                    <waitTime>1.0</waitTime>
-                  </Wait>
                   <Set type="DigitalOutput">
                     <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>1</digitalValue>
@@ -2667,6 +2710,11 @@ end
                       </dataModel>
                     </suppressedNode>
                   </SuppressedNode>
+                  <SuppressedNode>
+                    <suppressedNode class="Wait" type="Sleep">
+                      <waitTime>1.0</waitTime>
+                    </suppressedNode>
+                  </SuppressedNode>
                   <Script type="Line">
                     <expression>
                       <ExpressionChar character="t"/>
@@ -2690,9 +2738,6 @@ end
                       <ExpressionChar character=")"/>
                     </expression>
                   </Script>
-                  <Wait type="Sleep">
-                    <waitTime>1.0</waitTime>
-                  </Wait>
                   <Set type="DigitalOutput">
                     <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
                     <digitalValue>1</digitalValue>
@@ -3240,6 +3285,15 @@ end
                       </dataModel>
                     </suppressedNode>
                   </SuppressedNode>
+                  <SuppressedNode>
+                    <suppressedNode class="Wait" type="Sleep">
+                      <waitTime>1.0</waitTime>
+                    </suppressedNode>
+                  </SuppressedNode>
+                  <Set type="DigitalOutput">
+                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+                    <digitalValue>1</digitalValue>
+                  </Set>
                   <Script type="Line">
                     <expression>
                       <ExpressionChar character="t"/>
@@ -3263,14 +3317,7 @@ end
                       <ExpressionChar character=")"/>
                     </expression>
                   </Script>
-                  <Wait type="Sleep">
-                    <waitTime>1.0</waitTime>
-                  </Wait>
-                  <Set type="DigitalOutput">
-                    <pin reference="../../../../../../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
-                    <digitalValue>1</digitalValue>
-                  </Set>
-                  <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+                  <Move motionType="MoveL" speed="0.02" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
                     <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -3279,7 +3326,7 @@ end
                       </Waypoint>
                     </children>
                   </Move>
-                  <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+                  <Move motionType="MoveP" speed="0.001" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
                     <feature class="GeomFeatureReference" reference="../../../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
                     <children>
                       <CircleMove OrientationMode="FIXED">
@@ -3843,6 +3890,11 @@ end
             </dataModel>
           </suppressedNode>
         </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>1.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
         <Script type="Line">
           <expression>
             <ExpressionChar character="t"/>
@@ -3866,9 +3918,6 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Wait type="Sleep">
-          <waitTime>1.0</waitTime>
-        </Wait>
         <Set type="DigitalOutput">
           <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
@@ -3926,6 +3975,11 @@ end
             </dataModel>
           </suppressedNode>
         </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>1.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
         <Script type="Line">
           <expression>
             <ExpressionChar character="t"/>
@@ -3949,9 +4003,6 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Wait type="Sleep">
-          <waitTime>1.0</waitTime>
-        </Wait>
         <Set type="DigitalOutput">
           <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>1</digitalValue>
@@ -4391,6 +4442,15 @@ end
             </dataModel>
           </suppressedNode>
         </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>1.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Script type="Line">
           <expression>
             <ExpressionChar character="t"/>
@@ -4414,14 +4474,7 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Wait type="Sleep">
-          <waitTime>1.0</waitTime>
-        </Wait>
-        <Set type="DigitalOutput">
-          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
-          <digitalValue>1</digitalValue>
-        </Set>
-        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveL" speed="0.02" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -4430,7 +4483,7 @@ end
             </Waypoint>
           </children>
         </Move>
-        <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveP" speed="0.001" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <CircleMove OrientationMode="FIXED">
@@ -4772,6 +4825,10 @@ end
             </dataModel>
           </suppressedNode>
         </SuppressedNode>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Script type="Line">
           <expression>
             <ExpressionChar character="t"/>
@@ -4795,10 +4852,6 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Set type="DigitalOutput">
-          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
-          <digitalValue>1</digitalValue>
-        </Set>
         <Wait type="Sleep">
           <waitTime>24.0</waitTime>
         </Wait>
@@ -6184,8 +6237,25 @@ def get_corr_number(letter):
     return 63
   end
 end
+
+# this function checks whether the welder is in the ready state. 
+# to be called at the beginning of Main Program
+def welder_state_ready():
+  # flush the channel
+  resp0 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
+  # send the signal
+  resp1 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
+  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
+  if resp1 != [252,115,49]:
+    popuptext = &quot;Welder is not ready for extrusion. Follow the instructions to start heating welder. &quot;
+    while 1==1:
+      popup(popuptext, title=&quot;Welder Not Ready&quot;,blocking=True)
+    end
+  end
+  
+end
 </cachedContents>
-          <file resolves-to="file">/programs/analyze_touchpoints.script</file>
+          <file>/programs/analyze_touchpoints.script</file>
         </Script>
         <Assignment valueSource="Expression">
           <variable name="path_pre" prefersPersistentValue="false" favourite="false">

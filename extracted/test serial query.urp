@@ -144,39 +144,35 @@
             </expression>
           </suppressedNode>
         </SuppressedNode>
-        <SuppressedNode>
-          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-            <dataModel>
-              <data key="byte_array" value="true"/>
-              <data key="QUERY" value="true"/>
-              <data key="NODE_TITLE" value="Serial Bridge us?"/>
-              <data key="Command" value="[252,115,63]"/>
-              <data key="OUTPUT_ENTRY" value="Static"/>
-              <Variable key="OUTPUT_VARIABLE">
-                <variable reference="../../../../../SuppressedNode/suppressedNode/variable"/>
-              </Variable>
-            </dataModel>
-          </suppressedNode>
-        </SuppressedNode>
-        <SuppressedNode>
-          <suppressedNode class="Script" type="Line">
-            <expression>
-              <ExpressionChar character="p"/>
-              <ExpressionChar character="o"/>
-              <ExpressionChar character="p"/>
-              <ExpressionChar character="u"/>
-              <ExpressionChar character="p"/>
-              <ExpressionChar character="("/>
-              <ExpressionChar character="H"/>
-              <ExpressionChar character="w"/>
-              <ExpressionChar character="R"/>
-              <ExpressionChar character="e"/>
-              <ExpressionChar character="s"/>
-              <ExpressionChar character="p"/>
-              <ExpressionChar character=")"/>
-            </expression>
-          </suppressedNode>
-        </SuppressedNode>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="byte_array" value="true"/>
+            <data key="QUERY" value="true"/>
+            <data key="NODE_TITLE" value="Serial Bridge us?"/>
+            <data key="Command" value="[252,115,63]"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../SuppressedNode/suppressedNode/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character="H"/>
+            <ExpressionChar character="w"/>
+            <ExpressionChar character="R"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Script type="File">
           <cachedContents># this file creates the function for analyzing touchpoints
 # define pi
@@ -1109,10 +1105,21 @@ end
 
 # this function sends a signal to turn extrusion on
 def turn_extrusion_on():
+  # flush the channel
+  resp0 = send_serial_signal([&quot;u&quot;, &quot;r&quot;, &quot;?&quot;])
+  # send the signal
   resp1 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;1&quot;])
-  #resp1 = WTSerialBridge.send_command(&quot;/dev/ttyUSB0&quot;,1200, 8, &quot;None&quot;, &quot;One&quot;, &quot;None&quot;, 1000, &quot;None&quot;, &quot;None&quot;, [252,72,49], True)
-  popup(resp1)
-  
+  # if resp &lt;&gt; &quot;uR1&quot;
+  if resp1 != [252,82,49]:
+    # turn off extrusion and heating. inform calvin
+    resp2 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;0&quot;])
+    resp3 = send_serial_signal([&quot;u&quot;, &quot;H&quot;, &quot;0&quot;])
+    popuptext = &quot;Error code encountered while trying to start extrusion. Find Calvin. &quot;
+    while 1==1:
+      popup(popuptext, title=&quot;Extrusion Error Code&quot;,blocking=True)
+      popup(resp1, blocking=True)
+    end
+  end    
 end
 
 # this function sends a signal and receives a response
@@ -1176,29 +1183,31 @@ end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="x"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="x"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
       </children>
     </MainProgram>
   </children>

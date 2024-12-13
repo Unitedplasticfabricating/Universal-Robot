@@ -559,6 +559,34 @@ i need to flush the channel BEFORE sending the extrusion instructions
 and i need to undo those changes that i made that broke it
 flushing it worked. only the most recent signal appeared. fuck yeah im a genius. 
 
+i tested the new setup on an actual weld. it worked pretty good.
+one thing that changed was the time delay. 
+it used to be where the signal being sent took a long time to reach the welder, and took a long time to start welding.
+so i added a wait command after sending the signal. after telling the welder to start extruding, wait a second before telling the wire motor to go and telling the robot to start moving.
+now, with query, the send_serial_signal() function takes longer to finish. the 1000ms query time is included AFTER the extrude signal has been sent. 
+Then, after the query has executed, the Wait command executes. I need to decrease the wait command by 1 second. 
+extrusion is happening before the wire motor starts going. it didnt pull out but it possibly could. 
+also some gunk got in front of the tip and was blocking the preheat. starting moving faster after extrusion should fix that. 
+
+i removed the wait() command. the wire motor now starts at the same time as the welder. 
+the left around weld still leaves a little residue in front of the tip. 
+it seems like maybe it takes more than 1 second to execute that command. 
+before 2way communication, with the 1second wait, the wire motor used to start before the extruder. 
+i decreased wait from 1s to 0s. i cant decrease it any more. 
+
+maybe i can speed up the move from p_1 to p_2
+right now it takes 0.8255s to move that distance, at 10mm/s
+if i double the speed to 20 mm/s, i would reduce the weld tie by 0.4 seconds. 
+that could reduce the "bubble" of weld enough to prevent weld from blocking the preheat. 
+
+i doubled that little short section. its better but its not perfect. 
+it still has a big bubble in front of the tip the entirety of the third leg. 
+however, it is small enough that the bubble reduces and by the end of the weld, the bubble is super small and no residue sticks to the front of the tip when the welder leaves the tank. 
+
+now i am doubling the speen of the circle move. from 0.5 mm/s to 1.0 mm/s
+wow that worked really great. 
+i think it might be too fast. 
+
 
 
 
