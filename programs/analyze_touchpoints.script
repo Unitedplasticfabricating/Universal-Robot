@@ -6,10 +6,10 @@ pi = 3.1415926535
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
+def main_calculate_right(p11, p12, p21, p22, p3, p13, p23, chamferover):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_right(struct1, list1)
+    struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     validity = check_validity_right(struct1, struct2)
     return struct2
 end
@@ -18,10 +18,10 @@ end
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left(p11, p12, p21, p22, p3, p13, p23):
+def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_left(struct1, list1)
+    struct2 = calculate_DOtA_points_left(struct1, list1, chamferover)
     validity = check_validity_left(struct1, struct2)
     return struct2
 end
@@ -274,7 +274,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_right(struct1, listleans):
+def calculate_DOtA_points_right(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -292,13 +292,12 @@ def calculate_DOtA_points_right(struct1, listleans):
     welddistance2 = 6 # first path second leg
     welddistance3 = 8 # second path second leg
     zup = .375
-    chamferover = .628
     # inches
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
-    chamferovermm =  * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
     
     x = pointintersect[0] + l1delxunit * chamferovermm
     y = pointintersect[1] + l1delyunit * chamferovermm
@@ -368,7 +367,7 @@ def calculate_DOtA_points_right(struct1, listleans):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_left(struct1, listleans):
+def calculate_DOtA_points_left(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -386,13 +385,12 @@ def calculate_DOtA_points_left(struct1, listleans):
     welddistance2 = 6 # first path second leg
     welddistance3 = 8 # second path second leg
     zup = .375
-    chamferover = .628
     # inches
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
-    chamferovermm =  * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
     
     x = pointintersect[0] + l2delxunit * chamferovermm
     y = pointintersect[1] + l2delyunit * chamferovermm
