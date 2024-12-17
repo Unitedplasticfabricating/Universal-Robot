@@ -116,6 +116,39 @@ def extractUncFiles():
         source_item = os.path.join(source_folder, item)
         ###destination_item = os.path.join(destination_folder, item)
         if os.path.isdir(source_item):
+            extractUncFilesNested(item)
+        filename, file_extension = os.path.splitext(source_item)
+        if ((file_extension != '.urp') and (file_extension != '.installation') and (file_extension != '.variables')):
+            continue # do nothing
+        # at this point, the file is a .unc file
+        #debug output string
+        print(f"extracting '{source_item}' .")
+        gzip_file = source_item
+        extract_folder = destination_folder
+        decompress_gzip(gzip_file, extract_folder)
+        
+def extractUncFilesNested(subfolderName):
+    '''
+    If there is one layer of nest, this function also extracts those files from inside a single layer of nest
+    '''
+    # first, get the modified folder names (source and dest)
+    source_folder1 = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    source_folder = os.path.join(source_folder1, subfolderName)
+    destination_folder1 = os.path.join('C:\\Dev\\universal-robot', 'extracted')
+    destination_folder = os.path.join(destination_folder1, subfolderName)
+    # then, do the exact same thing as extractUncFiles()
+    
+    # first, delete the extacted folder
+    if os.path.isdir(destination_folder):
+        shutil.rmtree(destination_folder)
+    # create the extracted folder
+    os.makedirs(destination_folder)
+    
+    # iterate through the contents of the source folder
+    for item in os.listdir(source_folder):
+        source_item = os.path.join(source_folder, item)
+        ###destination_item = os.path.join(destination_folder, item)
+        if os.path.isdir(source_item):
             continue # do nothing
         filename, file_extension = os.path.splitext(source_item)
         if ((file_extension != '.urp') and (file_extension != '.installation') and (file_extension != '.variables')):
@@ -126,6 +159,7 @@ def extractUncFiles():
         gzip_file = source_item
         extract_folder = destination_folder
         decompress_gzip(gzip_file, extract_folder)
+    
         
 def decompress_gzip(gzip_file, extract_folder):
     '''
