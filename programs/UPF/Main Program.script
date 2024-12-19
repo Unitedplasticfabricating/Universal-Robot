@@ -1,14 +1,19 @@
 def Main_Program():
   global _hidden_verificationVariable=0
-  step_count_0286d960_87e2_46e7_90fe_013b08debfab = 0.0
-  thread Step_Counter_Thread_a9afa34d_8b19_4f66_b22f_4110df627799():
+  step_count_b73ac1c7_87b8_4ec1_854b_78337a298798 = 0.0
+  thread Step_Counter_Thread_c2b3c7a8_c640_4d1f_95ba_870b2b07bc22():
     while (True):
-      step_count_0286d960_87e2_46e7_90fe_013b08debfab = step_count_0286d960_87e2_46e7_90fe_013b08debfab + 1.0
+      step_count_b73ac1c7_87b8_4ec1_854b_78337a298798 = step_count_b73ac1c7_87b8_4ec1_854b_78337a298798 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_a9afa34d_8b19_4f66_b22f_4110df627799()
+  run Step_Counter_Thread_c2b3c7a8_c640_4d1f_95ba_870b2b07bc22()
   set_gravity([0.0, 0.0, 9.82])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -18,11 +23,6 @@ def Main_Program():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
   set_safety_mode_transition_hardness(1)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
@@ -315,8 +315,14 @@ def Main_Program():
     movej(p1, a=1.3962634015954636, v=0.3490658503988659)
     $ 142 "Wait: 8.0"
     sleep(8.0)
-    $ 145 "turn_extrusion_on()"
-    turn_extrusion_on()
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 143 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 144 "Wait: 1.0"
+    sleep(1.0)
     $ 146 "Set DO[0]=On"
     set_standard_digital_out(0, True)
     $ 147 "MoveL"
@@ -335,8 +341,14 @@ def Main_Program():
     $ 152 "MoveL"
     $ 153 "p4" "breakAfter"
     movel(p4, a=0.01, v=0.12)
-    $ 156 "turn_extrusion_on()"
-    turn_extrusion_on()
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 154 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 155 "Wait: 1.0"
+    sleep(1.0)
     $ 157 "Set DO[0]=On"
     set_standard_digital_out(0, True)
     $ 158 "MoveL"
@@ -400,18 +412,24 @@ def Main_Program():
     $ 188 "MoveL"
     $ 189 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 190 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 191 "Wait: 1.0"
+    sleep(1.0)
     $ 192 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 193 "turn_extrusion_on()"
-    turn_extrusion_on()
     $ 194 "MoveL"
     $ 195 "p_2" "breakAfter"
-    movel(p_2, a=1.2, v=0.02)
+    movel(p_2, a=1.2, v=0.01)
     $ 196 "MoveP"
     $ 197 "CircleMove"
     $ 198 "p_3" "noBreak"
     $ 199 "p_4" "breakAfter"
-    movec(p_3, p_4, a=0.01, v=8.0E-4, r=0.0, mode=1)
+    movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
     $ 200 "MoveL"
     $ 201 "p_5" "breakAfter"
     movel(p_5, a=1.2, v=0.012)
@@ -477,8 +495,14 @@ def Main_Program():
     movej(p1, a=1.3962634015954636, v=0.2617993877991494)
     $ 236 "Wait: 8.0"
     sleep(8.0)
-    $ 239 "turn_extrusion_on()"
-    turn_extrusion_on()
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 237 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 238 "Wait: 1.0"
+    sleep(1.0)
     $ 240 "Set DO[0]=On"
     set_standard_digital_out(0, True)
     $ 241 "MoveL"
@@ -497,8 +521,14 @@ def Main_Program():
     $ 246 "MoveL"
     $ 247 "p4" "breakAfter"
     movel(p4, a=0.01, v=0.12)
-    $ 250 "turn_extrusion_on()"
-    turn_extrusion_on()
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 248 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 249 "Wait: 1.0"
+    sleep(1.0)
     $ 251 "Set DO[0]=On"
     set_standard_digital_out(0, True)
     $ 252 "MoveL"
@@ -568,18 +598,24 @@ def Main_Program():
     $ 292 "MoveL"
     $ 293 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 294 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 295 "Wait: 1.0"
+    sleep(1.0)
     $ 296 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 297 "turn_extrusion_on()"
-    turn_extrusion_on()
     $ 298 "MoveL"
     $ 299 "p_2" "breakAfter"
-    movel(p_2, a=1.2, v=0.02)
+    movel(p_2, a=1.2, v=0.01)
     $ 300 "MoveP"
     $ 301 "CircleMove"
     $ 302 "p_3" "noBreak"
     $ 303 "p_4" "breakAfter"
-    movec(p_3, p_4, a=0.01, v=8.0E-4, r=0.0, mode=1)
+    movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
     $ 304 "MoveL"
     $ 305 "p_5" "breakAfter"
     movel(p_5, a=1.2, v=0.012)
