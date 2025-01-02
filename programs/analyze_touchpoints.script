@@ -511,16 +511,19 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # vertical weld distance
+    # welddistance1 = 8 # vertical weld distance
     welddistance2 = 6 # first path second leg
     welddistance3 = 8 # second path second leg
     zup = .375
     # inches
-    wd1 = welddistance1 * 25.4 / 1000
+    # wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
     chamferovermm =  chamferover * 25.4 / 1000
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
     
     x = pointintersect[0] + l1delxunit * chamferovermm
     y = pointintersect[1] + l1delyunit * chamferovermm
