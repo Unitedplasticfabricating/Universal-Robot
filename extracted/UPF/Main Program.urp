@@ -1156,7 +1156,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
     # find a vector the direction of heading2
     uvx = cos(heading2)
     uvy = sin(heading2)
-    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge
     point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
     point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
   end
@@ -1331,8 +1331,8 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
     rod = roundoverdistance * 25.4 / 1000
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * (zup)
-    y = pointintersect[1] + l1delyunit * zup
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading1)
     rx = rxryrz[0]
@@ -1424,8 +1424,8 @@ def calculate_DOtA_points_left(struct1, listleans, chamferover):
     rod = roundoverdistance * 25.4 / 1000
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * (zup)
-    y = pointintersect[1] + l2delyunit * zup
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading3)
     rx = rxryrz[0]
@@ -3919,9 +3919,66 @@ end
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
         <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+            </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
               <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment/variable"/>
@@ -5436,7 +5493,7 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
     # find a vector the direction of heading2
     uvx = cos(heading2)
     uvy = sin(heading2)
-    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge.
+    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge
     point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
     point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
   end
@@ -5611,8 +5668,8 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
     rod = roundoverdistance * 25.4 / 1000
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * (zup)
-    y = pointintersect[1] + l1delyunit * zup
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading1)
     rx = rxryrz[0]
@@ -5704,8 +5761,8 @@ def calculate_DOtA_points_left(struct1, listleans, chamferover):
     rod = roundoverdistance * 25.4 / 1000
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * (zup)
-    y = pointintersect[1] + l2delyunit * zup
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading3)
     rx = rxryrz[0]

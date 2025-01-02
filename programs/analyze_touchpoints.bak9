@@ -6,10 +6,10 @@ pi = 3.1415926535
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3, p13, p23, chamferover):
+def main_calculate_right(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
+    struct2 = calculate_DOtA_points_right(struct1, list1)
     validity = check_validity_right(struct1, struct2)
     return struct2
 end
@@ -18,10 +18,10 @@ end
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
 # specifically for Down, Over, then Around (DOtA)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
+def main_calculate_left(p11, p12, p21, p22, p3, p13, p23):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_left(struct1, list1, chamferover)
+    struct2 = calculate_DOtA_points_left(struct1, list1)
     validity = check_validity_left(struct1, struct2)
     return struct2
 end
@@ -274,7 +274,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_right(struct1, listleans, chamferover):
+def calculate_DOtA_points_right(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -297,10 +297,9 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
     
-    x = pointintersect[0] + l1delxunit * chamferovermm
-    y = pointintersect[1] + l1delyunit * chamferovermm
+    x = pointintersect[0] + l1delxunit * zup
+    y = pointintersect[1] + l1delyunit * zup
     z = pointintersect[2] + zup
     
     #apply actual rxryrz to points
@@ -367,7 +366,7 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
-def calculate_DOtA_points_left(struct1, listleans, chamferover):
+def calculate_DOtA_points_left(struct1, listleans):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -390,10 +389,9 @@ def calculate_DOtA_points_left(struct1, listleans, chamferover):
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
     zup = zup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
     
-    x = pointintersect[0] + l2delxunit * chamferovermm
-    y = pointintersect[1] + l2delyunit * chamferovermm
+    x = pointintersect[0] + l2delxunit * zup
+    y = pointintersect[1] + l2delyunit * zup
     z = pointintersect[2] + zup
     
     #apply actual rxryrz to points
@@ -931,12 +929,10 @@ end
 
 # this function sends a signal to turn extrusion on
 def turn_extrusion_on():
-  # flush the channel
-  resp0 = send_serial_signal(["u", "r", "?"])
   # send the signal
   resp1 = send_serial_signal(["u", "R", "1"])
   # if resp <> "uR1"
-  if resp1 != [252,82,49]:
+  if resp1 <> [252,82,49]:
     # turn off extrusion and heating. inform calvin
     resp2 = send_serial_signal(["u", "R", "0"])
     resp3 = send_serial_signal(["u", "H", "0"])
@@ -945,7 +941,8 @@ def turn_extrusion_on():
       popup(popuptext, title="Extrusion Error Code",blocking=True)
       popup(resp1, blocking=True)
     end
-  end    
+  popup(resp1)
+  
 end
 
 # this function sends a signal and receives a response
@@ -1005,21 +1002,4 @@ def get_corr_number(letter):
   elif letter == "?":
     return 63
   end
-end
-
-# this function checks whether the welder is in the ready state. 
-# to be called at the beginning of Main Program
-def welder_state_ready():
-  # flush the channel
-  resp0 = send_serial_signal(["u", "s", "?"])
-  # send the signal
-  resp1 = send_serial_signal(["u", "s", "?"])
-  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
-  if resp1 != [252,115,49]:
-    popuptext = "Welder is not ready for extrusion. Follow the instructions to start heating welder. "
-    while 1==1:
-      popup(popuptext, title="Welder Not Ready",blocking=True)
-    end
-  end
-  
 end
