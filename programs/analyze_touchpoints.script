@@ -26,6 +26,36 @@ def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
     return struct2
 end
 
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge)
+def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
+    validity = check_validity_right(struct1, struct2)
+    return struct2
+end
+
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for left-sided boxes (vertical weld on left side of edge)
+def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left(struct1, list1, chamferover)
+    validity = check_validity_left(struct1, struct2)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 # specifically for Around then Up (AtU)
