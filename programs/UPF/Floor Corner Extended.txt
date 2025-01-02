@@ -90,7 +90,7 @@
      Set
      Home
      Script: analyze_touchpoints.script
-     welder_state_ready()
+     'welder_state_ready()'
      leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'
      sidewallchoice≔'Is the sidewall 3/4 inch?'
      If sidewallchoice
@@ -317,11 +317,13 @@
        Waypoint_2
      freedrive_m_var≔ False 
      freedrive_m_var≔ True 
-     Popup: Move the robot to the peg center, then click 'Continue'
+     Popup: Move the TCP to the top of the weld, then click 'Continue'
+     tcp_pose_top≔get_actual_tcp_pose()
+     Popup: Move the TCP to the corner of the tank, then click 'Continue'
+     tcp_pose≔get_actual_tcp_pose()
      freedrive_m_var≔ False 
      Wait: 0.25
      sync()
-     tcp_pose≔get_actual_joint_positions()
    align_tcp_left
      'this program aligns the tcp parallel to the y direction'
      cp≔get_actual_tcp_pose()
@@ -339,8 +341,8 @@
        Waypoint_3
      'extrude out a foot'
      'Serial Bridge uR1'
-     Set DO[0]=On
      turn_extrusion_on()
+     Set DO[0]=On
      Wait: 24.0
      Serial Bridge uR0
      Wait: 1.0

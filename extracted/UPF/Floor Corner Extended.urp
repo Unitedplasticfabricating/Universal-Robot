@@ -2028,30 +2028,32 @@ end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="w"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="a"/>
-            <ExpressionChar character="d"/>
-            <ExpressionChar character="y"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="w"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="l"/>
+              <ExpressionChar character="d"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="d"/>
+              <ExpressionChar character="y"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
         <Assignment valueSource="Operator" message="Select Yes for a Left side weld, or select No for a Right Side weld." valueType="Boolean">
           <variable name="leftchoice" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
@@ -4768,7 +4770,28 @@ end
             <ExpressionToken token=" True "/>
           </expression>
         </Assignment>
-        <Popup type="Message" haltProgram="false" message="Move the robot to the peg center, then click &apos;Continue&apos;" inputType="Text"/>
+        <Popup type="Message" haltProgram="false" message="Move the TCP to the top of the weld, then click &apos;Continue&apos;" inputType="Text"/>
+        <Assignment valueSource="Expression">
+          <variable name="tcp_pose_top" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
+        <Popup type="Message" haltProgram="false" message="Move the TCP to the corner of the tank, then click &apos;Continue&apos;" inputType="Text"/>
+        <Assignment valueSource="Expression">
+          <variable name="tcp_pose" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionToken token="get_actual_tcp_pose"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
         <Assignment valueSource="Expression">
           <variable reference="../../Assignment/variable"/>
           <expression>
@@ -4788,16 +4811,6 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
-        <Assignment valueSource="Expression">
-          <variable name="tcp_pose" prefersPersistentValue="false" favourite="false">
-            <initializeExpression/>
-          </variable>
-          <expression>
-            <ExpressionToken token="get_actual_joint_positions"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Assignment>
       </children>
     </SubProgram>
     <SubProgram name="align_tcp_left" keepHidden="false" keepSynchronizedWithDisk="false">
@@ -4931,10 +4944,6 @@ end
             </dataModel>
           </suppressedNode>
         </SuppressedNode>
-        <Set type="DigitalOutput">
-          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
-          <digitalValue>1</digitalValue>
-        </Set>
         <Script type="Line">
           <expression>
             <ExpressionChar character="t"/>
@@ -4958,6 +4967,10 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Wait type="Sleep">
           <waitTime>24.0</waitTime>
         </Wait>
