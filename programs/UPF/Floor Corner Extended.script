@@ -1,12 +1,9 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
   set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -14,8 +11,11 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,14 +147,14 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_80998313_2b1d_4a04_b11b_d37c57b16744 = 0.0
-  thread Step_Counter_Thread_b93a868a_9ddc_4f3c_ac9d_84dc46ad4c2a():
+  step_count_f5e2d847_2109_4d5a_b6fb_ef08dc4fc7a3 = 0.0
+  thread Step_Counter_Thread_5295f5b1_4d02_4b53_ad92_1cd6824cddbe():
     while (True):
-      step_count_80998313_2b1d_4a04_b11b_d37c57b16744 = step_count_80998313_2b1d_4a04_b11b_d37c57b16744 + 1.0
+      step_count_f5e2d847_2109_4d5a_b6fb_ef08dc4fc7a3 = step_count_f5e2d847_2109_4d5a_b6fb_ef08dc4fc7a3 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_b93a868a_9ddc_4f3c_ac9d_84dc46ad4c2a()
+  run Step_Counter_Thread_5295f5b1_4d02_4b53_ad92_1cd6824cddbe()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -1400,8 +1400,8 @@ def Floor_Corner_Extended():
             valid1 = get_inverse_kin_has_solution(seed)
         end
         # move back 1 to get the highest valid wd3
-        # move back 2 to get the second highest valid d3
-        wd3 = wd3 - (2.0 * increment)
+        # move back 3 to get the third highest valid wd3
+        wd3 = wd3 - (3.0 * increment)
         x = pointintersect[0] + l2delxunit * wd3
         y = pointintersect[1] + l2delyunit * wd3
         point_5 = p[x, y, z, rx, ry, rz]
@@ -1518,8 +1518,8 @@ def Floor_Corner_Extended():
             valid1 = get_inverse_kin_has_solution(seed)
         end
         # move back 1 to get the highest valid wd3
-        # move back 2 to get the second highest valid d3
-        wd3 = wd3 - (2.0 * increment)
+        # move back 3 to get the third highest valid wd3
+        wd3 = wd3 - (3.0 * increment)
         x = pointintersect[0] + l1delxunit * wd3
         y = pointintersect[1] + l1delyunit * wd3
         point_5 = p[x, y, z, rx, ry, rz]
@@ -3244,8 +3244,8 @@ def Floor_Corner_Extended():
           valid1 = get_inverse_kin_has_solution(seed)
       end
       # move back 1 to get the highest valid wd3
-      # move back 2 to get the second highest valid d3
-      wd3 = wd3 - (2.0 * increment)
+      # move back 3 to get the third highest valid wd3
+      wd3 = wd3 - (3.0 * increment)
       x = pointintersect[0] + l2delxunit * wd3
       y = pointintersect[1] + l2delyunit * wd3
       point_5 = p[x, y, z, rx, ry, rz]
@@ -3362,8 +3362,8 @@ def Floor_Corner_Extended():
           valid1 = get_inverse_kin_has_solution(seed)
       end
       # move back 1 to get the highest valid wd3
-      # move back 2 to get the second highest valid d3
-      wd3 = wd3 - (2.0 * increment)
+      # move back 3 to get the third highest valid wd3
+      wd3 = wd3 - (3.0 * increment)
       x = pointintersect[0] + l1delxunit * wd3
       y = pointintersect[1] + l1delyunit * wd3
       point_5 = p[x, y, z, rx, ry, rz]
