@@ -1028,6 +1028,36 @@ def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
     return struct2
 end
 
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge)
+def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
+    validity = check_validity_right(struct1, struct2)
+    return struct2
+end
+
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for left-sided boxes (vertical weld on left side of edge)
+def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, tcp_pose_top)
+    validity = check_validity_left(struct1, struct2)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 # specifically for Around then Up (AtU)
@@ -1276,6 +1306,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
+# for right, for non-extended
 def calculate_DOtA_points_right(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
@@ -1369,6 +1400,7 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
+# for left, for non-extended
 def calculate_DOtA_points_left(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
@@ -1456,6 +1488,247 @@ def calculate_DOtA_points_left(struct1, listleans, chamferover):
     atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
     point_3 = atret[5]
     #point 3 will not have the correct rxryrz though because now the gun needs to be face up. 
+    rxryrz = convert_heading_to_axang_ccw(heading2)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+# for right, for extended
+def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    # welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
+    zup = .375
+    # inches
+    # wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
+    
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd2
+    y = y + l1delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    # extend the weld distance from the intersection
+    valid1 = True
+    # start with the seed
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    seed = p[x, y, z, rx, ry, rz]
+    valid1 = get_inverse_kin_has_solution(seed)
+    # define the increment
+    increment = 1.0 # inches
+    increment = increment * 25.4 / 1000 # meters
+    while valid1 == True:
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l2delxunit * wd3
+        y = pointintersect[1] + l2delyunit * wd3
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+    end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
+    
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+# for left, for extended
+def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    # welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
+    zup = .375
+    # inches
+    # wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
+    
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l2delxunit * wd2
+    y = y + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+    
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    # extend the weld distance from the intersection
+    valid1 = True
+    # start with the seed
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    seed = p[x, y, z, rx, ry, rz]
+    valid1 = get_inverse_kin_has_solution(seed)
+    # define the increment
+    increment = 1.0 # inches
+    increment = increment * 25.4 / 1000 # meters
+    while valid1 == True:
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l1delxunit * wd3
+        y = pointintersect[1] + l1delyunit * wd3
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+    end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
+    #point 3 will not have the correct rxryrz though because now the gun needs to be face up 
     rxryrz = convert_heading_to_axang_ccw(heading2)
     rx = rxryrz[0]
     ry = rxryrz[1]
@@ -2028,32 +2301,30 @@ end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
-        <SuppressedNode>
-          <suppressedNode class="Script" type="Line">
-            <expression>
-              <ExpressionChar character="w"/>
-              <ExpressionChar character="e"/>
-              <ExpressionChar character="l"/>
-              <ExpressionChar character="d"/>
-              <ExpressionChar character="e"/>
-              <ExpressionChar character="r"/>
-              <ExpressionChar character="_"/>
-              <ExpressionChar character="s"/>
-              <ExpressionChar character="t"/>
-              <ExpressionChar character="a"/>
-              <ExpressionChar character="t"/>
-              <ExpressionChar character="e"/>
-              <ExpressionChar character="_"/>
-              <ExpressionChar character="r"/>
-              <ExpressionChar character="e"/>
-              <ExpressionChar character="a"/>
-              <ExpressionChar character="d"/>
-              <ExpressionChar character="y"/>
-              <ExpressionChar character="("/>
-              <ExpressionChar character=")"/>
-            </expression>
-          </suppressedNode>
-        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="w"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="y"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Assignment valueSource="Operator" message="Select Yes for a Left side weld, or select No for a Right Side weld." valueType="Boolean">
           <variable name="leftchoice" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
@@ -2315,6 +2586,15 @@ end
                 <ExpressionChar character="e"/>
                 <ExpressionChar character="f"/>
                 <ExpressionChar character="t"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="x"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="d"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="d"/>
                 <ExpressionChar character="("/>
                 <ExpressionChar character="p"/>
                 <ExpressionChar character="1"/>
@@ -2351,6 +2631,19 @@ end
                 <ExpressionChar character="a"/>
                 <ExpressionChar character="l"/>
                 <ExpressionChar character="l"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="p"/>
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
@@ -3605,6 +3898,15 @@ end
                 <ExpressionChar character="g"/>
                 <ExpressionChar character="h"/>
                 <ExpressionChar character="t"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="x"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="d"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="d"/>
                 <ExpressionChar character="("/>
                 <ExpressionChar character="p"/>
                 <ExpressionChar character="1"/>
@@ -3641,6 +3943,19 @@ end
                 <ExpressionChar character="a"/>
                 <ExpressionChar character="l"/>
                 <ExpressionChar character="l"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="p"/>
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
@@ -5378,6 +5693,36 @@ def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
     return struct2
 end
 
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for right-sided boxes (vertical weld on right side of edge)
+def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
+    validity = check_validity_right(struct1, struct2)
+    return struct2
+end
+
+# this is the main entry point for calculations, for Floor Corner Extended.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for left-sided boxes (vertical weld on left side of edge)
+def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, tcp_pose_top)
+    validity = check_validity_left(struct1, struct2)
+    return struct2
+end
+
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
 # specifically for Around then Up (AtU)
@@ -5626,6 +5971,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
+# for right, for non-extended
 def calculate_DOtA_points_right(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
@@ -5719,6 +6065,7 @@ def calculate_DOtA_points_right(struct1, listleans, chamferover):
 end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
+# for left, for non-extended
 def calculate_DOtA_points_left(struct1, listleans, chamferover):
     # get the stuff from the struct
     pointintersect = struct1[0]
@@ -5806,6 +6153,247 @@ def calculate_DOtA_points_left(struct1, listleans, chamferover):
     atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
     point_3 = atret[5]
     #point 3 will not have the correct rxryrz though because now the gun needs to be face up. 
+    rxryrz = convert_heading_to_axang_ccw(heading2)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+# for right, for extended
+def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    # welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
+    zup = .375
+    # inches
+    # wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
+    
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l1delxunit * wd2
+    y = y + l1delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l1delxunit * chamferovermm
+    y = pointintersect[1] + l1delyunit * chamferovermm
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    # extend the weld distance from the intersection
+    valid1 = True
+    # start with the seed
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    seed = p[x, y, z, rx, ry, rz]
+    valid1 = get_inverse_kin_has_solution(seed)
+    # define the increment
+    increment = 1.0 # inches
+    increment = increment * 25.4 / 1000 # meters
+    while valid1 == True:
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l2delxunit * wd3
+        y = pointintersect[1] + l2delyunit * wd3
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+    end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
+    
+    
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    return struct2
+end
+
+# given a struct from analyze_touchpoints_only(), calculate the points 
+# for left, for extended
+def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    # welddistance1 = 8 # vertical weld distance
+    welddistance2 = 6 # first path second leg
+    welddistance3 = 8 # second path second leg
+    zup = .375
+    # inches
+    # wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    zup = zup * 25.4 / 1000
+    chamferovermm =  chamferover * 25.4 / 1000
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
+    
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
+    z = pointintersect[2] + zup
+    
+    #apply actual rxryrz to points
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_preheatdown(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+    point2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    point4 = p[x, y, z, rx, ry, rz]
+    x = x + l2delxunit * wd2
+    y = y + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # now we have the unit vector. extend the weld distance from the intersection
+    x = pointintersect[0] + l2delxunit * chamferovermm
+    y = pointintersect[1] + l2delyunit * chamferovermm
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point_1 = p[x, y, z, rx, ry, rz]
+    
+    x = pointintersect[0] + l2delxunit * rod
+    y = pointintersect[1] + l2delyunit * rod
+    point_2 = p[x, y, z, rx, ry, rz]
+    
+    # convert the headings to rxryrz and insert those values into the relevant points
+    rxryrz = convert_heading_to_axang_ccw(heading1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    x = pointintersect[0] + l1delxunit * rod
+    y = pointintersect[1] + l1delyunit * rod
+    point_4 = p[x, y, z, rx, ry, rz]
+    
+    # extend the weld distance from the intersection
+    valid1 = True
+    # start with the seed
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    seed = p[x, y, z, rx, ry, rz]
+    valid1 = get_inverse_kin_has_solution(seed)
+    # define the increment
+    increment = 1.0 # inches
+    increment = increment * 25.4 / 1000 # meters
+    while valid1 == True:
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l1delxunit * wd3
+        y = pointintersect[1] + l1delyunit * wd3
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+    end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
+    
+    #FIND POINT 3
+    # by calling analyze_touchpoints()
+    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    point_3 = atret[5]
+    #point 3 will not have the correct rxryrz though because now the gun needs to be face up 
     rxryrz = convert_heading_to_axang_ccw(heading2)
     rx = rxryrz[0]
     ry = rxryrz[1]

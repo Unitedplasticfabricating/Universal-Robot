@@ -1,12 +1,11 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -15,6 +14,7 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_gravity([0.0, 0.0, 9.82])
   set_safety_mode_transition_hardness(1)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
@@ -147,14 +147,14 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_b4437b7c_3809_4ae1_9a88_17f0310b9ac1 = 0.0
-  thread Step_Counter_Thread_1df55792_11b9_4a6d_918c_281f58d95c0f():
+  step_count_80998313_2b1d_4a04_b11b_d37c57b16744 = 0.0
+  thread Step_Counter_Thread_b93a868a_9ddc_4f3c_ac9d_84dc46ad4c2a():
     while (True):
-      step_count_b4437b7c_3809_4ae1_9a88_17f0310b9ac1 = step_count_b4437b7c_3809_4ae1_9a88_17f0310b9ac1 + 1.0
+      step_count_80998313_2b1d_4a04_b11b_d37c57b16744 = step_count_80998313_2b1d_4a04_b11b_d37c57b16744 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_1df55792_11b9_4a6d_918c_281f58d95c0f()
+  run Step_Counter_Thread_b93a868a_9ddc_4f3c_ac9d_84dc46ad4c2a()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -828,6 +828,36 @@ def Floor_Corner_Extended():
         return struct2
     end
     
+    # this is the main entry point for calculations, for Floor Corner Extended.
+    # it takes in the 7 touchpoints, analyzes the shape of the box.
+    # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points
+    # loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+    # returns the pathpoints
+    # specifically for Down, Over, then Around (DOtA)
+    # specifically for right-sided boxes (vertical weld on right side of edge)
+    def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+        struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+        list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+        struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
+        validity = check_validity_right(struct1, struct2)
+        return struct2
+    end
+    
+    # this is the main entry point for calculations, for Floor Corner Extended.
+    # it takes in the 7 touchpoints, analyzes the shape of the box.
+    # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points
+    # loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+    # returns the pathpoints
+    # specifically for Down, Over, then Around (DOtA)
+    # specifically for left-sided boxes (vertical weld on left side of edge)
+    def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+        struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+        list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+        struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, tcp_pose_top)
+        validity = check_validity_left(struct1, struct2)
+        return struct2
+    end
+    
     # it takes 5 arguments as points
     # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
     # specifically for Around then Up (AtU)
@@ -1076,6 +1106,7 @@ def Floor_Corner_Extended():
     end
     
     # given a struct from analyze_touchpoints_only(), calculate the points
+    # for right, for non-extended
     def calculate_DOtA_points_right(struct1, listleans, chamferover):
         # get the stuff from the struct
         pointintersect = struct1[0]
@@ -1169,6 +1200,7 @@ def Floor_Corner_Extended():
     end
     
     # given a struct from analyze_touchpoints_only(), calculate the points
+    # for left, for non-extended
     def calculate_DOtA_points_left(struct1, listleans, chamferover):
         # get the stuff from the struct
         pointintersect = struct1[0]
@@ -1256,6 +1288,247 @@ def Floor_Corner_Extended():
         atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
         point_3 = atret[5]
         #point 3 will not have the correct rxryrz though because now the gun needs to be face up.
+        rxryrz = convert_heading_to_axang_ccw(heading2)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+    
+        struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+        return struct2
+    end
+    
+    # given a struct from analyze_touchpoints_only(), calculate the points
+    # for right, for extended
+    def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
+        # get the stuff from the struct
+        pointintersect = struct1[0]
+        heading1 = struct1[1]
+        heading2 = struct1[2]
+        heading3 = struct1[3]
+        l1delxunit = struct1[4]
+        l1delyunit = struct1[5]
+        l2delxunit = struct1[6]
+        l2delyunit = struct1[7]
+    
+        # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+        # find locations 8 inches away from  intersect point
+        # CONST
+        # welddistance1 = 8 # vertical weld distance
+        welddistance2 = 6 # first path second leg
+        welddistance3 = 8 # second path second leg
+        zup = .375
+        # inches
+        # wd1 = welddistance1 * 25.4 / 1000
+        wd2 = welddistance2 * 25.4 / 1000
+        wd3 = welddistance3 * 25.4 / 1000
+        zup = zup * 25.4 / 1000
+        chamferovermm =  chamferover * 25.4 / 1000
+    
+        # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+        wd1 = tcp_pose_top[2] - pointintersect[2] - zup
+    
+        x = pointintersect[0] + l1delxunit * chamferovermm
+        y = pointintersect[1] + l1delyunit * chamferovermm
+        z = pointintersect[2] + zup
+    
+        #apply actual rxryrz to points
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang_preheatdown(heading1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+        point2 = p[x, y, z, rx, ry, rz]
+    
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang_ccw(heading1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        point4 = p[x, y, z, rx, ry, rz]
+        x = x + l1delxunit * wd2
+        y = y + l1delyunit * wd2
+        point5 = p[x, y, z, rx, ry, rz]
+    
+        # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+        roundoverdistance = 0.05
+        rod = roundoverdistance * 25.4 / 1000
+    
+        # now we have the unit vector. extend the weld distance from the intersection
+        x = pointintersect[0] + l1delxunit * chamferovermm
+        y = pointintersect[1] + l1delyunit * chamferovermm
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang(heading1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point_1 = p[x, y, z, rx, ry, rz]
+    
+        x = pointintersect[0] + l1delxunit * rod
+        y = pointintersect[1] + l1delyunit * rod
+        point_2 = p[x, y, z, rx, ry, rz]
+    
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang(heading3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        x = pointintersect[0] + l2delxunit * rod
+        y = pointintersect[1] + l2delyunit * rod
+        point_4 = p[x, y, z, rx, ry, rz]
+    
+        # extend the weld distance from the intersection
+        valid1 = True
+        # start with the seed
+        x = pointintersect[0] + l2delxunit * wd3
+        y = pointintersect[1] + l2delyunit * wd3
+        point_5 = p[x, y, z, rx, ry, rz]
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+        # define the increment
+        increment = 1.0 # inches
+        increment = increment * 25.4 / 1000 # meters
+        while valid1 == True:
+            wd3 = wd3 + increment
+            x = pointintersect[0] + l2delxunit * wd3
+            y = pointintersect[1] + l2delyunit * wd3
+            seed = p[x, y, z, rx, ry, rz]
+            valid1 = get_inverse_kin_has_solution(seed)
+        end
+        # move back 1 to get the highest valid wd3
+        # move back 2 to get the second highest valid d3
+        wd3 = wd3 - (2.0 * increment)
+        x = pointintersect[0] + l2delxunit * wd3
+        y = pointintersect[1] + l2delyunit * wd3
+        point_5 = p[x, y, z, rx, ry, rz]
+    
+        #FIND POINT 3
+        # by calling analyze_touchpoints()
+        atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+        point_3 = atret[5]
+    
+    
+        struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+        return struct2
+    end
+    
+    # given a struct from analyze_touchpoints_only(), calculate the points
+    # for left, for extended
+    def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pose_top):
+        # get the stuff from the struct
+        pointintersect = struct1[0]
+        heading1 = struct1[1]
+        heading2 = struct1[2]
+        heading3 = struct1[3]
+        l1delxunit = struct1[4]
+        l1delyunit = struct1[5]
+        l2delxunit = struct1[6]
+        l2delyunit = struct1[7]
+    
+        # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+        # find locations 8 inches away from  intersect point
+        # CONST
+        # welddistance1 = 8 # vertical weld distance
+        welddistance2 = 6 # first path second leg
+        welddistance3 = 8 # second path second leg
+        zup = .375
+        # inches
+        # wd1 = welddistance1 * 25.4 / 1000
+        wd2 = welddistance2 * 25.4 / 1000
+        wd3 = welddistance3 * 25.4 / 1000
+        zup = zup * 25.4 / 1000
+        chamferovermm =  chamferover * 25.4 / 1000
+    
+        # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+        wd1 = tcp_pose_top[2] - pointintersect[2] - zup
+    
+        x = pointintersect[0] + l2delxunit * chamferovermm
+        y = pointintersect[1] + l2delyunit * chamferovermm
+        z = pointintersect[2] + zup
+    
+        #apply actual rxryrz to points
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang_preheatdown(heading3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+        point2 = p[x, y, z, rx, ry, rz]
+    
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang(heading3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        point4 = p[x, y, z, rx, ry, rz]
+        x = x + l2delxunit * wd2
+        y = y + l2delyunit * wd2
+        point5 = p[x, y, z, rx, ry, rz]
+    
+        # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+        roundoverdistance = 0.05
+        rod = roundoverdistance * 25.4 / 1000
+    
+        # now we have the unit vector. extend the weld distance from the intersection
+        x = pointintersect[0] + l2delxunit * chamferovermm
+        y = pointintersect[1] + l2delyunit * chamferovermm
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang_ccw(heading3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point_1 = p[x, y, z, rx, ry, rz]
+    
+        x = pointintersect[0] + l2delxunit * rod
+        y = pointintersect[1] + l2delyunit * rod
+        point_2 = p[x, y, z, rx, ry, rz]
+    
+        # convert the headings to rxryrz and insert those values into the relevant points
+        rxryrz = convert_heading_to_axang_ccw(heading1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        x = pointintersect[0] + l1delxunit * rod
+        y = pointintersect[1] + l1delyunit * rod
+        point_4 = p[x, y, z, rx, ry, rz]
+    
+        # extend the weld distance from the intersection
+        valid1 = True
+        # start with the seed
+        x = pointintersect[0] + l1delxunit * wd3
+        y = pointintersect[1] + l1delyunit * wd3
+        point_5 = p[x, y, z, rx, ry, rz]
+        seed = p[x, y, z, rx, ry, rz]
+        valid1 = get_inverse_kin_has_solution(seed)
+        # define the increment
+        increment = 1.0 # inches
+        increment = increment * 25.4 / 1000 # meters
+        while valid1 == True:
+            wd3 = wd3 + increment
+            x = pointintersect[0] + l1delxunit * wd3
+            y = pointintersect[1] + l1delyunit * wd3
+            seed = p[x, y, z, rx, ry, rz]
+            valid1 = get_inverse_kin_has_solution(seed)
+        end
+        # move back 1 to get the highest valid wd3
+        # move back 2 to get the second highest valid d3
+        wd3 = wd3 - (2.0 * increment)
+        x = pointintersect[0] + l1delxunit * wd3
+        y = pointintersect[1] + l1delyunit * wd3
+        point_5 = p[x, y, z, rx, ry, rz]
+    
+        #FIND POINT 3
+        # by calling analyze_touchpoints()
+        atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+        point_3 = atret[5]
+        #point 3 will not have the correct rxryrz though because now the gun needs to be face up
         rxryrz = convert_heading_to_axang_ccw(heading2)
         rx = rxryrz[0]
         ry = rxryrz[1]
@@ -2399,6 +2672,36 @@ def Floor_Corner_Extended():
       return struct2
   end
   
+  # this is the main entry point for calculations, for Floor Corner Extended.
+  # it takes in the 7 touchpoints, analyzes the shape of the box.
+  # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points
+  # loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+  # returns the pathpoints
+  # specifically for Down, Over, then Around (DOtA)
+  # specifically for right-sided boxes (vertical weld on right side of edge)
+  def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+      struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+      list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+      struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
+      validity = check_validity_right(struct1, struct2)
+      return struct2
+  end
+  
+  # this is the main entry point for calculations, for Floor Corner Extended.
+  # it takes in the 7 touchpoints, analyzes the shape of the box.
+  # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points
+  # loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
+  # returns the pathpoints
+  # specifically for Down, Over, then Around (DOtA)
+  # specifically for left-sided boxes (vertical weld on left side of edge)
+  def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+      struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+      list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+      struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, tcp_pose_top)
+      validity = check_validity_left(struct1, struct2)
+      return struct2
+  end
+  
   # it takes 5 arguments as points
   # it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
   # specifically for Around then Up (AtU)
@@ -2647,6 +2950,7 @@ def Floor_Corner_Extended():
   end
   
   # given a struct from analyze_touchpoints_only(), calculate the points
+  # for right, for non-extended
   def calculate_DOtA_points_right(struct1, listleans, chamferover):
       # get the stuff from the struct
       pointintersect = struct1[0]
@@ -2740,6 +3044,7 @@ def Floor_Corner_Extended():
   end
   
   # given a struct from analyze_touchpoints_only(), calculate the points
+  # for left, for non-extended
   def calculate_DOtA_points_left(struct1, listleans, chamferover):
       # get the stuff from the struct
       pointintersect = struct1[0]
@@ -2827,6 +3132,247 @@ def Floor_Corner_Extended():
       atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
       point_3 = atret[5]
       #point 3 will not have the correct rxryrz though because now the gun needs to be face up.
+      rxryrz = convert_heading_to_axang_ccw(heading2)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+  
+      struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+      return struct2
+  end
+  
+  # given a struct from analyze_touchpoints_only(), calculate the points
+  # for right, for extended
+  def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
+      # get the stuff from the struct
+      pointintersect = struct1[0]
+      heading1 = struct1[1]
+      heading2 = struct1[2]
+      heading3 = struct1[3]
+      l1delxunit = struct1[4]
+      l1delyunit = struct1[5]
+      l2delxunit = struct1[6]
+      l2delyunit = struct1[7]
+  
+      # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+      # find locations 8 inches away from  intersect point
+      # CONST
+      # welddistance1 = 8 # vertical weld distance
+      welddistance2 = 6 # first path second leg
+      welddistance3 = 8 # second path second leg
+      zup = .375
+      # inches
+      # wd1 = welddistance1 * 25.4 / 1000
+      wd2 = welddistance2 * 25.4 / 1000
+      wd3 = welddistance3 * 25.4 / 1000
+      zup = zup * 25.4 / 1000
+      chamferovermm =  chamferover * 25.4 / 1000
+  
+      # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+      wd1 = tcp_pose_top[2] - pointintersect[2] - zup
+  
+      x = pointintersect[0] + l1delxunit * chamferovermm
+      y = pointintersect[1] + l1delyunit * chamferovermm
+      z = pointintersect[2] + zup
+  
+      #apply actual rxryrz to points
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_preheatdown(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+      point2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point4 = p[x, y, z, rx, ry, rz]
+      x = x + l1delxunit * wd2
+      y = y + l1delyunit * wd2
+      point5 = p[x, y, z, rx, ry, rz]
+  
+      # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+      roundoverdistance = 0.05
+      rod = roundoverdistance * 25.4 / 1000
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l1delxunit * chamferovermm
+      y = pointintersect[1] + l1delyunit * chamferovermm
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_1 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l1delxunit * rod
+      y = pointintersect[1] + l1delyunit * rod
+      point_2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      x = pointintersect[0] + l2delxunit * rod
+      y = pointintersect[1] + l2delyunit * rod
+      point_4 = p[x, y, z, rx, ry, rz]
+  
+      # extend the weld distance from the intersection
+      valid1 = True
+      # start with the seed
+      x = pointintersect[0] + l2delxunit * wd3
+      y = pointintersect[1] + l2delyunit * wd3
+      point_5 = p[x, y, z, rx, ry, rz]
+      seed = p[x, y, z, rx, ry, rz]
+      valid1 = get_inverse_kin_has_solution(seed)
+      # define the increment
+      increment = 1.0 # inches
+      increment = increment * 25.4 / 1000 # meters
+      while valid1 == True:
+          wd3 = wd3 + increment
+          x = pointintersect[0] + l2delxunit * wd3
+          y = pointintersect[1] + l2delyunit * wd3
+          seed = p[x, y, z, rx, ry, rz]
+          valid1 = get_inverse_kin_has_solution(seed)
+      end
+      # move back 1 to get the highest valid wd3
+      # move back 2 to get the second highest valid d3
+      wd3 = wd3 - (2.0 * increment)
+      x = pointintersect[0] + l2delxunit * wd3
+      y = pointintersect[1] + l2delyunit * wd3
+      point_5 = p[x, y, z, rx, ry, rz]
+  
+      #FIND POINT 3
+      # by calling analyze_touchpoints()
+      atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+      point_3 = atret[5]
+  
+  
+      struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+      return struct2
+  end
+  
+  # given a struct from analyze_touchpoints_only(), calculate the points
+  # for left, for extended
+  def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pose_top):
+      # get the stuff from the struct
+      pointintersect = struct1[0]
+      heading1 = struct1[1]
+      heading2 = struct1[2]
+      heading3 = struct1[3]
+      l1delxunit = struct1[4]
+      l1delyunit = struct1[5]
+      l2delxunit = struct1[6]
+      l2delyunit = struct1[7]
+  
+      # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+      # find locations 8 inches away from  intersect point
+      # CONST
+      # welddistance1 = 8 # vertical weld distance
+      welddistance2 = 6 # first path second leg
+      welddistance3 = 8 # second path second leg
+      zup = .375
+      # inches
+      # wd1 = welddistance1 * 25.4 / 1000
+      wd2 = welddistance2 * 25.4 / 1000
+      wd3 = welddistance3 * 25.4 / 1000
+      zup = zup * 25.4 / 1000
+      chamferovermm =  chamferover * 25.4 / 1000
+  
+      # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+      wd1 = tcp_pose_top[2] - pointintersect[2] - zup
+  
+      x = pointintersect[0] + l2delxunit * chamferovermm
+      y = pointintersect[1] + l2delyunit * chamferovermm
+      z = pointintersect[2] + zup
+  
+      #apply actual rxryrz to points
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_preheatdown(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
+      point2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      point4 = p[x, y, z, rx, ry, rz]
+      x = x + l2delxunit * wd2
+      y = y + l2delyunit * wd2
+      point5 = p[x, y, z, rx, ry, rz]
+  
+      # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
+      roundoverdistance = 0.05
+      rod = roundoverdistance * 25.4 / 1000
+  
+      # now we have the unit vector. extend the weld distance from the intersection
+      x = pointintersect[0] + l2delxunit * chamferovermm
+      y = pointintersect[1] + l2delyunit * chamferovermm
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point_1 = p[x, y, z, rx, ry, rz]
+  
+      x = pointintersect[0] + l2delxunit * rod
+      y = pointintersect[1] + l2delyunit * rod
+      point_2 = p[x, y, z, rx, ry, rz]
+  
+      # convert the headings to rxryrz and insert those values into the relevant points
+      rxryrz = convert_heading_to_axang_ccw(heading1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      x = pointintersect[0] + l1delxunit * rod
+      y = pointintersect[1] + l1delyunit * rod
+      point_4 = p[x, y, z, rx, ry, rz]
+  
+      # extend the weld distance from the intersection
+      valid1 = True
+      # start with the seed
+      x = pointintersect[0] + l1delxunit * wd3
+      y = pointintersect[1] + l1delyunit * wd3
+      point_5 = p[x, y, z, rx, ry, rz]
+      seed = p[x, y, z, rx, ry, rz]
+      valid1 = get_inverse_kin_has_solution(seed)
+      # define the increment
+      increment = 1.0 # inches
+      increment = increment * 25.4 / 1000 # meters
+      while valid1 == True:
+          wd3 = wd3 + increment
+          x = pointintersect[0] + l1delxunit * wd3
+          y = pointintersect[1] + l1delyunit * wd3
+          seed = p[x, y, z, rx, ry, rz]
+          valid1 = get_inverse_kin_has_solution(seed)
+      end
+      # move back 1 to get the highest valid wd3
+      # move back 2 to get the second highest valid d3
+      wd3 = wd3 - (2.0 * increment)
+      x = pointintersect[0] + l1delxunit * wd3
+      y = pointintersect[1] + l1delyunit * wd3
+      point_5 = p[x, y, z, rx, ry, rz]
+  
+      #FIND POINT 3
+      # by calling analyze_touchpoints()
+      atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+      point_3 = atret[5]
+      #point 3 will not have the correct rxryrz though because now the gun needs to be face up
       rxryrz = convert_heading_to_axang_ccw(heading2)
       rx = rxryrz[0]
       ry = rxryrz[1]
@@ -3396,6 +3942,8 @@ def Floor_Corner_Extended():
     end
   
   end
+  $ 92 "welder_state_ready()"
+  welder_state_ready()
   $ 93 "leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'"
   global leftchoice=request_boolean_from_primary_client("Select Yes for a Left side weld, or select No for a Right Side weld.")
   $ 94 "sidewallchoice≔'Is the sidewall 3/4 inch?'"
@@ -3426,16 +3974,16 @@ def Floor_Corner_Extended():
   set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   $ 111 "If leftchoice≟ True "
   if (leftchoice ==   True  ):
-    $ 112 "pathturn≔main_calculate_left(p11,p12,p21,p22,p3,p13,p23,sidewall)"
-    global pathturn=main_calculate_left(p11,p12,p21,p22,p3,p13,p23,sidewall)
+    $ 112 "pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)"
+    global pathturn=main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
     $ 113 "extrude_knife3()"
     extrude_knife3()
     $ 114 "Call move_path_3left"
     move_path_3left()
   else:
     $ 115 "Else" "noBreak"
-    $ 116 "pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23,sidewall)"
-    global pathturn=main_calculate_right(p11,p12,p21,p22,p3,p13,p23,sidewall)
+    $ 116 "pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)"
+    global pathturn=main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
     $ 117 "extrude_knife3()"
     extrude_knife3()
     $ 118 "move_path_3right()"

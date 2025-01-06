@@ -90,7 +90,7 @@
      Set
      Home
      Script: analyze_touchpoints.script
-     'welder_state_ready()'
+     welder_state_ready()
      leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'
      sidewallchoice≔'Is the sidewall 3/4 inch?'
      If sidewallchoice
@@ -109,11 +109,11 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_left(p11,p12,p21,p22,p3,p13,p23,sidewall)
+       pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
        extrude_knife3()
        Call move_path_3left
      Else
-       pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23,sidewall)
+       pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
        extrude_knife3()
        move_path_3right()
      'Popup'
