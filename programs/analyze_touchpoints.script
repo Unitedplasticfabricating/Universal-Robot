@@ -588,15 +588,21 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     seed = p[x, y, z, rx, ry, rz]
     valid1 = get_inverse_kin_has_solution(seed)
     # define the increment
-    increment = 2.0 # inches
+    increment = 1.0 # inches
     increment = increment * 25.4 / 1000 # meters
     while valid1 == True:
-        point_5 = seed # save the last good one
-        x = x + l2delxunit * increment
-        y = y + l2delyunit * increment
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l2delxunit * wd3
+        y = pointintersect[1] + l2delyunit * wd3
         seed = p[x, y, z, rx, ry, rz]
         valid1 = get_inverse_kin_has_solution(seed)
     end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l2delxunit * wd3
+    y = pointintersect[1] + l2delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
     
     #FIND POINT 3
     # by calling analyze_touchpoints()
@@ -700,15 +706,21 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pos
     seed = p[x, y, z, rx, ry, rz]
     valid1 = get_inverse_kin_has_solution(seed)
     # define the increment
-    increment = 2.0 # inches
+    increment = 1.0 # inches
     increment = increment * 25.4 / 1000 # meters
     while valid1 == True:
-        point_5 = seed # save the last good one
-        x = x + l1delxunit * increment
-        y = y + l1delyunit * increment
+        wd3 = wd3 + increment
+        x = pointintersect[0] + l1delxunit * wd3
+        y = pointintersect[1] + l1delyunit * wd3
         seed = p[x, y, z, rx, ry, rz]
         valid1 = get_inverse_kin_has_solution(seed)
     end
+    # move back 1 to get the highest valid wd3
+    # move back 2 to get the second highest valid d3
+    wd3 = wd3 - (2.0 * increment)
+    x = pointintersect[0] + l1delxunit * wd3
+    y = pointintersect[1] + l1delyunit * wd3
+    point_5 = p[x, y, z, rx, ry, rz]
     
     #FIND POINT 3
     # by calling analyze_touchpoints()
