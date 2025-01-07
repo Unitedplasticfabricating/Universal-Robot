@@ -99,7 +99,7 @@ def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover,
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
-    validity = check_validity_right(struct1, struct2)
+    #validity = check_validity_right(struct1, struct2)
     return struct2
 
 def analyze_touchpoints_only(p11, p12, p21, p22, p3):
@@ -139,14 +139,14 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
   xintersect = (bl2-bl1) / (ml1-ml2)
   yintersect = ml1 * xintersect + bl1
   
-  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
+  pointintersect = [xintersect,yintersect,zcoord,0,0,0]
   
   #FIND THE VECTORS
   #define a vector from the intersection to the second point on the first line
   l1delxfull = l1p2x - xintersect
   l1delyfull = l1p2y - yintersect
 
-  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
+  l1delmag = math.sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
 
   l1delxunit = l1delxfull / l1delmag
   l1delyunit = l1delyfull / l1delmag
@@ -155,7 +155,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
   l2delxfull = l2p2x - xintersect
   l2delyfull = l2p2y - yintersect
 
-  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
+  l2delmag = math.sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
 
   l2delxunit = l2delxfull / l2delmag
   l2delyunit = l2delyfull / l2delmag
@@ -171,7 +171,7 @@ def analyze_touchpoints_only(p11, p12, p21, p22, p3):
   heading3 = headingvector2 - pi/2
   
   #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
+  ret = (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
   return ret
   
 def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
@@ -221,14 +221,14 @@ def findplane(p11, p12, p13):
     return ret
     
 def convert_uv_to_heading(uvx, uvy):
-  baseang = atan(uvy/uvx)
+  baseang = math.atan(uvy/uvx)
   if uvx < 0:
     ang = baseang + pi
   elif uvy < 0:
     ang = baseang + pi * 2
   else:
     ang = baseang
-  end
+  
   return ang
   
 def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
@@ -270,8 +270,8 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    point2 = p[x, y, z, rx, ry, rz]
+    point1 = [x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+    point2 = [x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang_ccw(heading1)
@@ -279,10 +279,10 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    point4 = p[x, y, z, rx, ry, rz]
+    point4 = [x, y, z, rx, ry, rz]
     x = x + l1delxunit * wd2
     y = y + l1delyunit * wd2
-    point5 = p[x, y, z, rx, ry, rz]
+    point5 = [x, y, z, rx, ry, rz]
     
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
     roundoverdistance = 0.05
@@ -296,11 +296,11 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point_1 = p[x, y, z, rx, ry, rz]
+    point_1 = [x, y, z, rx, ry, rz]
 
     x = pointintersect[0] + l1delxunit * rod
     y = pointintersect[1] + l1delyunit * rod
-    point_2 = p[x, y, z, rx, ry, rz]
+    point_2 = [x, y, z, rx, ry, rz]
 
     # convert the headings to rxryrz and insert those values into the relevant points
     rxryrz = convert_heading_to_axang(heading3)
@@ -310,15 +310,15 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     
     x = pointintersect[0] + l2delxunit * rod
     y = pointintersect[1] + l2delyunit * rod
-    point_4 = p[x, y, z, rx, ry, rz]
+    point_4 = [x, y, z, rx, ry, rz]
     
     # extend the weld distance from the intersection
     valid1 = True
     # start with the seed
     x = pointintersect[0] + l2delxunit * wd3
     y = pointintersect[1] + l2delyunit * wd3
-    point_5 = p[x, y, z, rx, ry, rz]
-    seed = p[x, y, z, rx, ry, rz]
+    point_5 = [x, y, z, rx, ry, rz]
+    seed = [x, y, z, rx, ry, rz]
     valid1 = get_inverse_kin_has_solution(seed)
     # define the increment
     increment = 1.0 # inches
@@ -327,37 +327,43 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
         wd3 = wd3 + increment
         x = pointintersect[0] + l2delxunit * wd3
         y = pointintersect[1] + l2delyunit * wd3
-        seed = p[x, y, z, rx, ry, rz]
+        seed = [x, y, z, rx, ry, rz]
         valid1 = get_inverse_kin_has_solution(seed)
-    end
+        print(seed)
+    
     # move back 1 to get the highest valid wd3
     # move back 3 to get the third highest valid wd3
     wd3 = wd3 - (3.0 * increment)
     x = pointintersect[0] + l2delxunit * wd3
     y = pointintersect[1] + l2delyunit * wd3
-    point_5 = p[x, y, z, rx, ry, rz]
-    
+    point_5 = [x, y, z, rx, ry, rz]
+    print(point_5)
     #FIND POINT 3
     # by calling analyze_touchpoints()
-    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
+    #atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
+    #point_3 = atret[5]
     
     
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
-    return struct2
+    #struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    #return struct2
+    
+def get_inverse_kin_has_solution(seed):
+    if seed[0] > -1.5:
+        return True
+    return False
     
 def convert_heading_to_axang_preheatdown(heading):
- axisxraw = -sin(heading) - 1
- axisyraw = cos(heading)
- axiszraw = -cos(heading)
+ axisxraw = -1*math.sin(heading) - 1
+ axisyraw = math.cos(heading)
+ axiszraw = -1*math.cos(heading)
  
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ magnitude = math.sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
  
  axisxunit = axisxraw / magnitude
  axisyunit = axisyraw / magnitude
  axiszunit = axiszraw / magnitude
  
- angle = acos( (sin(heading) - 1) / 2 )
+ angle = math.acos( (math.sin(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle
@@ -366,17 +372,17 @@ def convert_heading_to_axang_preheatdown(heading):
  return [rxout, ryout, rzout]
  
 def convert_heading_to_axang_ccw(heading):
- axisxraw = -sin(heading) 
- axisyraw = cos(heading) - 1
- axiszraw = -sin(heading) 
+ axisxraw = -1*math.sin(heading) 
+ axisyraw = math.cos(heading) - 1
+ axiszraw = -1*math.sin(heading) 
  
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ magnitude = math.sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
  
  axisxunit = axisxraw / magnitude
  axisyunit = axisyraw / magnitude
  axiszunit = axiszraw / magnitude
  
- angle = acos( (-cos(heading) - 1) / 2 )
+ angle = math.acos( (-1*math.cos(heading) - 1) / 2 )
  
  rxout = axisxunit * angle
  ryout = axisyunit * angle
@@ -385,17 +391,17 @@ def convert_heading_to_axang_ccw(heading):
  return [rxout, ryout, rzout]
  
 def convert_heading_to_axang(heading):
- axisxraw = -1 * sin(heading)
- axisyraw = cos(heading) + 1
- axiszraw = sin(heading)
+ axisxraw = -1 * math.sin(heading)
+ axisyraw = math.cos(heading) + 1
+ axiszraw = math.sin(heading)
 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ magnitude = math.sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
 
  axisxunit = axisxraw / magnitude
  axisyunit = axisyraw / magnitude
  axiszunit = axiszraw / magnitude
 
- angle = acos( (cos(heading) - 1) / 2 )
+ angle = math.acos( (math.cos(heading) - 1) / 2 )
 
  rxout = axisxunit * angle
  ryout = axisyunit * angle
