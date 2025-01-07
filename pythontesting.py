@@ -1,3 +1,5 @@
+import math
+pi = 3.14159265358979
 # this function takes two rotation matrices, and multiplies them together, returning one matrix. 
 # all matrices are in the form of a list.
 # all matrix values have constant values (no variables)
@@ -35,6 +37,54 @@ def multiply_matrix(matrix1, matrix2):
     ret = [c11, c12, c13, c21, c22, c23, c31, c32, c33]
     return ret
 
+# this function converts a matrix to axis angle representations
+# this matrix is usually a resulting matrix (result of matrix multiplication) in normal use, given as a list
+# returns a list of [rx,ry,rz]
+def convert_matrix_to_axang(matrix1):
+    # retrieve values
+    a11 = matrix1[0]
+    a12 = matrix1[1]
+    a13 = matrix1[2]
+    a21 = matrix1[3]
+    a22 = matrix1[4]
+    a23 = matrix1[5]
+    a31 = matrix1[6]
+    a32 = matrix1[7]
+    a33 = matrix1[8]
+    
+    # First Half: find the angle    
+    # find the trace
+    # using the formula: trace = a11 + a22 + a33
+    trace = a11 + a22 + a33
+    # find the angle using the formula: trace(matrix) = 1 + 2 cos(angle)
+    angle = math.acos((trace - 1.0)/2.0)
+    
+    # Second Half: calculate the rotation axis
+    axisxraw = a32 - a23
+    axisyraw = a13 - a31
+    axiszraw = a21 - a12
+    # normalize axis
+    magnitude = math.sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+    axisxunit = axisxraw / magnitude
+    axisyunit = axisyraw / magnitude
+    axiszunit = axiszraw / magnitude
+    
+    # combine axis and angle into rxryrz representation
+    rxout = axisxunit * angle
+    ryout = axisyunit * angle
+    rzout = axiszunit * angle
+    return [rxout, ryout, rzout]
+
+
 
 matrix1 = [4,0,5,0,3,0,2,0,1]
 matrix2 = [0,0,-1,0,1,0,1,0,0]
+
+
+headingangle = 225 * pi / 180.0
+ha = headingangle
+
+matrix3 = [math.cos(ha), -1 * math.sin(ha), 0, math.sin(ha), math.cos(ha), 0, 0, 0, 1]
+matrix4 = [0, 0, 1, 0, 1, 0, -1, 0, 0]
+matrix5 = multiply_matrix(matrix3, matrix4)
+print(convert_matrix_to_axang(matrix5))
