@@ -84,23 +84,23 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     a = angle * direction
     # get the axis
     if axis == "x" or axis == "X":
-        matrix = [1, 0, 0, 0, cos(a), -1 * sin(a), 0, sin(a), cos(a)]
+        matrix = [1, 0, 0, 0, math.cos(a), -1 * math.sin(a), 0, math.sin(a), math.cos(a)]
         return matrix
-    end
+    
     if axis == "y" or axis == "Y":
-        matrix = [cos(a), 0, sin(a), 0, 1, 0, -1*sin(a), 0, cos(a)]
+        matrix = [math.cos(a), 0, math.sin(a), 0, 1, 0, -1*math.sin(a), 0, math.cos(a)]
         return matrix
-    end
+    
     if axis == "z" or axis == "Z":
-        matrix = [cos(a), -1*sin(a), 0, sin(a), cos(a), 0, 0, 0, 1]
+        matrix = [math.cos(a), -1*math.sin(a), 0, math.sin(a), math.cos(a), 0, 0, 0, 1]
         return matrix
-    end
-end
+    
 
+matrix1 = get_rotation_matrix_from_description("x", -1, 10 * pi/180)
+matrix2 = get_rotation_matrix_from_description("z", 1, 25 * pi/180)
+matrixfinal = multiply_matrix(matrix2, matrix1)
+print(convert_matrix_to_axang(matrixfinal))
 
-
-matrix1 = [4,0,5,0,3,0,2,0,1]
-matrix2 = [0,0,-1,0,1,0,1,0,0]
 
 
 headingangle = 225 * pi / 180.0
