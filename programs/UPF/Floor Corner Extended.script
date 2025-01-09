@@ -842,8 +842,8 @@ def Floor_Corner_Extended():
     sleep(1.0)
     $ 414 "tp≔get_actual_tcp_pose()"
     global tp= get_actual_tcp_pose ()
-    $ 416 "path_pre≔get_corner_homing_45_pathpoints(tp)"
-    global path_pre=get_corner_homing_45_pathpoints(tp)
+    $ 416 "path_pre≔get_corner_homing_45_pathpoints(tp,tcp_pose_top)"
+    global path_pre=get_corner_homing_45_pathpoints(tp,tcp_pose_top)
     $ 417 "ph1≔path_pre[0]"
     global ph1=path_pre[0]
     $ 418 "ph2≔path_pre[1]"
@@ -2455,7 +2455,7 @@ def Floor_Corner_Extended():
   
   # this function is for getting the points along the path of the corner homing 45
   # point0 is the point where they touched
-  def get_corner_homing_45_pathpoints(point0):
+  def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
     p0x = point0[0]
     p0y = point0[1]
     p0z = point0[2]
@@ -2484,8 +2484,13 @@ def Floor_Corner_Extended():
     ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, 0]
   
     # add the vertical touch points
-    ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+    if pointtop[2] == 0:
+      ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
+      ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+    else:
+      ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
+      ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
+    end
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
     is_robot_at_reachable_spot(point0, ret)
     return ret
