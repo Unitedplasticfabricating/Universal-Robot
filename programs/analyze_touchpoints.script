@@ -1447,3 +1447,44 @@ def welder_state_ready():
   end
   
 end
+
+def get_lift_column_height():
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  #$ 5 "MachineLogic Get Position"
+  while isVentionMovementBusyMachineMotion1==True:
+    sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+    isVentionMovementBusyMachineMotion1 = True
+    socket_send_string("estop/status;", "MachineMotion1")
+    temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+    while(temp_estop_var_vention=="estop/status true"):
+      if temp_estop_var_vention=="estop/status true":
+        sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+      end
+      socket_send_string("estop/status;", "MachineMotion1")
+      temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+      if temp_estop_var_vention=="estop/status true":
+        popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+      end
+    end
+  else:
+    popup("resource is being used already: MachineMotion1")
+    halt
+  end
+  socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+  temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+  global var_1 = temp_drive[1]
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
+end
+
+def get_lift_column_height_condensed():
+  socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+  temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+  ret = temp_drive[1]
+  return ret
+end
