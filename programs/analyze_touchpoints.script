@@ -1320,6 +1320,37 @@ def check_validity_right(struct1, struct2):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
+  
+  # check whether the path involves weird turns or joint limits. currently just checks the first position
+  p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
+  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  allGood = True
+  i = 0
+  structlength = 6
+  while i < structlength:
+    joint_curr = joints_1[i]
+    # check for anything that exceeds joint limits
+    degreesmax = 360 * pi / 180 
+    if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+      allGood = False
+    end
+    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+    maxdifference = 150 * pi / 180 
+    difference = joint_curr - p_prev[i]
+    if difference > maxdifference or difference * -1 > maxdifference:
+      allGood = False
+    end
+    i = i + 1
+  end
+  
+  if not allGood:
+    # display
+    popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  end
 end
 
 # this function sends a signal to turn extrusion on
