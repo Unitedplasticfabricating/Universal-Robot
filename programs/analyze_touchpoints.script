@@ -1126,22 +1126,17 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
   
   
   # next, check whether the touchpoints are reachable
-  structlength = 9
-  i = 0
-  allvalid = True
-  listproblems = ""
-  listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
-  while i < structlength:
-    curr = struct_touchpoints[i]
-    valid = get_inverse_kin_has_solution(curr)
-    if not valid:
-      allvalid = False
-      listproblems = listproblems + listnames[i]
+  list_unreachable = check_structofpoints_validity(struct_touchpoints)
+  if list_unreachable.length() > 0:
+    # then unreachable
+    # generate message
+    listproblems = ""
+    listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
+    i = 0
+    while i < list_unreachable.length():
+      listproblems = listproblems + listnames[list_unreachable[i]]
+      i = i + 1
     end
-    i = i + 1
-  end
-  
-  if not allvalid:
     # display
     popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
     # infinite loop
