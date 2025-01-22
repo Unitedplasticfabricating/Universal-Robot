@@ -1,14 +1,13 @@
-def test_to_string():
+def test_io_outputs():
   global _hidden_verificationVariable=0
-  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
-  set_gravity([0.0, 0.0, 9.82])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  step_count_5c757b4f_9be0_4d3c_b9ac_9cef9d1025ec = 0.0
+  thread Step_Counter_Thread_18a4f623_4b1b_42c5_ad83_ce618c3a8191():
+    while (True):
+      step_count_5c757b4f_9be0_4d3c_b9ac_9cef9d1025ec = step_count_5c757b4f_9be0_4d3c_b9ac_9cef9d1025ec + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_18a4f623_4b1b_42c5_ad83_ce618c3a8191()
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -16,6 +15,15 @@ def test_to_string():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,22 +155,12 @@ def test_to_string():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_f85d78cd_74a5_4670_92d7_1aeb1ee7d62b = 0.0
-  thread Step_Counter_Thread_2dba701c_6845_435b_82ea_a59fccf4ddac():
-    while (True):
-      step_count_f85d78cd_74a5_4670_92d7_1aeb1ee7d62b = step_count_f85d78cd_74a5_4670_92d7_1aeb1ee7d62b + 1.0
-      sync()
-    end
+  $ 2 "BeforeStart"
+  $ 3 "set_runstate_standard_digital_output_to_value(2,3)"
+  set_runstate_standard_digital_output_to_value(2,3)
+  while (True):
+    $ 4 "Robot Program"
+    $ 5 "var_1≔5"
+    global var_1=5
   end
-  run Step_Counter_Thread_2dba701c_6845_435b_82ea_a59fccf4ddac()
-  $ 2 "Robot Program"
-  $ 3 "Script: test to_string file.script"
-  x=12
-  list1=[x,2]
-  xs=str_cat("",x)
-  popup(xs)
-  $ 4 "Popup"
-  popup(str_cat("",Point_1), "Message", False, False, blocking=True)
-  $ 5 "Wait: 50.0"
-  sleep(50.0)
 end

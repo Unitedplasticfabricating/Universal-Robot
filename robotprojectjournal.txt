@@ -646,6 +646,41 @@ I restarted the program and raised the lift column a foot and it went great!
 I had to raise the lift column manually and remove the waste extrusion manually. 
 In future state, we should have both of those things automatically built in. 
 
+trial explore of set_runstate_standard_digital_output_to_value(outputId,state) 
+i put set_runstate_standard_digital_output_to_value(2,2) as a script in a program to try out the air temp sensor.
+i need the air temp sensor to be off (low) when a program is running, and on (high) when a program is not running
+state = 2 is "Set signal High when program is not running"
+the value started off as low. 
+i ran the program. after the program finished, the signal went to high. 
+Going to the IO screen and manually changing the signal to low resulted in the signal immediately being automatically set back to high.
+i suspect that in order to regain manual control of that digital output, i would need to call 0: : Preserve signal state
+lets try that. 
+yes that worked. after running state = 0, i can now control it manually, whether the program is running or not.
+lets see if this state persists over a shut down of the robot (not pendant)
+shutting down the robot does not affect the digital outputs. 
+after running (2,2), shutting down the robot itself does NOT give me manual control of the DO2. 
+it still is automatically on. 
+lets try a shutoff of the pendant.
+shutting off the pendant does shut off all digital outputs
+pendant power comes back on and DO2 is still off. 
+i can manually change it. booting the robot itself doesnt change that
+neither the voltage nor the state persists across pendant shutdown. 
+but it DOES persist across loading a new program.
+also, having a program PAUSED (due to hitting the pause button or manual release of 3PE) counts as "not running"
+whatever states i set up, i will need to call them before any extrusion is performed. 
+i will do that in Start Heating Welder
+
+for having the lift column automatically extend, i first wanted to see if bad things would happen.
+for a right side weld or a left side weld, it goes down, then over, in one fluid motion. 
+if the lift column is raised, i can't have any part of that motion collide with itself.
+I found that doing that normal motion (in the proper string range), but sending it way lower (subtract z) worked alright. 
+you could go a couple feet lower before you ran into problems. 
+the problems are that the elbow fully extends, indicating the end of range. 
+this happens before any collision. 
+it happens during the Over section of weldIt happens on the right before it happens on the left. 
+This is good. it indicates that a call to check_structofpoints_validity() will be all that is needed to ensure the validity of points. 
+
+
 
 
 

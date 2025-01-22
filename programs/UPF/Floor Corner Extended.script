@@ -1,7 +1,13 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = 0.0
+  thread Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89():
+    while (True):
+      step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = step_count_a2416ea4_cf31_44d2_a405_df90891c5051 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89()
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -9,13 +15,15 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,14 +155,6 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_d95dbc34_0ea6_4a02_a4ff_8c3efa7da4c6 = 0.0
-  thread Step_Counter_Thread_da4826b4_98a7_4c5e_bafb_61614a063054():
-    while (True):
-      step_count_d95dbc34_0ea6_4a02_a4ff_8c3efa7da4c6 = step_count_d95dbc34_0ea6_4a02_a4ff_8c3efa7da4c6 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_da4826b4_98a7_4c5e_bafb_61614a063054()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -2518,7 +2518,10 @@ def Floor_Corner_Extended():
   # if it detects a problem, it infinite loops a popup
   def is_robot_at_reachable_spot(point0, struct_touchpoints):
     # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z < -350)
-    if point0[2] < -0.350:
+    lc_height = get_lift_column_height_condensed()
+    # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
+    totalheight = 1.04775 + lc_height + point0[2]
+    if totalheight < 1.04775 - 0.350:
       # bad
       popuptext = "Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. "
       # infinite loop
@@ -2530,22 +2533,23 @@ def Floor_Corner_Extended():
   
   
     # next, check whether the touchpoints are reachable
-    structlength = 9
-    i = 0
-    allvalid = True
-    listproblems = ""
-    listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
-    while i < structlength:
-      curr = struct_touchpoints[i]
-      valid = get_inverse_kin_has_solution(curr)
-      if not valid:
-        allvalid = False
-        listproblems = listproblems + listnames[i]
-      end
-      i = i + 1
-    end
-  
+    allvalid = check_structofpoints_validity(struct_touchpoints)
     if not allvalid:
+  
+      # then unreachable
+      # generate message
+      listproblems = ""
+      listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
+      i = 0
+      structlength = 9
+      while i < structlength:
+        curr = struct_touchpoints[i]
+        valid = get_inverse_kin_has_solution(curr)
+        if not valid:
+          listproblems = listproblems + listnames[i]
+        end
+        i = i + 1
+      end
       # display
       popuptext = "Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. " + listproblems
       # infinite loop
@@ -2554,6 +2558,27 @@ def Floor_Corner_Extended():
       end
     end
   
+  end
+  
+  # this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
+  # this function does NOT check for weird twists or joint limits
+  # inputstruct must contain only points
+  # it returns true if all points are valid. it returns false if any points are valid
+  # a list of length 0 indicates that all points are valid
+  def check_structofpoints_validity(inputstruct):
+    # next, check whether the touchpoints are reachable
+    structlength = length(inputstruct)
+    i = 0
+    allvalid = True
+    while i < structlength:
+      curr = inputstruct[i]
+      valid = get_inverse_kin_has_solution(curr)
+      if not valid:
+        return False
+      end
+      i = i + 1
+    end
+    return True
   end
   
   # checks the validity of all points during a left weld
@@ -2727,6 +2752,37 @@ def Floor_Corner_Extended():
         popup(popuptext, title="Robot Positioning Warning",blocking=True)
       end
     end
+  
+    # check whether the path involves weird turns or joint limits. currently just checks the first position
+    p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
+    joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+    allGood = True
+    i = 0
+    structlength = 6
+    while i < structlength:
+      joint_curr = joints_1[i]
+      # check for anything that exceeds joint limits
+      degreesmax = 360 * pi / 180
+      if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+        allGood = False
+      end
+      # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+      maxdifference = 150 * pi / 180
+      difference = joint_curr - p_prev[i]
+      if difference > maxdifference or difference * -1 > maxdifference:
+        allGood = False
+      end
+      i = i + 1
+    end
+  
+    if not allGood:
+      # display
+      popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
+      # infinite loop
+      while 1==1:
+        popup(popuptext, title="Robot Positioning Warning",blocking=True)
+      end
+    end
   end
   
   # this function sends a signal to turn extrusion on
@@ -2822,6 +2878,47 @@ def Floor_Corner_Extended():
       end
     end
   
+  end
+  
+  def get_lift_column_height():
+    # begin: URCap Program Node
+    #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+    #   Type: MachineLogic for Universal Robots
+    #$ 5 "MachineLogic Get Position"
+    while isVentionMovementBusyMachineMotion1==True:
+      sleep(0.05)
+    end
+    if(isVentionMovementBusyMachineMotion1 == False):
+      isVentionMovementBusyMachineMotion1 = True
+      socket_send_string("estop/status;", "MachineMotion1")
+      temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+      while(temp_estop_var_vention=="estop/status true"):
+        if temp_estop_var_vention=="estop/status true":
+          sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+        end
+        socket_send_string("estop/status;", "MachineMotion1")
+        temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+        if temp_estop_var_vention=="estop/status true":
+          popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+        end
+      end
+    else:
+      popup("resource is being used already: MachineMotion1")
+      halt
+    end
+    socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+    temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+    global var_1 = temp_drive[1]
+    isVentionMovementBusyMachineMotion1 = False
+    sleep(0.03)
+    # end: URCap Program Node
+  end
+  
+  def get_lift_column_height_condensed():
+    socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+    temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+    ret = temp_drive[1]
+    return ret
   end
   $ 92 "welder_state_ready()"
   welder_state_ready()

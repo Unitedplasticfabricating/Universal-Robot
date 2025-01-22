@@ -2113,7 +2113,10 @@ end
 # if it detects a problem, it infinite loops a popup
 def is_robot_at_reachable_spot(point0, struct_touchpoints):
   # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -350)
-  if point0[2] &lt; -0.350:
+  lc_height = get_lift_column_height_condensed()
+  # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
+  totalheight = 1.04775 + lc_height + point0[2]
+  if totalheight &lt; 1.04775 - 0.350:
     # bad
     popuptext = &quot;Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. &quot;
     # infinite loop
@@ -2125,22 +2128,23 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
   
   
   # next, check whether the touchpoints are reachable
-  structlength = 9
-  i = 0
-  allvalid = True
-  listproblems = &quot;&quot;
-  listnames = [&quot;ph1&quot;, &quot;ph2&quot;, &quot;ph3&quot;, &quot;ph4&quot;, &quot;ph5&quot;, &quot;ph6&quot;, &quot;ph7&quot;, &quot;ph2up&quot;, &quot;ph4up&quot;]
-  while i &lt; structlength:
-    curr = struct_touchpoints[i]
-    valid = get_inverse_kin_has_solution(curr)
-    if not valid:
-      allvalid = False
-      listproblems = listproblems + listnames[i]
-    end
-    i = i + 1
-  end
-  
+  allvalid = check_structofpoints_validity(struct_touchpoints)
   if not allvalid:
+      
+    # then unreachable
+    # generate message
+    listproblems = &quot;&quot;
+    listnames = [&quot;ph1&quot;, &quot;ph2&quot;, &quot;ph3&quot;, &quot;ph4&quot;, &quot;ph5&quot;, &quot;ph6&quot;, &quot;ph7&quot;, &quot;ph2up&quot;, &quot;ph4up&quot;]
+    i = 0
+    structlength = 9
+    while i &lt; structlength:
+      curr = struct_touchpoints[i]
+      valid = get_inverse_kin_has_solution(curr)
+      if not valid:
+        listproblems = listproblems + listnames[i]
+      end
+      i = i + 1
+    end
     # display
     popuptext = &quot;Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. &quot; + listproblems
     # infinite loop
@@ -2149,6 +2153,27 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
     end
   end
   
+end
+
+# this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
+# this function does NOT check for weird twists or joint limits
+# inputstruct must contain only points
+# it returns true if all points are valid. it returns false if any points are valid
+# a list of length 0 indicates that all points are valid
+def check_structofpoints_validity(inputstruct):
+  # next, check whether the touchpoints are reachable
+  structlength = length(inputstruct)
+  i = 0
+  allvalid = True
+  while i &lt; structlength:
+    curr = inputstruct[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      return False
+    end
+    i = i + 1
+  end
+  return True
 end
 
 # checks the validity of all points during a left weld
@@ -2322,6 +2347,37 @@ def check_validity_right(struct1, struct2):
       popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
     end
   end
+  
+  # check whether the path involves weird turns or joint limits. currently just checks the first position
+  p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
+  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  allGood = True
+  i = 0
+  structlength = 6
+  while i &lt; structlength:
+    joint_curr = joints_1[i]
+    # check for anything that exceeds joint limits
+    degreesmax = 360 * pi / 180 
+    if joint_curr &gt; degreesmax or joint_curr &lt; degreesmax * -1:
+      allGood = False
+    end
+    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+    maxdifference = 150 * pi / 180 
+    difference = joint_curr - p_prev[i]
+    if difference &gt; maxdifference or difference * -1 &gt; maxdifference:
+      allGood = False
+    end
+    i = i + 1
+  end
+  
+  if not allGood:
+    # display
+    popuptext = &quot;Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
+    end
+  end
 end
 
 # this function sends a signal to turn extrusion on
@@ -2417,6 +2473,47 @@ def welder_state_ready():
     end
   end
   
+end
+
+def get_lift_column_height():
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  #$ 5 &quot;MachineLogic Get Position&quot;
+  while isVentionMovementBusyMachineMotion1==True:
+    sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+    isVentionMovementBusyMachineMotion1 = True
+    socket_send_string(&quot;estop/status;&quot;, &quot;MachineMotion1&quot;)
+    temp_estop_var_vention = socket_read_string(&quot;MachineMotion1&quot;,timeout=15)
+    while(temp_estop_var_vention==&quot;estop/status true&quot;):
+      if temp_estop_var_vention==&quot;estop/status true&quot;:
+        sendStringWithTimeout(&quot;estop/systemreset/request&quot;,&quot;Ack estop/systemreset/request;&quot;,&quot;MachineMotion1&quot;)
+      end
+      socket_send_string(&quot;estop/status;&quot;, &quot;MachineMotion1&quot;)
+      temp_estop_var_vention = socket_read_string(&quot;MachineMotion1&quot;,timeout=15)
+      if temp_estop_var_vention==&quot;estop/status true&quot;:
+        popup(&quot;MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.&quot;,blocking=True)
+      end
+    end
+  else:
+    popup(&quot;resource is being used already: MachineMotion1&quot;)
+    halt
+  end
+  socket_send_string(&quot;GET im_get_controller_pos_axis_1;&quot;, &quot;MachineMotion1&quot;)
+  temp_drive = socket_read_ascii_float(1, &quot;MachineMotion1&quot;,timeout=15)
+  global var_1 = temp_drive[1]
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
+end
+
+def get_lift_column_height_condensed():
+  socket_send_string(&quot;GET im_get_controller_pos_axis_1;&quot;, &quot;MachineMotion1&quot;)
+  temp_drive = socket_read_ascii_float(1, &quot;MachineMotion1&quot;,timeout=15)
+  ret = temp_drive[1]
+  return ret
 end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
