@@ -15,6 +15,9 @@ def main():
     user_input = input('Extract .unc files? (Y/N): ')
     if isUserInputYes(user_input):
         extractUncFiles()
+    user_input = input('Delete .bak and .old files? (Y/N): ')
+    if isUserInputYes(user_input):
+        delete_bak_old_files()
     
 def isUserInputYes(input_string):
     # Convert input string to lowercase for case-insensitive comparison
@@ -190,7 +193,28 @@ def decompress_gzip(gzip_file, extract_folder):
         print(f"Error: '{gzip_file}' is not a valid GZIP file.")
     except Exception as e:
         print(f"Error: Failed to decompress '{gzip_file}'. Error: {e}")
-
+        
+        
+def delete_bak_old_files():
+    '''
+    Deletes all files in Universal-Robot/programs folder and nested folders that contain .bak or .old
+    '''
+    source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    # Iterate through all files and subdirectories in the source folder
+    for item in os.listdir(source_folder):
+        source_item = os.path.join(source_folder, item)
+        # if this is a folder, skip for now
+        if os.path.isdir(source_item):
+            continue
+        # find the extension
+        filename, file_extension = os.path.splitext(source_item)
+        file_ext_short = file_extension[:4]
+        if file_ext_short == ".bak" or file_ext_short == ".old":
+            # delete file
+            print(f"removing '{source_item}' ")
+            os.remove(source_item)
+            input('Copy Journal? (Y/N): ')
+        
 
 
 if __name__ == '__main__':
