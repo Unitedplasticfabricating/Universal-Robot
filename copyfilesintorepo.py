@@ -213,7 +213,6 @@ def delete_bak_old_files():
             # delete file
             print(f"removing '{source_item}' ")
             os.remove(source_item)
-            input('Copy Journal? (Y/N): ')
         
 
 
