@@ -1126,15 +1126,20 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
   
   
   # next, check whether the touchpoints are reachable
-  list_unreachable = check_structofpoints_validity(struct_touchpoints)
-  if list_unreachable.length() > 0:
+  allvalid = check_structofpoints_validity(struct_touchpoints)
+  if not allvalid:
+      
     # then unreachable
     # generate message
     listproblems = ""
     listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
     i = 0
-    while i < list_unreachable.length():
-      listproblems = listproblems + listnames[list_unreachable[i]]
+    while i < structlength:
+      curr = struct_touchpoints[i]
+      valid = get_inverse_kin_has_solution(curr)
+      if not valid:
+        listproblems = listproblems + listnames[i]
+      end
       i = i + 1
     end
     # display
@@ -1150,24 +1155,22 @@ end
 # this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
 # this function does NOT check for weird twists or joint limits
 # inputstruct must contain only points
-# it returns a list of all indices that are invalid.
+# it returns true if all points are valid. it returns false if any points are valid
 # a list of length 0 indicates that all points are valid
 def check_structofpoints_validity(inputstruct):
   # next, check whether the touchpoints are reachable
-  structlength = inputstruct.length()
+  structlength = length(inputstruct)
   i = 0
   allvalid = True
-  ret = make_list(0, 0, structlength)
   while i < structlength:
     curr = inputstruct[i]
     valid = get_inverse_kin_has_solution(curr)
     if not valid:
-      allvalid = False
-      ret.append(i)
+      return False
     end
     i = i + 1
   end
-  return ret
+  return True
 end
 
 # checks the validity of all points during a left weld
