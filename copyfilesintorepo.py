@@ -195,16 +195,20 @@ def decompress_gzip(gzip_file, extract_folder):
         print(f"Error: Failed to decompress '{gzip_file}'. Error: {e}")
         
         
-def delete_bak_old_files():
+def delete_bak_old_files(folder1 = ""):
     '''
     Deletes all files in Universal-Robot/programs folder and nested folders that contain .bak or .old
     '''
-    source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    if folder1 == "":
+        source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    else:
+        source_folder = folder1 
     # Iterate through all files and subdirectories in the source folder
     for item in os.listdir(source_folder):
         source_item = os.path.join(source_folder, item)
         # if this is a folder, skip for now
         if os.path.isdir(source_item):
+            delete_bak_old_files(source_item)
             continue
         # find the extension
         filename, file_extension = os.path.splitext(source_item)
