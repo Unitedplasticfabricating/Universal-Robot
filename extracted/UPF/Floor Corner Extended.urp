@@ -1035,10 +1035,10 @@ end
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, tcp_pose_top)
+    struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     validity = check_validity_right(struct1, struct2)
     return struct2
 end
@@ -1050,11 +1050,11 @@ end
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top):
+def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, tcp_pose_top)
-    validity = check_validity_left(struct1, struct2)
+    struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
@@ -1500,7 +1500,7 @@ end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
 # for right, for extended
-def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_pose_top):
+def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamferup, tcp_pose_top):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -1517,12 +1517,12 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, tcp_po
     # welddistance1 = 8 # vertical weld distance
     welddistance2 = 6 # first path second leg
     welddistance3 = 8 # second path second leg
-    zup = .375
+    
     # inches
     # wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
-    zup = zup * 25.4 / 1000
+    zup = chamferup * 25.4 / 1000
     chamferovermm =  chamferover * 25.4 / 1000
     
     # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
@@ -1598,7 +1598,7 @@ end
 
 # given a struct from analyze_touchpoints_only(), calculate the points 
 # for left, for extended
-def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pose_top):
+def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamferup, tcp_pose_top):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -1615,12 +1615,12 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, tcp_pos
     # welddistance1 = 8 # vertical weld distance
     welddistance2 = 6 # first path second leg
     welddistance3 = 8 # second path second leg
-    zup = .375
+    
     # inches
     # wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
-    zup = zup * 25.4 / 1000
+    zup = chamferup * 25.4 / 1000
     chamferovermm =  chamferover * 25.4 / 1000
     
     # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
@@ -2177,6 +2177,7 @@ def check_structofpoints_validity(inputstruct):
 end
 
 # checks the validity of all points during a left weld
+# takes 2 arguments: struct1 (struct1[0] has to contain pointintersect) and struct2 (contains all the points (9) of the weld path)
 def check_validity_left(struct1, struct2):
   #first, check whether robot is too close
   pointintersect = struct1[0]
@@ -2261,6 +2262,8 @@ def check_validity_left(struct1, struct2):
     end
   end
   
+  # return struct2 back
+  return struct2
 end
 
 # checks the validity of all points during a right weld
@@ -2588,6 +2591,55 @@ end
             </Assignment>
           </children>
         </If>
+        <Assignment valueSource="Operator" message="Is the floor 3/4 inch?" valueType="Boolean">
+          <variable name="floorchoice" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+        </Assignment>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="e"/>
+          </expression>
+          <children>
+            <Assignment valueSource="Expression">
+              <variable name="floorthick" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="6"/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character="8"/>
+              </expression>
+            </Assignment>
+          </children>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Assignment valueSource="Expression">
+              <variable reference="../../../../If[3]/children/Assignment/variable"/>
+              <expression>
+                <ExpressionChar character="0"/>
+                <ExpressionChar character="."/>
+                <ExpressionChar character="3"/>
+                <ExpressionChar character="7"/>
+                <ExpressionChar character="5"/>
+              </expression>
+            </Assignment>
+          </children>
+        </If>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -2848,6 +2900,17 @@ end
                 <ExpressionChar character="a"/>
                 <ExpressionChar character="l"/>
                 <ExpressionChar character="l"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="f"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="k"/>
                 <ExpressionChar character=","/>
                 <ExpressionChar character="t"/>
                 <ExpressionChar character="c"/>
@@ -4136,7 +4199,7 @@ end
           <expression/>
           <children>
             <Assignment valueSource="Expression">
-              <variable reference="../../../../If[3]/children/Assignment/variable"/>
+              <variable reference="../../../../If[5]/children/Assignment/variable"/>
               <expression>
                 <ExpressionChar character="m"/>
                 <ExpressionChar character="a"/>
@@ -4204,6 +4267,17 @@ end
                 <ExpressionChar character="l"/>
                 <ExpressionChar character="l"/>
                 <ExpressionChar character=","/>
+                <ExpressionChar character="f"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="k"/>
+                <ExpressionChar character=","/>
                 <ExpressionChar character="t"/>
                 <ExpressionChar character="c"/>
                 <ExpressionChar character="p"/>
@@ -4265,7 +4339,7 @@ end
         </If>
         <SuppressedNode>
           <suppressedNode class="Popup" type="Message" haltProgram="false" inputType="Variable">
-            <variable reference="../../../If[3]/children/Assignment/variable"/>
+            <variable reference="../../../If[5]/children/Assignment/variable"/>
           </suppressedNode>
         </SuppressedNode>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
@@ -4433,7 +4507,7 @@ end
         </Script>
         <Comment/>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4449,7 +4523,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[2]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[2]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4465,7 +4539,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[3]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[3]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4481,7 +4555,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[4]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[4]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4497,7 +4571,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -4554,7 +4628,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[5]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -4563,7 +4637,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -4578,7 +4652,7 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4631,7 +4705,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[2]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[2]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -4659,7 +4733,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[3]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[3]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -4671,7 +4745,7 @@ end
             <data key="QUERY" value="false"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4724,7 +4798,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[4]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[4]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -4736,7 +4810,7 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4749,7 +4823,7 @@ end
         </Set>
         <Comment/>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[6]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[6]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -4795,7 +4869,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[7]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[7]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4811,7 +4885,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[8]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[8]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4827,7 +4901,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[9]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[9]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4843,7 +4917,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[10]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[10]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4859,7 +4933,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[11]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[11]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -4875,7 +4949,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[12]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[12]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -4928,7 +5002,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -4985,7 +5059,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -5042,7 +5116,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[6]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[6]/variable"/>
             </Waypoint>
             <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
               <motionParameters jointSpeed="1.0471975511965976" jointAcceleration="1.3962634015954636" cartesianSpeed="0.25" cartesianAcceleration="1.2"/>
@@ -5167,7 +5241,7 @@ end
             <children>
               <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                 <motionParameters/>
-                <variable reference="../../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
+                <variable reference="../../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
               </Waypoint>
             </children>
           </suppressedNode>
@@ -5177,11 +5251,11 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[12]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[12]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -5193,23 +5267,23 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[14]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[13]/variable"/>
             </Waypoint>
           </children>
         </Move>
         <Set type="NoAction">
-          <tcp reference="../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Set[5]/tcp"/>
+          <tcp reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Set[5]/tcp"/>
         </Set>
         <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[7]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[7]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -5221,7 +5295,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -5277,7 +5351,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[8]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[8]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -5287,10 +5361,10 @@ end
             <CircleMove OrientationMode="FIXED">
               <children>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[9]/variable"/>
+                  <variable reference="../../../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[9]/variable"/>
                 </Waypoint>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[10]/variable"/>
+                  <variable reference="../../../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[10]/variable"/>
                 </Waypoint>
               </children>
             </CircleMove>
@@ -5301,7 +5375,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Assignment[11]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Assignment[11]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -5382,7 +5456,7 @@ end
         </Move>
       </children>
     </SubProgram>
-    <SubProgram reference="../MainProgram/children/If[3]/children/CallSubProgram/subprogram"/>
+    <SubProgram reference="../MainProgram/children/If[5]/children/CallSubProgram/subprogram"/>
     <SubProgram name="Test_Teach_Position" keepHidden="false" keepSynchronizedWithDisk="false">
       <programFile>/programs/Test Teach Position.urp</programFile>
       <children>
@@ -5665,7 +5739,7 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -5684,7 +5758,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[3]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>

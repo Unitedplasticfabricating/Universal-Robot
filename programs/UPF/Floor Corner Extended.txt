@@ -97,6 +97,11 @@
        sidewall≔0.628
      Else
        sidewall≔0.375
+     floorchoice≔'Is the floor 3/4 inch?'
+     If floorchoice
+       floorthick≔0.628
+     Else
+       floorthick≔0.375
      MoveJ
        Waypoint_46
      Set
@@ -109,11 +114,11 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
+       pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
        Call move_path_3left
      Else
-       pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,tcp_pose_top)
+       pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
        move_path_3right()
      'Popup'
