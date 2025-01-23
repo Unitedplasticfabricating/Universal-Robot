@@ -408,33 +408,15 @@ def convert_heading_to_axang(heading):
  rzout = axiszunit * angle
  
  return [rxout, ryout, rzout]
+ 
+def convert_degrees_to_radians(listdegrees):
+    listradians = [0,0,0,0,0,0]
+    for i in range(6):
+        rad = listdegrees[i] * pi /180.0
+        listradians[i] = rad
+    print(listradians)
     
 
     
 
-matrix1 = get_rotation_matrix_from_description("x", -1, 10 * pi/180)
-matrix2 = get_rotation_matrix_from_description("z", 1, 25 * pi/180)
-matrixfinal = multiply_matrix(matrix2, matrix1)
-print(convert_matrix_to_axang(matrixfinal))
-
-
-
-headingangle = 225 * pi / 180.0
-ha = headingangle
-
-matrix3 = [math.cos(ha), -1 * math.sin(ha), 0, math.sin(ha), math.cos(ha), 0, 0, 0, 1]
-matrix4 = [0, 0, 1, 0, 1, 0, -1, 0, 0]
-matrix5 = multiply_matrix(matrix3, matrix4)
-print(convert_matrix_to_axang(matrix5))
-
-# test out main calculate right
-p11 = [-1.22721, .21026, .07259, 0, 0, 0]
-p12 = [-1.31502, .33475, .07266, 0, 0, 0]
-p13 = [-1.22720, .21025, .08259, 0, 0, 0]
-p21 = [-1.24758, .07837, .07253, 0, 0, 0]
-p22 = [-1.37227, -.00915, .07292, 0, 0, 0]
-p23 = [-1.247581, .078371, .08253, 0, 0, 0]
-p3 = [0, 0, .02, 0, 0, 0]
-chamferover = .375
-tcp_pose_top = [-1.247581, .078371, .08253, 0, 0, 0]
-main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, tcp_pose_top)
+convert_degrees_to_radians([-0.45, -31.79, 56.47, 333.06, -130.98, 87.87])
