@@ -1,6 +1,8 @@
 # this file creates the function for analyzing touchpoints
 # define pi
 pi = 3.1415926535
+# initialize a lift column extension needed of 0.0
+global liftcolumnzneeded = 0.0
 
 # this is the main entry point for calculations.
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
@@ -1232,12 +1234,9 @@ def check_validity_left(struct1, struct2):
   end
   
   if not allGood:
-    # display
-    popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title="Robot Positioning Warning",blocking=True)
-    end
+    # call lift column extend function
+    struct2 = floor_corner_lift_column_extend_left(struct2)
+    
   end
   
   # return struct2 back
@@ -1359,6 +1358,68 @@ def check_validity_right(struct1, struct2):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
+end
+
+# this function gets called if you are doing a left floor corner extended, and the top is too high to reach (twists, etc.)
+# this function takes the struct2 of weld points and modifies them (by subtracting from z) until the first weld point is reachable. 
+# it determines the height that the lift column needs to raise to make the first point reachable
+# it then checks whether that height will allow the other points to be reachable
+# if its all good, it sets the global variable liftcolumnzneeded, modifies struct2's points, and returns struct2
+# if its not all good, then it displays an error message popup. 
+def floor_corner_lift_column_extend_left(struct2):
+  # we know that p1 cannot be accessed without a twist 
+  liftcolumnincrement = 2 # mm
+  enoughHeightAdded = False
+  liftColumnHeightTest = 0
+  while not enoughHeightAdded:
+    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
+    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
+    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    # get the modified point:
+    origp1 = struct2[0]
+    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+  end
+  
+    # display
+    popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+end
+
+# this function calculates whether a given pose can be reached, and if it can, whether it requires a wrist twist (from the seed joint angles)
+# arguments are target pose (p[x,y,z,rx,ry,rz]) and orig_joints which is the 6 joint angles of a pose that is close by the target pose and has the desired joint angles
+# returns true if the pose is valid and requires no twist. If pose is valid but requires a twist, returns false. If pose is invalid, returns false.
+def can_pose_be_reached_without_twist(pose, orig_joints):
+  # first, determine if the pose is valid
+  valid = get_inverse_kin_has_solution(pose)
+  if not valid:
+    return False
+  end
+  joints_1 = get_inverse_kin(pose, orig_joints)
+  #iterate through the 6 joints
+  allGood = True
+  i = 0
+  structlength = 6
+  while i < structlength:
+    joint_curr = joints_1[i]
+    # check for anything that exceeds joint limits
+    degreesmax = 360 * pi / 180 
+    if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+      allGood = False
+    end
+    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+    maxdifference = 150 * pi / 180 
+    difference = joint_curr - orig_joints[i]
+    if difference > maxdifference or difference * -1 > maxdifference:
+      allGood = False
+    end
+    i = i + 1
+  end
+  return allGood
 end
 
 # this function sends a signal to turn extrusion on
