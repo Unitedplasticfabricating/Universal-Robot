@@ -55,7 +55,7 @@ def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, 
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     struct3 = check_validity_left(struct1, struct2)
-    return struct2
+    return struct3
 end
 
 # it takes 5 arguments as points
@@ -1368,6 +1368,7 @@ end
 # if its not all good, then it displays an error message popup. 
 def floor_corner_lift_column_extend_left(struct2):
   # we know that p1 cannot be accessed without a twist 
+  # calculate the height needed to get to p1
   liftcolumnincrement = 2 # mm
   enoughHeightAdded = False
   liftColumnHeightTest = 0
@@ -1382,12 +1383,40 @@ def floor_corner_lift_column_extend_left(struct2):
     enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
   end
   
+  # check whether the other 3 points are valid
+  valid = True
+  # get the modified point
+  origp2 = struct2[1]
+  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
+  # p2 demo was joint angles of [-0.45, -21.2, 56.98, 321.95, -130.97, 87.85] (degrees)
+  # which equals [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  orig_joints = [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  valid = valid and can_pose_be_reached_without_twist(testp2, orig_joints)
+  # get the modified point
+  origp4 = struct2[2]
+  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
+  # p2 demo was joint angles of [-0.45, -21.2, 56.98, 321.95, -130.97, 87.85] (degrees)
+  # which equals [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  orig_joints = [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  valid = valid and can_pose_be_reached_without_twist(testp4, orig_joints)
+  # get the modified point
+  origp5 = struct2[3]
+  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
+  # p2 demo was joint angles of [-0.45, -21.2, 56.98, 321.95, -130.97, 87.85] (degrees)
+  # which equals [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  orig_joints = [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  valid = valid and can_pose_be_reached_without_twist(testp5, orig_joints)
+  
+  if not valid:
     # display
     popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
     # infinite loop
     while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
+  else:
+    ret = struct(p1=testp1,p2=testp2,p4=testp4,p5=testp5,p_1=struct2[4],p_2=struct2[5],p_3=struct2[6],p_4=struct2[7],p_5=struct2[8])
+    return ret
 end
 
 # this function calculates whether a given pose can be reached, and if it can, whether it requires a wrist twist (from the seed joint angles)
