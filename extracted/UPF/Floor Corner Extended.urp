@@ -1679,27 +1679,7 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamfer
     y = pointintersect[1] + l1delyunit * rod
     point_4 = p[x, y, z, rx, ry, rz]
     
-    # extend the weld distance from the intersection
-    valid1 = True
-    # start with the seed
-    x = pointintersect[0] + l1delxunit * wd3
-    y = pointintersect[1] + l1delyunit * wd3
-    point_5 = p[x, y, z, rx, ry, rz]
-    seed = p[x, y, z, rx, ry, rz]
-    valid1 = get_inverse_kin_has_solution(seed)
-    # define the increment
-    increment = 1.0 # inches
-    increment = increment * 25.4 / 1000 # meters
-    while valid1 == True:
-        wd3 = wd3 + increment
-        x = pointintersect[0] + l1delxunit * wd3
-        y = pointintersect[1] + l1delyunit * wd3
-        seed = p[x, y, z, rx, ry, rz]
-        valid1 = get_inverse_kin_has_solution(seed)
-    end
-    # move back 1 to get the highest valid wd3
-    # move back 3 to get the third highest valid wd3
-    wd3 = wd3 - (3.0 * increment)
+    # now we have the unit vector. extend the weld distance from the intersection
     x = pointintersect[0] + l1delxunit * wd3
     y = pointintersect[1] + l1delyunit * wd3
     point_5 = p[x, y, z, rx, ry, rz]
