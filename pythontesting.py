@@ -419,4 +419,4 @@ def convert_degrees_to_radians(listdegrees):
 
     
 
-convert_degrees_to_radians([-0.45, -31.79, 56.47, 333.06, -130.98, 87.87])
+convert_degrees_to_radians([-0.45, -21.2, 56.98, 321.95, -130.97, 87.85])
