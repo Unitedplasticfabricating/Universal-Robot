@@ -1351,13 +1351,40 @@ def check_validity_right(struct1, struct2):
   end
   
   if not allGood:
-    # display
-    popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title="Robot Positioning Warning",blocking=True)
-    end
+    struct2 = floor_corner_lift_column_extend_right(struct2)
   end
+end
+
+def floor_corner_lift_column_extend_right(struct2):
+  # we know that p1 cannot be accessed without a twist 
+  # calculate the height needed to get to p1
+  liftcolumnincrement = 2 # mm
+  enoughHeightAdded = False
+  liftColumnHeightTest = 0
+  while not enoughHeightAdded:
+    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
+    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
+    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    # get the modified point:
+    origp1 = struct2[0]
+    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+  end
+  
+  origp2 = struct2[1]
+  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
+  origp4 = struct2[2]
+  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
+  origp5 = struct2[3]
+  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
+  
+  
+  
+  liftcolumnzneeded = liftColumnHeightTest
+  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
+  return ret
+  
 end
 
 # this function gets called if you are doing a left floor corner extended, and the top is too high to reach (twists, etc.)
