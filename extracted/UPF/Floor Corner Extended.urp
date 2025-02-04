@@ -2353,13 +2353,40 @@ def check_validity_right(struct1, struct2):
   end
   
   if not allGood:
-    # display
-    popuptext = &quot;Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. &quot;
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
+    struct2 = floor_corner_lift_column_extend_right(struct2)
   end
+end
+
+def floor_corner_lift_column_extend_right(struct2):
+  # we know that p1 cannot be accessed without a twist 
+  # calculate the height needed to get to p1
+  liftcolumnincrement = 2 # mm
+  enoughHeightAdded = False
+  liftColumnHeightTest = 0
+  while not enoughHeightAdded:
+    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
+    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
+    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    # get the modified point:
+    origp1 = struct2[0]
+    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+  end
+  
+  origp2 = struct2[1]
+  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
+  origp4 = struct2[2]
+  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
+  origp5 = struct2[3]
+  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
+  
+  
+  
+  liftcolumnzneeded = liftColumnHeightTest
+  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
+  return ret
+  
 end
 
 # this function gets called if you are doing a left floor corner extended, and the top is too high to reach (twists, etc.)
@@ -2418,7 +2445,7 @@ def floor_corner_lift_column_extend_left(struct2):
     end
   else:
     liftcolumnzneeded = liftColumnHeightTest
-    ret = struct(p1=testp1,p2=testp2,p4=testp4,p5=testp5,p_1=struct2[4],p_2=struct2[5],p_3=struct2[6],p_4=struct2[7],p_5=struct2[8])
+    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
     return ret
   end
 end
@@ -3074,6 +3101,7 @@ end
                           <data key="numberAdded" value="0"/>
                           <data key="speed_in_mm_per_min" value="600"/>
                           <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                          <data key="ActuatorPos" value="liftcolumnz"/>
                           <data key="teachColor" value="BLUE"/>
                           <data key="combo1" value="MachineMotion1"/>
                           <data key="combo2" value="(1) Custom Actuator"/>
@@ -3083,7 +3111,6 @@ end
                           <data key="description" value="Moves the actuator to a specified position from the home location."/>
                           <data key="comboAddress" value="Address 1"/>
                           <data key="comboActuator" value="Valve 1"/>
-                          <data key="ActuatorPos" value="liftcolumnz"/>
                         </dataModel>
                       </Contributed>
                       <Waypoint type="Fixed" name="Waypoint_15" kinematicsFlags="3">
@@ -3882,17 +3909,17 @@ end
                             <dataModel>
                               <data key="type" value="addMotor"/>
                               <data key="numberAdded" value="0"/>
+                              <data key="speed_in_mm_per_min" value="600"/>
+                              <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                              <data key="teachColor" value="BLUE"/>
                               <data key="combo1" value="MachineMotion1"/>
                               <data key="combo2" value="(1) Custom Actuator"/>
                               <data key="combo3" value="Home"/>
                               <data key="combo6" value="In series"/>
-                              <data key="speed_in_mm_per_min" value="600"/>
-                              <data key="acceleration_in_mm_per_s2" value="50.0"/>
                               <data key="message" value="Homing"/>
                               <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
                               <data key="comboAddress" value="Address 1"/>
                               <data key="comboActuator" value="Valve 1"/>
-                              <data key="teachColor" value="BLUE"/>
                             </dataModel>
                           </Contributed>
                         </children>
@@ -4775,6 +4802,46 @@ end
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
+        <Assignment valueSource="Expression">
+          <variable reference="../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Move/children/Assignment/variable"/>
+          <expression>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="z"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="d"/>
+          </expression>
+        </Assignment>
+        <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+          <dataModel>
+            <data key="type" value="addMotor"/>
+            <data key="numberAdded" value="0"/>
+            <data key="speed_in_mm_per_min" value="600"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="ActuatorPos" value="liftcolumnz"/>
+            <data key="teachColor" value="BLUE"/>
+            <data key="combo1" value="MachineMotion1"/>
+            <data key="combo2" value="(1) Custom Actuator"/>
+            <data key="combo3" value="Move to Position"/>
+            <data key="combo6" value="In series"/>
+            <data key="message" value="Move to Position"/>
+            <data key="description" value="Moves the actuator to a specified position from the home location."/>
+            <data key="comboAddress" value="Address 1"/>
+            <data key="comboActuator" value="Valve 1"/>
+          </dataModel>
+        </Contributed>
         <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -4891,13 +4958,13 @@ end
         </Move>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
-            <data key="byte_array" value="true"/>
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
             <data key="Command" value="[252,82,49]"/>
             <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4959,10 +5026,10 @@ end
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -5386,6 +5453,44 @@ end
             </SuppressedNode>
           </children>
         </Move>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="z"/>
+            <ExpressionChar character="≠"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+          </expression>
+          <children>
+            <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+              <dataModel>
+                <data key="type" value="addMotor"/>
+                <data key="numberAdded" value="0"/>
+                <data key="speed_in_mm_per_min" value="600"/>
+                <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                <data key="teachColor" value="BLUE"/>
+                <data key="combo1" value="MachineMotion1"/>
+                <data key="combo2" value="(1) Custom Actuator"/>
+                <data key="combo3" value="Home"/>
+                <data key="combo6" value="In series"/>
+                <data key="message" value="Homing"/>
+                <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
+                <data key="comboAddress" value="Address 1"/>
+                <data key="comboActuator" value="Valve 1"/>
+              </dataModel>
+            </Contributed>
+          </children>
+        </If>
         <Comment comment="preheat"/>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
@@ -5447,7 +5552,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../MainProgram/children/If[5]/children/CallSubProgram/subprogram/children/Contributed[8]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>

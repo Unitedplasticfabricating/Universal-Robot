@@ -1,13 +1,12 @@
 def Start_Heating_Welder():
   global _hidden_verificationVariable=0
-  step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = 0.0
-  thread Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89():
-    while (True):
-      step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = step_count_a2416ea4_cf31_44d2_a405_df90891c5051 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,15 +14,8 @@ def Start_Heating_Welder():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
   set_safety_mode_transition_hardness(1)
   set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -155,6 +147,14 @@ def Start_Heating_Welder():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_1fe5d668_c14b_42a9_b262_4711381ac8cf = 0.0
+  thread Step_Counter_Thread_229458e2_1d1c_4862_aa54_48844af96679():
+    while (True):
+      step_count_1fe5d668_c14b_42a9_b262_4711381ac8cf = step_count_1fe5d668_c14b_42a9_b262_4711381ac8cf + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_229458e2_1d1c_4862_aa54_48844af96679()
   $ 2 "Robot Program"
   $ 3 "HwResp≔'placeholder'"
   global HwResp="placeholder"
