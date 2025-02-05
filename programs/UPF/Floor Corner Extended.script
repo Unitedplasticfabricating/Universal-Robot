@@ -8,7 +8,7 @@ def Floor_Corner_Extended():
     end
   end
   run Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452()
-  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
@@ -2904,12 +2904,15 @@ def Floor_Corner_Extended():
     if not allGood:
       struct2 = floor_corner_lift_column_extend_right(struct2)
     end
+  
+    # return struct2 back
+    return struct2
   end
   
   def floor_corner_lift_column_extend_right(struct2):
     # we know that p1 cannot be accessed without a twist
     # calculate the height needed to get to p1
-    liftcolumnincrement = 2 # mm
+    liftcolumnincrement = 2.0 # mm
     enoughHeightAdded = False
     liftColumnHeightTest = 0
     while not enoughHeightAdded:
@@ -2919,13 +2922,13 @@ def Floor_Corner_Extended():
       orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
       # get the modified point:
       origp1 = struct2[0]
-      testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+      testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000.0, origp1[3], origp1[4], origp1[5]]
       testpa1 = p[origp1[0]+0.05, origp1[1]+0.05, origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
       enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints) and can_pose_be_reached_without_twist(testpa1, orig_joints)
     end
   
     origp2 = struct2[1]
-    testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
+    testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000.0, origp2[3], origp2[4], origp2[5]]
     origp4 = struct2[2]
     testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
     origp5 = struct2[3]
