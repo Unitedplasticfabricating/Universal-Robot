@@ -8,7 +8,7 @@ def test_protective_stop():
     end
   end
   run Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452()
-  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
@@ -155,26 +155,26 @@ def test_protective_stop():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  global Waypoint_1_p=p[-.693756081485, .141369193308, .218584735520, -.851978179689, -1.646001533937, 1.646008371360]
+  global Waypoint_1_q=[-1.1533568541156214, -1.4924076360515137, 2.8518698851214808, 4.922323781042852, -4.910887185727255, 1.5719373226165771]
   global Waypoint_3_p=p[.687527620967, .415165960724, .537921070000, 2.127101811831, 1.929915403723, .470130777221]
   global Waypoint_3_q=[-3.249424997960226, -1.9387947521605433, 2.32263428369631, 3.9818588930317382, -6.198007937763826, 1.5286580324172974]
   global Waypoint_4_p=p[.695155464390, .367451880816, .502522491683, 2.093108370749, 1.857548644474, .308841595089]
   global Waypoint_4_q=[-3.249415699635641, -1.9387923679747523, 2.3226097265826624, 3.981850786800049, -0.05697328249086553, 1.5286790132522583]
   global oldhome_p=p[.397683836105, .356251384911, .315246899233, 2.316304177919, 2.057561756051, .074146544723]
   global oldhome_q=[-3.457960907612936, -2.0569125614561976, 2.326589886342184, -0.22707636774096684, -0.19935208955873662, -0.10534269014467412]
-  global Waypoint_1_p=p[-.693756081485, .141369193308, .218584735520, -.851978179689, -1.646001533937, 1.646008371360]
-  global Waypoint_1_q=[-1.1533568541156214, -1.4924076360515137, 2.8518698851214808, 4.922323781042852, -4.910887185727255, 1.5719373226165771]
   def align_ready_for_welding():
-    $ 44 "align_ready_for_welding" "noBreak"
-    $ 45 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
+    $ 55 "align_ready_for_welding" "noBreak"
+    $ 56 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
     # 'this program takes the welder from home to a position alined ready for welding (vertically down)'
-    $ 46 "MoveJ"
-    $ 47 "oldhome" "breakAfter"
+    $ 57 "MoveJ"
+    $ 58 "oldhome" "breakAfter"
     movej(get_inverse_kin(oldhome_p, qnear=oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 48 "Waypoint_4" "breakAfter"
+    $ 59 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 49 "Waypoint_3" "breakAfter"
+    $ 60 "Waypoint_3" "breakAfter"
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 50 "Waypoint_1" "breakAfter"
+    $ 61 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
   end
   $ 2 "BeforeStart"
@@ -189,33 +189,35 @@ def test_protective_stop():
   $ 8 "If v[0]<.3"
   if (v[0]<.3):
     $ 9 "MoveJ"
-    $ 10 "Waypoint_3" "breakAfter"
+    $ 10 "Waypoint_1" "breakAfter"
+    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 11 "Waypoint_3" "breakAfter"
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 11 "Waypoint_4" "breakAfter"
+    $ 12 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 12 "oldhome" "breakAfter"
+    $ 13 "oldhome" "breakAfter"
     movej(get_inverse_kin(oldhome_p, qnear=oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
   end
-  $ 13 "Robot Program"
-  $ 14 "Home"
+  $ 14 "Robot Program"
+  $ 15 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
-  $ 15 "align_ready_for_welding()"
+  $ 16 "align_ready_for_welding()"
   align_ready_for_welding()
-  $ 17 "Wait: 0.5"
+  $ 18 "Wait: 0.5"
   sleep(0.5)
-  $ 18 "curjoints≔get_actual_joint_positions()"
+  $ 19 "curjoints≔get_actual_joint_positions()"
   global curjoints= get_actual_joint_positions ()
-  $ 19 "var_1≔p[-1.24879,.40417,.97369,-78436,-1.71072,1.71072]"
-  global var_1=p[-1.24879,.40417,.97369,-78436,-1.71072,1.71072]
-  $ 20 "has≔get_inverse_kin_has_solution(var_1)"
+  $ 20 "var_1≔p[-1.24879,.40417,.97369,-.78436,-1.71072,1.71072]"
+  global var_1=p[-1.24879,.40417,.97369,-.78436,-1.71072,1.71072]
+  $ 21 "has≔get_inverse_kin_has_solution(var_1)"
   global has=get_inverse_kin_has_solution(var_1)
-  $ 21 "pa1≔p[-1.19879,.45417,.97369,-78436,-1.71072,1.71072]"
-  global pa1=p[-1.19879,.45417,.97369,-78436,-1.71072,1.71072]
-  $ 22 "has2≔get_inverse_kin_has_solution(pa1)"
+  $ 22 "pa1≔p[-1.19879,.45417,.97369,-.78436,-1.71072,1.71072]"
+  global pa1=p[-1.19879,.45417,.97369,-.78436,-1.71072,1.71072]
+  $ 23 "has2≔get_inverse_kin_has_solution(pa1)"
   global has2=get_inverse_kin_has_solution(pa1)
-  $ 23 "Wait: 0.5"
+  $ 24 "Wait: 0.5"
   sleep(0.5)
-  $ 24 "Script: analyze_touchpoints.script"
+  $ 25 "Script: analyze_touchpoints.script"
   # this file creates the function for analyzing touchpoints
   # define pi
   pi = 3.1415926535
@@ -1834,38 +1836,52 @@ def test_protective_stop():
     ret = temp_drive[1]
     return ret
   end
-  $ 25 "Wait: 0.5"
+  $ 26 "Wait: 0.5"
   sleep(0.5)
-  $ 26 "can≔can_pose_be_reached_without_twist(var_1,curjoints)"
+  $ 27 "can≔can_pose_be_reached_without_twist(var_1,curjoints)"
   global can=can_pose_be_reached_without_twist(var_1,curjoints)
-  $ 27 "Wait: 0.5"
+  $ 28 "Wait: 0.5"
   sleep(0.5)
-  $ 28 "str≔struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)"
+  $ 29 "str≔struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)"
   global str=struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)
-  $ 29 "Wait: 2.0"
+  $ 30 "Wait: 2.0"
   sleep(2.0)
-  $ 30 "str2≔floor_corner_lift_column_extend_right(str)"
+  $ 31 "p1red≔p[-1,.20417,.097369,-.78436,-1.71072,1.71072]"
+  global p1red=p[-1,.20417,.097369,-.78436,-1.71072,1.71072]
+  $ 32 "str≔struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)"
+  global str=struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)
+  $ 33 "str2≔floor_corner_lift_column_extend_right(str)"
   global str2=floor_corner_lift_column_extend_right(str)
-  $ 31 "Wait: 2.0"
+  $ 34 "Wait: 2.0"
   sleep(2.0)
-  $ 32 "newp1≔str[0]"
-  global newp1=str[0]
-  $ 34 "MoveJ"
-  $ 35 "newp1" "breakAfter"
-  movej(newp1, a=1.3962634015954636, v=1.0471975511965976)
-  $ 36 "jj≔get_inverse_kin(var_1)"
-  global jj= get_inverse_kin (var_1)
-  $ 37 "jj2≔get_inverse_kin(var_1,curjoints)"
-  global jj2= get_inverse_kin (var_1,curjoints)
-  $ 38 "Popup: at position"
-  popup("at position", "Message", False, False, blocking=True)
+  $ 35 "newp1≔str2[0]"
+  global newp1=str2[0]
+  $ 36 "curpose≔get_actual_tcp_pose()"
+  global curpose= get_actual_tcp_pose ()
+  $ 38 "Popup: here"
+  popup("here", "Message", False, False, blocking=True)
   $ 39 "Wait: 5.0"
   sleep(5.0)
-  $ 40 "MoveJ"
-  $ 41 "Waypoint_3" "breakAfter"
+  $ 40 "jj≔get_inverse_kin(var_1)"
+  global jj= get_inverse_kin (var_1)
+  $ 41 "jj2≔get_inverse_kin(var_1,curjoints)"
+  global jj2= get_inverse_kin (var_1,curjoints)
+  $ 45 "jjnew≔get_inverse_kin(newp1)"
+  global jjnew= get_inverse_kin (newp1)
+  $ 46 "MoveJ"
+  $ 47 "newp1" "breakAfter"
+  movej(newp1, a=1.3962634015954636, v=1.0471975511965976)
+  $ 48 "Popup: at position"
+  popup("at position", "Message", False, False, blocking=True)
+  $ 49 "Wait: 5.0"
+  sleep(5.0)
+  $ 50 "MoveJ"
+  $ 51 "Waypoint_1" "breakAfter"
+  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 52 "Waypoint_3" "breakAfter"
   movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 42 "Waypoint_4" "breakAfter"
+  $ 53 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 43 "oldhome" "breakAfter"
+  $ 54 "oldhome" "breakAfter"
   movej(get_inverse_kin(oldhome_p, qnear=oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
 end

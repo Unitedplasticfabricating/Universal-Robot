@@ -713,6 +713,26 @@ get_inverse_kin_has_solution() returns false. can_pose_be_reached_without_twist(
 so i made a struct around p1 (as struct[0]) and passed it into floor_corner_lift_column_extend_right(). it throws a runtime error i think because it is infinite looping. 
 wow super weird. 
 
+mothingfucking god damn.
+i had a typo. the number was supposed to be -0.78436, but it was -78436. big difference. 
+now when i call get_inverse_kin_has_solution() on var_1 (p1), it returns true. 
+when i call get_inverse_kin() on p1 i get a result that has a wrist1 joint of 6.36549 which corresponds to 364 degrees. this is outside the joint limit. 
+when i call can_pose_be_reached_without_twist() in p1, i get false. 
+and yet when i run floor_corner_lift_column_extend_right() it doesnt change. thats because i was not looking at the return value
+
+after correcting these errors, the code now works. 
+var_1 (p1 from the original code) was .97369 as a z, and the newp1 is now .91369 as the z. 
+liftcolumnzneeded is 60. 
+the inverse kin of newp1 has a wrist1 of 359.7 degrees. 
+it seems like this is working correctly. 
+but why did it not provide the proper result when called from Floor Corner Extended?
+because my check_validity_right() function was not returning the result. bummer. 
+
+another concern: on the corner by the wall/garbage, the weld frequently leaves the chamfer during the vertical. 
+i am not sure what the cause of that is. but it is a pattern. 
+northwest corner = weld slides to the inside of the vert chamfer
+
+
 setting up robot number 2. 
 there was an issue with errors when moving the lift column up and down. 
 the fix was to disable some buggy code from vention. 
