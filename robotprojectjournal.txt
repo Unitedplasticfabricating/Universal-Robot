@@ -30,7 +30,7 @@ I installed python to make a script to decompress those files.
 Big breakthrough
 I talked to Luca from vention. For the robot stopping and faulting, we figured that out. I set the payload to 0.o kg (down from 1.3). That was what was breaking the program, that it was off by 1 kg. Sometimes the payload wizard in UR is not very accurate. So he recommends weighing the payload and getting that exact by hand and entering it in. For the payload center of gravity and the tcp position, you can use the wizard. 
 He agrees with me that the initial breakage was caused by using a moveL in a large movement over the base. moveL should only be for smaller movements or movements that you know aren’t going to be too close to singularities. After changing the payload to 0, I ran the same program (with the moveL). The program stopped because it said “cannot achieve the requested position” or something like that. However, it did not power off the robot. I just hit enable and had to angular move the joints manually (fourth tab) to get myself out of the knot. 
-Next, I set up the urcap. My computer was not connecting to the machinemotion at 192.168.7.2. Luca emailed me directions for how to set up the urcap connection to allow the robot to control the lift column. I called justin to get the connection working. 
+Next, I set up the urcap. My computer was not connecting to the machinemotion at 192.168.7.2. Luca emailed me directions (6/26/24) for how to set up the urcap connection to allow the robot to control the lift column. I called justin to get the connection working. 
 Computer was not connecting to 192.168.7.2 in chrome. What I had to do was unplug my ethernet cable from both sides. Turn off machinemotion. Unplug machinemotin’s power cqable. Hold down its power button for 20 seconds to release any stored energy in capacitors. Then turn it back on. After this, my Ethernet – Network 3 icon in control panel -> network and internet -> network connections changed from no connection to ethernet. And going to the chrome ip worked. 
 Next, I wanted to get it so the robot could control the lift column. I went to http://192.168.7.2/networkConfig. Under ethernet settings, I clicked LAN1 which is where the cord is plugged into. I set that to 192.168.3.52. Justin had to look in dhcp to find one in our network that wasn’t being used, because I don’t have that permission anymore. He then said he reserved that ip for me. 
 Then I went into UR settings on the pendant and changed the robot’s ipaddress to 192.168.3.53, which was also available. Justin also reserved this for me. I then went into installation->urcaps and configured it to be 192.168.3.52. and saved the configuration. 
@@ -697,6 +697,40 @@ it stopped about 15mm above the floor chamfer and started turning. when it went 
 im not sure why it stopped above the floor chamfer. it's like as if it failed to modify the points p2, p4, and p5 with the liftcolumnzneeded. 
 but that doesn't make sense because the script function IS modifying those points. 
 I wish I would have saved the active variables or taken a picture of them from the Run screen. 
+
+for the above instance, somehow the lift column z detector (built in) got screwed up. when i sent the lift column home, the positition meter read -14.3mm. 
+
+reset that. seemed like a one-off. 
+now my right side extended is not working. 
+when i need a lift on a right side weld, the lift column does raise up to what looks to be about the right spot. 
+however, it commits a joint limit exceeded when reaching for pa1. 
+so, i added pa1 into the checker function. 
+i tried it and it still failed at the same spot. 
+so i made a new program in polyscope using the pose coordinates that i saved from p1 and pa1 (which were returned by the function in the main program)
+i checked these and these poses are not reachable. 
+get_inverse_kin(p1) (and pa1) returns an error. 
+get_inverse_kin_has_solution() returns false. can_pose_be_reached_without_twist() returns false. 
+so i made a struct around p1 (as struct[0]) and passed it into floor_corner_lift_column_extend_right(). it throws a runtime error i think because it is infinite looping. 
+wow super weird. 
+
+setting up robot number 2. 
+there was an issue with errors when moving the lift column up and down. 
+the fix was to disable some buggy code from vention. 
+While my laptop was connected to the machine motion, i went to 192.168.7.2:3000
+username: debian
+password: Plastic1
+i then went to the file cloud9/vention-control/mm-config.json
+and i set the values hotplug_prevention and stall_detection to false.
+i save by clicking crtl-s and retsarted the machine motion. 
+weird. but it worked. 
+i set the ip address of this lift column to also be 192.168.3.52
+
+setting up ur on th pendant. 
+i changed the admin password from easybot to Plastic1
+i changed the ip to static, ip address to 192.168.3.53. 
+
+
+
 
 
 

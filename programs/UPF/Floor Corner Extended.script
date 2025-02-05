@@ -1,7 +1,15 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 = 0.0
+  thread Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452():
+    while (True):
+      step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 = step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452()
+  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
+  set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -14,8 +22,8 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,14 +155,6 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_36679907_0258_4be1_8e75_6a5389a66f71 = 0.0
-  thread Step_Counter_Thread_6aa11ac7_9c4b_46cb_a474_5ae7fd1d8d26():
-    while (True):
-      step_count_36679907_0258_4be1_8e75_6a5389a66f71 = step_count_36679907_0258_4be1_8e75_6a5389a66f71 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_6aa11ac7_9c4b_46cb_a474_5ae7fd1d8d26()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -2920,7 +2920,8 @@ def Floor_Corner_Extended():
       # get the modified point:
       origp1 = struct2[0]
       testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
-      enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+      testpa1 = p[origp1[0]+0.05, origp1[1]+0.05, origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+      enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints) and can_pose_be_reached_without_twist(testpa1, orig_joints)
     end
   
     origp2 = struct2[1]
