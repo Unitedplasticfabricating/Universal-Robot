@@ -1369,7 +1369,8 @@ def floor_corner_lift_column_extend_right(struct2):
     # get the modified point:
     origp1 = struct2[0]
     testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
-    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+    testpa1 = p[origp1[0]+0.05, origp1[1]+0.05, origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints) and can_pose_be_reached_without_twist(testpa1, orig_joints)
   end
   
   origp2 = struct2[1]
