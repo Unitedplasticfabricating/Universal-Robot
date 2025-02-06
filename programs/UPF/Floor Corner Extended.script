@@ -1,20 +1,11 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 = 0.0
-  thread Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452():
-    while (True):
-      step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 = step_count_07613574_dfbb_41ff_9e78_1f01efc50be2 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_b6e9002d_a96d_4375_8932_8275ed400452()
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
-  set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -23,6 +14,7 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_safety_mode_transition_hardness(1)
   set_gravity([0.0, 0.0, 9.82])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
@@ -155,6 +147,14 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad = 0.0
+  thread Step_Counter_Thread_fb5c16e8_ec61_4ca9_a53c_69ed13a67504():
+    while (True):
+      step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad = step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_fb5c16e8_ec61_4ca9_a53c_69ed13a67504()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -1590,8 +1590,8 @@ def Floor_Corner_Extended():
       struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
       list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
       struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-      validity = check_validity_right(struct1, struct2)
-      return struct2
+      struct3 = check_validity_right(struct1, struct2)
+      return struct3
   end
   
   # this is the main entry point for calculations, for Floor Corner Extended.
