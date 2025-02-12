@@ -1,11 +1,14 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -13,9 +16,6 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
-  set_gravity([0.0, 0.0, 9.82])
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
@@ -147,14 +147,14 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad = 0.0
-  thread Step_Counter_Thread_fb5c16e8_ec61_4ca9_a53c_69ed13a67504():
+  step_count_565eafaa_94de_456f_ae08_6a9afa824568 = 0.0
+  thread Step_Counter_Thread_2dcdcef9_5481_4d14_8dad_01120f265fcd():
     while (True):
-      step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad = step_count_fd2fe5c4_80f9_499c_96f0_e69de12982ad + 1.0
+      step_count_565eafaa_94de_456f_ae08_6a9afa824568 = step_count_565eafaa_94de_456f_ae08_6a9afa824568 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_fb5c16e8_ec61_4ca9_a53c_69ed13a67504()
+  run Step_Counter_Thread_2dcdcef9_5481_4d14_8dad_01120f265fcd()
   global freedrive_m_var=  False  
   global Waypoint_47_p=p[.894110788705, .351078070639, .354441232572, 2.326362155719, 2.052509368646, .057355656444]
   global Waypoint_47_q=[-3.266942326222555, -1.1744836431792756, 1.6532800833331507, 1.0039457517811279, -0.0024531523333948257, -1.5362089315997522]
@@ -2630,6 +2630,9 @@ def Floor_Corner_Extended():
     if pointtop[2] == 0:
       ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
       ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+    elif pointtop[2] > p0z + 0.914: # 0.914m = 36 inches
+      ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
+      ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
     else:
       ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
       ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
@@ -2643,11 +2646,11 @@ def Floor_Corner_Extended():
   # if everything looks good, it continues.
   # if it detects a problem, it infinite loops a popup
   def is_robot_at_reachable_spot(point0, struct_touchpoints):
-    # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z < -350)
+    # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z < -400)
     lc_height = get_lift_column_height_condensed()
     # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
     totalheight = 1.04775 + lc_height + point0[2]
-    if totalheight < 1.04775 - 0.350:
+    if totalheight < 1.04775 - 0.400:
       # bad
       popuptext = "Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. "
       # infinite loop

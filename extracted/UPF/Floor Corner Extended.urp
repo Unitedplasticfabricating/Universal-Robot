@@ -2081,6 +2081,9 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   if pointtop[2] == 0:
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+  elif pointtop[2] &gt; p0z + 0.914: # 0.914m = 36 inches
+    ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
   else:
     ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
@@ -2094,11 +2097,11 @@ end
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
 def is_robot_at_reachable_spot(point0, struct_touchpoints):
-  # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -350)
+  # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -400)
   lc_height = get_lift_column_height_condensed()
   # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
   totalheight = 1.04775 + lc_height + point0[2]
-  if totalheight &lt; 1.04775 - 0.350:
+  if totalheight &lt; 1.04775 - 0.400:
     # bad
     popuptext = &quot;Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. &quot;
     # infinite loop
