@@ -1464,27 +1464,33 @@ def can_pose_be_reached_without_twist(pose, orig_joints):
   if not valid:
     return False
   end
-  joints_1 = get_inverse_kin(pose, orig_joints)
-  #iterate through the 6 joints
-  allGood = True
-  i = 0
-  structlength = 6
-  while i < structlength:
-    joint_curr = joints_1[i]
-    # check for anything that exceeds joint limits
-    degreesmax = 360 * pi / 180 
-    if joint_curr > degreesmax or joint_curr < degreesmax * -1:
-      allGood = False
+  valid = get_inverse_kin_has_solution(pose, orig_joints)
+  if not valid:
+    return False
+  else:
+    joints_1 = get_inverse_kin(pose, orig_joints)
+    #iterate through the 6 joints
+    allGood = True
+    i = 0
+    structlength = 6
+    while i < structlength:
+      joint_curr = joints_1[i]
+      # check for anything that exceeds joint limits
+      degreesmax = 360 * pi / 180 
+      if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+        allGood = False
+      end
+      # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+      maxdifference = 150 * pi / 180 
+      difference = joint_curr - orig_joints[i]
+      if difference > maxdifference or difference * -1 > maxdifference:
+        allGood = False
+      end
+      i = i + 1
     end
-    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-    maxdifference = 150 * pi / 180 
-    difference = joint_curr - orig_joints[i]
-    if difference > maxdifference or difference * -1 > maxdifference:
-      allGood = False
-    end
-    i = i + 1
+    return allGood
   end
-  return allGood
+  
 end
 
 # this function sends a signal to turn extrusion on
