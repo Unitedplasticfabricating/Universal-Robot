@@ -94,10 +94,14 @@ def copyFilesFromFlashDrive():
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
         if os.path.isdir(destination_folder):
+            print(f"Deleting '{destination_folder}' ... ")
             shutil.rmtree(destination_folder)
+            print(f"All files and folders in '{destination_folder}' deleted. ")
         copied = copy_folder(source_folder, destination_folder)
         if copied == True:
+            print(f"Deleting '{source_item}' ... ")
             shutil.rmtree(source_folder)
+            print(f"All files and folders in '{source_item}' deleted. ")
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
 
