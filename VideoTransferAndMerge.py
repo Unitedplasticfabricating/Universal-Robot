@@ -9,6 +9,9 @@ def main():
     user_input = input('Merge Files into 1 hour long files? (Y/N): ')
     if isUserInputYes(user_input):
         mergeVideoFiles()
+    user_input = input('Delete Raw and Processing Folders, and filelist.txt? (Y/N): ')
+    if isUserInputYes(user_input):
+        deleteRaw()
         
 def isUserInputYes(input_string):
     # Convert input string to lowercase for case-insensitive comparison
@@ -23,9 +26,9 @@ def copyVideosFromMicroSD():
     '''
     deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
     '''
-    root_source_folder = "D:\\" # drive letter
+    root_source_folder = "G:\\" # drive letter
     source_folder = os.path.join(root_source_folder, 'record')
-    destination_folder = "C:\\RobotVideos\\Raw\\"
+    destination_folder = "F:\\RobotVideos\\Raw\\"
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
         if os.path.isdir(destination_folder):
@@ -52,15 +55,15 @@ def copyVideosFromMicroSD():
 def mergeVideoFiles():
     '''
     first it finds all the video files of the first hour
-    then it copies the files into the robotvideos\Processing folder. 
-    then it creates a filelist of those files, in the robotvideos\ folder
+    then it copies the files into the robotvideos / Processing folder. 
+    then it creates a filelist of those files, in the robotvideos folder
     then it runs ffmpeg on those files, and puts each video in its correct spot in the processed folder. 
     then it continues with all the other hours. 
-    then it deletes the raw and processing folders. 
+    then it deletes the raw and processing folders. (not in this function, in the next function
     '''
-    source_folder = "C:\\RobotVideos\\Raw\\"
-    temp_folder = "C:\\RobotVideos\\Processing\\"
-    destination_folder = "C:\\RobotVideos\\Processed\\"
+    source_folder = "F:\\RobotVideos\\Raw\\"
+    temp_folder = "F:\\RobotVideos\\Processing\\"
+    destination_folder = "F:\\RobotVideos\\Processed\\"
     for date1 in os.listdir(source_folder):
         datefolderpath = os.path.join(source_folder, date1) # once per day
             
@@ -87,6 +90,24 @@ def mergeVideoFiles():
                     for file in file_list:
                         f.write(f"{file}\n")
                 
+                # Step 4: Merge the video files using FFmpeg
+                print("Merging video files...")
+                videoname = "cobot-cam-1_" + hour1 + "-oclock.mp4"
+                subprocess.run(["ffmpeg", "-f", "concat", "-safe", "0", "-i", "filelist.txt", "-c", "copy", os.path.join(dest_string, videoname)])
+
+def deleteRaw():
+    rawfolder = "F:\\RobotVideos\\Raw\\"
+    processingfolder = "F:\\RobotVideos\\Processing\\"
+    filelistfile = "F:\\RobotVideos\\filelist.txt"
+
+    print(f"Deleting '{rawfolder}' ... ")
+    shutil.rmtree(rawfolder)
+    print(f"All files and folders in '{rawfolder}' deleted. ")
+    print(f"Deleting '{processingfolder}' ... ")
+    shutil.rmtree(processingfolder)
+    print(f"All files and folders in '{processingfolder}' deleted. ")
+    os.remove(filelistfile)
+    print(f"File '{filelistfile}' deleted. ")
             
 
 
