@@ -31,9 +31,18 @@ def copyVideosFromMicroSD():
             print(f"All files and folders in '{destination_folder}' deleted. ")
         copied = copy_folder(source_folder, destination_folder)
         if copied == True:
-            print(f"Deleting '{root_source_folder}' ... ")
-            shutil.rmtree(root_source_folder) # delete entirety of microSD
-            print(f"All files and folders in '{root_source_folder}' deleted. ")
+            # delete all the things on the sd card (cannot delete the sd card itself)
+            for item in os.listdir(root_source_folder):
+                source_item = os.path.join(root_source_folder, item)
+                if item == 'System Volume Information':
+                    continue
+                if os.path.isdir(source_item):
+                    print(f"Deleting '{source_item}' ... ")
+                    shutil.rmtree(source_item) # delete entirety of microSD
+                    print(f"All files and folders in '{source_item}' deleted. ")
+                else:
+                    os.remove(source_item)
+                    print(f"Deleted '{source_item}' . ")
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
 
