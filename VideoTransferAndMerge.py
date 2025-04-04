@@ -2,8 +2,8 @@ import os
 import subprocess
 import shutil
 
-SDletter = 'D:\\' # SDcard drive letter
-RVletter = 'C:\\' # RobotVideos folder drive letter
+SDletter = 'G:\\' # SDcard drive letter
+RVletter = 'F:\\' # RobotVideos folder drive letter
 
 def main():
     user_input = input('Copy Videos From Micro SD? (Y/N): ')
@@ -112,8 +112,8 @@ def mergeVideoFiles():
 
 def deleteRaw():
     rawfolder = os.path.join(RVletter, r"\RobotVideos\Raw")
-    processingfolder = ros.path.join(RVletter, r"RobotVideos\Processing")
-    filelistfile = ros.path.join(RVletter, r"RobotVideos\filelist.txt")
+    processingfolder = os.path.join(RVletter, r"RobotVideos\Processing")
+    filelistfile = os.path.join(RVletter, r"RobotVideos\filelist.txt")
 
     print(f"Deleting '{rawfolder}' ... ")
     shutil.rmtree(rawfolder)
