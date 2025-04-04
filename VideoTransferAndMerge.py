@@ -2,6 +2,9 @@ import os
 import subprocess
 import shutil
 
+SDletter = 'D:\\' # SDcard drive letter
+RVletter = 'C:\\' # RobotVideos folder drive letter
+
 def main():
     user_input = input('Copy Videos From Micro SD? (Y/N): ')
     if isUserInputYes(user_input):
@@ -26,9 +29,9 @@ def copyVideosFromMicroSD():
     '''
     deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
     '''
-    root_source_folder = "G:\\" # drive letter
+    root_source_folder = SDletter
     source_folder = os.path.join(root_source_folder, 'record')
-    destination_folder = "F:\\RobotVideos\\Raw\\"
+    destination_folder = os.path.join(RVletter, r"RobotVideos\Raw") 
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
         if os.path.isdir(destination_folder):
@@ -61,9 +64,9 @@ def mergeVideoFiles():
     then it continues with all the other hours. 
     then it deletes the raw and processing folders. (not in this function, in the next function
     '''
-    source_folder = "F:\\RobotVideos\\Raw\\"
-    temp_folder = "F:\\RobotVideos\\Processing\\"
-    destination_folder = "F:\\RobotVideos\\Processed\\"
+    source_folder = os.path.join(RVletter, r"RobotVideos\Raw") 
+    temp_folder = os.path.join(RVletter, r"RobotVideos\Processing")
+    destination_folder = os.path.join(RVletter, r"RobotVideos\Processed")
     for date1 in os.listdir(source_folder):
         datefolderpath = os.path.join(source_folder, date1) # once per day
             
@@ -108,9 +111,9 @@ def mergeVideoFiles():
                 print(f"All files and folders in '{temp_folder}' deleted. ")
 
 def deleteRaw():
-    rawfolder = "F:\\RobotVideos\\Raw\\"
-    processingfolder = "F:\\RobotVideos\\Processing\\"
-    filelistfile = "F:\\RobotVideos\\filelist.txt"
+    rawfolder = os.path.join(RVletter, r"\RobotVideos\Raw")
+    processingfolder = ros.path.join(RVletter, r"RobotVideos\Processing")
+    filelistfile = ros.path.join(RVletter, r"RobotVideos\filelist.txt")
 
     print(f"Deleting '{rawfolder}' ... ")
     shutil.rmtree(rawfolder)
