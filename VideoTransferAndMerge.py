@@ -6,6 +6,9 @@ def main():
     user_input = input('Copy Videos From Micro SD? (Y/N): ')
     if isUserInputYes(user_input):
         copyVideosFromMicroSD()
+    user_input = input('Merge Files into 1 hour long files? (Y/N): ')
+    if isUserInputYes(user_input):
+        mergeVideoFiles()
         
 def isUserInputYes(input_string):
     # Convert input string to lowercase for case-insensitive comparison
@@ -20,9 +23,9 @@ def copyVideosFromMicroSD():
     '''
     deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
     '''
-    root_source_folder = "D:/" # drive letter
+    root_source_folder = "D:\\" # drive letter
     source_folder = os.path.join(root_source_folder, 'record')
-    destination_folder = "C:/RobotVideos/Raw/"
+    destination_folder = "C:\\RobotVideos\\Raw\\"
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
         if os.path.isdir(destination_folder):
@@ -45,6 +48,46 @@ def copyVideosFromMicroSD():
                     print(f"Deleted '{source_item}' . ")
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
+        
+def mergeVideoFiles():
+    '''
+    first it finds all the video files of the first hour
+    then it copies the files into the robotvideos\Processing folder. 
+    then it creates a filelist of those files, in the robotvideos\ folder
+    then it runs ffmpeg on those files, and puts each video in its correct spot in the processed folder. 
+    then it continues with all the other hours. 
+    then it deletes the raw and processing folders. 
+    '''
+    source_folder = "C:\\RobotVideos\\Raw\\"
+    temp_folder = "C:\\RobotVideos\\Processing\\"
+    destination_folder = "C:\\RobotVideos\\Processed\\"
+    for date1 in os.listdir(source_folder):
+        datefolderpath = os.path.join(source_folder, date1) # once per day
+            
+        if os.path.isdir(datefolderpath):
+            datestring = date1
+            year = datestring[0:4]
+            month = datestring[4:6]
+            day = datestring[6:8]
+            for hour1 in os.listdir(datefolderpath):
+                hourfolderpath = os.path.join(datefolderpath, hour1) # once per hour
+                copied = copy_folder(hourfolderpath, temp_folder)
+                
+                dest_string = os.path.join(destination_folder, year)
+                dest_string = os.path.join(dest_string, month)
+                dest_string = os.path.join(dest_string, day)
+                print(f"dest_string '{dest_string}' ")
+                
+                # Step 3: Create a list of video files for FFmpeg
+                print("Creating file list for merging...")
+                file_list = [f"file '{os.path.join(temp_folder, file)}'" for file in os.listdir(temp_folder) if file.endswith(".mp4")]
+
+                # Write the file list to a text file
+                with open("filelist.txt", "w") as f:
+                    for file in file_list:
+                        f.write(f"{file}\n")
+                
+            
 
 
 def garbage():
