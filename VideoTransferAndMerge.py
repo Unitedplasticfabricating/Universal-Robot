@@ -9,7 +9,7 @@ def main():
     user_input = input('Merge Files into 1 hour long files? (Y/N): ')
     if isUserInputYes(user_input):
         mergeVideoFiles()
-    user_input = input('Delete Raw and Processing Folders, and filelist.txt? (Y/N): ')
+    user_input = input('Delete Raw Folder and filelist.txt? (Y/N): ')
     if isUserInputYes(user_input):
         deleteRaw()
         
@@ -74,13 +74,20 @@ def mergeVideoFiles():
             day = datestring[6:8]
             for hour1 in os.listdir(datefolderpath):
                 hourfolderpath = os.path.join(datefolderpath, hour1) # once per hour
-                copied = copy_folder(hourfolderpath, temp_folder)
+                copied = copy_folder(hourfolderpath, temp_folder) # copy this hour's files to temp
+                
+                # delete things that are corrupted
+                print("Checking for corrupted files ... ")
+                lists = delete_corrupted_mp4_files_in_directory(temp_folder)
+                print(f"Deleted '{lists}' because they were corrupt")
                 
                 dest_string = os.path.join(destination_folder, year)
                 dest_string = os.path.join(dest_string, month)
                 dest_string = os.path.join(dest_string, day)
                 print(f"dest_string '{dest_string}' ")
-                
+                if not os.path.isdir(dest_string):
+                    os.makedirs(dest_string)
+
                 # Step 3: Create a list of video files for FFmpeg
                 print("Creating file list for merging...")
                 file_list = [f"file '{os.path.join(temp_folder, file)}'" for file in os.listdir(temp_folder) if file.endswith(".mp4")]
@@ -95,6 +102,11 @@ def mergeVideoFiles():
                 videoname = "cobot-cam-1_" + hour1 + "-oclock.mp4"
                 subprocess.run(["ffmpeg", "-f", "concat", "-safe", "0", "-i", "filelist.txt", "-c", "copy", os.path.join(dest_string, videoname)])
 
+                # delete processing folder
+                print(f"Deleting '{temp_folder}' ...")
+                shutil.rmtree(temp_folder)
+                print(f"All files and folders in '{temp_folder}' deleted. ")
+
 def deleteRaw():
     rawfolder = "F:\\RobotVideos\\Raw\\"
     processingfolder = "F:\\RobotVideos\\Processing\\"
@@ -103,57 +115,38 @@ def deleteRaw():
     print(f"Deleting '{rawfolder}' ... ")
     shutil.rmtree(rawfolder)
     print(f"All files and folders in '{rawfolder}' deleted. ")
-    print(f"Deleting '{processingfolder}' ... ")
-    shutil.rmtree(processingfolder)
-    print(f"All files and folders in '{processingfolder}' deleted. ")
     os.remove(filelistfile)
     print(f"File '{filelistfile}' deleted. ")
             
 
 
-def garbage():
-    # Step 1: Copy all MP4 files from the SD card to the local folder
-    print("Copying files from SD card to local folder...")
-    for file_name in os.listdir(source):
-        if file_name.endswith(".mp4"):
-            shutil.copy(os.path.join(source, file_name), destination)
+def check_video_file(file_path):
+    try:
+        # Run ffmpeg to probe the file
+        result = subprocess.run(
+            ['ffprobe', '-v', 'error', '-i', file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        # If ffmpeg exits without error, the file is valid
+        if result.returncode == 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
 
-    # Step 2: Delete the files from the SD card
-    print("Deleting files from SD card...")
-    for file_name in os.listdir(source):
-        if file_name.endswith(".mp4"):
-            os.remove(os.path.join(source, file_name))
-
-    # Step 3: Create a list of video files for FFmpeg
-    print("Creating file list for merging...")
-    file_list = [f"file '{os.path.join(destination, file)}'" for file in os.listdir(destination) if file.endswith(".mp4")]
-
-    # Write the file list to a text file
-    with open("filelist.txt", "w") as f:
-        for file in file_list:
-            f.write(f"{file}\n")
-
-    # Step 4: Merge the video files using FFmpeg
-    print("Merging video files...")
-    subprocess.run(["ffmpeg", "-f", "concat", "-safe", "0", "-i", "filelist.txt", "-c", "copy", os.path.join(destination, "merged_video_1hour.mp4")])
-
-    # Step 5: Clean up
-    os.remove("filelist.txt")
-    print("Process complete!")
-    
-    
-    
-    
-    # get a list of folders in the \record\ folder
-    for item in os.listdir(source):
-        source_item = os.path.join(source, item)
-            
-        # Recursively copy subdirectories and their contents
-        if os.path.isdir(source_item):
-            datestring = item
-            year = datestring[0:4]
-            month = datestring[4:6]
-            day = datestring[6:8]
+def delete_corrupted_mp4_files_in_directory(directory):
+    corrupted_files = []
+    for filename in os.listdir(directory):
+        if filename.lower().endswith('.mp4'):
+            file_path = os.path.join(directory, filename)
+            if not check_video_file(file_path):
+                corrupted_files.append(filename)
+                # now delete the files
+                deletethisfile = os.path.join(directory, filename)
+                os.remove(deletethisfile)
+    return corrupted_files
 
 def copy_folder(source_folder, destination_folder):
     '''
