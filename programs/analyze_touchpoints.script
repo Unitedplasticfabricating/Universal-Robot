@@ -1629,12 +1629,12 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, chamferover):
+def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     #validity = check_validity_right(struct1, struct2)
-    struct2 = step_right_demo(struct1)
+    struct2 = calculate_LtUA_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
     return struct2
 end
 
@@ -1657,10 +1657,80 @@ def step_right_demo(struct1):
     m1 = get_rotation_matrix_from_description("z", 1, heading1)
     # at this point we would multiply matrices, but there is only one matrix
     rxryrz = convert_matrix_to_axang(m1)
-    point_demo = p[x, y, z, rxryrz[0], ryxryrz[1], rxryrz[2]]
+    point_demo = p[x, y, z, rxryrz[0], rxryrz[1], rxryrz[2]]
     popup(point_demo)
     movej(point_demo, a=1.4, v=0.1)
     popup(point_demo)
     ret = struct(point_demo = point_demo)
     return ret
+end
+
+# for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
+def calculate_LtUA_step_right(struct1, list1, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+     welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+     wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    m1 = get_rotation_matrix_from_description("z", 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    m1 = get_rotation_matrix_from_description("z", 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point1, point_2=point1, point_3=point1, point_4=point1, point_5=point1)
+    return struct2
 end
