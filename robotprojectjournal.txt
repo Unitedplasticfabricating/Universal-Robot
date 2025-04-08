@@ -772,6 +772,13 @@ I went to system Properties->Environment variables. under user variables for cba
 dang it i don't have python on my main computer
 i downloaded python 3.13.2 from python.org (windows installer 64 bit). 
 i ran that file to the default location including Path and admin. python now works from command line. 
+from python, i call a subprocess (ffmpeg) which handles the video conversion
+in order to check whether there are corrupted files that i need to delete, 
+i fixed my copy and merge video code.
+there are green boxes surrounding any motion in the videos. very annoying.
+chatgpt said i need to change my xyze settings to disable motion tracking overlays
+i clicked cobot cam 1. then clicked settings. i clicked detections. and turned motion tagging to off. 
+
 
 
 
@@ -874,6 +881,30 @@ i ran the floor corner extended on a box. the bottom touch missed. (to the left)
 i realized i was still using the tcp calibration from robot 1 but robot 2's tcp is probably in a slightly different place. 
 i used the corner of the extrude knife as a tcp and this worked well. the tcp calibration became very accurate. it touched all 7 points correctly. 
 however, when it went to do the weld, the weld triangle tip bonked into the bottom of the chamfer at the corner. it sat well in the vertical weld but went too far. perhaps i need to also calibrate the weld tip. 
+
+it seems like robot 2 has different coordinates or something. specifically when you start Floor Corner Extended and have to retreat to home first. 
+it always went back to home "differently" than robot 1. different joint angle path. 
+now it sometimes throws an error "cannot reach requested pose). i tried moving to position manually and it did some crazy shit with turns and rotations and upside down. 
+specifically waypoint 47 and waypoint 49. BUT 49 is able to get there using the play button but borks out when you try to go there manually. 
+47 fails both times. 
+these are the same waypoints that worked on the other robot. 
+
+
+
+-----step corners----
+i started by turning the box on its side, but soon realized that there were multiple different possible cappings for step corners. 
+i talked to ron and ryan about this. 
+they clarified the proper step corner geometry and weld path. 
+proper geometry is both walls cap the floor. 
+proper weld path is to make an L underneath. then go to the intersection and wrap around and up. (going all the way to the top of the tank). 
+
+the rxryrz 0,0,0 position is with the welder tip pointed straight up with the preheat facing the y+ direction. 
+so that means the first angle (from the right, back towards the corner) will be about 225 degrees.
+the second angle (from the corner, going back left) will be about 135 degrees. 
+rx and ry should be 0. only rz.
+
+i successfully completed the bottom L section of step corner welds. 
+
 
 
 
