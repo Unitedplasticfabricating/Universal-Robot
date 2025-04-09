@@ -904,7 +904,90 @@ the second angle (from the corner, going back left) will be about 135 degrees.
 rx and ry should be 0. only rz.
 
 i successfully completed the bottom L section of step corner welds. 
+i successfully completed the Up and Around section of left step corner welds. 
+the Up and Around section of right step corner welds is a problem. while traveling up, the orientation of the weld tip requires that the mounting bracket be on the opposite side as the gun. 
+the robot cannot reach all the way around the gun with the wrist. 
+so i try moving the robot cart closer to the box by about 1-1.5 feet. 
+yes! that works great for the right side up and around weld.
+it works good for the left side up and around weld. 
+it does not work good for the underneath L. 
+on the back of the gun there is a wire connection. that is attached to the mounting plate by some plastic. 
+on the robot forearm there is a clamp. the plastic on the back of the gun is hitting the plastic forearm clamp and pinching the cords in between. 
+maybe i will try a distance in between my two tapes. 
+sammy sent me the welding training video for Corners. 
+it was a surprise. in it, there were floor corner, cover corner, step corner outside, and step corner inside. 
+for the step corner outside, it was a normal step corner with 2 edges facing the floor and one facing the front. 
+he started with the vertical edge at the top and started welding downwards. he paused at the corner and wrapped around without breaking weld, continuing below onto the parallel chamfer of the underneath. 
+he then came back and did a straight weld (the other underneath chamfer). 
+this is different than I expected. he's not making an L and then a wrap. 
+he's making a long wrap, and then a straight. 
+we had a meeting with me, ron, ryan and sammy. he explained why this was better and this is what im going to do for the robot. 
 
+this is good. it helps the robot as well. 
+the right side Under L then Up and Around was a bitch. 
+i might still use that pattern for left because it was working pretty good. 
+maybe. might run into a singularity. 
+
+ok so the right side weld i was able to fairly easily plot a path for the down around and under. 
+however, the last leg (under) (away and to the right) i cannot get to. 
+i went to p[-1.257, .53, -.3, 0, 0, 3.6], which was the position i wanted, but the gun facing opposite. 
+then i changed 3.6 to 0.5. i got an error: Unreachable pose. 
+this seems weird but maybe. 
+if i change x to -1130, it is now reachable. 
+while it is technically a reachable pose, according to math, it involves a collision. the geometry that make that angle possible push the tip of the gun inside the robot forearm. 
+this is not a correct joint combo or even fixable. 
+i will try switching the entire shoulder elbow combo. 
+yes that worked. the shoulder elbow flip allowed the wrist to switch its chirality and hold the gun from the left. 
+it can align, but it can't reach that far. 
+the farthset it can reach is about halfway down the duct tape. 
+48 inches is the FARTHEST it can reach, at the right angle. 
+if the robot base is rotated ccw around the tank, this will be even less. 
+lets say we want to have 3 inches of weld and another little bit of buffer. if we position the robot 40-44 inches away from the tank corner, we would still be able to reach 3 inches deep. 
+lets see if the right around and uncer works from 40-44 inches. \
+ok so the right step cap weld is awesome. i use a shoulder-elbow-flip for all weld sections. down-around-and-under, then back-away.
+the down-around-and-under has so much clearance and so much reach. no constraints there. 
+the back-around has limited reach but plenty of clearance. robot needs to be closer to tank corner. 
+the left side seam step corner also works great with the shoulder-elbow-flip. 
+there should be 7 points on the weld path for both of these. 5 points on th first leg, 2 points on the last leg (only sart and stop)
+this does not include ramping. 
+for now at least, do not include lift column extension if the top point is too high. 
+the first path starts at the top and goes underneath the tank. we cannot accommodate a lift column raise. 
+
+because the first path now includes the listleans adjustment AND the circleMove, i may have to add a point 1 inch up with no listleans. 
+i only want to have to calculate the circleMove in two dimensions. 
+NO! i need all 4 points (1, 2, 4, 5) to be within the same plane. 
+so, i need to apply the listleans change to point2 as well. 
+BECAUSE if you have points that are all on two lines, then two lines form a plane and those points will all be coplanar. 
+line1 is: pointbottomvcham, point2, point1. line2 is pointbottomvcham, point4, point5.
+applying listleans to point2 will make it so point1, point2, and pointbottomvcham are colinear. 
+then the only problem is rotationally, because right now at point1 i'm pointing straight down, not parallel to the line. 
+finding a halfway point between orientations that aren't coplanar might be funky or impossible. 
+after reconsideration, i think it would be best to make a point in between points 1 and 2. this point and point2 will NOT use listleans. 
+that point will be called point2a
+point2a to point2 to pointbottomvcham are colinear and exactly vertical. 
+pointbottomvcham to point4 to point5 are colinear and exactly horizontal. 
+this makes a right angle. 
+this makes the point circle math way easier. 
+i can moveP from point1 to point2a to point2 at 10mm/s
+then i can moveP circle move to point3 and point4.
+then i can moveL to point5. 
+hopefully that works. 
+for point 3, i simply calculated the arcpoint. i still need to calculate the arcpoint's rxryrz. 
+chatgpt said i can use slerp to calculate the midpoint orientation between two orientations. 
+i think i'll still just use my other formulas so i get better at using them. 
+
+the rotations i need to combine to get a right seam step corner trail out rxryrz are:
+rotate ~135 degrees about the z axis ccw. (positive) (rhr)
+rotate ~10 degrees backwards about the gun's orientation.
+i need to do that one first.
+lets try again
+rotate ~10 degrees about the x axis (positive)
+THEN, rotate ~135 degrees about the positive z axis. 
+that should give us point6
+
+the rotations i need to get point3's rxryrz:
+FIRST rotate 45 degrees forward about x axis (negative)
+THEN rotate heading3 degrees about positive z axis. 
 
 
 
