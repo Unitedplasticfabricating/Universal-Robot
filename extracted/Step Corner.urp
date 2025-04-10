@@ -1630,7 +1630,8 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamfe
     #FIND POINT 3
     # by calling analyze_touchpoints()
     atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
+    atret5 = atret[5]
+    point_3 = p[atret5[0], atret5[1], z, atret5[3], atret5[4], atret5[5]]
     
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
@@ -1734,7 +1735,7 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamfer
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
+    point_3 = p[point_3[0], point_3[1], z, rx, ry, rz]
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
@@ -2819,7 +2820,14 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     
     # next, calculate point1 using the listleans
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    #point2 = p[x, y, z, rx, ry, rz] not true here because we are doing a circle move and we need to account for that
+    
+    # calculate rxryrz for point2 and point2a (based on heading3). should be very similar to the heading for point1 
+    # only use the left side taps for circle move related things
+    heading1basedh3 = heading3 + pi/2 # heading1 based on heading3 
+    rxryrz = convert_heading_to_axang_preheatdown(heading1basedh3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
     roundoverdistance = 0.05
@@ -2827,7 +2835,7 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     point2 = p[x, y, z + rod, rx, ry, rz] 
     
     # calculate point2a, which is directly above pointbottomvcham (used to straighten weldpath before circlemove)
-    straightlength = 0.2 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
     sld = straightlength * 25.4 / 1000
     point2a = p[x, y, z + sld, rx, ry, rz]
     
@@ -3797,18 +3805,25 @@ end
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveP" speed="0.01" acceleration="0.1" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
               <variable reference="../../../../Assignment[2]/variable"/>
             </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
               <variable reference="../../../../Assignment[3]/variable"/>
             </Waypoint>
           </children>
         </Move>
-        <Move motionType="MoveP" speed="2.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+        <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <CircleMove OrientationMode="FIXED">
@@ -7717,7 +7732,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="retreat_from_step" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/retreat_from_step.urp</programFile>
+      <programFile>/programs/retreat_from_step.urp</programFile>
       <children>
         <SuppressedNode>
           <suppressedNode class="Folder" name="dummy points" keepHidden="false">
