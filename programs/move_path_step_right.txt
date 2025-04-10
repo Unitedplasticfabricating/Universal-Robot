@@ -4,15 +4,21 @@
      'this is the path for Down, Over, then Back Around'
      Comment
      'MoveJ'
-     align_ready_for_welding()
+     align_for_step()
      Comment
      p1≔pathturn[0]
      p2≔pathturn[1]
      p4≔pathturn[2]
      p5≔pathturn[3]
-     pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
-     liftcolumnz≔liftcolumnzneeded
-     MachineLogic Move to Position
+     pa1≔p[p1[0],p1[1],p1[2]-0.05,p1[3],p1[4],p1[5]]
+     Comment
+     p1≔pathturn[0]
+     p2a≔pathturn[1]
+     p2≔pathturn[2]
+     p3≔pathturn[3]
+     p4≔pathturn[4]
+     p5≔pathturn[5]
+     pa1≔p[p1[0],p1[1],p1[2],p1[3],p1[4],p1[5]]
      MoveJ
        pa1
      MoveL
@@ -41,10 +47,11 @@
      Wait: 2.0
      Set DO[0]=Off
      Comment
-     pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
+     pret1≔p[p5[0],p5[1],p5[2]-0.05,p5[3],p5[4],p5[5]]
+     pret2≔p[p5[0],p5[1],p5[2]-0.05,0,0,3.5]
      p_1≔pathturn[4]
      p_2≔pathturn[5]
-     p_3≔pathturn[6]
+     p3≔pathturn[6]
      p_4≔pathturn[7]
      p_5≔pathturn[8]
      p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
@@ -53,7 +60,9 @@
      'twist'
      MoveJ
        pret1
-       Waypoint_8
+       pret2
+       goalpt2
+       'Waypoint_8'
        'Waypoint_22'
      MoveJ
        raa1
@@ -61,6 +70,9 @@
        raa3
        raa4
        'Waypoint_2'
+     raise lift column
+       liftcolumnz≔liftcolumnzneeded
+       MachineLogic Move to Position
      If liftcolumnz≠0.0
        MachineLogic Homing
      'preheat'
@@ -85,7 +97,7 @@
        p_2
      MoveP
        CircleMove
-         p_3
+         p3
          p_4
      MoveL
        p_5

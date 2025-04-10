@@ -1,13 +1,15 @@
-def Test_Teach_Position():
+def align_for_step():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+  step_count_685bc924_3197_4e47_896c_29f255d2cf80 = 0.0
+  thread Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc():
+    while (True):
+      step_count_685bc924_3197_4e47_896c_29f255d2cf80 = step_count_685bc924_3197_4e47_896c_29f255d2cf80 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc()
   set_safety_mode_transition_hardness(1)
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -16,6 +18,12 @@ def Test_Teach_Position():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,71 +162,25 @@ def Test_Teach_Position():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_180e5910_9a75_428e_b335_32fb1023a526 = 0.0
-  thread Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca():
-    while (True):
-      step_count_180e5910_9a75_428e_b335_32fb1023a526 = step_count_180e5910_9a75_428e_b335_32fb1023a526 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca()
-  global free_dr_already=  False  
-  global freedrive_m_var=  False  
-  global Waypoint_40_p=p[.360688403366, .270119715397, .646144746546, .057805349154, 2.125995180379, 2.134053153683]
-  global Waypoint_40_q=[-3.4579489866839808, -2.0569035015501917, 2.3265796343432825, -0.22706706941638188, -0.1993501822101038, -0.10534793535341436]
-  global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
-  global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
-  $ 19 "Thread_1"
-  thread Thread_1():
-    $ 20 "Loop  True "
-    while (  True  ):
-      $ 21 "If freedrive_m_var≟ True "
-      if (freedrive_m_var ==   True  ):
-        $ 22 "freedrive_mode()"
-        freedrive_mode()
-        $ 23 "free_dr_already≔ True "
-        global free_dr_already=  True  
-      else:
-        $ 24 "Else" "noBreak"
-        $ 25 "If free_dr_already"
-        if (free_dr_already):
-          $ 26 "end_freedrive_mode()"
-          end_freedrive_mode()
-        end
-      end
-      $ 27 "sync()"
-      sync()
-    end
-  end
-  threadId_Thread_1 = run Thread_1()
+  global Waypoint_11_p=p[-.557589157640, .419560046234, 1.207726533033, -.502584138775, -.055814420068, 1.813930241589]
+  global Waypoint_11_q=[-2.892337952367984, -0.8860261388425741, -2.115817323445553, -1.7848767108486108, 0.31483587652470907, 1.3374934404331111]
+  global Waypoint_12_p=p[-.793876029040, .251879029707, .303711787598, -1.235059794133, -1.104312928029, 1.052260985809]
+  global Waypoint_12_q=[-2.6308463976277294, -1.7258466441530587, -2.4740755194259805, -2.170430867571829, 0.6794942561265122, 1.6540847526833105]
   while (True):
     $ 2 "Robot Program"
-    $ 6 "MoveJ"
-    $ 7 "Waypoint_40" "breakAfter"
-    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
-    movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 8 "'above waypoint is home'"
-    # 'above waypoint is home'
-    $ 9 "Waypoint_2" "breakAfter"
-    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
-    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 10 "freedrive_m_var≔ False "
-    global freedrive_m_var=  False  
-    $ 11 "freedrive_m_var≔ True "
-    global freedrive_m_var=  True  
-    $ 12 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
-    popup("Move the TCP to the top of the weld, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 13 "tcp_pose_top≔get_actual_tcp_pose()"
-    global tcp_pose_top= get_actual_tcp_pose ()
-    $ 14 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
-    popup("Move the TCP to the corner of the tank, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 15 "tcp_pose≔get_actual_tcp_pose()"
-    global tcp_pose= get_actual_tcp_pose ()
-    $ 16 "freedrive_m_var≔ False "
-    global freedrive_m_var=  False  
-    $ 17 "Wait: 0.25"
-    sleep(0.25)
-    $ 18 "sync()"
-    sync()
+    $ 3 "'first move block is unnecessay and bad'"
+    # 'first move block is unnecessay and bad'
+    $ 15 "'second one is good'"
+    # 'second one is good'
+    $ 18 "'above was for wrong weldpath'"
+    # 'above was for wrong weldpath'
+    $ 27 "MoveJ"
+    $ 28 "'from oldhome, actual path'"
+    # 'from oldhome, actual path'
+    $ 31 "Waypoint_11" "breakAfter"
+    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 33 "MoveL"
+    $ 34 "Waypoint_12" "breakAfter"
+    movel(Waypoint_12_p, a=0.05, v=0.25)
   end
 end

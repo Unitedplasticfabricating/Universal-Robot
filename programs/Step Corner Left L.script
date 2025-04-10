@@ -1,6 +1,6 @@
-def Test_Teach_Position():
+def Step_Corner_Left_L():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
@@ -162,63 +162,29 @@ def Test_Teach_Position():
     end
   end
   run Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca()
-  global free_dr_already=  False  
-  global freedrive_m_var=  False  
-  global Waypoint_40_p=p[.360688403366, .270119715397, .646144746546, .057805349154, 2.125995180379, 2.134053153683]
-  global Waypoint_40_q=[-3.4579489866839808, -2.0569035015501917, 2.3265796343432825, -0.22706706941638188, -0.1993501822101038, -0.10534793535341436]
-  global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
-  global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
-  $ 19 "Thread_1"
-  thread Thread_1():
-    $ 20 "Loop  True "
-    while (  True  ):
-      $ 21 "If freedrive_m_var≟ True "
-      if (freedrive_m_var ==   True  ):
-        $ 22 "freedrive_mode()"
-        freedrive_mode()
-        $ 23 "free_dr_already≔ True "
-        global free_dr_already=  True  
-      else:
-        $ 24 "Else" "noBreak"
-        $ 25 "If free_dr_already"
-        if (free_dr_already):
-          $ 26 "end_freedrive_mode()"
-          end_freedrive_mode()
-        end
-      end
-      $ 27 "sync()"
-      sync()
-    end
-  end
-  threadId_Thread_1 = run Thread_1()
+  global Waypoint_1_p=p[-1.309152130481, -.244999451876, -.129702710001, -.052615304199, -.033515151386, -2.660808723743]
+  global Waypoint_1_q=[0.037609752267599106, -0.1333485406688233, 1.2640984694110315, -2.735063692132467, 1.6013352870941162, -1.1286633650409144]
+  global Waypoint_2_p=p[-1.361382344491, .096154177085, -.052467055763, -.883602627393, -1.388565835680, -.810966437966]
+  global Waypoint_2_q=[0.005319488490706101, -0.1703355060025613, 1.4350953945476377, -2.868033870025681, 1.6023138523448175, -1.0963739771781995]
+  global Waypoint_3_p=p[-1.361382344447, .096154177070, -.052467055794, -.336839898114, -1.739270025689, -1.366484054311]
+  global Waypoint_3_q=[-0.07401245185257999, -0.38524796491703484, 1.781392274668839, -2.333702491055754, 1.2310835701095932, -1.1234021353636194]
+  global Waypoint_4_p=p[-1.361382344410, .096154177044, -.052467055742, .412547448681, -1.959623272203, -1.900410040018]
+  global Waypoint_4_q=[-0.12882220345302997, -0.6561230731362837, 1.8511251257638772, -1.2756868405310389, 0.9648826219044793, -1.5101493447789593]
+  global Waypoint_5_p=p[-1.356833501784, .099984255978, .035986299756, .412547448681, -1.959623272203, -1.900410040018]
+  global Waypoint_5_q=[-0.13332531372402556, -0.7567530253295338, 1.8747928387549575, -1.1990408730355817, 0.9604339754140545, -1.5095959432367696]
   while (True):
     $ 2 "Robot Program"
-    $ 6 "MoveJ"
-    $ 7 "Waypoint_40" "breakAfter"
-    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
-    movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 8 "'above waypoint is home'"
-    # 'above waypoint is home'
-    $ 9 "Waypoint_2" "breakAfter"
-    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    $ 3 "points on dummy path"
+    $ 4 "MoveJ"
+    $ 5 "Waypoint_1" "breakAfter"
+    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 6 "Waypoint_2" "breakAfter"
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 10 "freedrive_m_var≔ False "
-    global freedrive_m_var=  False  
-    $ 11 "freedrive_m_var≔ True "
-    global freedrive_m_var=  True  
-    $ 12 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
-    popup("Move the TCP to the top of the weld, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 13 "tcp_pose_top≔get_actual_tcp_pose()"
-    global tcp_pose_top= get_actual_tcp_pose ()
-    $ 14 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
-    popup("Move the TCP to the corner of the tank, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 15 "tcp_pose≔get_actual_tcp_pose()"
-    global tcp_pose= get_actual_tcp_pose ()
-    $ 16 "freedrive_m_var≔ False "
-    global freedrive_m_var=  False  
-    $ 17 "Wait: 0.25"
-    sleep(0.25)
-    $ 18 "sync()"
-    sync()
+    $ 7 "Waypoint_3" "breakAfter"
+    movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 8 "Waypoint_4" "breakAfter"
+    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 9 "Waypoint_5" "breakAfter"
+    movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
   end
 end
