@@ -1,5 +1,16 @@
 def Step_Corner_Right_Down_Around_under():
   global _hidden_verificationVariable=0
+  step_count_685bc924_3197_4e47_896c_29f255d2cf80 = 0.0
+  thread Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc():
+    while (True):
+      step_count_685bc924_3197_4e47_896c_29f255d2cf80 = step_count_685bc924_3197_4e47_896c_29f255d2cf80 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc()
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -7,14 +18,11 @@ def Step_Corner_Right_Down_Around_under():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_safety_mode_transition_hardness(1)
   set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +162,6 @@ def Step_Corner_Right_Down_Around_under():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_006946d5_eb6f_4e81_9231_e18e9c0d8667 = 0.0
-  thread Step_Counter_Thread_42086dbd_a5be_40b4_9402_896bf89b8afc():
-    while (True):
-      step_count_006946d5_eb6f_4e81_9231_e18e9c0d8667 = step_count_006946d5_eb6f_4e81_9231_e18e9c0d8667 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_42086dbd_a5be_40b4_9402_896bf89b8afc()
   global Waypoint_4_p=p[-1.367410924649, .416276638633, .317190444725, -.782231809423, -1.662887046957, 1.614423593215]
   global Waypoint_4_q=[-0.5939717180531252, -0.6910851113199428, 1.7496414148415138, 2.016713442804543, -1.9191844954032966, -1.5928419918552095]
   global Waypoint_3_p=p[-1.382401593278, .435382459728, -.070389819773, -.782231809423, -1.662887046957, 1.614423593215]
@@ -236,6 +236,8 @@ def Step_Corner_Right_Down_Around_under():
   global Waypoint_36_q=[-3.0808454188098953, -3.0840499635091523, -0.8832168430053287, -2.3859235848977747, 0.8159881142240963, 3.022561774922373]
   global Waypoint_37_p=p[-1.319930528926, .144752829604, -.110858709816, -.120534213617, -.294980601792, 2.305842129501]
   global Waypoint_37_q=[-2.971544606480787, -2.9185600551608006, -1.4916928013922917, -1.8605053584386404, -0.580498210249127, 2.8788944873082336]
+  global Waypoint_38_p=p[-.483575579292, .299412044401, .314715994919, -.763018778058, -1.768620752058, 1.709756048611]
+  global Waypoint_38_q=[-3.885862931123615, -1.4275148731693372, -2.7090243343759894, -2.1402080701060484, -1.4942683597609303, 1.5388970329148444]
   while (True):
     $ 2 "Robot Program"
     $ 3 "dummy points"
@@ -347,5 +349,12 @@ def Step_Corner_Right_Down_Around_under():
     movej(get_inverse_kin(Waypoint_37_p, qnear=Waypoint_37_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 64 "'above is ramping for the backaway on left side of box'"
     # 'above is ramping for the backaway on left side of box'
+    $ 65 "MoveJ"
+    $ 66 "'approach points'"
+    # 'approach points'
+    $ 67 "Waypoint_38" "breakAfter"
+    movej(get_inverse_kin(Waypoint_38_p, qnear=Waypoint_38_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 68 "'above is approach point for right weld'"
+    # 'above is approach point for right weld'
   end
 end
