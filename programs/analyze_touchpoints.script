@@ -1816,9 +1816,37 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     p3y = y + delta * l2delyunit
     
     # calculate rxryrz
+    m1 = get_rotation_matrix_from_description("x", -1, 45 * pi / 180) # rotation 1: 45 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description("z", 1, heading3) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
     
+    #todo: calculate trail out point
     
+    # calculate back-away (points 201 and 202)
+    p201x = x + l2delxunit * rightwallthickmm
+    p201y = y + l2delyunit * rightwallthickmm
     
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description("z", 1, heading1 - pi) 
+    # minus pi/2 for the different start point. minus pi/2 for parallel not perpendicular into
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, z, rx, ry, rz]
+    
+    # calculate point 202
+    p202x = p201x + wd3 * l1delxunit
+    p202y = p201y + wd3 * l1delyunit
+    point202 = p[p202x, p202y, z, rx, ry, rz]
+    
+    struct2 = struct(point1=point1, point2=point2a=point2a, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    return struct2
 end
 
 # given a round over distance (in mm), calculate (based on 90 degrees) the distance from corner (line intersection) to midpoint of arc
