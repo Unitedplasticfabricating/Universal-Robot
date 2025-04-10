@@ -1779,7 +1779,14 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     
     # next, calculate point1 using the listleans
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    #point2 = p[x, y, z, rx, ry, rz] not true here because we are doing a circle move and we need to account for that
+    
+    # calculate rxryrz for point2 and point2a (based on heading3). should be very similar to the heading for point1 
+    # only use the left side taps for circle move related things
+    heading1basedh3 = heading3 + pi/2 # heading1 based on heading3 
+    rxryrz = convert_heading_to_axang_preheatdown(heading1basedheading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
     roundoverdistance = 0.05
@@ -1787,7 +1794,7 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     point2 = p[x, y, z + rod, rx, ry, rz] 
     
     # calculate point2a, which is directly above pointbottomvcham (used to straighten weldpath before circlemove)
-    straightlength = 0.2 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
     sld = straightlength * 25.4 / 1000
     point2a = p[x, y, z + sld, rx, ry, rz]
     
