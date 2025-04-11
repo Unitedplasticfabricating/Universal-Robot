@@ -1845,8 +1845,9 @@ def calculate_DAaU_step_left(struct1, listleans, rightwallthick, leftwallthick, 
     #todo: calculate trail out point
     
     # calculate back-away (points 201 and 202)
-    p201x = x + l1delxunit * leftwallthickmm
-    p201y = y + l1delyunit * leftwallthickmm
+    pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
+    p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
+    p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
     
     # calculate rxryrz
     m1 = get_rotation_matrix_from_description("z", 1, heading3) 
@@ -1965,8 +1966,9 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     #todo: calculate trail out point
     
     # calculate back-away (points 201 and 202)
-    p201x = x + l2delxunit * rightwallthickmm
-    p201y = y + l2delyunit * rightwallthickmm
+    pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
+    p201x = x + l2delxunit * rightwallthickmm + l1delxunit * pushtipforward
+    p201y = y + l2delyunit * rightwallthickmm + l1delyunit * pushtipforward
     
     # calculate rxryrz
     m1 = get_rotation_matrix_from_description("z", 1, heading1 - pi) 
