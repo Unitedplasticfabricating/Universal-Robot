@@ -782,6 +782,23 @@ i clicked cobot cam 1. then clicked settings. i clicked detections. and turned m
 i need to fix my program for floor corners. the circle move does a weird thing when the floors are 3/4 inch thick.
 it's because the point3 calculation doesn't incorporate the floor thickness. 
 
+side note. some weekend guys were looking at the robot after their shift on friday, watching me work. 
+they noticed my wrap around weld on step corner from top to bottom. they noticed a large goop of extrudant on the top side of the corner
+they said "this will probably be an air bubble".
+this caught my interest because we have been getting air bubbles on the floor corner welds. 
+the welder welds past that point without causing the goop buildup. but as its spinning around the corner while extruding, it gets almost all the way around, and starts spewing goopbackwards. 
+at this point the weld tip is aligned for its second moveL. BUT its still extruding and pushing extrudant into the chamfer. 
+3 directions are blocked. the sides are blocked by the chamfer sides. the front is blocked by the weld tip. 
+the back direction is normally blocked by previous extrudant. 
+but at this point the back is not really blocked by anything substantial. looking back there is a V shaped hole for the extrudant to escape. 
+the extrudant forces its way backwards out that V shaped hole, forming a big goop of it on the first side of the corner. 
+the weekend people also said that would cause an air bubble on the second side of the corner. 
+my air bubbles are consistently happening on the first side, right underneath where that goop is. 
+the solution they gave is to lay off the trigger on the second half of the spin. 
+that might be hard for me to do. there is kind of a delay between when i send the signal and when the welder responds. 
+another thing i could do is change backofhole to be even a little further back, so far back that is doesn't shoot out the back. 
+maybe. 
+
 
 
 
@@ -1002,6 +1019,23 @@ the key will be to only use heading3's data for the 5 points involved in the cir
 that means not using heading1 and not using l1del_unit.
 i can use l1del_unit for calculating pointbottomvcham. since all 5 points are based on that. 
 i also need to make sure p2a has the correct orientation. make sure it's exact. so no moveP (that blends it). 
+
+yeahhh that worked. right side weld completed
+left side weld is doing good as well. 
+points all look good. i ran it once in manual mode and the first path did great. 
+at the start of the second pass it got real shaky and pro stopped. 
+i put it to automatic mode and it was still shaky but powered through. 
+i checked the chamfer and it seemed fine / normal. maybe i need to put the tip farther forward or something. 
+this is a different weld path than the floor corner. 
+i tried switching it to backofhole and that fixed the problem but it pushed it farther than i needed it.
+im looking for something in between. 
+i set it to where it was using pretend_welder. i then moved it to where i wanted it to be. the difference was 6 mm. 
+i will add 6 mm to the calculations. 
+
+left step corner weld successful!
+
+
+
 
 
 
