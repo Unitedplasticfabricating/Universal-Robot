@@ -1639,6 +1639,15 @@ def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewa
     return struct2
 end
 
+def main_calculate_step_left(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
+    #validity = check_validity_right(struct1, struct2)
+    struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+    return struct2
+end
+
 # analyze_touchpoints_only()
 # it takes 5 arguments as points
 # it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
@@ -1737,6 +1746,127 @@ def calculate_LtUA_step_right(struct1, list1, rightwallthick, leftwallthick, tcp
 end
 
 # step corner with two seams on bottom face
+# vertical seam on left side of corner
+# Down Around and Under weld path, then Back Away
+# the first path uses backofhole TCP, the second path uses pretend_welder TCP
+def calculate_DAaU_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 8 # first path first leg (down)
+    welddistance2 = 3 # first path second leg (under) # inches
+    welddistance3 = 3 # second path (back away) # inches
+    
+    wd1 = tcp_pose_top[2] - pointintersect[2] # the touchpoint minus the corner
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    # first, calculate the location of the bottom of the vertical chamfer (where point2 would be if there weren't any circle motion
+    x = pointintersect[0] + l2delxunit * rightwallthickmm
+    y = pointintersect[1] + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    pointbottomvcham = p[x, y, z, 0, 0, 0]
+    
+    # calculate the rxryrz for facing the vertical chamfer, with the preheat down
+    rxryrz = convert_heading_to_axang_preheatdown(heading3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # next, calculate point1 using the listleans
+    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
+    
+    # calculate rxryrz for point2 and point2a (based on heading1). should be very similar to the heading for point1 
+    # only use the right side taps for circle move related things
+    heading3basedh1 = heading1 - pi/2 # heading1 based on heading3 
+    rxryrz = convert_heading_to_axang_preheatdown(heading3basedh1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    point2 = p[x, y, z + rod, rx, ry, rz] 
+    
+    # calculate point2a, which is directly above pointbottomvcham (used to straighten weldpath before circlemove)
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point2a = p[x, y, z + sld, rx, ry, rz]
+    
+    # calculate the rxryrz for facing the underneath section, with the preheat facing parallel to the right edge (rx and ry should be 0 because gun is facing up)
+    # to convert heading1 into the description, subtract 90 degrees to go parallel  instead of into. subtract 90 degrees to start from y+ instead of x+
+    heading1descr = heading1 - pi
+    m1 = get_rotation_matrix_from_description("z", 1, heading1descr)
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate point4
+    p4x = x + l1delxunit * rod
+    p4y = y + l1delyunit * rod
+    point4 = p[p4x, p4y, z, rx, ry, rz]
+    
+    # calculate point5
+    p5x = x + l1delxunit * wd2
+    p5y = y + l1delyunit * wd2
+    point5 = p[p5x, p5y, z, rx, ry, rz]
+    
+    # calculate point3
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p3z = z + delta
+    p3x = x + delta * l1delxunit
+    p3y = y + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description("x", -1, 45 * pi / 180) # rotation 1: 45 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description("z", 1, heading1descr) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    #todo: calculate trail out point
+    
+    # calculate back-away (points 201 and 202)
+    p201x = x + l1delxunit * leftwallthickmm
+    p201y = y + l1delyunit * leftwallthickmm
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description("z", 1, heading3) 
+    # minus pi/2 for the different start point. minus pi/2 for parallel not perpendicular into
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, z, rx, ry, rz]
+    
+    # calculate point 202
+    p202x = p201x + wd3 * l2delxunit
+    p202y = p201y + wd3 * l2delyunit
+    point202 = p[p202x, p202y, z, rx, ry, rz]
+    
+    struct2 = struct(point1=point1, point2a=point2a, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    return struct2
+end
+
+# step corner with two seams on bottom face
 # vertical seam on right side of corner
 # Down Around and Under weld path, then Back Away
 # the first path uses backofhole TCP, the second path uses pretend_welder TCP
@@ -1758,7 +1888,6 @@ def calculate_DAaU_step_right(struct1, listleans, rightwallthick, leftwallthick,
     welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 3 # second path (back away) # inches
     
-    # inches
     wd1 = tcp_pose_top[2] - pointintersect[2] # the touchpoint minus the corner
     wd2 = welddistance2 * 25.4 / 1000
     wd3 = welddistance3 * 25.4 / 1000
@@ -1865,3 +1994,4 @@ def calc_rod_midpoint_90deg(rod):
     ret = rod * factor
     return ret
 end
+
