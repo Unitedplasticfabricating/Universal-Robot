@@ -116,15 +116,15 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       pathturn≔main_calculate_step_left(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
-       'move_path_3left()'
+       move_path_step_either()
      Else
        pathturn≔main_calculate_step_right(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
-       move_path_step_right()
+       move_path_step_either()
      retreat_from_step()
-   move_path_step_right
+   move_path_step_either
      Comment
      align_for_step()
      Set
@@ -136,6 +136,8 @@
      p4≔pathturn[4]
      p5≔pathturn[5]
      pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
+     If leftchoice≟ True 
+       pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
      MoveJ
        pa1
      MoveL

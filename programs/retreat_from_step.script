@@ -1,16 +1,12 @@
 def retreat_from_step():
   global _hidden_verificationVariable=0
-  step_count_685bc924_3197_4e47_896c_29f255d2cf80 = 0.0
-  thread Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc():
-    while (True):
-      step_count_685bc924_3197_4e47_896c_29f255d2cf80 = step_count_685bc924_3197_4e47_896c_29f255d2cf80 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_5ef88261_d528_45d4_88a9_6006a74928fc()
-  set_safety_mode_transition_hardness(1)
   set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -18,11 +14,7 @@ def retreat_from_step():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
   set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,6 +154,14 @@ def retreat_from_step():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_6f941643_e3f6_47f5_b65b_ca27fc28aaad = 0.0
+  thread Step_Counter_Thread_a910212b_819b_4276_bf93_cd215de1f6fd():
+    while (True):
+      step_count_6f941643_e3f6_47f5_b65b_ca27fc28aaad = step_count_6f941643_e3f6_47f5_b65b_ca27fc28aaad + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_a910212b_819b_4276_bf93_cd215de1f6fd()
   global Waypoint_2_p=p[-.670966262386, .326422483772, -.178215194551, .009845231283, .025714911385, 1.644671233301]
   global Waypoint_2_q=[-2.928913963475604, -3.01890739006107, -2.032958500816754, -1.1765767504847204, 0.13928813828946396, 3.110245407933345]
   global Waypoint_8_p=p[-.635849572645, .491711502384, .259683965043, -.499498711053, -.788313661389, 1.853955627016]
@@ -170,20 +170,18 @@ def retreat_from_step():
   global Waypoint_6_q=[-3.886183563862936, -1.432391719227173, -2.7137839794158936, -2.144880910912983, -1.4933508078204536, 1.5325726270675655]
   global Waypoint_7_p=p[-.557589157640, .419560046234, 1.207726533033, -.502584138775, -.055814420068, 1.813930241589]
   global Waypoint_7_q=[-2.892337952367983, -0.8860261388425741, -2.115817323445552, -1.7848767108486108, 0.31483587652470835, 1.3374934404331105]
-  while (True):
-    $ 2 "Robot Program"
-    $ 12 "MoveJ"
-    $ 13 "Waypoint_2" "breakAfter"
-    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 14 "MoveJ"
-    $ 15 "Waypoint_8" "breakAfter"
-    movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 16 "Waypoint_6" "breakAfter"
-    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 17 "MoveJ"
-    $ 18 "Waypoint_7" "breakAfter"
-    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 19 "Home"
-    movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
-  end
+  $ 2 "Robot Program"
+  $ 12 "MoveJ"
+  $ 13 "Waypoint_2" "breakAfter"
+  movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 14 "MoveJ"
+  $ 15 "Waypoint_8" "breakAfter"
+  movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 16 "Waypoint_6" "breakAfter"
+  movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 17 "MoveJ"
+  $ 18 "Waypoint_7" "breakAfter"
+  movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 19 "Home"
+  movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end

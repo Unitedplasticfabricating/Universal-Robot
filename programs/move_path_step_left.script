@@ -1,4 +1,4 @@
-def align_for_step():
+def move_path_step_left():
   global _hidden_verificationVariable=0
   set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
@@ -162,23 +162,142 @@ def align_for_step():
     end
   end
   run Step_Counter_Thread_a910212b_819b_4276_bf93_cd215de1f6fd()
-  global Waypoint_11_p=p[-.557589157640, .419560046234, 1.207726533033, -.502584138775, -.055814420068, 1.813930241589]
-  global Waypoint_11_q=[-2.892337952367984, -0.8860261388425741, -2.115817323445553, -1.7848767108486108, 0.31483587652470907, 1.3374934404331111]
-  global Waypoint_13_p=p[-.479956660670, .297468256090, .291374636721, -.781184292332, -1.773996506341, 1.712872397156]
-  global Waypoint_13_q=[-3.886183563862936, -1.432391719227173, -2.7137839794158936, -2.1448809109129847, -1.4933508078204554, 1.532572627067566]
-  $ 2 "Robot Program"
-  $ 3 "'first move block is unnecessay and bad'"
-  # 'first move block is unnecessay and bad'
-  $ 15 "'second one is good'"
-  # 'second one is good'
-  $ 18 "'above was for wrong weldpath'"
-  # 'above was for wrong weldpath'
-  $ 27 "MoveJ"
-  $ 28 "'from oldhome, actual path'"
-  # 'from oldhome, actual path'
-  $ 31 "Waypoint_11" "breakAfter"
-  movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 33 "MoveJ"
-  $ 35 "Waypoint_13" "breakAfter"
-  movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
+  while (True):
+    $ 2 "Robot Program"
+    $ 3 "Comment"
+    # Comment
+    $ 4 "align_for_step()"
+    align_for_step()
+    $ 5 "Set"
+    set_tcp(p[0.00451,-0.328,0.10573,1.2092,-1.2092,1.2092])
+    $ 6 "Comment"
+    # Comment
+    $ 7 "p1≔pathturn[0]"
+    global p1=pathturn[0]
+    $ 8 "p2a≔pathturn[1]"
+    global p2a=pathturn[1]
+    $ 9 "p2≔pathturn[2]"
+    global p2=pathturn[2]
+    $ 10 "p3≔pathturn[3]"
+    global p3=pathturn[3]
+    $ 11 "p4≔pathturn[4]"
+    global p4=pathturn[4]
+    $ 12 "p5≔pathturn[5]"
+    global p5=pathturn[5]
+    $ 13 "pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]"
+    global pa1=p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
+    $ 14 "If leftchoice≟ True "
+    if (leftchoice ==   True  ):
+      $ 15 "pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]"
+      global pa1=p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
+    end
+    $ 16 "MoveJ"
+    $ 17 "pa1" "breakAfter"
+    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 18 "MoveL"
+    $ 19 "p1" "breakAfter"
+    movel(p1, a=0.05, v=0.05)
+    $ 20 "Wait: 8.0"
+    sleep(8.0)
+    $ 21 "turn ext on"
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 22 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 23 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 24 "Wait: 1.0"
+    sleep(1.0)
+    $ 26 "Set DO[0]=On"
+    set_standard_digital_out(0, True)
+    $ 27 "MoveL"
+    $ 28 "p2a" "breakAfter"
+    movel(p2a, a=0.1, v=0.01)
+    $ 29 "MoveL"
+    $ 30 "p2" "breakAfter"
+    movel(p2, a=0.1, v=0.01)
+    $ 31 "MoveP"
+    $ 32 "CircleMove"
+    $ 33 "p3" "noBreak"
+    
+    $ 34 "p4" "breakAfter"
+    movec(p3, p4, a=0.01, v=5.0E-4, r=0.0, mode=1)
+    $ 35 "MoveL"
+    $ 36 "p5" "breakAfter"
+    movel(p5, a=0.05, v=0.012)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 37 "Serial Bridge uR0"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
+    # end: URCap Program Node
+    $ 38 "Wait: 2.0"
+    sleep(2.0)
+    $ 39 "Set DO[0]=Off"
+    set_standard_digital_out(0, False)
+    $ 40 "Comment"
+    # Comment
+    $ 41 "pret1≔p[p5[0],p5[1],p5[2]-0.05,p5[3],p5[4],p5[5]]"
+    global pret1=p[p5[0],p5[1],p5[2]-0.05,p5[3],p5[4],p5[5]]
+    $ 48 "p201≔pathturn[6]"
+    global p201=pathturn[6]
+    $ 49 "p202≔pathturn[7]"
+    global p202=pathturn[7]
+    $ 50 "pret2≔p[p201[0],p201[1],p201[2]-0.05,p201[3],p201[4],p201[5]]"
+    global pret2=p[p201[0],p201[1],p201[2]-0.05,p201[3],p201[4],p201[5]]
+    $ 51 "pret3≔p[p202[0],p202[1],p202[2]-0.05,p202[3],p202[4],p202[5]]"
+    global pret3=p[p202[0],p202[1],p202[2]-0.05,p202[3],p202[4],p202[5]]
+    $ 55 "Set"
+    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+    $ 56 "MoveL"
+    $ 57 "pret1" "breakAfter"
+    movel(pret1, a=0.05, v=0.05)
+    $ 58 "MoveJ"
+    $ 59 "pret2" "breakAfter"
+    movej(pret2, a=1.3962634015954636, v=1.0471975511965976)
+    $ 60 "MoveL"
+    $ 61 "p201" "breakAfter"
+    movel(p201, a=0.05, v=0.05)
+    $ 62 "Wait: 6.0"
+    sleep(6.0)
+    $ 63 "turn ext on"
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 64 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 65 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 66 "Wait: 1.0"
+    sleep(1.0)
+    $ 68 "Set DO[0]=On"
+    set_standard_digital_out(0, True)
+    $ 69 "MoveL"
+    $ 70 "p202" "breakAfter"
+    movel(p202, a=0.1, v=0.012)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 71 "Serial Bridge uR0"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
+    # end: URCap Program Node
+    $ 72 "Wait: 2.0"
+    sleep(2.0)
+    $ 73 "Set DO[0]=Off"
+    set_standard_digital_out(0, False)
+    $ 74 "MoveJ"
+    $ 75 "pret3" "breakAfter"
+    movej(pret3, a=1.3962634015954636, v=1.0471975511965976)
+  end
 end
