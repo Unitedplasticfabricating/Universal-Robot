@@ -1,7 +1,13 @@
 def Change_Spool():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-  set_safety_mode_transition_hardness(1)
+  step_count_0fc232f9_538e_43bc_86ff_6c281860eb80 = 0.0
+  thread Step_Counter_Thread_e6841264_1a88_4f8d_9397_089793902bcc():
+    while (True):
+      step_count_0fc232f9_538e_43bc_86ff_6c281860eb80 = step_count_0fc232f9_538e_43bc_86ff_6c281860eb80 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_e6841264_1a88_4f8d_9397_089793902bcc()
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -16,6 +22,8 @@ def Change_Spool():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +162,6 @@ def Change_Spool():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_180e5910_9a75_428e_b335_32fb1023a526 = 0.0
-  thread Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca():
-    while (True):
-      step_count_180e5910_9a75_428e_b335_32fb1023a526 = step_count_180e5910_9a75_428e_b335_32fb1023a526 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca()
   global Waypoint_1_p=p[.454835880563, .405454485482, .142441515034, 2.316817702755, 2.051416454504, .076631452206]
   global Waypoint_1_q=[-3.2745700518237513, -1.6645180187621058, 2.405001465474264, -0.1810414356044312, -0.01416188875307256, -0.6267707983600062]
   while (True):
