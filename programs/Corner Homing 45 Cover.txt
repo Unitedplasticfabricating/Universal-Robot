@@ -1,0 +1,81 @@
+ Program
+   Variables Setup
+   Robot Program
+     'Use this program when tool is already positioned close to corner at 45deg'
+     'tool flange will seek all 3 sides. will save those 5 locs in p__'
+     Set
+     'dummy move below for debug'
+     'Home'
+     MoveJ
+       demo_point0
+     'MoveJ'
+     Wait: 1.0
+     tp≔get_actual_tcp_pose()
+     Script: analyze_touchpoints.script
+     path_pre≔get_corner_homing_45_pathpoints_cover(tp)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     ph5≔path_pre[4]
+     ph6≔path_pre[5]
+     ph7≔path_pre[6]
+     'ph2up≔path_pre[7]'
+     'ph4up≔path_pre[8]'
+     MoveL
+       ph1
+       ph2
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph2
+       ph3
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     'p13≔get_actual_tcp_pose()'
+     'MoveJ'
+     'MoveL'
+     p12≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+     MoveJ
+       ph1
+     MoveJ
+       Waypoint_3
+       Waypoint_6
+     'MoveJ'
+     MoveJ
+       ph4
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       ph4
+     'MoveJ'
+     MoveJ
+       'Waypoint_8'
+       Waypoint_9
+     MoveJ
+       Waypoint_16
+     MoveJ
+       Waypoint_15
+       'Waypoint_7'
+     MoveJ
+       ph6
+     MoveL
+       ph7
+     MoveL
+       Direction: Base Z-
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveL
+       ph7
+       ph6
+       MoveJ
+         Waypoint_15
+     'MoveJ'
+     Home
