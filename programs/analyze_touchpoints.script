@@ -2130,9 +2130,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -2216,7 +2216,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     #todo: calculate trail out point
     
     # calculate back-away (points 201 and 202)
-    pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
+    pushtipforward1 = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
     p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
     p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
     
@@ -2231,12 +2231,21 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
+    # calculate point 201's preheat
+    p201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    pushtipforward2 = 0.012 - pushtipforward1 # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    p201bx = p201x + l2delxunit * pushtipforward2
+    p201by = p201y + l2delyunit * pushtipforward2
+    p201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    p201c = p[p201bx, p201by, z, rx, ry, rz]
+    
     # calculate point 202
     p202x = p201x + wd3 * l2delxunit
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c)
     return struct2
 end
 
@@ -2254,9 +2263,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -2354,6 +2363,15 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
+    
+    # calculate point 201's preheat
+    p201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    pushtipforward2 = 0.012 - pushtipforward1 # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    p201bx = p201x + l1delxunit * pushtipforward2
+    p201by = p201y + l1delyunit * pushtipforward2
+    p201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    p201c = p[p201bx, p201by, z, rx, ry, rz]
 
     # calculate point 202
     p202x = p201x + wd3 * l1delxunit
