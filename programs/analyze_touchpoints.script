@@ -2216,7 +2216,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     #todo: calculate trail out point
     
     # calculate back-away (points 201 and 202)
-    pushtipforward1 = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
+    pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
     p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
     p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
     
@@ -2233,7 +2233,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     
     # calculate point 201's preheat
     p201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
-    pushtipforward2 = 0.012 - pushtipforward1 # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     p201bx = p201x + l2delxunit * pushtipforward2
     p201by = p201y + l2delyunit * pushtipforward2
@@ -2366,7 +2366,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     
     # calculate point 201's preheat
     p201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
-    pushtipforward2 = 0.012 - pushtipforward1 # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     p201bx = p201x + l1delxunit * pushtipforward2
     p201by = p201y + l1delyunit * pushtipforward2
