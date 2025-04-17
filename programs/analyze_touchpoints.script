@@ -2180,6 +2180,12 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p2y = y + l1delyunit * rod
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
+    # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+    wtod = 0.010 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    p2ax = x + l1delxunit * wtod
+    p2ay = y + l1delyunit * wtod
+    point2a = p[p2ax, p2ay, z, rx, ry, rz]
+    
     # calculate the rxryrz for facing the down the left side of the box
     # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
     m1 = get_rotation_matrix_from_description("x", -1, 90 * pi / 180)
@@ -2245,7 +2251,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
 
