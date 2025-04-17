@@ -1094,13 +1094,60 @@ i checked the corner homing and it looked like it worked fine.
 
 randomly during homing: path sanity check failed. wrist one goes way negative. it's like doing a full rotation of that joint for no reason. i checked and it IS during a moveL. ill change that to a moveJ and see if it fixes. 
 it did.
+ok now it's back. so none of the points in it until later are actual waypoints. they are all p[] variables. 
+i added an actual waypoint just before ph2. god damn it. it still does that full rotation bullshit. position close to joint limits. 
+now i added it before ph3 as well. it worked. it still does two little half-turns, but straightens out in between. extra movement (inefficient) but it now works. 
 
 i put a üR0 right before the circle move and a üR1 right after the circle move. i wanted to see if it would stop moving before doing the circle weld.
 it did not. however, it stopped halfway around the circle weld at point3. it clunked and then clunked again and errored. 
 i will try it again. same thing happened. 
 i removed the uR0 before the circle move. it still does it.
-i remove the uR0 after the circle move too. 
+i remove the uR0 after the circle move too. it still does it!! what the hell!.
+ok so they were suppressed. what if i delete them completely. 
+ok now it works again. 
+one. thats stupid.
+two. thats gay. 
+three. thats problematic for me. 
 
+i make an assignment statement setting a dummy variable to true right after the circle move. 
+it crashes at point 3. same thing. 
+i move that assignment statement ahead of the circlemove. 
+it completes it successfully. 
+ok. so the rule is you can't have some bullshit right after the circlemove. has to be another moveL, so it knows what to link into. 
+lets try it with a uR1 in front of the circle move instead of the assignment statement (suppressed)
+works just fine. 
+let's try making another point just slightly below point4 (3mm below), and moveLing to that point, then turning extrusion back on, and moveLing to point5. call it point4a.
+yeah that worked. 
+slight pause down there (very slight) but pretty good. 
+i dont know if i want to pause to preheat there or not. i feel like i should preheat before 
+ill put a 4s wait there before the ur1, and then anothr 1s wait there after the uR1
+it looks... fine. where it stops, the preheat is about 1 inch below the corner. because i pivoted around backofhole. 
+i'll try it with real weld. 
+it did make it stop extruding earlier. the top of weld still looked good. it still had extrudite build up in front of the tip on the back side. not as much, but still some. i think we could make it better by turning off extrusion even earlier. try 15 mm instead of 10. 
+yes i think that was perfect. it still made a little blob of it on the back side as it was rotating. but the blob was very small. and when the tip rotated fully it smushed the blob and none of the blob got in front of the tip. so it wasnt blocking the preheat. 
+
+the reason for the loose weld on the backside could be that the robot's front two wheels were not locked. if robot cart was not straight it could have been pulling away as it welded. maybe. yeah idk. 
+
+trying that on the right corner as well. 
+
+so what changes did i make for the left? 
+  i changed the analyze_touchpoints file.
+  i assigned p4a (p4 - z(.003)), and p2a (pathturn[10])
+  i moveL to p2a instead of p2. then i uR0, then i moveL to p2.
+  after the moveP, i moveL to p4a. wait 4. uR1. wait 1. moveL to p5.
+  assign p201 a, b, c = pathturn[7, 8, 9] (after assignment of p202)
+  instead of moveL to p201, moveL to p201a. wait 6. moveL to p201b, p201c, 
+thats all the changes
+
+i make those changes to the right weld and run it dry. it kind of works but the box's tack is falling apart. 
+
+i do it a second time and again it does some weird motion around the corner. 
+i notice that i copy pasted wrong. l1, but should be l2del_unit for a right corner. 
+lets see if that fixes it. 
+right weld looks good after that. slight blob blockage of preheat on both leg2 and leg3. 
+
+
+  
 
 
 
