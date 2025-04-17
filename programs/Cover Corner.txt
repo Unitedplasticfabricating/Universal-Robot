@@ -119,10 +119,11 @@
      If leftchoice≟ True 
        pathturn≔main_calculate_cover(p11,p12,p21,p3,sidewall,floorthick,leftchoice)
        extrude_knife3()
-       move_path_cover_left()
+       move_path_cover_left3()
      Else
        pathturn≔main_calculate_cover(p11,p12,p21,p3,floorthick,sidewall,leftchoice)
        extrude_knife3()
+       move_path_cover_right3()
    align_for_cover_left
      'dummypoints'
      actualprogram
@@ -132,7 +133,16 @@
        MoveJ
          Waypoint_21
          Waypoint_22
-   move_path_cover_left
+   align_for_cover_right
+     'dummypoints'
+     actualprogram
+       liftcolumnup
+         liftcolumnz≔liftcolumnzneeded
+         MachineLogic Move to Position
+       MoveJ
+         Waypoint_1
+         Waypoint_3
+   move_path_cover_left3
      Comment
      align_for_cover_left()
      Set
@@ -143,6 +153,8 @@
      p4≔pathturn[3]
      p5≔pathturn[4]
      pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     p4a≔p[p4[0],p4[1],p4[2]-0.003,p4[3],p4[4],p4[5]]
+     p2a≔pathturn[10]
      MoveJ
        pa1
      MoveL
@@ -155,11 +167,20 @@
        'turn_extrusion_on()'
        Set DO[0]=On
      MoveL
+       p2a
+     'dummyvar≔ True '
+     Serial Bridge uR0
+     MoveL
        p2
      MoveP
        CircleMove
          p3
          p4
+     MoveL
+       p4a
+     Wait: 4.0
+     Serial Bridge uR1
+     Wait: 1.0
      MoveL
        p5
      Serial Bridge uR0
@@ -176,6 +197,9 @@
      'p_5≔pathturn[8]'
      p201≔pathturn[5]
      p202≔pathturn[6]
+     p201a≔pathturn[7]
+     p201b≔pathturn[8]
+     p201c≔pathturn[9]
      pret3≔p[p201[0],p201[1],p201[2]+0.05,p201[3],p201[4],p201[5]]
      pret4≔p[p202[0],p202[1],p202[2]+0.05,p202[3],p202[4],p202[5]]
      'p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]'
@@ -200,8 +224,12 @@
      MoveJ
        pret3
      MoveL
-       p201
+       'p201'
+       p201a
      Wait: 6.0
+     MoveL
+       p201b
+       p201c
      turn ext on
        Serial Bridge uR1
        Serial Bridge uR1
@@ -217,6 +245,102 @@
        pret4
      MoveJ
        Waypoint_17
+     Home
+     MachineLogic Homing
+   move_path_cover_right3
+     Comment
+     align_for_cover_right()
+     Set
+     Comment
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p3≔pathturn[2]
+     p4≔pathturn[3]
+     p5≔pathturn[4]
+     pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     p4a≔p[p4[0],p4[1],p4[2]-0.003,p4[3],p4[4],p4[5]]
+     p2a≔pathturn[10]
+     MoveJ
+       pa1
+     MoveL
+       p1
+     Wait: 8.0
+     turn ext on
+       Serial Bridge uR1
+       Serial Bridge uR1
+       Wait: 1.0
+       'turn_extrusion_on()'
+       Set DO[0]=On
+     MoveL
+       p2a
+     Serial Bridge uR0
+     MoveL
+       p2
+     MoveP
+       CircleMove
+         p3
+         p4
+     MoveL
+       p4a
+     Wait: 4.0
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p5
+     Serial Bridge uR0
+     Wait: 2.0
+     Set DO[0]=Off
+     Comment
+     pret1≔p[p5[0]+0.05,p5[1],p5[2],p5[3],p5[4],p5[5]]
+     pret2≔p[p5[0]+0.1,p5[1],p5[2]+0.2,p5[3],p5[4],p5[5]]
+     'pret2≔p[p5[0],p5[1],p5[2]-0.05,0,0,3.5]'
+     'p_1≔pathturn[4]'
+     'p_2≔pathturn[5]'
+     'p3≔pathturn[6]'
+     'p_4≔pathturn[7]'
+     'p_5≔pathturn[8]'
+     p201≔pathturn[5]
+     p202≔pathturn[6]
+     p201a≔pathturn[7]
+     p201b≔pathturn[8]
+     p201c≔pathturn[9]
+     pret3≔p[p201[0],p201[1],p201[2]+0.05,p201[3],p201[4],p201[5]]
+     pret4≔p[p202[0],p202[1],p202[2]+0.05,p202[3],p202[4],p202[5]]
+     'p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]'
+     'p_pre_ret≔p[p_1[0]+.03,p_1[1]+.03,p_1[2],p_1[3],p_1[4],p_1[5]]'
+     'p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]'
+     Set
+     MoveL
+       pret1
+     MoveJ
+       pret2
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     MoveJ
+       pret3
+     MoveL
+       p201a
+     Wait: 6.0
+     MoveL
+       p201b
+       p201c
+     turn ext on
+       Serial Bridge uR1
+       Serial Bridge uR1
+       Wait: 1.0
+       'turn_extrusion_on()'
+       Set DO[0]=On
+     MoveL
+       p202
+     Serial Bridge uR0
+     Wait: 2.0
+     Set DO[0]=Off
+     MoveJ
+       pret4
+     MoveJ
+       Waypoint_20
      Home
      MachineLogic Homing
    Test_Teach_Position_Cover
@@ -354,8 +478,9 @@
      ph7≔path_pre[6]
      'ph2up≔path_pre[7]'
      'ph4up≔path_pre[8]'
-     MoveL
+     MoveJ
        ph1
+       Waypoint_18
        ph2
      MoveL
        Direction: Base
@@ -363,6 +488,7 @@
      p11≔get_actual_tcp_pose()
      MoveJ
        ph2
+       Waypoint_18
        ph3
      MoveL
        Direction: Base
