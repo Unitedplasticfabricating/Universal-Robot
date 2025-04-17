@@ -163,16 +163,18 @@ def align_for_cover_right():
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
   global Waypoint_4_p=p[.397380247322, .356253634698, .319820846021, 2.316316320871, 2.057594704604, .074118471609]
-  global Waypoint_4_q=[-3.461132842687701, -2.062320779350104, 2.3291603329001305, -0.2192445644650185, -0.20097883707921227, -0.11039879152503751]
+  global Waypoint_4_q=[-3.4611328426873005, -2.0623207793499674, 2.329160332900076, -0.21924456446498652, -0.2009788370788117, -0.11039879152515564]
+  global Waypoint_3_p=p[-.524273667637, .293143884500, .114214081033, -1.113328755566, -2.918967184199, -.012034807846]
+  global Waypoint_3_q=[-0.9252587377076562, -1.9106813901052684, 2.580357834681599, -0.6901398423967073, 1.3752736098591445, 0.0039154434748498446]
   $ 2 "Robot Program"
-  $ 11 "actualprogram"
-  $ 12 "liftcolumnup"
-  $ 13 "liftcolumnz≔liftcolumnzneeded"
+  $ 13 "actualprogram"
+  $ 14 "liftcolumnup"
+  $ 15 "liftcolumnz≔liftcolumnzneeded"
   global liftcolumnz=liftcolumnzneeded
   # begin: URCap Program Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
-  $ 14 "MachineLogic Move to Position"
+  $ 16 "MachineLogic Move to Position"
   while isVentionMovementBusyMachineMotion1==True:
   sleep(0.05)
   end
@@ -194,7 +196,7 @@ def align_for_cover_right():
   popup("resource is being used already: MachineMotion1")
   halt
   end
-  sendString("SET speed_v2 600000.000", "Ack", "MachineMotion1")
+  sendString("SET speed_v2 3000000.000", "Ack", "MachineMotion1")
   sendString("SET acceleration_v2 50000.000", "Ack", "MachineMotion1")
   string_vention=intToString(liftcolumnz*1000,"MachineMotion1")
   sendString("SET de_move_abs_1 "+string_vention, "Ack", "MachineMotion1")
@@ -204,7 +206,9 @@ def align_for_cover_right():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 15 "MoveJ"
-  $ 16 "Waypoint_4" "breakAfter"
+  $ 17 "MoveJ"
+  $ 18 "Waypoint_4" "breakAfter"
   movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 19 "Waypoint_3" "breakAfter"
+  movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
 end
