@@ -1080,6 +1080,29 @@ ok so we ran a left cover corner weld and a right cover corner weld with the ext
   then we should move the weld tip in front of the existing extrudant before pressing down. 
   i will need to add more points to 201 to make this happen. 
 
+move_path_cover_left2 has number 2 implemented. 
+move_path_cover_left3 will have both implemented. 
+
+i try to add a Wait command halfway in the circle move. i cant. i get a popup: this section cannot be altered. 
+one thing to try is maybe break it up into two circle moves with a wait in between. that would require 1/4 and 3/4 points along the curve. 
+also i havent figured out if i can send a stop extrusion signal at the start of the circle move. or if that would break the motion. 
+
+also, when it wraps around and is moving vertically downward, it looks like its not tight to the wall. like there is a little gap. i have seen that on all of them. 
+this is most likely due to undersized chamfers on those sections of the box. i measured the vertical chamfer depth and it was 4mm. the top chamfer was 5mm. 
+it could also be due to when the gun pushes on the top chamfer, the box has nowhere to go. but when it pushes on the side it moves slightly. 
+i checked the corner homing and it looked like it worked fine. 
+
+randomly during homing: path sanity check failed. wrist one goes way negative. it's like doing a full rotation of that joint for no reason. i checked and it IS during a moveL. ill change that to a moveJ and see if it fixes. 
+it did.
+
+i put a üR0 right before the circle move and a üR1 right after the circle move. i wanted to see if it would stop moving before doing the circle weld.
+it did not. however, it stopped halfway around the circle weld at point3. it clunked and then clunked again and errored. 
+i will try it again. same thing happened. 
+i removed the uR0 before the circle move. it still does it.
+i remove the uR0 after the circle move too. 
+
+
+
 
 
 
