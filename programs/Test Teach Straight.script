@@ -169,32 +169,34 @@ def Test_Teach_Straight():
   global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
   while (True):
     $ 2 "Robot Program"
-    $ 6 "MoveJ"
-    $ 7 "Waypoint_40" "breakAfter"
+    $ 3 "Set"
+    set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+    $ 7 "MoveJ"
+    $ 8 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 8 "'above waypoint is home'"
+    $ 9 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 9 "Waypoint_2" "breakAfter"
+    $ 10 "Waypoint_2" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 10 "freedrive_m_var≔ False "
+    $ 11 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 11 "freedrive_m_var≔ True "
+    $ 12 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 12 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 13 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 13 "tcp_pose_left≔get_actual_tcp_pose()"
+    $ 14 "tcp_pose_left≔get_actual_tcp_pose()"
     global tcp_pose_left= get_actual_tcp_pose ()
-    $ 14 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 15 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 15 "tcp_pose_right≔get_actual_tcp_pose()"
+    $ 16 "tcp_pose_right≔get_actual_tcp_pose()"
     global tcp_pose_right= get_actual_tcp_pose ()
-    $ 16 "freedrive_m_var≔ False "
+    $ 17 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 17 "Wait: 0.25"
+    $ 18 "Wait: 0.25"
     sleep(0.25)
-    $ 18 "sync()"
+    $ 19 "sync()"
     sync()
   end
 end
