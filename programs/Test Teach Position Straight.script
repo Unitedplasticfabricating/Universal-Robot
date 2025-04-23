@@ -1,4 +1,4 @@
-def straight_top_demo():
+def Test_Teach_Position_Straight():
   global _hidden_verificationVariable=0
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -162,60 +162,39 @@ def straight_top_demo():
     end
   end
   run Step_Counter_Thread_73284af6_db75_4028_af7c_79f71c37ba19()
-  global approach_p=p[-1.245427089291, -.117910587430, .443766749061, .115341915577, 3.114598670938, .265717910023]
-  global approach_q=[0.0016610372042508523, -1.2424780514467066, 1.4152662723346925, -0.1662824334254358, 1.6480608027368087, -0.16916892742292955]
-  global Waypoint_2_p=p[-1.245427088327, -.117910587189, .398811845521, .115341828693, 3.114598671493, .265717939984]
-  global Waypoint_2_q=[0.0016372888826357013, -1.2319052112347677, 1.4635471301906813, -0.2251384063894175, 1.6480605089408007, -0.16919867741276562]
-  global Waypoint_9_p=p[-1.243989907540, -.098372545762, .397795326029, .115341828693, 3.114598671495, .265717939984]
-  global Waypoint_9_q=[-0.01808275982139662, -1.2375697235702683, 1.472917408979813, -0.2288682317098889, 1.6283421068563486, -0.16932529037971022]
-  global Waypoint_4_p=p[-1.242204989780, -.074853776233, .391738683919, .117015706461, 3.132438203570, -.012126404753]
-  global Waypoint_4_q=[-0.10132611669012803, -1.2579299430461397, 1.5006190481047734, -0.23628379321890058, 1.5451038614321506, 0.008104656852220948]
-  global Waypoint_6_p=p[-1.227078195972, .127460809782, .390228426537, .117015706544, 3.132438203567, -.012126404752]
-  global Waypoint_6_q=[-0.3105366410100334, -1.2748171220256426, 1.5258183835544266, -0.24458835221616138, 1.3359007914435628, 0.006760954663175056]
-  global Waypoint_10_p=p[-1.223883438831, .171297739838, .400391968948, .114795357049, 3.105878084820, .336910767958]
-  global Waypoint_10_q=[-0.28120251577646727, -1.2753322419826931, 1.5258788419453517, -0.24400762959718492, 1.3652719795659936, -0.21692864225005337]
-  global Waypoint_7_p=p[-1.221787701117, .199926785966, .401073027018, .114795357049, 3.105878084820, .336910767958]
-  global Waypoint_7_q=[-0.31050889645947244, -1.2749939079280823, 1.5244548404925427, -0.24290261598699558, 1.335966032547895, -0.21712502001859058]
-  global Waypoint_8_p=p[-1.221787701046, .199926785944, .420618588977, .114795357049, 3.105878084820, .336910767958]
-  global Waypoint_8_q=[-0.3104985864602092, -1.2803217574975179, 1.5040417587872579, -0.2171649671280953, 1.3359662583158471, -0.21711094341820125]
+  global freedrive_m_var=  False  
+  global Waypoint_40_p=p[.360688403366, .270119715397, .646144746546, .057805349154, 2.125995180379, 2.134053153683]
+  global Waypoint_40_q=[-3.4579489866839808, -2.0569035015501917, 2.3265796343432825, -0.22706706941638188, -0.1993501822101038, -0.10534793535341436]
+  global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
+  global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
   while (True):
     $ 2 "Robot Program"
-    $ 3 "demo points"
-    $ 7 "MoveJ"
-    $ 8 "approach" "breakAfter"
-    movej(get_inverse_kin(approach_p, qnear=approach_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 31 "MoveL"
-    $ 33 "Waypoint_2" "breakAfter"
-    movel(Waypoint_2_p, a=1.2, v=0.012)
-    $ 34 "Wait: 4.0"
-    sleep(4.0)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 35 "ur1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [100,0,0], False)
-    # end: URCap Program Node
-    $ 36 "Wait: 1.0"
-    sleep(1.0)
-    $ 37 "Waypoint_9" "breakAfter"
-    movel(Waypoint_9_p, a=1.2, v=0.012)
-    $ 40 "Waypoint_4" "breakAfter"
-    movel(Waypoint_4_p, a=1.2, v=0.012)
-    $ 41 "Waypoint_6" "breakAfter"
-    movel(Waypoint_6_p, a=1.2, v=0.012)
-    $ 42 "Waypoint_10" "breakAfter"
-    movel(Waypoint_10_p, a=1.2, v=0.012)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 43 "ur1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [100,0,0], False)
-    # end: URCap Program Node
-    $ 44 "Waypoint_7" "breakAfter"
-    movel(Waypoint_7_p, a=1.2, v=0.012)
-    $ 45 "Wait: 1.0"
-    sleep(1.0)
-    $ 46 "Waypoint_8" "breakAfter"
-    movel(Waypoint_8_p, a=1.2, v=0.012)
+    $ 6 "MoveJ"
+    $ 7 "Waypoint_40" "breakAfter"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 8 "'above waypoint is home'"
+    # 'above waypoint is home'
+    $ 9 "Waypoint_2" "breakAfter"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 10 "freedrive_m_var≔ False "
+    global freedrive_m_var=  False  
+    $ 11 "freedrive_m_var≔ True "
+    global freedrive_m_var=  True  
+    $ 12 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
+    popup("Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
+    $ 13 "tcp_pose_left≔get_actual_tcp_pose()"
+    global tcp_pose_left= get_actual_tcp_pose ()
+    $ 14 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
+    popup("Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
+    $ 15 "tcp_pose_right≔get_actual_tcp_pose()"
+    global tcp_pose_right= get_actual_tcp_pose ()
+    $ 16 "freedrive_m_var≔ False "
+    global freedrive_m_var=  False  
+    $ 17 "Wait: 0.25"
+    sleep(0.25)
+    $ 18 "sync()"
+    sync()
   end
 end

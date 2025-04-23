@@ -1156,6 +1156,26 @@ i am wondering if switching to a movep or increasing the acceleration would decr
 yes that makes it so much faster. no stoppage at all at 1200 acc. moveP not needed. 
 now lets try to add in preheat and pauses and extrude on and all that good stuff. 
 
+ok now im making a Cover Straight program. 
+i will need new everything. 
+  new test teach position straight
+  new get_straight_homing_pathpoints()
+  new Straight Homing Cover subprogram
+  new analyze_toughpoints_only_straight()
+  new main_calculate()
+  new move_path_cover_straight subprogram
+
+i will make them teach the start and endpoints of the weld by making them specify the trail out point of each v chamfer. 
+i will use those points to get homing points. i will use those homing result points to calculate the line on which the weld runs. 
+in main_calculate, i will determine the start and end points by interpolating the y value of the teach points onto the line calculated by homing. 
+
+i got my homing program compilig and running. 
+it is not working correctly though. 
+when it saves tcp_poe_left and right with get_actual_tcp_pose(), it is not saving it correctly. 
+it is like 2 feet off of what it should be. it should have saved x = -1244, but it instead saved x = -.997
+i will have to investigate that function, get_actual_tcp_pose() and make sure it is using the active tcp to save. 
+i determined that it might have been using tcp_plate_1 or TCP as the tcp of reference for determining coordinates during that function. 
+inside Test_Teach_Straight() there is no tcp set function. 
 
   
 
