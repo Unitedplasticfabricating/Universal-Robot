@@ -1308,8 +1308,6 @@ def analyze_touchpoints_only_cover(p11, p12, p21, p3):
     # get the raw points from the second line
     l2p1x=p21[0]
     l2p1y=p21[1]
-    l2p2x=p22[0]
-    l2p2y=p22[1]
 
     # equate the second line in 2d space
     # ml2 = opposite reciprocal of ml1 (because they are perpendicular) (assume perpendicular to make calculation of weldpath much easier)
@@ -2139,13 +2137,67 @@ def get_corner_homing_45_pathpoints_cover(point0):
     #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
     
     # approach point for top
-    ph6 = p[p0x + d0, p0y, p0z+0.05, 0.138, 3.104, -0.072] # approach point for under turn
+    ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner. 
     
     # top point
     ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
     
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
     is_robot_at_reachable_spot(point0, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+    ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+    ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points
+    ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d1, lpy, lpz + d0, 0, 0, 0] # left bottom approach
+    ph4 = p[rpx - d1, rpy, rpz + d0, 0, 0, 0] # right bottom approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
     return ret
 end
 
@@ -3190,9 +3242,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -3204,7 +3256,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
     if zpi &gt; 0:
-        liftcolumnzneeded = zpi
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
         z = 0
     else:
         z = zpi
@@ -3239,6 +3291,12 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p2x = x + l1delxunit * rod
     p2y = y + l1delyunit * rod
     point2 = p[p2x, p2y, z, rx, ry, rz] 
+    
+    # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    p2ax = x + l1delxunit * wtod
+    p2ay = y + l1delyunit * wtod
+    point2a = p[p2ax, p2ay, z, rx, ry, rz]
     
     # calculate the rxryrz for facing the down the left side of the box
     # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
@@ -3291,12 +3349,21 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
+    # calculate point 201&apos;s preheat
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    p201bx = p201x + l2delxunit * pushtipforward2
+    p201by = p201y + l2delyunit * pushtipforward2
+    point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    point201c = p[p201bx, p201by, z, rx, ry, rz]
+    
     # calculate point 202
     p202x = p201x + wd3 * l2delxunit
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
 
@@ -3314,9 +3381,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -3328,7 +3395,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
     if zpi &gt; 0:
-        liftcolumnzneeded = zpi
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
         z = 0
     else:
         z = zpi
@@ -3363,6 +3430,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p2x = x + l2delxunit * rod
     p2y = y + l2delyunit * rod
     point2 = p[p2x, p2y, z, rx, ry, rz] 
+    
+    # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    p2ax = x + l2delxunit * wtod
+    p2ay = y + l2delyunit * wtod
+    point2a = p[p2ax, p2ay, z, rx, ry, rz]
 
     # calculate the rxryrz for facing the down the right side of the box
     # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
@@ -3414,13 +3487,22 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
+    
+    # calculate point 201&apos;s preheat
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    p201bx = p201x + l1delxunit * pushtipforward2
+    p201by = p201y + l1delyunit * pushtipforward2
+    point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    point201c = p[p201bx, p201by, z, rx, ry, rz]
 
     # calculate point 202
     p202x = p201x + wd3 * l1delxunit
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
 </cachedContents>
@@ -6589,6 +6671,9 @@ end
             </Waypoint>
           </children>
         </Move>
+        <Set type="NoAction">
+          <tcp reference="../../../../MainProgram/children/Set[2]/tcp"/>
+        </Set>
         <Assignment valueSource="Expression">
           <variable name="freedrive_m_var" prefersPersistentValue="false" favourite="false">
             <initializeExpression/>
@@ -6991,8 +7076,6 @@ def analyze_touchpoints_only_cover(p11, p12, p21, p3):
     # get the raw points from the second line
     l2p1x=p21[0]
     l2p1y=p21[1]
-    l2p2x=p22[0]
-    l2p2y=p22[1]
 
     # equate the second line in 2d space
     # ml2 = opposite reciprocal of ml1 (because they are perpendicular) (assume perpendicular to make calculation of weldpath much easier)
@@ -7822,13 +7905,67 @@ def get_corner_homing_45_pathpoints_cover(point0):
     #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
     
     # approach point for top
-    ph6 = p[p0x + d0, p0y, p0z+0.05, 0.138, 3.104, -0.072] # approach point for under turn
+    ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner. 
     
     # top point
     ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
     
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
     is_robot_at_reachable_spot(point0, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+    ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+    ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points
+    ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d1, lpy, lpz + d0, 0, 0, 0] # left bottom approach
+    ph4 = p[rpx - d1, rpy, rpz + d0, 0, 0, 0] # right bottom approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
     return ret
 end
 
@@ -8873,9 +9010,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -8887,7 +9024,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
     if zpi &gt; 0:
-        liftcolumnzneeded = zpi
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
         z = 0
     else:
         z = zpi
@@ -8922,6 +9059,12 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p2x = x + l1delxunit * rod
     p2y = y + l1delyunit * rod
     point2 = p[p2x, p2y, z, rx, ry, rz] 
+    
+    # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    p2ax = x + l1delxunit * wtod
+    p2ay = y + l1delyunit * wtod
+    point2a = p[p2ax, p2ay, z, rx, ry, rz]
     
     # calculate the rxryrz for facing the down the left side of the box
     # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
@@ -8974,12 +9117,21 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
+    # calculate point 201&apos;s preheat
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    p201bx = p201x + l2delxunit * pushtipforward2
+    p201by = p201y + l2delyunit * pushtipforward2
+    point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    point201c = p[p201bx, p201by, z, rx, ry, rz]
+    
     # calculate point 202
     p202x = p201x + wd3 * l2delxunit
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
 
@@ -8997,9 +9149,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
     # find locations 8 inches away from  intersect point
     # CONST
-    welddistance1 = 8 # first path first leg (down)
-    welddistance2 = 3 # first path second leg (under) # inches
-    welddistance3 = 8 # second path (back away) # inches
+    welddistance1 = 6 # first path first leg (down)
+    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
@@ -9011,7 +9163,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
     if zpi &gt; 0:
-        liftcolumnzneeded = zpi
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
         z = 0
     else:
         z = zpi
@@ -9046,6 +9198,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p2x = x + l2delxunit * rod
     p2y = y + l2delyunit * rod
     point2 = p[p2x, p2y, z, rx, ry, rz] 
+    
+    # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    p2ax = x + l2delxunit * wtod
+    p2ay = y + l2delyunit * wtod
+    point2a = p[p2ax, p2ay, z, rx, ry, rz]
 
     # calculate the rxryrz for facing the down the right side of the box
     # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
@@ -9097,13 +9255,22 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     point201 = p[p201x, p201y, z, rx, ry, rz]
+    
+    # calculate point 201&apos;s preheat
+    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+    point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+    p201bx = p201x + l1delxunit * pushtipforward2
+    p201by = p201y + l1delyunit * pushtipforward2
+    point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+    point201c = p[p201bx, p201by, z, rx, ry, rz]
 
     # calculate point 202
     p202x = p201x + wd3 * l1delxunit
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
 </cachedContents>

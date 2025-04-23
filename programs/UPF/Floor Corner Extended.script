@@ -1,13 +1,7 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  step_count_50ce2b83_a1b6_427f_a0a4_7e1cab84c5b8 = 0.0
-  thread Step_Counter_Thread_0e5d4146_0ae0_40da_842a_564d3a17cd5d():
-    while (True):
-      step_count_50ce2b83_a1b6_427f_a0a4_7e1cab84c5b8 = step_count_50ce2b83_a1b6_427f_a0a4_7e1cab84c5b8 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_0e5d4146_0ae0_40da_842a_564d3a17cd5d()
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,15 +9,13 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[0.00451,-0.328,0.10573,1.2092,-1.2092,1.2092])
-  set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,6 +154,14 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_cfc27bff_3819_45be_bfcf_d52b1b1e9d2e = 0.0
+  thread Step_Counter_Thread_60c3a4a9_e978_4eed_be39_a7f2d0dbddbc():
+    while (True):
+      step_count_cfc27bff_3819_45be_bfcf_d52b1b1e9d2e = step_count_cfc27bff_3819_45be_bfcf_d52b1b1e9d2e + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_60c3a4a9_e978_4eed_be39_a7f2d0dbddbc()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -884,48 +884,50 @@ def Floor_Corner_Extended():
     $ 366 "Waypoint_2" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 367 "freedrive_m_var≔ False "
+    $ 367 "Set"
+    set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+    $ 368 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 368 "freedrive_m_var≔ True "
+    $ 369 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 369 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
+    $ 370 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
     popup("Move the TCP to the top of the weld, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 370 "tcp_pose_top≔get_actual_tcp_pose()"
+    $ 371 "tcp_pose_top≔get_actual_tcp_pose()"
     global tcp_pose_top= get_actual_tcp_pose ()
-    $ 371 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
+    $ 372 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
     popup("Move the TCP to the corner of the tank, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 372 "tcp_pose≔get_actual_tcp_pose()"
+    $ 373 "tcp_pose≔get_actual_tcp_pose()"
     global tcp_pose= get_actual_tcp_pose ()
-    $ 373 "freedrive_m_var≔ False "
+    $ 374 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 374 "Wait: 0.25"
+    $ 375 "Wait: 0.25"
     sleep(0.25)
-    $ 375 "sync()"
+    $ 376 "sync()"
     sync()
   end
   def align_tcp_left():
-    $ 376 "align_tcp_left" "noBreak"
-    $ 377 "'this program aligns the tcp parallel to the y direction'"
+    $ 377 "align_tcp_left" "noBreak"
+    $ 378 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 378 "cp≔get_actual_tcp_pose()"
+    $ 379 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 379 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
+    $ 380 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],1.570796,0,0]
-    $ 380 "MoveJ"
-    $ 381 "aligned_y_pose" "breakAfter"
+    $ 381 "MoveJ"
+    $ 382 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def extrude_knife3():
-    $ 382 "extrude_knife3" "noBreak"
-    $ 383 "pre program stuff"
-    $ 384 "Set"
+    $ 383 "extrude_knife3" "noBreak"
+    $ 384 "pre program stuff"
+    $ 385 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 385 "ek_sp≔get_actual_tcp_pose()"
+    $ 386 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 386 "MoveL"
-    $ 387 "ek_sp" "breakAfter"
+    $ 387 "MoveL"
+    $ 388 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 388 "Script: analyze_touchpoints.script"
+    $ 389 "Script: analyze_touchpoints.script"
     # this file creates the function for analyzing touchpoints
     # define pi
     pi = 3.1415926535
@@ -1178,8 +1180,6 @@ def Floor_Corner_Extended():
         # get the raw points from the second line
         l2p1x=p21[0]
         l2p1y=p21[1]
-        l2p2x=p22[0]
-        l2p2y=p22[1]
     
         # equate the second line in 2d space
         # ml2 = opposite reciprocal of ml1 (because they are perpendicular) (assume perpendicular to make calculation of weldpath much easier)
@@ -2009,13 +2009,67 @@ def Floor_Corner_Extended():
         #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
     
         # approach point for top
-        ph6 = p[p0x + d0, p0y, p0z+0.05, 0.138, 3.104, -0.072] # approach point for under turn
+        ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner.
     
         # top point
         ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
     
         ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
         is_robot_at_reachable_spot(point0, ret)
+        return ret
+    end
+    
+    # this function determines the starting touchpoints for homing in on cover straight geometry
+    # includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+    def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+        # get the teach position points
+        lpx = leftpoint[0]
+        lpy = leftpoint[1]
+        lpz = leftpoint[2]
+        rpx = rightpoint[0]
+        rpy = rightpoint[1]
+        rpz = rightpoint[2]
+    
+        # specify the distances from
+        d0 = 0.05 # how far from the planes to approach from
+        d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+        d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+        # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+        ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+        ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+        ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+        ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+    
+        ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+        is_robot_at_reachable_spot(leftpoint, ret)
+        return ret
+    end
+    
+    # this function determines the starting touchpoints for homing in on cover straight geometry
+    # includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+    def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+        # get the teach position points
+        lpx = leftpoint[0]
+        lpy = leftpoint[1]
+        lpz = leftpoint[2]
+        rpx = rightpoint[0]
+        rpy = rightpoint[1]
+        rpz = rightpoint[2]
+    
+        # specify the distances from
+        d0 = 0.05 # how far from the planes to approach from
+        d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+        d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+        # calculate the points
+        ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+        ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+        ph3 = p[lpx - d1, lpy, lpz + d0, 0, 0, 0] # left bottom approach
+        ph4 = p[rpx - d1, rpy, rpz + d0, 0, 0, 0] # right bottom approach
+    
+        ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+        is_robot_at_reachable_spot(leftpoint, ret)
         return ret
     end
     
@@ -3060,9 +3114,9 @@ def Floor_Corner_Extended():
         # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
         # find locations 8 inches away from  intersect point
         # CONST
-        welddistance1 = 8 # first path first leg (down)
-        welddistance2 = 3 # first path second leg (under) # inches
-        welddistance3 = 8 # second path (back away) # inches
+        welddistance1 = 6 # first path first leg (down)
+        welddistance2 = 4 # first path second leg (under) # inches
+        welddistance3 = 6 # second path (back away) # inches
     
         wd1 = welddistance1 * 25.4 / 1000
         wd2 = welddistance2 * 25.4 / 1000
@@ -3074,7 +3128,7 @@ def Floor_Corner_Extended():
         # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
         zpi = pointintersect[2]
         if zpi > 0:
-            liftcolumnzneeded = zpi
+            liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
             z = 0
         else:
             z = zpi
@@ -3109,6 +3163,12 @@ def Floor_Corner_Extended():
         p2x = x + l1delxunit * rod
         p2y = y + l1delyunit * rod
         point2 = p[p2x, p2y, z, rx, ry, rz]
+    
+        # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+        wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+        p2ax = x + l1delxunit * wtod
+        p2ay = y + l1delyunit * wtod
+        point2a = p[p2ax, p2ay, z, rx, ry, rz]
     
         # calculate the rxryrz for facing the down the left side of the box
         # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
@@ -3161,12 +3221,21 @@ def Floor_Corner_Extended():
         rz = rxryrz[2]
         point201 = p[p201x, p201y, z, rx, ry, rz]
     
+        # calculate point 201's preheat
+        pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+        preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+        point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+        p201bx = p201x + l2delxunit * pushtipforward2
+        p201by = p201y + l2delyunit * pushtipforward2
+        point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+        point201c = p[p201bx, p201by, z, rx, ry, rz]
+    
         # calculate point 202
         p202x = p201x + wd3 * l2delxunit
         p202y = p201y + wd3 * l2delyunit
         point202 = p[p202x, p202y, z, rx, ry, rz]
     
-        struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+        struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
         return struct2
     end
     
@@ -3184,9 +3253,9 @@ def Floor_Corner_Extended():
         # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
         # find locations 8 inches away from  intersect point
         # CONST
-        welddistance1 = 8 # first path first leg (down)
-        welddistance2 = 3 # first path second leg (under) # inches
-        welddistance3 = 8 # second path (back away) # inches
+        welddistance1 = 6 # first path first leg (down)
+        welddistance2 = 4 # first path second leg (under) # inches
+        welddistance3 = 6 # second path (back away) # inches
     
         wd1 = welddistance1 * 25.4 / 1000
         wd2 = welddistance2 * 25.4 / 1000
@@ -3198,7 +3267,7 @@ def Floor_Corner_Extended():
         # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
         zpi = pointintersect[2]
         if zpi > 0:
-            liftcolumnzneeded = zpi
+            liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
             z = 0
         else:
             z = zpi
@@ -3233,6 +3302,12 @@ def Floor_Corner_Extended():
         p2x = x + l2delxunit * rod
         p2y = y + l2delyunit * rod
         point2 = p[p2x, p2y, z, rx, ry, rz]
+    
+        # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+        wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+        p2ax = x + l2delxunit * wtod
+        p2ay = y + l2delyunit * wtod
+        point2a = p[p2ax, p2ay, z, rx, ry, rz]
     
         # calculate the rxryrz for facing the down the right side of the box
         # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
@@ -3285,241 +3360,250 @@ def Floor_Corner_Extended():
         rz = rxryrz[2]
         point201 = p[p201x, p201y, z, rx, ry, rz]
     
+        # calculate point 201's preheat
+        pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+        preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+        point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+        p201bx = p201x + l1delxunit * pushtipforward2
+        p201by = p201y + l1delyunit * pushtipforward2
+        point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+        point201c = p[p201bx, p201by, z, rx, ry, rz]
+    
         # calculate point 202
         p202x = p201x + wd3 * l1delxunit
         p202y = p201y + wd3 * l1delyunit
         point202 = p[p202x, p202y, z, rx, ry, rz]
     
-        struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+        struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
         return struct2
     end
-    $ 389 "'list possible points'"
+    $ 390 "'list possible points'"
     # 'list possible points'
-    $ 390 "robot 1 moves"
-    $ 391 "If 1≟2"
+    $ 391 "robot 1 moves"
+    $ 392 "If 1≟2"
     if (1 == 2):
-      $ 392 "MoveJ"
-      $ 393 "r1_ek_oldhome" "breakAfter"
+      $ 393 "MoveJ"
+      $ 394 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 394 "r1_ek_extrude" "breakAfter"
+      $ 395 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 395 "r1_ek_front" "breakAfter"
+      $ 396 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 396 "r1_ek_middle" "breakAfter"
+      $ 397 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 397 "r1_ek_middle2" "breakAfter"
+      $ 398 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 398 "r1_ek_bottom" "breakAfter"
+      $ 399 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 399 "r1_ek_end" "breakAfter"
+      $ 400 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 400 "robot 2 moves"
-    $ 401 "If 1≟2"
+    $ 401 "robot 2 moves"
+    $ 402 "If 1≟2"
     if (1 == 2):
-      $ 402 "MoveJ"
-      $ 403 "r2_ek_oldhome" "breakAfter"
+      $ 403 "MoveJ"
+      $ 404 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 405 "r2_ek_extrude" "breakAfter"
+      $ 406 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 406 "r2_ek_front" "breakAfter"
+      $ 407 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 407 "r2_ek_middle" "breakAfter"
+      $ 408 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 408 "r2_ek_bottom" "breakAfter"
+      $ 409 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 409 "r2_ek_end" "breakAfter"
+      $ 410 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 410 "'detemine correct points for which robot'"
+    $ 411 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 411 "If robot_number≟1"
+    $ 412 "If robot_number≟1"
     if (robot_number == 1):
-      $ 412 "robot1 positions"
-      $ 413 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 413 "robot1 positions"
+      $ 414 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 414 "ek_extrude≔r1_ek_extrude_p"
+      $ 415 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 415 "ek_front≔r1_ek_front_p"
+      $ 416 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 416 "ek_middle≔r1_ek_middle_p"
+      $ 417 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 417 "ek_middle2≔r1_ek_middle2_p"
+      $ 418 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 418 "ek_bottom≔r1_ek_bottom_p"
+      $ 419 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 419 "ek_end≔r1_ek_end_q"
+      $ 420 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 420 "ElseIf robot_number≟2"
+      $ 421 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 421 "robot1 positions"
-        $ 422 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 422 "robot1 positions"
+        $ 423 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 423 "ek_extrude≔r2_ek_extrude_p"
+        $ 424 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 424 "ek_front≔r2_ek_front_p"
+        $ 425 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 425 "ek_middle≔r2_ek_middle_p"
+        $ 426 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 426 "ek_middle2≔r2_ek_middle_p"
+        $ 427 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 427 "ek_bottom≔r2_ek_bottom_p"
+        $ 428 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 428 "ek_end≔r2_ek_end_q"
+        $ 429 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 429 "'start of program'"
+    $ 430 "'start of program'"
     # 'start of program'
-    $ 431 "Set"
+    $ 432 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 432 "MoveJ"
-    $ 434 "ek_oldhome" "breakAfter"
+    $ 433 "MoveJ"
+    $ 435 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 435 "'above waypoint is home'"
+    $ 436 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 436 "'move above bucket'"
+    $ 437 "'move above bucket'"
     # 'move above bucket'
-    $ 437 "MoveJ"
-    $ 439 "ek_extrude" "breakAfter"
+    $ 438 "MoveJ"
+    $ 440 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 440 "'extrude out a foot'"
+    $ 441 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 442 "Serial Bridge uR1"
+    $ 443 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 443 "Set DO[0]=On"
+    $ 444 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 444 "Wait: 24.0"
+    $ 445 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 445 "Serial Bridge uR0"
+    $ 446 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 446 "Wait: 1.0"
+    $ 447 "Wait: 1.0"
     sleep(1.0)
-    $ 447 "Set DO[0]=Off"
+    $ 448 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 448 "'slice'"
+    $ 449 "'slice'"
     # 'slice'
-    $ 449 "MoveL"
-    $ 455 "ek_front" "breakAfter"
+    $ 450 "MoveL"
+    $ 456 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 456 "ek_middle" "breakAfter"
+    $ 457 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 457 "ek_middle2" "breakAfter"
+    $ 458 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 458 "ek_bottom" "breakAfter"
+    $ 459 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 459 "ek_end" "breakAfter"
+    $ 460 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 460 "MoveJ"
-    $ 462 "ek_oldhome" "breakAfter"
+    $ 461 "MoveJ"
+    $ 463 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 463 "'above waypoint is home'"
+    $ 464 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   def align_tcp_forward():
-    $ 465 "align_tcp_forward" "noBreak"
-    $ 466 "'this program aligns the tcp parallel to the y direction'"
+    $ 466 "align_tcp_forward" "noBreak"
+    $ 467 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 467 "cp≔get_actual_tcp_pose()"
+    $ 468 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 468 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
+    $ 469 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
-    $ 469 "MoveJ"
-    $ 470 "aligned_y_pose" "breakAfter"
+    $ 470 "MoveJ"
+    $ 471 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_up():
-    $ 471 "align_tcp_up" "noBreak"
-    $ 472 "'this program aligns the tcp parallel to the y direction'"
+    $ 472 "align_tcp_up" "noBreak"
+    $ 473 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 473 "cp≔get_actual_tcp_pose()"
+    $ 474 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 474 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
+    $ 475 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,0,0]
-    $ 475 "MoveJ"
-    $ 476 "aligned_y_pose" "breakAfter"
+    $ 476 "MoveJ"
+    $ 477 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_ready_for_welding():
-    $ 477 "align_ready_for_welding" "noBreak"
-    $ 478 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
+    $ 478 "align_ready_for_welding" "noBreak"
+    $ 479 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
     # 'this program takes the welder from home to a position alined ready for welding (vertically down)'
-    $ 479 "MoveJ"
-    $ 480 "oldhome" "breakAfter"
+    $ 480 "MoveJ"
+    $ 481 "oldhome" "breakAfter"
     movej(get_inverse_kin(oldhome_p, qnear=oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 481 "Waypoint_34" "breakAfter"
+    $ 482 "Waypoint_34" "breakAfter"
     movej(get_inverse_kin(Waypoint_34_p, qnear=Waypoint_34_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 482 "Waypoint_35" "breakAfter"
+    $ 483 "Waypoint_35" "breakAfter"
     movej(get_inverse_kin(Waypoint_35_p, qnear=Waypoint_35_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 483 "Waypoint_36" "breakAfter"
+    $ 484 "Waypoint_36" "breakAfter"
     movej(get_inverse_kin(Waypoint_36_p, qnear=Waypoint_36_q), a=1.3962634015954636, v=1.0471975511965976)
   end
   def Corner_Homing_45():
-    $ 484 "Corner_Homing_45" "noBreak"
-    $ 485 "'Use this program when tool is already positioned close to corner at 45deg'"
+    $ 485 "Corner_Homing_45" "noBreak"
+    $ 486 "'Use this program when tool is already positioned close to corner at 45deg'"
     # 'Use this program when tool is already positioned close to corner at 45deg'
-    $ 486 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
+    $ 487 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
     # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
-    $ 487 "Set"
+    $ 488 "Set"
     set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-    $ 488 "'dummy move below for debug'"
+    $ 489 "'dummy move below for debug'"
     # 'dummy move below for debug'
-    $ 493 "Wait: 1.0"
+    $ 494 "Wait: 1.0"
     sleep(1.0)
-    $ 494 "tp≔get_actual_tcp_pose()"
+    $ 495 "tp≔get_actual_tcp_pose()"
     global tp= get_actual_tcp_pose ()
-    $ 496 "path_pre≔get_corner_homing_45_pathpoints(tp,tcp_pose_top)"
+    $ 497 "path_pre≔get_corner_homing_45_pathpoints(tp,tcp_pose_top)"
     global path_pre=get_corner_homing_45_pathpoints(tp,tcp_pose_top)
-    $ 497 "ph1≔path_pre[0]"
+    $ 498 "ph1≔path_pre[0]"
     global ph1=path_pre[0]
-    $ 498 "ph2≔path_pre[1]"
+    $ 499 "ph2≔path_pre[1]"
     global ph2=path_pre[1]
-    $ 499 "ph3≔path_pre[2]"
+    $ 500 "ph3≔path_pre[2]"
     global ph3=path_pre[2]
-    $ 500 "ph4≔path_pre[3]"
+    $ 501 "ph4≔path_pre[3]"
     global ph4=path_pre[3]
-    $ 501 "ph5≔path_pre[4]"
+    $ 502 "ph5≔path_pre[4]"
     global ph5=path_pre[4]
-    $ 502 "ph6≔path_pre[5]"
+    $ 503 "ph6≔path_pre[5]"
     global ph6=path_pre[5]
-    $ 503 "ph7≔path_pre[6]"
+    $ 504 "ph7≔path_pre[6]"
     global ph7=path_pre[6]
-    $ 504 "ph2up≔path_pre[7]"
+    $ 505 "ph2up≔path_pre[7]"
     global ph2up=path_pre[7]
-    $ 505 "ph4up≔path_pre[8]"
+    $ 506 "ph4up≔path_pre[8]"
     global ph4up=path_pre[8]
-    $ 506 "MoveL"
-    $ 507 "ph1" "breakAfter"
+    $ 507 "MoveL"
+    $ 508 "ph1" "breakAfter"
     movel(ph1, a=0.2, v=0.25)
-    $ 508 "ph2" "breakAfter"
+    $ 509 "ph2" "breakAfter"
     movel(ph2, a=0.2, v=0.25)
-    $ 509 "MoveL"
-    $ 510 "Direction: Base"
-    global move_thread_flag_510=0
-    thread move_thread_510():
+    $ 510 "MoveL"
+    $ 511 "Direction: Base"
+    global move_thread_flag_511=0
+    thread move_thread_511():
       enter_critical
-      move_thread_flag_510 = 1
+      move_thread_flag_511 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_510 = 2
+      move_thread_flag_511 = 2
       exit_critical
     end
-    move_thread_flag_510 = 0
-    move_thread_han_510 = run move_thread_510()
+    move_thread_flag_511 = 0
+    move_thread_han_511 = run move_thread_511()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_510
+        kill move_thread_han_511
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3531,36 +3615,36 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 511 "Until (tool_contact_detection)"
+        $ 512 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 512 "p11≔get_actual_tcp_pose()"
+    $ 513 "p11≔get_actual_tcp_pose()"
     global p11= get_actual_tcp_pose ()
-    $ 513 "MoveJ"
-    $ 514 "ph2" "breakAfter"
+    $ 514 "MoveJ"
+    $ 515 "ph2" "breakAfter"
     movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 515 "ph2up" "breakAfter"
+    $ 516 "ph2up" "breakAfter"
     movej(ph2up, a=1.3962634015954636, v=1.0471975511965976)
-    $ 516 "MoveL"
-    $ 517 "Direction: Base"
-    global move_thread_flag_517=0
-    thread move_thread_517():
+    $ 517 "MoveL"
+    $ 518 "Direction: Base"
+    global move_thread_flag_518=0
+    thread move_thread_518():
       enter_critical
-      move_thread_flag_517 = 1
+      move_thread_flag_518 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_517 = 2
+      move_thread_flag_518 = 2
       exit_critical
     end
-    move_thread_flag_517 = 0
-    move_thread_han_517 = run move_thread_517()
+    move_thread_flag_518 = 0
+    move_thread_han_518 = run move_thread_518()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_517
+        kill move_thread_han_518
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3572,36 +3656,36 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 518 "Until (tool_contact_detection)"
+        $ 519 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 519 "p13≔get_actual_tcp_pose()"
+    $ 520 "p13≔get_actual_tcp_pose()"
     global p13= get_actual_tcp_pose ()
-    $ 520 "MoveJ"
-    $ 521 "ph2up" "breakAfter"
+    $ 521 "MoveJ"
+    $ 522 "ph2up" "breakAfter"
     movej(ph2up, a=1.3962634015954636, v=1.0471975511965976)
-    $ 522 "ph3" "breakAfter"
+    $ 523 "ph3" "breakAfter"
     movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-    $ 523 "MoveL"
-    $ 524 "Direction: Base"
-    global move_thread_flag_524=0
-    thread move_thread_524():
+    $ 524 "MoveL"
+    $ 525 "Direction: Base"
+    global move_thread_flag_525=0
+    thread move_thread_525():
       enter_critical
-      move_thread_flag_524 = 1
+      move_thread_flag_525 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_524 = 2
+      move_thread_flag_525 = 2
       exit_critical
     end
-    move_thread_flag_524 = 0
-    move_thread_han_524 = run move_thread_524()
+    move_thread_flag_525 = 0
+    move_thread_han_525 = run move_thread_525()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_524
+        kill move_thread_han_525
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3613,44 +3697,44 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 525 "Until (tool_contact_detection)"
+        $ 526 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 526 "p12≔get_actual_tcp_pose()"
+    $ 527 "p12≔get_actual_tcp_pose()"
     global p12= get_actual_tcp_pose ()
-    $ 527 "MoveJ"
-    $ 528 "ph3" "breakAfter"
+    $ 528 "MoveJ"
+    $ 529 "ph3" "breakAfter"
     movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-    $ 529 "Waypoint_4" "breakAfter"
+    $ 530 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 530 "MoveJ"
-    $ 531 "Waypoint_5" "breakAfter"
+    $ 531 "MoveJ"
+    $ 532 "Waypoint_5" "breakAfter"
     movej(get_inverse_kin(Waypoint_5_p, qnear=Waypoint_5_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 533 "Waypoint_10" "breakAfter"
+    $ 534 "Waypoint_10" "breakAfter"
     movej(get_inverse_kin(Waypoint_10_p, qnear=Waypoint_10_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 534 "MoveJ"
-    $ 535 "ph4" "breakAfter"
+    $ 535 "MoveJ"
+    $ 536 "ph4" "breakAfter"
     movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-    $ 536 "MoveL"
-    $ 537 "Direction: Base"
-    global move_thread_flag_537=0
-    thread move_thread_537():
+    $ 537 "MoveL"
+    $ 538 "Direction: Base"
+    global move_thread_flag_538=0
+    thread move_thread_538():
       enter_critical
-      move_thread_flag_537 = 1
+      move_thread_flag_538 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_537 = 2
+      move_thread_flag_538 = 2
       exit_critical
     end
-    move_thread_flag_537 = 0
-    move_thread_han_537 = run move_thread_537()
+    move_thread_flag_538 = 0
+    move_thread_han_538 = run move_thread_538()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_537
+        kill move_thread_han_538
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3662,36 +3746,36 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 538 "Until (tool_contact_detection)"
+        $ 539 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 539 "p21≔get_actual_tcp_pose()"
+    $ 540 "p21≔get_actual_tcp_pose()"
     global p21= get_actual_tcp_pose ()
-    $ 540 "MoveL"
-    $ 541 "ph4" "breakAfter"
+    $ 541 "MoveL"
+    $ 542 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 542 "ph4up" "breakAfter"
+    $ 543 "ph4up" "breakAfter"
     movel(ph4up, a=1.2, v=0.25)
-    $ 543 "MoveL"
-    $ 544 "Direction: Base"
-    global move_thread_flag_544=0
-    thread move_thread_544():
+    $ 544 "MoveL"
+    $ 545 "Direction: Base"
+    global move_thread_flag_545=0
+    thread move_thread_545():
       enter_critical
-      move_thread_flag_544 = 1
+      move_thread_flag_545 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_544 = 2
+      move_thread_flag_545 = 2
       exit_critical
     end
-    move_thread_flag_544 = 0
-    move_thread_han_544 = run move_thread_544()
+    move_thread_flag_545 = 0
+    move_thread_han_545 = run move_thread_545()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_544
+        kill move_thread_han_545
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3703,36 +3787,36 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 545 "Until (tool_contact_detection)"
+        $ 546 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 546 "p23≔get_actual_tcp_pose()"
+    $ 547 "p23≔get_actual_tcp_pose()"
     global p23= get_actual_tcp_pose ()
-    $ 547 "MoveL"
-    $ 548 "ph4up" "breakAfter"
+    $ 548 "MoveL"
+    $ 549 "ph4up" "breakAfter"
     movel(ph4up, a=1.2, v=0.25)
-    $ 549 "ph5" "breakAfter"
+    $ 550 "ph5" "breakAfter"
     movel(ph5, a=1.2, v=0.25)
-    $ 550 "MoveL"
-    $ 551 "Direction: Base"
-    global move_thread_flag_551=0
-    thread move_thread_551():
+    $ 551 "MoveL"
+    $ 552 "Direction: Base"
+    global move_thread_flag_552=0
+    thread move_thread_552():
       enter_critical
-      move_thread_flag_551 = 1
+      move_thread_flag_552 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_551 = 2
+      move_thread_flag_552 = 2
       exit_critical
     end
-    move_thread_flag_551 = 0
-    move_thread_han_551 = run move_thread_551()
+    move_thread_flag_552 = 0
+    move_thread_han_552 = run move_thread_552()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_551
+        kill move_thread_han_552
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3744,48 +3828,48 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 552 "Until (tool_contact_detection)"
+        $ 553 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 553 "p22≔get_actual_tcp_pose()"
+    $ 554 "p22≔get_actual_tcp_pose()"
     global p22= get_actual_tcp_pose ()
-    $ 554 "MoveJ"
-    $ 555 "ph5" "breakAfter"
+    $ 555 "MoveJ"
+    $ 556 "ph5" "breakAfter"
     movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
-    $ 556 "ph4" "breakAfter"
+    $ 557 "ph4" "breakAfter"
     movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-    $ 558 "Waypoint_11" "breakAfter"
+    $ 559 "Waypoint_11" "breakAfter"
     movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 559 "Waypoint_12" "breakAfter"
+    $ 560 "Waypoint_12" "breakAfter"
     movej(get_inverse_kin(Waypoint_12_p, qnear=Waypoint_12_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 560 "Waypoint_4" "breakAfter"
+    $ 561 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 561 "Waypoint_13" "breakAfter"
+    $ 562 "Waypoint_13" "breakAfter"
     movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 562 "ph6" "breakAfter"
+    $ 563 "ph6" "breakAfter"
     movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-    $ 563 "ph7" "breakAfter"
+    $ 564 "ph7" "breakAfter"
     movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-    $ 564 "MoveL"
-    $ 565 "Direction: Base Z+"
-    global move_thread_flag_565=0
-    thread move_thread_565():
+    $ 565 "MoveL"
+    $ 566 "Direction: Base Z+"
+    global move_thread_flag_566=0
+    thread move_thread_566():
       enter_critical
-      move_thread_flag_565 = 1
+      move_thread_flag_566 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_565 = 2
+      move_thread_flag_566 = 2
       exit_critical
     end
-    move_thread_flag_565 = 0
-    move_thread_han_565 = run move_thread_565()
+    move_thread_flag_566 = 0
+    move_thread_han_566 = run move_thread_566()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_565
+        kill move_thread_han_566
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3797,28 +3881,26 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 566 "Until (tool_contact_detection)"
+        $ 567 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 567 "p3≔get_actual_tcp_pose()"
+    $ 568 "p3≔get_actual_tcp_pose()"
     global p3= get_actual_tcp_pose ()
-    $ 568 "MoveJ"
-    $ 569 "ph7" "breakAfter"
+    $ 569 "MoveJ"
+    $ 570 "ph7" "breakAfter"
     movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-    $ 570 "ph6" "breakAfter"
+    $ 571 "ph6" "breakAfter"
     movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-    $ 571 "Waypoint_14" "breakAfter"
+    $ 572 "Waypoint_14" "breakAfter"
     movej(get_inverse_kin(Waypoint_14_p, qnear=Waypoint_14_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 572 "Waypoint_4" "breakAfter"
+    $ 573 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 573 "Waypoint_41" "breakAfter"
+    $ 574 "Waypoint_41" "breakAfter"
     movej(get_inverse_kin(Waypoint_41_p, qnear=Waypoint_41_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 574 "'above waypoint is home'"
+    $ 575 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 576 "Comment"
-    # Comment
     $ 577 "Comment"
     # Comment
     $ 578 "Comment"
@@ -3828,6 +3910,8 @@ def Floor_Corner_Extended():
     $ 580 "Comment"
     # Comment
     $ 581 "Comment"
+    # Comment
+    $ 582 "Comment"
     # Comment
   end
   $ 2 "BeforeStart"
@@ -4029,25 +4113,25 @@ def Floor_Corner_Extended():
     sleep(0.03)
     # end: URCap Program Node
   end
-  $ 582 "Thread_1"
+  $ 583 "Thread_1"
   thread Thread_1():
-    $ 583 "Loop  True "
+    $ 584 "Loop  True "
     while (  True  ):
-      $ 584 "If freedrive_m_var≟ True "
+      $ 585 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 585 "freedrive_mode()"
+        $ 586 "freedrive_mode()"
         freedrive_mode()
-        $ 586 "free_dr_already≔ True "
+        $ 587 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 587 "Else" "noBreak"
-        $ 588 "If free_dr_already"
+        $ 588 "Else" "noBreak"
+        $ 589 "If free_dr_already"
         if (free_dr_already):
-          $ 589 "end_freedrive_mode()"
+          $ 590 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 590 "sync()"
+      $ 591 "sync()"
       sync()
     end
   end
@@ -4312,8 +4396,6 @@ def Floor_Corner_Extended():
       # get the raw points from the second line
       l2p1x=p21[0]
       l2p1y=p21[1]
-      l2p2x=p22[0]
-      l2p2y=p22[1]
   
       # equate the second line in 2d space
       # ml2 = opposite reciprocal of ml1 (because they are perpendicular) (assume perpendicular to make calculation of weldpath much easier)
@@ -5143,13 +5225,67 @@ def Floor_Corner_Extended():
       #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
   
       # approach point for top
-      ph6 = p[p0x + d0, p0y, p0z+0.05, 0.138, 3.104, -0.072] # approach point for under turn
+      ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner.
   
       # top point
       ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
   
       ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
       is_robot_at_reachable_spot(point0, ret)
+      return ret
+  end
+  
+  # this function determines the starting touchpoints for homing in on cover straight geometry
+  # includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+  def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+      # get the teach position points
+      lpx = leftpoint[0]
+      lpy = leftpoint[1]
+      lpz = leftpoint[2]
+      rpx = rightpoint[0]
+      rpy = rightpoint[1]
+      rpz = rightpoint[2]
+  
+      # specify the distances from
+      d0 = 0.05 # how far from the planes to approach from
+      d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+      d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+  
+      # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+      ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+      ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+      ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+      ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+  
+      ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+      is_robot_at_reachable_spot(leftpoint, ret)
+      return ret
+  end
+  
+  # this function determines the starting touchpoints for homing in on cover straight geometry
+  # includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+  def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+      # get the teach position points
+      lpx = leftpoint[0]
+      lpy = leftpoint[1]
+      lpz = leftpoint[2]
+      rpx = rightpoint[0]
+      rpy = rightpoint[1]
+      rpz = rightpoint[2]
+  
+      # specify the distances from
+      d0 = 0.05 # how far from the planes to approach from
+      d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+      d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+  
+      # calculate the points
+      ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+      ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+      ph3 = p[lpx - d1, lpy, lpz + d0, 0, 0, 0] # left bottom approach
+      ph4 = p[rpx - d1, rpy, rpz + d0, 0, 0, 0] # right bottom approach
+  
+      ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+      is_robot_at_reachable_spot(leftpoint, ret)
       return ret
   end
   
@@ -6194,9 +6330,9 @@ def Floor_Corner_Extended():
       # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
       # find locations 8 inches away from  intersect point
       # CONST
-      welddistance1 = 8 # first path first leg (down)
-      welddistance2 = 3 # first path second leg (under) # inches
-      welddistance3 = 8 # second path (back away) # inches
+      welddistance1 = 6 # first path first leg (down)
+      welddistance2 = 4 # first path second leg (under) # inches
+      welddistance3 = 6 # second path (back away) # inches
   
       wd1 = welddistance1 * 25.4 / 1000
       wd2 = welddistance2 * 25.4 / 1000
@@ -6208,7 +6344,7 @@ def Floor_Corner_Extended():
       # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
       zpi = pointintersect[2]
       if zpi > 0:
-          liftcolumnzneeded = zpi
+          liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
           z = 0
       else:
           z = zpi
@@ -6243,6 +6379,12 @@ def Floor_Corner_Extended():
       p2x = x + l1delxunit * rod
       p2y = y + l1delyunit * rod
       point2 = p[p2x, p2y, z, rx, ry, rz]
+  
+      # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+      wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+      p2ax = x + l1delxunit * wtod
+      p2ay = y + l1delyunit * wtod
+      point2a = p[p2ax, p2ay, z, rx, ry, rz]
   
       # calculate the rxryrz for facing the down the left side of the box
       # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
@@ -6295,12 +6437,21 @@ def Floor_Corner_Extended():
       rz = rxryrz[2]
       point201 = p[p201x, p201y, z, rx, ry, rz]
   
+      # calculate point 201's preheat
+      pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+      preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+      point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+      p201bx = p201x + l2delxunit * pushtipforward2
+      p201by = p201y + l2delyunit * pushtipforward2
+      point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+      point201c = p[p201bx, p201by, z, rx, ry, rz]
+  
       # calculate point 202
       p202x = p201x + wd3 * l2delxunit
       p202y = p201y + wd3 * l2delyunit
       point202 = p[p202x, p202y, z, rx, ry, rz]
   
-      struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+      struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
       return struct2
   end
   
@@ -6318,9 +6469,9 @@ def Floor_Corner_Extended():
       # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
       # find locations 8 inches away from  intersect point
       # CONST
-      welddistance1 = 8 # first path first leg (down)
-      welddistance2 = 3 # first path second leg (under) # inches
-      welddistance3 = 8 # second path (back away) # inches
+      welddistance1 = 6 # first path first leg (down)
+      welddistance2 = 4 # first path second leg (under) # inches
+      welddistance3 = 6 # second path (back away) # inches
   
       wd1 = welddistance1 * 25.4 / 1000
       wd2 = welddistance2 * 25.4 / 1000
@@ -6332,7 +6483,7 @@ def Floor_Corner_Extended():
       # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
       zpi = pointintersect[2]
       if zpi > 0:
-          liftcolumnzneeded = zpi
+          liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
           z = 0
       else:
           z = zpi
@@ -6367,6 +6518,12 @@ def Floor_Corner_Extended():
       p2x = x + l2delxunit * rod
       p2y = y + l2delyunit * rod
       point2 = p[p2x, p2y, z, rx, ry, rz]
+  
+      # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
+      wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+      p2ax = x + l2delxunit * wtod
+      p2ay = y + l2delyunit * wtod
+      point2a = p[p2ax, p2ay, z, rx, ry, rz]
   
       # calculate the rxryrz for facing the down the right side of the box
       # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
@@ -6419,12 +6576,21 @@ def Floor_Corner_Extended():
       rz = rxryrz[2]
       point201 = p[p201x, p201y, z, rx, ry, rz]
   
+      # calculate point 201's preheat
+      pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+      preheatdistance = 0.010 # 10 mm . above what it would be pushed down
+      point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
+      p201bx = p201x + l1delxunit * pushtipforward2
+      p201by = p201y + l1delyunit * pushtipforward2
+      point201b = p[p201bx, p201by, z + preheatdistance, rx, ry, rz]
+      point201c = p[p201bx, p201by, z, rx, ry, rz]
+  
       # calculate point 202
       p202x = p201x + wd3 * l1delxunit
       p202y = p201y + wd3 * l1delyunit
       point202 = p[p202x, p202y, z, rx, ry, rz]
   
-      struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202)
+      struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
       return struct2
   end
   $ 96 "leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'"

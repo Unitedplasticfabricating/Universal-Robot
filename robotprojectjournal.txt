@@ -1206,6 +1206,65 @@ now in the test teach straight .script file i have this:
   global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
 its the same as in the cover straight main script.
 in test teach position straight, it is the same. 
+what the fuck. 
+i added a set tcp command at the start of Test Teach Straight, setting the tcp to pretend_w_top. 
+and now it looks like this:
+    $ 3 "Set"
+    set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+    $ 7 "MoveJ"
+    $ 8 "Waypoint_40" "breakAfter"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
+it sets the tcp to what i want, and then immediately sets it back to what it was before. 
+that's an interesting observation. 
+i should set the tcp immediately before moving to any variable position or requesting position. 
+let me check the Cover Corner script and see how it's working when it comes to the move_path thing. 
+move_path_cover_left3() inside cover corner .script has the following:
+    $ 224 "Set"
+    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+    $ 225 "MoveL"
+    $ 226 "pret1" "breakAfter"
+    movel(pret1, a=0.05, v=0.05)
+    $ 227 "MoveJ"
+    $ 228 "pret2" "breakAfter"
+    movej(pret2, a=1.3962634015954636, v=1.0471975511965976)
+    $ 229 "MoveJ"
+    $ 230 "'retreat of p5'"
+    # 'retreat of p5'
+    $ 231 "Waypoint_6" "breakAfter"
+    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+as you can see, the set command sets the tcp and then it moves to the variable waypoints without setting it again. 
+it also moves to the fixed waypoint without setting the tcp. 
+i am not sure why it doesnt set it here but it did before. 
+i checked floor corner extended. i can confirm that it is also setting the tcp to tcp_1_plate before gathering the teach points. 
+most likely this is the reason that the height start is not exactly the same as what you set it at. 
+i am not sure why the x and y values arent way off though. perhaps they are and i just didnt notice. but if they were off, you'd think they would be an entire foot off. 
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 367 "freedrive_m_var≔ False "
+    global freedrive_m_var=  False  
+    $ 368 "freedrive_m_var≔ True "
+    global freedrive_m_var=  True  
+    $ 369 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
+    popup("Move the TCP to the top of the weld, then click 'Continue'", "Message", False, False, blocking=True)
+    $ 370 "tcp_pose_top≔get_actual_tcp_pose()"
+    global tcp_pose_top= get_actual_tcp_pose ()
+    $ 371 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
+    popup("Move the TCP to the corner of the tank, then click 'Continue'", "Message", False, False, blocking=True)
+    $ 372 "tcp_pose≔get_actual_tcp_pose()"
+    global tcp_pose= get_actual_tcp_pose ()
+if thats the case then it should be 285 mm off. 
+i run floor corner extended on this box. i pause immediately after i teach my two points
+it pauses during corner homing 45's Wait 1.0.
+immediately after the wait, there is a call to tp := get_actual_tcp_pose() INSIDE corner homing 45. 
+and then what gets passed into get_corner_homing_45_pathpoints() is tp and tcp_pose_top. 
+checking the run screen, tp has the correct coordinates based on pretend_w_top. 
+so that explains why only the top position was off and the rest of the stuff was accurate. because it was calculating it again. 
+i placed a set command inside the test teach position subprogram AFTER the moveJs and directly before the freedrive. 
+trying it now. yes that fixed it. 
+wow. thats crazy.
+ok so i also made that change to test teach straight. and it did fix the problem. 
+now it bumped itself when moving to ph3 from waypoint 11. 
 
 
 
