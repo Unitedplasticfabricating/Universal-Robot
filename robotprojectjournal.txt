@@ -1169,7 +1169,7 @@ i will make them teach the start and endpoints of the weld by making them specif
 i will use those points to get homing points. i will use those homing result points to calculate the line on which the weld runs. 
 in main_calculate, i will determine the start and end points by interpolating the y value of the teach points onto the line calculated by homing. 
 
-i got my homing program compilig and running. 
+i got my homing program compiling and running. 
 it is not working correctly though. 
 when it saves tcp_poe_left and right with get_actual_tcp_pose(), it is not saving it correctly. 
 it is like 2 feet off of what it should be. it should have saved x = -1244, but it instead saved x = -.997
@@ -1177,7 +1177,33 @@ i will have to investigate that function, get_actual_tcp_pose() and make sure it
 i determined that it might have been using tcp_plate_1 or TCP as the tcp of reference for determining coordinates during that function. 
 inside Test_Teach_Straight() there is no tcp set function. 
 
-  
+for some reason in the cover straight.script file, every moveJ move inside def Test_Teach_Straight(): looks like this:
+
+    $ 366 "MoveJ"
+    $ 367 "Waypoint_40" "breakAfter"
+    set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
+    movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
+
+i am not sure why it's setting the tcp to tcp_plate_1. 
+in extrude_knife() it has this:
+    $ 387 "Set"
+    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+but then has no set tcp command before each move. 
+that implies the solution is to set the tcp in each subprogram. 
+somehow the points work correctly. maybe the program was opened originally with tcp_1_plate as the default tcp. 
+because of that, all the fixed waypoints are saved according to that tcp? maybe? 
+i went to waypoint_2 with my tcp_1_plate active by going into cover straight program and clicking waypoint_2 (in subprogram test teach straight) and clicking move to position. its coordinates are -548, 386, 143 in the move screen. 
+when i switch my active tcp to pretend_welder_top, my coordinates are -550, 120, 125.
+inside the cover straight script file, waypoint 2 is defined as this:
+  global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
+  global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
+yes. waypoint_2 is defined according to tcp_1_plate. 
+test teach straight does not have a .script file. weird.
+test teach position straight does. weird. 
+probably because test teach straight was saved from its subprogram tag inside cover straight. saving test teach straight independently did cause its .script file to appear. 
+
+
+
 
 
 
