@@ -180,23 +180,25 @@ def Test_Teach_Straight():
     $ 10 "Waypoint_2" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 11 "freedrive_m_var≔ False "
+    $ 11 "Set"
+    set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+    $ 12 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 12 "freedrive_m_var≔ True "
+    $ 13 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 13 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 14 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 14 "tcp_pose_left≔get_actual_tcp_pose()"
+    $ 15 "tcp_pose_left≔get_actual_tcp_pose()"
     global tcp_pose_left= get_actual_tcp_pose ()
-    $ 15 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 16 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 16 "tcp_pose_right≔get_actual_tcp_pose()"
+    $ 17 "tcp_pose_right≔get_actual_tcp_pose()"
     global tcp_pose_right= get_actual_tcp_pose ()
-    $ 17 "freedrive_m_var≔ False "
+    $ 18 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 18 "Wait: 0.25"
+    $ 19 "Wait: 0.25"
     sleep(0.25)
-    $ 19 "sync()"
+    $ 20 "sync()"
     sync()
   end
 end
