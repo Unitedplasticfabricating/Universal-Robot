@@ -3505,6 +3505,232 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
 end
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+# returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+    # calculate slope of sidewall in x-y plane
+    # get the raw points from the first line
+    l1p1x=p11[0]
+    l1p1y=p11[1]
+    l1p2x=p12[0]
+    l1p2y=p12[1]
+
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # calculate the cover plane
+    # if two planes are perpendicular, then their normal vectors must be perpendicular. 
+    # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -&gt; &lt;a, b, c&gt;
+    # the second plane&apos;s normal vector is perpendicular to all vectors contained in the plane
+    # p21 to p22 is a vector v contained within plane 2. 
+    # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+    
+    # plane 1 (y = mx + b) -&gt; (b = -mx +1y +0z)
+    n1 = [-1 * ml1, 1, 0]
+    
+    # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+    v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+    
+    #v n2 = cross product of n1 and v
+    n2x = n1[1]*v[2] - n1[2]*v[1]
+    n2y = n1[2]*v[0] - n1[0]*v[2]
+    n2z = n1[0]*v[1] - n1[1]*v[0]
+    n2 = [n2x, n2y, n2z]
+    
+    # find the d of the second plane
+    # n2x * x + n2y * y + n2z * z = d0
+    d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+    
+    # find the intersection line of the two planes
+    # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+    v3x = n1[1]*n2[2] - n1[2]*n2[1]
+    v3y = n1[2]*n2[0] - n1[0]*n2[2]
+    v3z = n1[0]*n2[1] - n1[1]*n2[0]
+    v3 = [v3x, v3y, v3z]
+    
+    # normalize the vector so the magnitude is 1
+    magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+    magnitude = sqrt(magnitude2)
+    v3xunit = v3x/magnitude
+    v3yunit = v3y/magnitude
+    v3zunit = v3z/magnitude
+    
+    # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+    if v3yunit &lt; 0:
+        v3xunit = v3xunit * -1
+        v3yunit = v3yunit * -1
+        v3zunit = v3zunit * -1
+    end
+    
+    # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+    # i will pick the y value of the left teach point
+    y = leftpoint[1]
+    # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+    # -ml1 * x = bl1 - y
+    x = (bl1 - y)/ (-1 * ml1)
+    # plane 2: d = n2x * x + n2y * y + n2z * z
+    # (d - n2x * x - n2y * y) = n2z * z
+    z = (d - n2x * x - n2y * y) / n2z
+    
+    # make point0 into a pose
+    point0 = p[x, y, z, 0, 0, 0]
+    
+    # find heading of main line
+    heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+    
+    # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+    ml2 = -1 / ml1
+    # y = ml2 * x + unknownB
+    # vector = [1, ml2]
+    mag2 = 1 + ml2 * ml2
+    mag = sqrt(mag2)
+    v4xunit = 1 / mag
+    v4yunit = ml2 / mag
+    # switch is to the x direction is negative
+    v4xunit = -1 * v4xunit
+    v4yunit = -1 * v4yunit
+    
+    ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+    return ret
+end
+
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    sidewallthick = sidewallthick
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = p0z
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        coverz = 0
+    else:
+        coverz = zpi
+    end
+    
+    # calculate pointtopvcham
+    chamferover = sidewallthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    x = p0x + v4xunit * chamferover
+    y = p0y + v4yunit * chamferover
+    z = coverz + tiltraise
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = coverz + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist - tiltraise
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+    
+end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
         </Script>
@@ -3780,6 +4006,15 @@ end
             <ExpressionChar character="v"/>
             <ExpressionChar character="e"/>
             <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
             <ExpressionChar character="("/>
             <ExpressionChar character="p"/>
             <ExpressionChar character="1"/>
@@ -3806,9 +4041,36 @@ end
             <ExpressionChar character="l"/>
             <ExpressionChar character="l"/>
             <ExpressionChar character=","/>
-            <ExpressionToken token=" False "/>
+            <ExpressionChar character=" "/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="t"/>
             <ExpressionChar character=","/>
-            <ExpressionToken token=" True "/>
+            <ExpressionChar character=" "/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
             <ExpressionChar character=")"/>
           </expression>
         </Assignment>
@@ -3832,6 +4094,114 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="m"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="v"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="h"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="c"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="v"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="l"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="f"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="3"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Assignment" valueSource="Expression">
+            <variable name="pointtopvcham" prefersPersistentValue="false" favourite="false">
+              <initializeExpression/>
+            </variable>
+            <expression>
+              <ExpressionChar character="p"/>
+              <ExpressionChar character="a"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="h"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="["/>
+              <ExpressionChar character="0"/>
+              <ExpressionChar character="]"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+          <dataModel>
+            <data key="type" value="addMotor"/>
+            <data key="numberAdded" value="0"/>
+            <data key="speed_in_mm_per_min" value="3000.0"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="ActuatorPos" value="liftcolumnzneeded"/>
+            <data key="teachColor" value="BLUE"/>
+            <data key="combo1" value="MachineMotion1"/>
+            <data key="combo2" value="(1) Custom Actuator"/>
+            <data key="combo3" value="Move to Position"/>
+            <data key="combo6" value="In series"/>
+            <data key="message" value="Move to Position"/>
+            <data key="description" value="Moves the actuator to a specified position from the home location."/>
+            <data key="comboAddress" value="Address 1"/>
+            <data key="comboActuator" value="Valve 1"/>
+          </dataModel>
+        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+            <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+            <children>
+              <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                <motionParameters/>
+                <variable reference="../../../../../SuppressedNode[6]/suppressedNode/variable"/>
+              </Waypoint>
+            </children>
+          </suppressedNode>
+        </SuppressedNode>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
         <Script type="Line">
           <expression>
             <ExpressionChar character="m"/>
@@ -3850,15 +4220,71 @@ end
             <ExpressionChar character="e"/>
             <ExpressionChar character="r"/>
             <ExpressionChar character="_"/>
-            <ExpressionChar character="l"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="f"/>
+            <ExpressionChar character="s"/>
             <ExpressionChar character="t"/>
-            <ExpressionChar character="3"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
             <ExpressionChar character="("/>
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="1">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="0.09593799853304574, -2.478920735206711, 2.2568664886291003, 0.22882056286890418, 1.7417236956390985, -0.16791597406715475"/>
+                <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Waypoint type="Fixed" name="Waypoint_9" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.461131359466023, -2.0623222441504643, 2.3291806643499107, -0.2192273969510623, -0.20100694585182488, -0.11040669743862352"/>
+                <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+          <dataModel>
+            <data key="type" value="addMotor"/>
+            <data key="numberAdded" value="0"/>
+            <data key="combo1" value="MachineMotion1"/>
+            <data key="combo2" value="(1) Custom Actuator"/>
+            <data key="combo3" value="Home"/>
+            <data key="combo6" value="In series"/>
+            <data key="speed_in_mm_per_min" value="3000.0"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="message" value="Homing"/>
+            <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
+            <data key="comboAddress" value="Address 1"/>
+            <data key="comboActuator" value="Valve 1"/>
+            <data key="teachColor" value="BLUE"/>
+          </dataModel>
+        </Contributed>
+        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
       </children>
     </MainProgram>
     <SubProgram name="Test_Teach_Straight" keepHidden="false" keepSynchronizedWithDisk="false">
@@ -3985,6 +4411,419 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+      </children>
+    </SubProgram>
+    <SubProgram name="move_path_cover_straight" keepHidden="false" keepSynchronizedWithDisk="false">
+      <programFile>/programs/move_path_cover_straight.urp</programFile>
+      <children>
+        <Assignment valueSource="Expression">
+          <variable name="p1" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p2" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p3" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p4" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p5" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p6" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="pa1" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="pret" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="6"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Comment comment="go to preheat"/>
+        <Set type="NoAction">
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
+        </Set>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[7]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.05" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Wait type="Sleep">
+          <waitTime>4.0</waitTime>
+        </Wait>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
+        <Wait type="Sleep">
+          <waitTime>1.0</waitTime>
+        </Wait>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[2]/variable"/>
+            </Waypoint>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[3]/variable"/>
+            </Waypoint>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[4]/variable"/>
+            </Waypoint>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[5]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
+            <data key="NODE_TITLE" value="Serial Bridge uR0"/>
+            <data key="Command" value="[252,82,48]"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../Contributed/dataModel/Variable/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[6]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Wait type="Sleep">
+          <waitTime>1.0</waitTime>
+        </Wait>
+        <Move motionType="MoveL" speed="0.05" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[8]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+      </children>
+    </SubProgram>
+    <SubProgram name="align_for_cover_straight" keepHidden="false" keepSynchronizedWithDisk="false">
+      <programFile>/programs/align for cover straight.urp</programFile>
+      <children>
+        <SuppressedNode>
+          <suppressedNode class="Folder" name="dummypoints" keepHidden="false">
+            <children>
+              <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+                <feature class="GeomFeatureReference" reference="../../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+                <children>
+                  <Waypoint type="Fixed" name="oldhome" kinematicsFlags="3">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="-3.461131359466087, -2.062322244150579, 2.329180664349958, -0.21922739695102145, -0.20100694585188528, -0.11040669743860754"/>
+                      <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                        <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                        <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                        <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                        <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                  <Waypoint type="Fixed" name="demo" kinematicsFlags="1">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="0.0016610372042507038, -1.2424780514467137, 1.415266272334709, -0.16628243342545979, 1.6480608027368113, -0.16916892742293843"/>
+                      <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                        <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                        <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                        <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                        <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                  <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="1">
+                    <motionParameters/>
+                    <position>
+                      <JointAngles angles="0.09593799853299233, -2.4789207352067404, 2.2568664886291074, 0.22882056286890834, 1.741723695639044, -0.16791597406715297"/>
+                      <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                      <Kinematics status="LINEARIZED" validChecksum="true">
+                        <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                        <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                        <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                        <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                        <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                      </Kinematics>
+                    </position>
+                    <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                  </Waypoint>
+                </children>
+              </Move>
+            </children>
+          </suppressedNode>
+        </SuppressedNode>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.461131359466087, -2.062322244150579, 2.329180664349958, -0.21922739695102145, -0.20100694585188528, -0.11040669743860754"/>
+                <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Waypoint type="Fixed" name="Waypoint_7" kinematicsFlags="1">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="0.09593799853302087, -2.4789207352067226, 2.256866488629104, 0.22882056286890795, 1.7417236956390747, -0.16791597406715297"/>
+                <TCPOffset pose="-0.0095, -0.328, 0.10573, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
       </children>
     </SubProgram>
     <SubProgram name="extrude_knife3" keepHidden="false" keepSynchronizedWithDisk="false">
@@ -6494,7 +7333,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="Straight_Homing_Cover" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/Straight Homing Cover.urp</programFile>
+      <programFile>/programs/Straight Homing Cover.urp</programFile>
       <children>
         <Comment comment="Use this program when tool is already positioned close to corner at 45deg"/>
         <Comment comment="tool flange will seek all 3 sides. will save those 5 locs in p__"/>
@@ -9028,6 +9867,232 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
 
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
+end
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+# returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+    # calculate slope of sidewall in x-y plane
+    # get the raw points from the first line
+    l1p1x=p11[0]
+    l1p1y=p11[1]
+    l1p2x=p12[0]
+    l1p2y=p12[1]
+
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # calculate the cover plane
+    # if two planes are perpendicular, then their normal vectors must be perpendicular. 
+    # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -&gt; &lt;a, b, c&gt;
+    # the second plane&apos;s normal vector is perpendicular to all vectors contained in the plane
+    # p21 to p22 is a vector v contained within plane 2. 
+    # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+    
+    # plane 1 (y = mx + b) -&gt; (b = -mx +1y +0z)
+    n1 = [-1 * ml1, 1, 0]
+    
+    # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+    v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+    
+    #v n2 = cross product of n1 and v
+    n2x = n1[1]*v[2] - n1[2]*v[1]
+    n2y = n1[2]*v[0] - n1[0]*v[2]
+    n2z = n1[0]*v[1] - n1[1]*v[0]
+    n2 = [n2x, n2y, n2z]
+    
+    # find the d of the second plane
+    # n2x * x + n2y * y + n2z * z = d0
+    d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+    
+    # find the intersection line of the two planes
+    # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+    v3x = n1[1]*n2[2] - n1[2]*n2[1]
+    v3y = n1[2]*n2[0] - n1[0]*n2[2]
+    v3z = n1[0]*n2[1] - n1[1]*n2[0]
+    v3 = [v3x, v3y, v3z]
+    
+    # normalize the vector so the magnitude is 1
+    magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+    magnitude = sqrt(magnitude2)
+    v3xunit = v3x/magnitude
+    v3yunit = v3y/magnitude
+    v3zunit = v3z/magnitude
+    
+    # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+    if v3yunit &lt; 0:
+        v3xunit = v3xunit * -1
+        v3yunit = v3yunit * -1
+        v3zunit = v3zunit * -1
+    end
+    
+    # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+    # i will pick the y value of the left teach point
+    y = leftpoint[1]
+    # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+    # -ml1 * x = bl1 - y
+    x = (bl1 - y)/ (-1 * ml1)
+    # plane 2: d = n2x * x + n2y * y + n2z * z
+    # (d - n2x * x - n2y * y) = n2z * z
+    z = (d - n2x * x - n2y * y) / n2z
+    
+    # make point0 into a pose
+    point0 = p[x, y, z, 0, 0, 0]
+    
+    # find heading of main line
+    heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+    
+    # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+    ml2 = -1 / ml1
+    # y = ml2 * x + unknownB
+    # vector = [1, ml2]
+    mag2 = 1 + ml2 * ml2
+    mag = sqrt(mag2)
+    v4xunit = 1 / mag
+    v4yunit = ml2 / mag
+    # switch is to the x direction is negative
+    v4xunit = -1 * v4xunit
+    v4yunit = -1 * v4yunit
+    
+    ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+    return ret
+end
+
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    sidewallthick = sidewallthick
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = p0z
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        coverz = 0
+    else:
+        coverz = zpi
+    end
+    
+    # calculate pointtopvcham
+    chamferover = sidewallthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    x = p0x + v4xunit * chamferover
+    y = p0y + v4yunit * chamferover
+    z = coverz + tiltraise
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = coverz + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist - tiltraise
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+    
 end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>

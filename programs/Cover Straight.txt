@@ -110,9 +110,19 @@
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
      'Call '
      'MoveJ'
-     pathturn≔main_calculate_cover(p11,p12,p21,p22,sidewall, False , True )
+     pathturn≔main_calculate_cover_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)
      extrude_knife3()
-     move_path_cover_left3()
+     'move_path_cover_left3()'
+     'pointtopvcham≔pathturn[0]'
+     MachineLogic Move to Position
+     'MoveJ'
+     align_for_cover_straight()
+     move_path_cover_straight()
+     MoveJ
+       Waypoint_8
+       Waypoint_9
+     MachineLogic Homing
+     Home
    Test_Teach_Straight
      Set
      'MoveL'
@@ -130,6 +140,42 @@
      freedrive_m_var≔ False 
      Wait: 0.25
      sync()
+   move_path_cover_straight
+     p1≔pathturn[1]
+     p2≔pathturn[2]
+     p3≔pathturn[3]
+     p4≔pathturn[4]
+     p5≔pathturn[5]
+     p6≔pathturn[6]
+     pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     pret≔p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]
+     'go to preheat'
+     Set
+     MoveJ
+       pa1
+     MoveL
+       p1
+     Wait: 4.0
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 1.0
+     MoveL
+       p2
+       p3
+       p4
+       p5
+     Serial Bridge uR0
+     Set DO[0]=Off
+     MoveL
+       p6
+     Wait: 1.0
+     MoveL
+       pret
+   align_for_cover_straight
+     'dummypoints'
+     MoveJ
+       Waypoint_6
+       Waypoint_7
    extrude_knife3
      pre program stuff
        Set

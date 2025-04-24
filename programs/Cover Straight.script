@@ -10,7 +10,7 @@ def Cover_Straight():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_safety_mode_transition_hardness(1)
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -202,10 +202,18 @@ def Cover_Straight():
   global Waypoint_75_q=[-3.2647881984118814, -1.2522049299371645, 1.5824044773896437, 0.9175786249801816, -0.008369636028316307, -1.3112608249927966]
   global Waypoint_46_p=p[.894107867742, .351078231601, .354456446052, 2.326366960603, 2.052510258679, .057358671808]
   global Waypoint_46_q=[-3.266944233571188, -1.1744955343059083, 1.6532734076129358, 1.003952904338501, -0.002457443867818654, -1.5361955801593226]
+  global Waypoint_8_p=p[-.262598515057, -.117910587405, .443766749060, .115341915577, 3.114598670938, .265717910023]
+  global Waypoint_8_q=[0.09593799853304574, -2.478920735206711, 2.2568664886291003, 0.22882056286890418, 1.7417236956390985, -0.16791597406715475]
+  global Waypoint_9_p=p[.397354147848, .356263001249, .319808682466, 2.316306590727, 2.057646408591, .074101958728]
+  global Waypoint_9_q=[-3.461131359466023, -2.0623222441504643, 2.3291806643499107, -0.2192273969510623, -0.20100694585182488, -0.11040669743862352]
   global Waypoint_40_p=p[.360688403366, .270119715397, .646144746546, .057805349154, 2.125995180379, 2.134053153683]
   global Waypoint_40_q=[-3.4579489866839808, -2.0569035015501917, 2.3265796343432825, -0.22706706941638188, -0.1993501822101038, -0.10534793535341436]
   global Waypoint_2_p=p[-.548957282596, .386284559177, .143710178207, 1.570800598292, -.000025190822, .000004803470]
   global Waypoint_2_q=[-1.0516188780414026, -1.010990933781006, 2.1562450567828577, -1.143702046280243, -1.0526168982135218, -0.0017235914813440445]
+  global Waypoint_6_p=p[.397354147848, .356263001249, .319808682466, 2.316306590727, 2.057646408591, .074101958728]
+  global Waypoint_6_q=[-3.461131359466087, -2.062322244150579, 2.329180664349958, -0.21922739695102145, -0.20100694585188528, -0.11040669743860754]
+  global Waypoint_7_p=p[-.262598515057, -.117910587405, .443766749060, .115341915577, 3.114598670938, .265717910023]
+  global Waypoint_7_q=[0.09593799853302087, -2.4789207352067226, 2.256866488629104, 0.22882056286890795, 1.7417236956390747, -0.16791597406715297]
   global r1_ek_oldhome_p=p[.397380247322, .356253634699, .319820846021, 2.316316320871, 2.057594704604, .074118471609]
   global r1_ek_oldhome_q=[-3.457949940358297, -2.056894441644186, 2.32658034959902, -0.2270551484874268, -0.19935208955873662, -0.10533696809877569]
   global r1_ek_extrude_p=p[.454852104155, .405448828659, .064015413765, 2.316807606413, 2.051392071696, .076664825947]
@@ -247,194 +255,268 @@ def Cover_Straight():
   global Waypoint_4_p=p[-.563856457150, -.113245522666, .483260959724, .347029359730, 3.101499736541, -.038451502133]
   global Waypoint_4_q=[-0.20992943689837773, -1.9784871065419516, 2.118174570430004, 4.596341596371083, -1.5479914230732064, -1.5583000940644602]
   def Test_Teach_Straight():
-    $ 116 "Test_Teach_Straight" "noBreak"
-    $ 117 "Set"
+    $ 127 "Test_Teach_Straight" "noBreak"
+    $ 128 "Set"
     set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-    $ 121 "MoveJ"
-    $ 122 "Waypoint_40" "breakAfter"
+    $ 132 "MoveJ"
+    $ 133 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 123 "'above waypoint is home'"
+    $ 134 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 124 "Waypoint_2" "breakAfter"
+    $ 135 "Waypoint_2" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 125 "Set"
+    $ 136 "Set"
     set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-    $ 126 "freedrive_m_var≔ False "
+    $ 137 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 127 "freedrive_m_var≔ True "
+    $ 138 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 128 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 139 "Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 129 "tcp_pose_left≔get_actual_tcp_pose()"
+    $ 140 "tcp_pose_left≔get_actual_tcp_pose()"
     global tcp_pose_left= get_actual_tcp_pose ()
-    $ 130 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
+    $ 141 "Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'"
     popup("Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 131 "tcp_pose_right≔get_actual_tcp_pose()"
+    $ 142 "tcp_pose_right≔get_actual_tcp_pose()"
     global tcp_pose_right= get_actual_tcp_pose ()
-    $ 132 "freedrive_m_var≔ False "
+    $ 143 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 133 "Wait: 0.25"
+    $ 144 "Wait: 0.25"
     sleep(0.25)
-    $ 134 "sync()"
+    $ 145 "sync()"
     sync()
   end
-  def extrude_knife3():
-    $ 135 "extrude_knife3" "noBreak"
-    $ 136 "pre program stuff"
-    $ 137 "Set"
+  def move_path_cover_straight():
+    $ 146 "move_path_cover_straight" "noBreak"
+    $ 147 "p1≔pathturn[1]"
+    global p1=pathturn[1]
+    $ 148 "p2≔pathturn[2]"
+    global p2=pathturn[2]
+    $ 149 "p3≔pathturn[3]"
+    global p3=pathturn[3]
+    $ 150 "p4≔pathturn[4]"
+    global p4=pathturn[4]
+    $ 151 "p5≔pathturn[5]"
+    global p5=pathturn[5]
+    $ 152 "p6≔pathturn[6]"
+    global p6=pathturn[6]
+    $ 153 "pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
+    global pa1=p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+    $ 154 "pret≔p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]"
+    global pret=p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]
+    $ 155 "'go to preheat'"
+    # 'go to preheat'
+    $ 156 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 138 "ek_sp≔get_actual_tcp_pose()"
+    $ 157 "MoveJ"
+    $ 158 "pa1" "breakAfter"
+    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 159 "MoveL"
+    $ 160 "p1" "breakAfter"
+    movel(p1, a=0.05, v=0.05)
+    $ 161 "Wait: 4.0"
+    sleep(4.0)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 162 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 163 "Set DO[0]=On"
+    set_standard_digital_out(0, True)
+    $ 164 "Wait: 1.0"
+    sleep(1.0)
+    $ 165 "MoveL"
+    $ 166 "p2" "breakAfter"
+    movel(p2, a=1.2, v=0.01)
+    $ 167 "p3" "breakAfter"
+    movel(p3, a=1.2, v=0.01)
+    $ 168 "p4" "breakAfter"
+    movel(p4, a=1.2, v=0.01)
+    $ 169 "p5" "breakAfter"
+    movel(p5, a=1.2, v=0.01)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 170 "Serial Bridge uR0"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
+    # end: URCap Program Node
+    $ 171 "Set DO[0]=Off"
+    set_standard_digital_out(0, False)
+    $ 172 "MoveL"
+    $ 173 "p6" "breakAfter"
+    movel(p6, a=1.2, v=0.01)
+    $ 174 "Wait: 1.0"
+    sleep(1.0)
+    $ 175 "MoveL"
+    $ 176 "pret" "breakAfter"
+    movel(pret, a=0.05, v=0.05)
+  end
+  def align_for_cover_straight():
+    $ 177 "align_for_cover_straight" "noBreak"
+    $ 183 "MoveJ"
+    $ 184 "Waypoint_6" "breakAfter"
+    movej(get_inverse_kin(Waypoint_6_p, qnear=Waypoint_6_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 185 "Waypoint_7" "breakAfter"
+    movej(get_inverse_kin(Waypoint_7_p, qnear=Waypoint_7_q), a=1.3962634015954636, v=1.0471975511965976)
+  end
+  def extrude_knife3():
+    $ 186 "extrude_knife3" "noBreak"
+    $ 187 "pre program stuff"
+    $ 188 "Set"
+    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+    $ 189 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 139 "MoveL"
-    $ 140 "ek_sp" "breakAfter"
+    $ 190 "MoveL"
+    $ 191 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 142 "'list possible points'"
+    $ 193 "'list possible points'"
     # 'list possible points'
-    $ 143 "robot 1 moves"
-    $ 144 "If 1≟2"
+    $ 194 "robot 1 moves"
+    $ 195 "If 1≟2"
     if (1 == 2):
-      $ 145 "MoveJ"
-      $ 146 "r1_ek_oldhome" "breakAfter"
+      $ 196 "MoveJ"
+      $ 197 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 147 "r1_ek_extrude" "breakAfter"
+      $ 198 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 148 "r1_ek_front" "breakAfter"
+      $ 199 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 149 "r1_ek_middle" "breakAfter"
+      $ 200 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 150 "r1_ek_middle2" "breakAfter"
+      $ 201 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 151 "r1_ek_bottom" "breakAfter"
+      $ 202 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 152 "r1_ek_end" "breakAfter"
+      $ 203 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 153 "robot 2 moves"
-    $ 154 "If 1≟2"
+    $ 204 "robot 2 moves"
+    $ 205 "If 1≟2"
     if (1 == 2):
-      $ 155 "MoveJ"
-      $ 156 "r2_ek_oldhome" "breakAfter"
+      $ 206 "MoveJ"
+      $ 207 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 158 "r2_ek_extrude" "breakAfter"
+      $ 209 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 159 "r2_ek_front" "breakAfter"
+      $ 210 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 160 "r2_ek_middle" "breakAfter"
+      $ 211 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 161 "r2_ek_bottom" "breakAfter"
+      $ 212 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 162 "r2_ek_end" "breakAfter"
+      $ 213 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 163 "'detemine correct points for which robot'"
+    $ 214 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 164 "If robot_number≟1"
+    $ 215 "If robot_number≟1"
     if (robot_number == 1):
-      $ 165 "robot1 positions"
-      $ 166 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 216 "robot1 positions"
+      $ 217 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 167 "ek_extrude≔r1_ek_extrude_p"
+      $ 218 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 168 "ek_front≔r1_ek_front_p"
+      $ 219 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 169 "ek_middle≔r1_ek_middle_p"
+      $ 220 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 170 "ek_middle2≔r1_ek_middle2_p"
+      $ 221 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 171 "ek_bottom≔r1_ek_bottom_p"
+      $ 222 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 172 "ek_end≔r1_ek_end_q"
+      $ 223 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 173 "ElseIf robot_number≟2"
+      $ 224 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 174 "robot1 positions"
-        $ 175 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 225 "robot1 positions"
+        $ 226 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 176 "ek_extrude≔r2_ek_extrude_p"
+        $ 227 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 177 "ek_front≔r2_ek_front_p"
+        $ 228 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 178 "ek_middle≔r2_ek_middle_p"
+        $ 229 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 179 "ek_middle2≔r2_ek_middle_p"
+        $ 230 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 180 "ek_bottom≔r2_ek_bottom_p"
+        $ 231 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 181 "ek_end≔r2_ek_end_q"
+        $ 232 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 182 "'start of program'"
+    $ 233 "'start of program'"
     # 'start of program'
-    $ 184 "Set"
+    $ 235 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 185 "MoveJ"
-    $ 187 "ek_oldhome" "breakAfter"
+    $ 236 "MoveJ"
+    $ 238 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 188 "'above waypoint is home'"
+    $ 239 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 189 "'move above bucket'"
+    $ 240 "'move above bucket'"
     # 'move above bucket'
-    $ 190 "MoveJ"
-    $ 192 "ek_extrude" "breakAfter"
+    $ 241 "MoveJ"
+    $ 243 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 193 "'extrude out a foot'"
+    $ 244 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 195 "Serial Bridge uR1"
+    $ 246 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 196 "Set DO[0]=On"
+    $ 247 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 197 "Wait: 24.0"
+    $ 248 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 198 "Serial Bridge uR0"
+    $ 249 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 199 "Wait: 1.0"
+    $ 250 "Wait: 1.0"
     sleep(1.0)
-    $ 200 "Set DO[0]=Off"
+    $ 251 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 201 "'slice'"
+    $ 252 "'slice'"
     # 'slice'
-    $ 202 "MoveL"
-    $ 208 "ek_front" "breakAfter"
+    $ 253 "MoveL"
+    $ 259 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 209 "ek_middle" "breakAfter"
+    $ 260 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 210 "ek_middle2" "breakAfter"
+    $ 261 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 211 "ek_bottom" "breakAfter"
+    $ 262 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 212 "ek_end" "breakAfter"
+    $ 263 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 213 "MoveJ"
-    $ 215 "ek_oldhome" "breakAfter"
+    $ 264 "MoveJ"
+    $ 266 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 216 "'above waypoint is home'"
+    $ 267 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   def Straight_Homing_Cover():
-    $ 218 "Straight_Homing_Cover" "noBreak"
-    $ 219 "'Use this program when tool is already positioned close to corner at 45deg'"
+    $ 269 "Straight_Homing_Cover" "noBreak"
+    $ 270 "'Use this program when tool is already positioned close to corner at 45deg'"
     # 'Use this program when tool is already positioned close to corner at 45deg'
-    $ 220 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
+    $ 271 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
     # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
-    $ 221 "Set"
+    $ 272 "Set"
     set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-    $ 222 "'dummy move below for debug'"
+    $ 273 "'dummy move below for debug'"
     # 'dummy move below for debug'
-    $ 229 "Wait: 1.0"
+    $ 280 "Wait: 1.0"
     sleep(1.0)
-    $ 231 "Script: analyze_touchpoints.script"
+    $ 282 "Script: analyze_touchpoints.script"
     # this file creates the function for analyzing touchpoints
     # define pi
     pi = 3.1415926535
@@ -2884,198 +2966,424 @@ def Cover_Straight():
         struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
         return struct2
     end
-    $ 232 "path_pre≔get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)"
+    
+    def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+        struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+        struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+        #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+        #struct3 = check_validity_left(struct1, struct2)
+        return struct2
+    
+    end
+    
+    # calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+    # returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+    def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+        # calculate slope of sidewall in x-y plane
+        # get the raw points from the first line
+        l1p1x=p11[0]
+        l1p1y=p11[1]
+        l1p2x=p12[0]
+        l1p2y=p12[1]
+    
+        # equate the first line in 2d space
+        ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+    
+        # b = y - mx
+        bl1 = l1p1y - ml1 * l1p1x
+    
+        # calculate the cover plane
+        # if two planes are perpendicular, then their normal vectors must be perpendicular.
+        # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -> <a, b, c>
+        # the second plane's normal vector is perpendicular to all vectors contained in the plane
+        # p21 to p22 is a vector v contained within plane 2.
+        # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+    
+        # plane 1 (y = mx + b) -> (b = -mx +1y +0z)
+        n1 = [-1 * ml1, 1, 0]
+    
+        # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+        v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+    
+        #v n2 = cross product of n1 and v
+        n2x = n1[1]*v[2] - n1[2]*v[1]
+        n2y = n1[2]*v[0] - n1[0]*v[2]
+        n2z = n1[0]*v[1] - n1[1]*v[0]
+        n2 = [n2x, n2y, n2z]
+    
+        # find the d of the second plane
+        # n2x * x + n2y * y + n2z * z = d0
+        d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+    
+        # find the intersection line of the two planes
+        # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+        v3x = n1[1]*n2[2] - n1[2]*n2[1]
+        v3y = n1[2]*n2[0] - n1[0]*n2[2]
+        v3z = n1[0]*n2[1] - n1[1]*n2[0]
+        v3 = [v3x, v3y, v3z]
+    
+        # normalize the vector so the magnitude is 1
+        magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+        magnitude = sqrt(magnitude2)
+        v3xunit = v3x/magnitude
+        v3yunit = v3y/magnitude
+        v3zunit = v3z/magnitude
+    
+        # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+        if v3yunit < 0:
+            v3xunit = v3xunit * -1
+            v3yunit = v3yunit * -1
+            v3zunit = v3zunit * -1
+        end
+    
+        # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+        # i will pick the y value of the left teach point
+        y = leftpoint[1]
+        # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+        # -ml1 * x = bl1 - y
+        x = (bl1 - y)/ (-1 * ml1)
+        # plane 2: d = n2x * x + n2y * y + n2z * z
+        # (d - n2x * x - n2y * y) = n2z * z
+        z = (d - n2x * x - n2y * y) / n2z
+    
+        # make point0 into a pose
+        point0 = p[x, y, z, 0, 0, 0]
+    
+        # find heading of main line
+        heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+    
+        # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+        ml2 = -1 / ml1
+        # y = ml2 * x + unknownB
+        # vector = [1, ml2]
+        mag2 = 1 + ml2 * ml2
+        mag = sqrt(mag2)
+        v4xunit = 1 / mag
+        v4yunit = ml2 / mag
+        # switch is to the x direction is negative
+        v4xunit = -1 * v4xunit
+        v4yunit = -1 * v4yunit
+    
+        ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+        return ret
+    end
+    
+    def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+        # get the stuff
+        point0 = struct1[0]
+        p0x = point0[0]
+        p0y = point0[1]
+        p0z = point0[2]
+        v3xunit = struct1[1]
+        v3yunit = struct1[2]
+        v3zunit = struct1[3]
+        heading1 = struct1[4]
+        v4xunit = struct1[5]
+        v4yunit = struct1[6]
+        sidewallthick = sidewallthick
+        lpy = leftpointteach[1]
+        rpy = rightpointteach[1]
+    
+        # first, check if we need a lift column raise
+        # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+        zpi = p0z
+        if zpi > 0:
+            liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+            coverz = 0
+        else:
+            coverz = zpi
+        end
+    
+        # calculate pointtopvcham
+        chamferover = sidewallthick * 25.4 / 1000.0
+        tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+        x = p0x + v4xunit * chamferover
+        y = p0y + v4yunit * chamferover
+        z = coverz + tiltraise
+    
+        # calculate rxryrz for tilted back
+        # 3 rotations to make this happen.
+        # start point is straight up with the preheat pointed in the +y direction.
+        # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+        m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180)
+        # second rotation is a 10 degree turn about the x axis (negative direction)
+        m2 = get_rotation_matrix_from_description("x", -1, 10 * pi / 180)
+        # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+        m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+        # combine them by multiplying m3 * m2 * m1
+        # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+        m4 = multiply_matrix(m2, m1)
+        m5 = multiply_matrix(m3, m4)
+        rxryrzt = convert_matrix_to_axang(m5)
+        rxt = rxryrzt[0]
+        ryt = rxryrzt[1]
+        rzt = rxryrzt[2]
+        pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+        # calculate point1 (preheat)
+        dist = -1 * 25.4 / 1000.0 # move back 1 inch from
+        p1x = x + dist * v3xunit
+        p1y = y + dist * v3yunit
+        p1z = z + dist * v3zunit
+        point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+        # calculate point2 (start of flatten)
+        dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+        p2x = x + dist * v3xunit
+        p2y = y + dist * v3yunit
+        p2z = z + dist * v3zunit
+        point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+        # calculate rxryrz for nontilted
+        # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+        m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180)
+        # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+        m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+        m5 = multiply_matrix(m3, m1)
+        rxryrz = convert_matrix_to_axang(m5)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+    
+        # calculate point3 (end of flatten)
+        dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+        p3x = x + dist * v3xunit
+        p3y = y + dist * v3yunit
+        p3z = coverz + dist * v3zunit
+        point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+        # calculate distance between leftpoint and rightpoint
+        # we have the y distance. we need to find the total distance.
+        # the unit vector (v3) should have a magnitude of 1. that's what analyze_touchpoints_only_cover_straight() calculated.
+        # so the total distance is y distance * 1 / v3yunit
+        ydist = rpy - lpy
+        totdist = ydist / v3yunit
+    
+        # calculate pointtopvcham2
+        x2 = x + v3xunit * totdist
+        y2 = y + v3yunit * totdist
+        z2 = z + v3zunit * totdist
+    
+        # calculate point4 (start of unflatten)
+        dist = -1.5 * 25.4 / 1000.0
+        p4x = x2 + v3xunit * dist
+        p4y = y2 + v3yunit * dist
+        p4z = z2 + v3zunit * dist - tiltraise
+        point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+        # calculate point5 (end of unflatten)
+        dist = -0.5 * 25.4 / 1000.0
+        p5x = x2 + v3xunit * dist
+        p5y = y2 + v3yunit * dist
+        p5z = z2 + v3zunit * dist
+        point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+        # calculate point6 (end of smear)
+        dist = 2 * 25.4 / 1000.0
+        p6x = x2 + v3xunit * dist
+        p6y = y2 + v3yunit * dist
+        p6z = z2 + v3zunit * dist
+        point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    
+        # return struct
+        ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+        return ret
+    
+    
+    end
+    $ 283 "path_pre≔get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)"
     global path_pre=get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)
-    $ 233 "ph1≔path_pre[0]"
+    $ 284 "ph1≔path_pre[0]"
     global ph1=path_pre[0]
-    $ 234 "ph2≔path_pre[1]"
+    $ 285 "ph2≔path_pre[1]"
     global ph2=path_pre[1]
-    $ 235 "ph3≔path_pre[2]"
+    $ 286 "ph3≔path_pre[2]"
     global ph3=path_pre[2]
-    $ 236 "ph4≔path_pre[3]"
+    $ 287 "ph4≔path_pre[3]"
     global ph4=path_pre[3]
-    $ 237 "MoveJ"
-    $ 238 "Waypoint_11" "breakAfter"
-    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 239 "MoveL"
-    $ 240 "ph1" "breakAfter"
-    movel(ph1, a=0.2, v=0.25)
-    $ 241 "MoveL"
-    $ 242 "Direction: Base X-"
-    global move_thread_flag_242=0
-    thread move_thread_242():
-      enter_critical
-      move_thread_flag_242 = 1
-      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
-      movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_242 = 2
-      exit_critical
-    end
-    move_thread_flag_242 = 0
-    move_thread_han_242 = run move_thread_242()
-    while (True):
-      local targetTcpDirection=get_target_tcp_speed()
-      local stepsToRetract=tool_contact(direction=targetTcpDirection)
-      if (stepsToRetract > 0):
-        kill move_thread_han_242
-        stopl(3.0)
-        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-        local contactPose=get_forward_kin(backTrackMovement)
-        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-        local retractTo=contactPose
-        if (norm(posDir) > 1e-6):
-          local normalizedPosDir=normalize(posDir)
-          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-          retractTo = pose_sub(contactPose, additionalRetraction)
-        end
-        movel(retractTo, a=3.0, v=0.1)
-        $ 243 "Until (tool_contact_detection)"
-        break
-      end
-      sync()
-    end
-    $ 244 "p11≔get_actual_tcp_pose()"
-    global p11= get_actual_tcp_pose ()
-    $ 245 "MoveJ"
-    $ 246 "ph1" "breakAfter"
-    movej(ph1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 247 "ph2" "breakAfter"
-    movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 248 "MoveL"
-    $ 249 "Direction: Base X-"
-    global move_thread_flag_249=0
-    thread move_thread_249():
-      enter_critical
-      move_thread_flag_249 = 1
-      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
-      movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_249 = 2
-      exit_critical
-    end
-    move_thread_flag_249 = 0
-    move_thread_han_249 = run move_thread_249()
-    while (True):
-      local targetTcpDirection=get_target_tcp_speed()
-      local stepsToRetract=tool_contact(direction=targetTcpDirection)
-      if (stepsToRetract > 0):
-        kill move_thread_han_249
-        stopl(3.0)
-        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-        local contactPose=get_forward_kin(backTrackMovement)
-        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-        local retractTo=contactPose
-        if (norm(posDir) > 1e-6):
-          local normalizedPosDir=normalize(posDir)
-          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-          retractTo = pose_sub(contactPose, additionalRetraction)
-        end
-        movel(retractTo, a=3.0, v=0.1)
-        $ 250 "Until (tool_contact_detection)"
-        break
-      end
-      sync()
-    end
-    $ 258 "p12≔get_actual_tcp_pose()"
-    global p12= get_actual_tcp_pose ()
-    $ 259 "MoveJ"
-    $ 260 "ph2" "breakAfter"
-    movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 261 "MoveJ"
-    $ 262 "ph1" "breakAfter"
-    movej(ph1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 263 "MoveJ"
-    $ 264 "Waypoint_11" "breakAfter"
-    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 266 "Waypoint_4" "breakAfter"
-    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 272 "MoveJ"
-    $ 273 "ph3" "breakAfter"
-    movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-    $ 274 "MoveL"
-    $ 275 "Direction: Base Z-"
-    global move_thread_flag_275=0
-    thread move_thread_275():
-      enter_critical
-      move_thread_flag_275 = 1
-      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 1000.0)
-      movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_275 = 2
-      exit_critical
-    end
-    move_thread_flag_275 = 0
-    move_thread_han_275 = run move_thread_275()
-    while (True):
-      local targetTcpDirection=get_target_tcp_speed()
-      local stepsToRetract=tool_contact(direction=targetTcpDirection)
-      if (stepsToRetract > 0):
-        kill move_thread_han_275
-        stopl(3.0)
-        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-        local contactPose=get_forward_kin(backTrackMovement)
-        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-        local retractTo=contactPose
-        if (norm(posDir) > 1e-6):
-          local normalizedPosDir=normalize(posDir)
-          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-          retractTo = pose_sub(contactPose, additionalRetraction)
-        end
-        movel(retractTo, a=3.0, v=0.1)
-        $ 276 "Until (tool_contact_detection)"
-        break
-      end
-      sync()
-    end
-    $ 277 "p21≔get_actual_tcp_pose()"
-    global p21= get_actual_tcp_pose ()
-    $ 278 "MoveL"
-    $ 279 "ph3" "breakAfter"
-    movel(ph3, a=1.2, v=0.25)
-    $ 280 "MoveJ"
-    $ 281 "ph4" "breakAfter"
-    movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
-    $ 282 "MoveL"
-    $ 283 "Direction: Base Z-"
-    global move_thread_flag_283=0
-    thread move_thread_283():
-      enter_critical
-      move_thread_flag_283 = 1
-      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 1000.0)
-      movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_283 = 2
-      exit_critical
-    end
-    move_thread_flag_283 = 0
-    move_thread_han_283 = run move_thread_283()
-    while (True):
-      local targetTcpDirection=get_target_tcp_speed()
-      local stepsToRetract=tool_contact(direction=targetTcpDirection)
-      if (stepsToRetract > 0):
-        kill move_thread_han_283
-        stopl(3.0)
-        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
-        local contactPose=get_forward_kin(backTrackMovement)
-        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
-        local retractTo=contactPose
-        if (norm(posDir) > 1e-6):
-          local normalizedPosDir=normalize(posDir)
-          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
-          retractTo = pose_sub(contactPose, additionalRetraction)
-        end
-        movel(retractTo, a=3.0, v=0.1)
-        $ 284 "Until (tool_contact_detection)"
-        break
-      end
-      sync()
-    end
-    $ 285 "p22≔get_actual_tcp_pose()"
-    global p22= get_actual_tcp_pose ()
-    $ 286 "MoveL"
-    $ 287 "ph4" "breakAfter"
-    movel(ph4, a=1.2, v=0.25)
     $ 288 "MoveJ"
     $ 289 "Waypoint_11" "breakAfter"
     movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 297 "Home"
+    $ 290 "MoveL"
+    $ 291 "ph1" "breakAfter"
+    movel(ph1, a=0.2, v=0.25)
+    $ 292 "MoveL"
+    $ 293 "Direction: Base X-"
+    global move_thread_flag_293=0
+    thread move_thread_293():
+      enter_critical
+      move_thread_flag_293 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
+      movel(towardsPos, a=0.1, v=0.02)
+      move_thread_flag_293 = 2
+      exit_critical
+    end
+    move_thread_flag_293 = 0
+    move_thread_han_293 = run move_thread_293()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_293
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 294 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 295 "p11≔get_actual_tcp_pose()"
+    global p11= get_actual_tcp_pose ()
+    $ 296 "MoveJ"
+    $ 297 "ph1" "breakAfter"
+    movej(ph1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 298 "ph2" "breakAfter"
+    movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
+    $ 299 "MoveL"
+    $ 300 "Direction: Base X-"
+    global move_thread_flag_300=0
+    thread move_thread_300():
+      enter_critical
+      move_thread_flag_300 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,0.0,0.0], 1000.0)
+      movel(towardsPos, a=0.1, v=0.02)
+      move_thread_flag_300 = 2
+      exit_critical
+    end
+    move_thread_flag_300 = 0
+    move_thread_han_300 = run move_thread_300()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_300
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 301 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 309 "p12≔get_actual_tcp_pose()"
+    global p12= get_actual_tcp_pose ()
+    $ 310 "MoveJ"
+    $ 311 "ph2" "breakAfter"
+    movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
+    $ 312 "MoveJ"
+    $ 313 "ph1" "breakAfter"
+    movej(ph1, a=1.3962634015954636, v=1.0471975511965976)
+    $ 314 "MoveJ"
+    $ 315 "Waypoint_11" "breakAfter"
+    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 317 "Waypoint_4" "breakAfter"
+    movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 323 "MoveJ"
+    $ 324 "ph3" "breakAfter"
+    movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
+    $ 325 "MoveL"
+    $ 326 "Direction: Base Z-"
+    global move_thread_flag_326=0
+    thread move_thread_326():
+      enter_critical
+      move_thread_flag_326 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 1000.0)
+      movel(towardsPos, a=0.1, v=0.02)
+      move_thread_flag_326 = 2
+      exit_critical
+    end
+    move_thread_flag_326 = 0
+    move_thread_han_326 = run move_thread_326()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_326
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 327 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 328 "p21≔get_actual_tcp_pose()"
+    global p21= get_actual_tcp_pose ()
+    $ 329 "MoveL"
+    $ 330 "ph3" "breakAfter"
+    movel(ph3, a=1.2, v=0.25)
+    $ 331 "MoveJ"
+    $ 332 "ph4" "breakAfter"
+    movej(ph4, a=1.3962634015954636, v=1.0471975511965976)
+    $ 333 "MoveL"
+    $ 334 "Direction: Base Z-"
+    global move_thread_flag_334=0
+    thread move_thread_334():
+      enter_critical
+      move_thread_flag_334 = 1
+      local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,-1.0], 1000.0)
+      movel(towardsPos, a=0.1, v=0.02)
+      move_thread_flag_334 = 2
+      exit_critical
+    end
+    move_thread_flag_334 = 0
+    move_thread_han_334 = run move_thread_334()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_334
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.0, normalizedPosDir[1] * 0.0, normalizedPosDir[2] * 0.0, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 335 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+    $ 336 "p22≔get_actual_tcp_pose()"
+    global p22= get_actual_tcp_pose ()
+    $ 337 "MoveL"
+    $ 338 "ph4" "breakAfter"
+    movel(ph4, a=1.2, v=0.25)
+    $ 339 "MoveJ"
+    $ 340 "Waypoint_11" "breakAfter"
+    movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 348 "Home"
     movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   end
   $ 2 "BeforeStart"
@@ -3277,25 +3585,25 @@ def Cover_Straight():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 298 "Thread_1"
+  $ 349 "Thread_1"
   thread Thread_1():
-    $ 299 "Loop  True "
+    $ 350 "Loop  True "
     while (  True  ):
-      $ 300 "If freedrive_m_var≟ True "
+      $ 351 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 301 "freedrive_mode()"
+        $ 352 "freedrive_mode()"
         freedrive_mode()
-        $ 302 "free_dr_already≔ True "
+        $ 353 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 303 "Else" "noBreak"
-        $ 304 "If free_dr_already"
+        $ 354 "Else" "noBreak"
+        $ 355 "If free_dr_already"
         if (free_dr_already):
-          $ 305 "end_freedrive_mode()"
+          $ 356 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 306 "sync()"
+      $ 357 "sync()"
       sync()
     end
   end
@@ -5757,6 +6065,232 @@ def Cover_Straight():
       struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
       return struct2
   end
+  
+  def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+      struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+      struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+      #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+      #struct3 = check_validity_left(struct1, struct2)
+      return struct2
+  
+  end
+  
+  # calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+  # returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+  def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+      # calculate slope of sidewall in x-y plane
+      # get the raw points from the first line
+      l1p1x=p11[0]
+      l1p1y=p11[1]
+      l1p2x=p12[0]
+      l1p2y=p12[1]
+  
+      # equate the first line in 2d space
+      ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+  
+      # b = y - mx
+      bl1 = l1p1y - ml1 * l1p1x
+  
+      # calculate the cover plane
+      # if two planes are perpendicular, then their normal vectors must be perpendicular.
+      # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -> <a, b, c>
+      # the second plane's normal vector is perpendicular to all vectors contained in the plane
+      # p21 to p22 is a vector v contained within plane 2.
+      # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+  
+      # plane 1 (y = mx + b) -> (b = -mx +1y +0z)
+      n1 = [-1 * ml1, 1, 0]
+  
+      # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+      v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+  
+      #v n2 = cross product of n1 and v
+      n2x = n1[1]*v[2] - n1[2]*v[1]
+      n2y = n1[2]*v[0] - n1[0]*v[2]
+      n2z = n1[0]*v[1] - n1[1]*v[0]
+      n2 = [n2x, n2y, n2z]
+  
+      # find the d of the second plane
+      # n2x * x + n2y * y + n2z * z = d0
+      d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+  
+      # find the intersection line of the two planes
+      # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+      v3x = n1[1]*n2[2] - n1[2]*n2[1]
+      v3y = n1[2]*n2[0] - n1[0]*n2[2]
+      v3z = n1[0]*n2[1] - n1[1]*n2[0]
+      v3 = [v3x, v3y, v3z]
+  
+      # normalize the vector so the magnitude is 1
+      magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+      magnitude = sqrt(magnitude2)
+      v3xunit = v3x/magnitude
+      v3yunit = v3y/magnitude
+      v3zunit = v3z/magnitude
+  
+      # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+      if v3yunit < 0:
+          v3xunit = v3xunit * -1
+          v3yunit = v3yunit * -1
+          v3zunit = v3zunit * -1
+      end
+  
+      # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+      # i will pick the y value of the left teach point
+      y = leftpoint[1]
+      # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+      # -ml1 * x = bl1 - y
+      x = (bl1 - y)/ (-1 * ml1)
+      # plane 2: d = n2x * x + n2y * y + n2z * z
+      # (d - n2x * x - n2y * y) = n2z * z
+      z = (d - n2x * x - n2y * y) / n2z
+  
+      # make point0 into a pose
+      point0 = p[x, y, z, 0, 0, 0]
+  
+      # find heading of main line
+      heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+  
+      # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+      ml2 = -1 / ml1
+      # y = ml2 * x + unknownB
+      # vector = [1, ml2]
+      mag2 = 1 + ml2 * ml2
+      mag = sqrt(mag2)
+      v4xunit = 1 / mag
+      v4yunit = ml2 / mag
+      # switch is to the x direction is negative
+      v4xunit = -1 * v4xunit
+      v4yunit = -1 * v4yunit
+  
+      ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+      return ret
+  end
+  
+  def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+      # get the stuff
+      point0 = struct1[0]
+      p0x = point0[0]
+      p0y = point0[1]
+      p0z = point0[2]
+      v3xunit = struct1[1]
+      v3yunit = struct1[2]
+      v3zunit = struct1[3]
+      heading1 = struct1[4]
+      v4xunit = struct1[5]
+      v4yunit = struct1[6]
+      sidewallthick = sidewallthick
+      lpy = leftpointteach[1]
+      rpy = rightpointteach[1]
+  
+      # first, check if we need a lift column raise
+      # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+      zpi = p0z
+      if zpi > 0:
+          liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+          coverz = 0
+      else:
+          coverz = zpi
+      end
+  
+      # calculate pointtopvcham
+      chamferover = sidewallthick * 25.4 / 1000.0
+      tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+      x = p0x + v4xunit * chamferover
+      y = p0y + v4yunit * chamferover
+      z = coverz + tiltraise
+  
+      # calculate rxryrz for tilted back
+      # 3 rotations to make this happen.
+      # start point is straight up with the preheat pointed in the +y direction.
+      # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+      m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180)
+      # second rotation is a 10 degree turn about the x axis (negative direction)
+      m2 = get_rotation_matrix_from_description("x", -1, 10 * pi / 180)
+      # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+      m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+      # combine them by multiplying m3 * m2 * m1
+      # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+      m4 = multiply_matrix(m2, m1)
+      m5 = multiply_matrix(m3, m4)
+      rxryrzt = convert_matrix_to_axang(m5)
+      rxt = rxryrzt[0]
+      ryt = rxryrzt[1]
+      rzt = rxryrzt[2]
+      pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+  
+      # calculate point1 (preheat)
+      dist = -1 * 25.4 / 1000.0 # move back 1 inch from
+      p1x = x + dist * v3xunit
+      p1y = y + dist * v3yunit
+      p1z = z + dist * v3zunit
+      point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+  
+      # calculate point2 (start of flatten)
+      dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+      p2x = x + dist * v3xunit
+      p2y = y + dist * v3yunit
+      p2z = z + dist * v3zunit
+      point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+  
+      # calculate rxryrz for nontilted
+      # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+      m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180)
+      # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+      m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+      m5 = multiply_matrix(m3, m1)
+      rxryrz = convert_matrix_to_axang(m5)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+  
+      # calculate point3 (end of flatten)
+      dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+      p3x = x + dist * v3xunit
+      p3y = y + dist * v3yunit
+      p3z = coverz + dist * v3zunit
+      point3 = p[p3x, p3y, p3z, rx, ry, rz]
+  
+      # calculate distance between leftpoint and rightpoint
+      # we have the y distance. we need to find the total distance.
+      # the unit vector (v3) should have a magnitude of 1. that's what analyze_touchpoints_only_cover_straight() calculated.
+      # so the total distance is y distance * 1 / v3yunit
+      ydist = rpy - lpy
+      totdist = ydist / v3yunit
+  
+      # calculate pointtopvcham2
+      x2 = x + v3xunit * totdist
+      y2 = y + v3yunit * totdist
+      z2 = z + v3zunit * totdist
+  
+      # calculate point4 (start of unflatten)
+      dist = -1.5 * 25.4 / 1000.0
+      p4x = x2 + v3xunit * dist
+      p4y = y2 + v3yunit * dist
+      p4z = z2 + v3zunit * dist - tiltraise
+      point4 = p[p4x, p4y, p4z, rx, ry, rz]
+  
+      # calculate point5 (end of unflatten)
+      dist = -0.5 * 25.4 / 1000.0
+      p5x = x2 + v3xunit * dist
+      p5y = y2 + v3yunit * dist
+      p5z = z2 + v3zunit * dist
+      point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+  
+      # calculate point6 (end of smear)
+      dist = 2 * 25.4 / 1000.0
+      p6x = x2 + v3xunit * dist
+      p6y = y2 + v3yunit * dist
+      p6z = z2 + v3zunit * dist
+      point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+  
+  
+      # return struct
+      ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+      return ret
+  
+  
+  end
   $ 96 "sidewallchoice≔'Is the sidewall 3/4 inch?'"
   global sidewallchoice=request_boolean_from_primary_client("Is the sidewall 3/4 inch?")
   $ 97 "If sidewallchoice"
@@ -5783,10 +6317,86 @@ def Cover_Straight():
   Straight_Homing_Cover()
   $ 108 "Set"
   set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-  $ 113 "pathturn≔main_calculate_cover(p11,p12,p21,p22,sidewall, False , True )"
-  global pathturn=main_calculate_cover(p11,p12,p21,p22,sidewall,  False  ,  True  )
+  $ 113 "pathturn≔main_calculate_cover_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)"
+  global pathturn=main_calculate_cover_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)
   $ 114 "extrude_knife3()"
   extrude_knife3()
-  $ 115 "move_path_cover_left3()"
-  move_path_cover_left3()
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  $ 117 "MachineLogic Move to Position"
+  while isVentionMovementBusyMachineMotion1==True:
+  sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+  isVentionMovementBusyMachineMotion1 = True
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  while(temp_estop_var_vention=="estop/status true"):
+  if temp_estop_var_vention=="estop/status true":
+  sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+  end
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  if temp_estop_var_vention=="estop/status true":
+  popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+  end
+  end
+  else:
+  popup("resource is being used already: MachineMotion1")
+  halt
+  end
+  sendString("SET speed_v2 3000000.000", "Ack", "MachineMotion1")
+  sendString("SET acceleration_v2 50000.000", "Ack", "MachineMotion1")
+  string_vention=intToString(liftcolumnzneeded*1000,"MachineMotion1")
+  sendString("SET de_move_abs_1 "+string_vention, "Ack", "MachineMotion1")
+  sendString("de_move_abs_exec", "Ack", "MachineMotion1")
+  isVentionParallelMovementSendingScriptMachineMotion1 = False
+  pollString("isMotionCompleted", "MachineMotion isMotionCompleted = true", "MachineMotion1")
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
+  $ 120 "align_for_cover_straight()"
+  align_for_cover_straight()
+  $ 121 "move_path_cover_straight()"
+  move_path_cover_straight()
+  $ 122 "MoveJ"
+  $ 123 "Waypoint_8" "breakAfter"
+  movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 124 "Waypoint_9" "breakAfter"
+  movej(get_inverse_kin(Waypoint_9_p, qnear=Waypoint_9_q), a=1.3962634015954636, v=1.0471975511965976)
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  $ 125 "MachineLogic Homing"
+  while isVentionMovementBusyMachineMotion1==True:
+  sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+  isVentionMovementBusyMachineMotion1 = True
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  while(temp_estop_var_vention=="estop/status true"):
+  if temp_estop_var_vention=="estop/status true":
+  sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+  end
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  if temp_estop_var_vention=="estop/status true":
+  popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+  end
+  end
+  else:
+  popup("resource is being used already: MachineMotion1")
+  halt
+  end
+  isVentionMovementBusyMachineMotion1 = True
+  sendString("im_home_axis_1", "MachineMotion im_home_axis_1 = completed", "MachineMotion1")
+  isVentionMovementBusyMachineMotion1 = False
+  sendString("SET im_set_encoder_pos_aux_1 0.000", "Ack", "MachineMotion1")
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
+  $ 126 "Home"
+  movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end
