@@ -2577,11 +2577,12 @@ def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, righ
     
     # calculate pointtopvcham
     chamferover = sidewallthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
     x = p0x + v4xunit * chamferover
-    y = p0y + v4yunit * chemferover
-    z = coverz + 0.006
+    y = p0y + v4yunit * chamferover
+    z = coverz + tiltraise
     
-    # calculate rxryrz
+    # calculate rxryrz for tilted back
     # 3 rotations to make this happen. 
     # start point is straight up with the preheat pointed in the +y direction. 
     # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
@@ -2594,14 +2595,80 @@ def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, righ
     # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
     m4 = multiply_matrix(m2, m1)
     m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
     rxryrz = convert_matrix_to_axang(m5)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    pointtopvcham = p[x, y, z, rx, ry, rz]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = coverz + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that's what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist - tiltraise
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = x2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
     
     # return struct
-    ret = struct(pointtopvcham = pointtopvcham)
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
     return ret
     
     
