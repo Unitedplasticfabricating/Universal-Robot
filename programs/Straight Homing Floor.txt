@@ -9,13 +9,18 @@
      Wait: 1.0
      'tp≔get_actual_tcp_pose()'
      Script: analyze_touchpoints.script
-     path_pre≔get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)
+     path_pre≔get_straight_homing_pathpoints_floor(tcp_pose_left,tcp_pose_right)
      ph1≔path_pre[0]
      ph2≔path_pre[1]
      ph3≔path_pre[2]
      ph4≔path_pre[3]
+     ph4a≔p[ph4[0]+0.1,ph4[1],ph4[2],ph4[3],ph4[4],ph4[5]]
+     MoveL
+       Direction: Base X+
+         Until (distance)
      MoveJ
-       Waypoint_11
+       'Waypoint_11'
+       Waypoint_1
      MoveL
        ph1
      MoveL
@@ -37,14 +42,23 @@
      MoveJ
        ph1
      MoveJ
-       Waypoint_11
+       'Waypoint_11'
+       Waypoint_3
        'Waypoint_3'
-       Waypoint_6
+       'Waypoint_9'
+       'Waypoint_6'
+       'Waypoint_15'
+       'Waypoint_8'
+       'Waypoint_12'
+       'Waypoint_13'
+       Waypoint_17
+       Waypoint_16
      'MoveJ'
-     MoveJ
+     MoveL
+       ph4a
        ph3
      MoveL
-       Direction: Base Z-
+       Direction: Base Z+
          Until (tool_contact_detection)
      p21≔get_actual_tcp_pose()
      MoveL
@@ -52,12 +66,13 @@
      MoveJ
        ph4
      MoveL
-       Direction: Base Z-
+       Direction: Base Z+
          Until (tool_contact_detection)
      p22≔get_actual_tcp_pose()
      MoveL
        ph4
+       ph4a
        MoveJ
-         Waypoint_11
+         Waypoint_16
      'MoveJ'
      Home
