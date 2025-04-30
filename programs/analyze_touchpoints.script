@@ -1858,6 +1858,152 @@ def step_right_demo(struct1):
     return ret
 end
 
+# for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step. 
+def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = tcp_pose_top - pointintersect[2] # the z distance from the corner to the top of the weld
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+    m1 = get_rotation_matrix_from_description("z", 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+    m1 = get_rotation_matrix_from_description("z", 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # now calculate the points of the Up Around
+    # don't use heading3 at all. 
+    #point201 is at the chamfer intersection
+    p201x = xbottom
+    p201y = ybottom
+    p201z = z
+    
+    # rxryrz is the same 
+    m1 = get_rotation_matrix_from_description("z", 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+    # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+    sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+    sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+    sidez = z
+    
+    # p202
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    p202x = sidex + rod * l1delxunit
+    p202y = sidey + rod * l1delyunit
+    p202z = sidez
+    point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+    # p204 end of circle move
+    p204x = sidex
+    p204y = sidey
+    p204z = sidez + rod
+    
+    # calculate rxryrz
+    # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+    m1 = get_rotation_matrix_from_description("x", 1, 90 * pi / 180)
+    # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+    # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+    m2 = get_rotation_matrix_from_description("z", 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+    #p205 (end of straight after cirlce move, before listleans
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+    #p206 (top of weld)
+    p206x = sidex + wd3 * listleans[0]
+    p206y = sidey + wd3 * listleans[1]
+    p206z = sidez + wd3
+    point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+    # p203 (middle of turn)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = sidez + delta
+    p203x = sidex + delta * l1delxunit
+    p203y = sidey + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description("x", 1, 45 * pi / 180)
+    m2 = get_rotation_matrix_from_description("z", 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+    return struct2
+end
+
 # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
 def calculate_LtUA_step_right(struct1, list1, rightwallthick, leftwallthick, tcp_pose_top):
     # get the stuff from the struct
