@@ -1800,12 +1800,23 @@ def check_validity_only(struct2):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    #validity = check_validity_right(struct1, struct2)
-    struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+    if leftseam:
+        if leftobstacle:
+            struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        else:
+            struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        end
+    else:
+        if leftobstacle:
+            # error: this geometry is impossible for the robot to weld
+            popup("Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. ", title="Geometry Error",blocking=True)
+        else:
+            struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        end
+    end
     validity = check_validity_only(struct2)
     return struct2
 end
