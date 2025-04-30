@@ -1806,6 +1806,10 @@ def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthic
     if leftseam:
         if leftobstacle:
             struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            heading1deg = struct1[1] * 180/pi
+            if heading1deg < 210:
+                popup("Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. ", title="Alignment Error",blocking=True)
+            end
         else:
             struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
         end
@@ -1880,7 +1884,7 @@ def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, 
     # inches
     wd1 = welddistance1 * 25.4 / 1000
     wd2 = welddistance2 * 25.4 / 1000
-    wd3 = tcp_pose_top - pointintersect[2] # the z distance from the corner to the top of the weld
+    wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
     
