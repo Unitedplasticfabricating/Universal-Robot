@@ -1,13 +1,5 @@
-def align_for_step():
+def align_for_LtUA():
   global _hidden_verificationVariable=0
-  step_count_00e6895e_8419_42d2_b35e_d320ff112457 = 0.0
-  thread Step_Counter_Thread_f6f26ae1_e46d_4006_84fe_5c54407dca7c():
-    while (True):
-      step_count_00e6895e_8419_42d2_b35e_d320ff112457 = step_count_00e6895e_8419_42d2_b35e_d320ff112457 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_f6f26ae1_e46d_4006_84fe_5c54407dca7c()
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -15,15 +7,15 @@ def align_for_step():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_safety_mode_transition_hardness(1)
-  set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,10 +154,16 @@ def align_for_step():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  global Waypoint_11_p=p[-.557589157640, .419560046234, 1.207726533033, -.502584138775, -.055814420068, 1.813930241589]
-  global Waypoint_11_q=[-2.892337952367984, -0.8860261388425741, -2.115817323445553, -1.7848767108486108, 0.31483587652470907, 1.3374934404331111]
-  global Waypoint_13_p=p[-.479956660670, .297468256090, .291374636721, -.781184292332, -1.773996506341, 1.712872397156]
-  global Waypoint_13_q=[-3.886183563862936, -1.432391719227173, -2.7137839794158936, -2.1448809109129847, -1.4933508078204554, 1.532572627067566]
+  step_count_5de7a8b2_8831_4d81_a804_768e55f733cc = 0.0
+  thread Step_Counter_Thread_818443a9_4320_41c6_b292_16348d979ec7():
+    while (True):
+      step_count_5de7a8b2_8831_4d81_a804_768e55f733cc = step_count_5de7a8b2_8831_4d81_a804_768e55f733cc + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_818443a9_4320_41c6_b292_16348d979ec7()
+  global Waypoint_13_p=p[-.814245955891, .233556361140, .311707181624, .047544411911, .009133158809, -2.828537671934]
+  global Waypoint_13_q=[-0.8425109398781911, -0.8394525129277071, 2.336302714028556, -1.4152992455634212, 0.4180104816521859, 3.0658663461816342]
   $ 2 "Robot Program"
   $ 3 "'first move block is unnecessay and bad'"
   # 'first move block is unnecessay and bad'
@@ -176,9 +174,6 @@ def align_for_step():
   $ 27 "MoveJ"
   $ 28 "'from oldhome, actual path'"
   # 'from oldhome, actual path'
-  $ 31 "Waypoint_11" "breakAfter"
-  movej(get_inverse_kin(Waypoint_11_p, qnear=Waypoint_11_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 33 "MoveJ"
-  $ 35 "Waypoint_13" "breakAfter"
+  $ 31 "Waypoint_13" "breakAfter"
   movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
 end
