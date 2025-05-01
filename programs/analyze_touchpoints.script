@@ -2335,19 +2335,20 @@ end
 # returns the pathpoints
 # specifically for Around and Down then Straight (AtS)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice):
+# leftchoice is a boolean and deepcovercham is a boolean but leftwallthick, rightwallthick are decimals in inches. 
+def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice, deepcovercham):
     struct1 = analyze_touchpoints_only_cover(p11, p12, p21, p3)
     if leftchoice:
-        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham)
     else:
-        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham)
     end
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
-def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -2370,6 +2371,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -2399,9 +2405,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    # next, calculate point1
-    p1x = x + l1delxunit * wd1
-    p1y = y + l1delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l1delxunit * wd1 + deepchambumpmm * l2delxunit
+    p1y = y + l1delyunit * wd1 + deepchambumpmm * l2delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -2412,7 +2418,14 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l1delxunit * wtod
     p2ay = y + l1delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -2510,6 +2523,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
     
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
@@ -2538,9 +2557,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
 
-    # next, calculate point1
-    p1x = x + l2delxunit * wd1
-    p1y = y + l2delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l2delxunit * wd1 + deepchambumpmm * l1delxunit
+    p1y = y + l2delyunit * wd1 + deepchambumpmm * l1delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
 
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -2551,7 +2570,14 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l2delxunit * wtod
     p2ay = y + l2delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
