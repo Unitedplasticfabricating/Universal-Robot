@@ -3421,7 +3421,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -3516,12 +3516,42 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    #todo: calculate trail out points
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l1delxunit * tiltraise * -1
+    p102y = y + l1delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
     
-    #todo: calculate trail out point
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
@@ -3540,7 +3570,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l2delxunit * pushtipforward2
@@ -3553,7 +3583,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
@@ -3572,7 +3602,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -3668,12 +3698,42 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+
+    #todo: calculate trail out point
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l2delxunit * tiltraise * -1
+    p102y = y + l2delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
-
-    #todo: calculate trail out point
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
@@ -3692,7 +3752,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l1delxunit * pushtipforward2
@@ -3705,7 +3765,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
@@ -5224,6 +5284,63 @@ end
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p101" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p102" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p103" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -5259,7 +5376,9 @@ end
                 <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
                 <Variable key="OUTPUT_VARIABLE">
-                  <variable reference="../../../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+                  <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
                 </Variable>
               </dataModel>
             </Contributed>
@@ -5268,8 +5387,8 @@ end
                 <data key="NODE_TITLE" value="Serial Bridge uR1"/>
                 <data key="Command" value="[252,82,49]"/>
                 <data key="QUERY" value="false"/>
-                <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
+                <data key="byte_array" value="true"/>
                 <Variable key="OUTPUT_VARIABLE">
                   <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                     <initializeExpression/>
@@ -5368,13 +5487,17 @@ end
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable reference="../../../../Folder/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <If type="If" checkContinuously="false">
           <expression>
             <ExpressionChar character="d"/>
@@ -5464,17 +5587,31 @@ end
             </Variable>
           </dataModel>
         </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Move motionType="MoveL" speed="0.012" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+        <Move motionType="MoveL" speed="0.01" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable name="p5" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Assignment[9]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Set type="NoAction">
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
+        </Set>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[10]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -5490,9 +5627,15 @@ end
             </Variable>
           </dataModel>
         </Contributed>
-        <Wait type="Sleep">
-          <waitTime>2.0</waitTime>
-        </Wait>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[11]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
         <Set type="DigitalOutput">
           <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
           <digitalValue>0</digitalValue>
@@ -6284,12 +6427,12 @@ end
             <SuppressedNode>
               <suppressedNode class="Waypoint" type="Variable" name="Variable" kinematicsFlags="-1">
                 <motionParameters/>
-                <variable reference="../../../../../Assignment[11]/variable"/>
+                <variable reference="../../../../../Assignment[14]/variable"/>
               </suppressedNode>
             </SuppressedNode>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[13]/variable"/>
+              <variable reference="../../../../Assignment[16]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -6301,11 +6444,11 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[14]/variable"/>
+              <variable reference="../../../../Assignment[17]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[15]/variable"/>
+              <variable reference="../../../../Assignment[18]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -6745,9 +6888,7 @@ end
                 <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
                 <Variable key="OUTPUT_VARIABLE">
-                  <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                    <initializeExpression/>
-                  </variable>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/Contributed[2]/dataModel/Variable/variable"/>
                 </Variable>
               </dataModel>
             </Contributed>
@@ -6799,15 +6940,48 @@ end
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Assignment[8]/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -6816,21 +6990,56 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SubProgram[3]/children/Folder/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/If[3]/children/Move/children/Waypoint/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/If[3]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/If[3]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -6866,10 +7075,14 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/Folder/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
@@ -6878,7 +7091,9 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[5]/children/Waypoint/variable"/>
+              <variable name="p5" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Waypoint>
           </children>
         </Move>
@@ -6890,7 +7105,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -6903,7 +7118,7 @@ end
         </Set>
         <Comment/>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[9]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[12]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -6951,7 +7166,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[10]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[13]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -7132,7 +7347,7 @@ end
           </suppressedNode>
         </SuppressedNode>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[11]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[14]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -7148,7 +7363,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[12]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[15]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -7164,7 +7379,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[13]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[16]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -7180,7 +7395,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[14]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[17]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -7196,7 +7411,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[15]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[18]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="a"/>
@@ -7212,7 +7427,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[16]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[19]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -7272,7 +7487,7 @@ end
           </expression>
         </Assignment>
         <Assignment valueSource="Expression">
-          <variable reference="../../../../SubProgram[3]/children/Assignment[17]/variable"/>
+          <variable reference="../../../../SubProgram[3]/children/Assignment[20]/variable"/>
           <expression>
             <ExpressionChar character="p"/>
             <ExpressionChar character="["/>
@@ -7507,7 +7722,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[6]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[8]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7646,7 +7861,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[11]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[13]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7655,7 +7870,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Assignment[13]/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Assignment[16]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7667,11 +7882,11 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Assignment[14]/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Assignment[17]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Assignment[15]/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Assignment[18]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7685,7 +7900,9 @@ end
                 <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
                 <Variable key="OUTPUT_VARIABLE">
-                  <variable reference="../../../../../../Contributed/dataModel/Variable/variable"/>
+                  <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
                 </Variable>
               </dataModel>
             </Contributed>
@@ -7735,15 +7952,48 @@ end
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.012" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/If[5]/children/Move/children/Waypoint/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/If[5]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/If[5]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -7768,7 +8018,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[14]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[16]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -13058,7 +13308,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -13153,12 +13403,42 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    #todo: calculate trail out points
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l1delxunit * tiltraise * -1
+    p102y = y + l1delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
     
-    #todo: calculate trail out point
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
@@ -13177,7 +13457,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l2delxunit * pushtipforward2
@@ -13190,7 +13470,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deep
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
