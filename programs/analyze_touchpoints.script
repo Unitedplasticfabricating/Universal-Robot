@@ -2544,7 +2544,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -2640,12 +2640,42 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description("z", 1, heading3 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+
+    #todo: calculate trail out point
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l2delxunit * tiltraise * -1
+    p102y = y + l2delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description("x", -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description("z", 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
-
-    #todo: calculate trail out point
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall's angled chamfer to not BONK when getting into position
@@ -2664,7 +2694,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201's preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l1delxunit * pushtipforward2
@@ -2677,7 +2707,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
