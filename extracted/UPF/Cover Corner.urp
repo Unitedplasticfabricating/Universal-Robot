@@ -2147,6 +2147,60 @@ def get_corner_homing_45_pathpoints_cover(point0):
     return ret
 end
 
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+    ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+    ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points
+    ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d1, lpy, lpz - d0, 0, 0, 0] # left bottom approach
+    ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
 # this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
@@ -2790,12 +2844,42 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+# this function takes in a struct of only points. it checks those points for validity. 
+# if one of them is not valid, it throws a popup loop
+def check_validity_only(struct2):
+    validity = check_structofpoints_validity(struct2)
+    if not validity:
+    # bad
+    popuptext = &quot;Not all weldpoints are valid. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Position Error&quot;,blocking=True)
+    end
+    end
+end
+
+def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    #validity = check_validity_right(struct1, struct2)
-    struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+    if leftseam:
+        if leftobstacle:
+            struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            heading1deg = struct1[1] * 180/pi
+            if heading1deg &lt; 210:
+                popup(&quot;Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. &quot;, title=&quot;Alignment Error&quot;,blocking=True)
+            end
+        else:
+            struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        end
+    else:
+        if leftobstacle:
+            # error: this geometry is impossible for the robot to weld
+            popup(&quot;Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. &quot;, title=&quot;Geometry Error&quot;,blocking=True)
+        else:
+            struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        end
+    end
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -2805,6 +2889,7 @@ def main_calculate_step_left(p11, p12, p21, p22, p3, p13, p23, noncappingsidewal
     #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     #validity = check_validity_right(struct1, struct2)
     struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -2833,6 +2918,152 @@ def step_right_demo(struct1):
     popup(point_demo)
     ret = struct(point_demo = point_demo)
     return ret
+end
+
+# for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step. 
+def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # now calculate the points of the Up Around
+    # don&apos;t use heading3 at all. 
+    #point201 is at the chamfer intersection
+    p201x = xbottom
+    p201y = ybottom
+    p201z = z
+    
+    # rxryrz is the same 
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+    # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+    sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+    sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+    sidez = z
+    
+    # p202
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    p202x = sidex + rod * l1delxunit
+    p202y = sidey + rod * l1delyunit
+    p202z = sidez
+    point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+    # p204 end of circle move
+    p204x = sidex
+    p204y = sidey
+    p204z = sidez + rod
+    
+    # calculate rxryrz
+    # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+    # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+    #p205 (end of straight after cirlce move, before listleans
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+    #p206 (top of weld)
+    p206x = sidex + wd3 * listleans[0]
+    p206y = sidey + wd3 * listleans[1]
+    p206z = sidez + wd3
+    point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+    # p203 (middle of turn)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = sidez + delta
+    p203x = sidex + delta * l1delxunit
+    p203y = sidey + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 45 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+    return struct2
 end
 
 # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
@@ -3162,19 +3393,20 @@ end
 # returns the pathpoints
 # specifically for Around and Down then Straight (AtS)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice):
+# leftchoice is a boolean and deepcovercham is a boolean but leftwallthick, rightwallthick are decimals in inches. 
+def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice, deepcovercham):
     struct1 = analyze_touchpoints_only_cover(p11, p12, p21, p3)
     if leftchoice:
-        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham)
     else:
-        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham)
     end
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
-def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -3197,6 +3429,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -3226,9 +3463,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    # next, calculate point1
-    p1x = x + l1delxunit * wd1
-    p1y = y + l1delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l1delxunit * wd1 + deepchambumpmm * l2delxunit
+    p1y = y + l1delyunit * wd1 + deepchambumpmm * l2delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -3239,7 +3476,14 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l1delxunit * wtod
     p2ay = y + l1delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -3281,8 +3525,8 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
-    p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
+    p201x = x + l1delxunit * (leftwallthickmm + deepchambumpmm) + l2delxunit * pushtipforward 
+    p201y = y + l1delyunit * (leftwallthickmm + deepchambumpmm) + l2delyunit * pushtipforward
     
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading3 degrees) about z ccw
@@ -3337,6 +3581,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
     
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
@@ -3365,9 +3615,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
 
-    # next, calculate point1
-    p1x = x + l2delxunit * wd1
-    p1y = y + l2delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l2delxunit * wd1 + deepchambumpmm * l1delxunit
+    p1y = y + l2delyunit * wd1 + deepchambumpmm * l1delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
 
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -3378,7 +3628,14 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l2delxunit * wtod
     p2ay = y + l2delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -3420,8 +3677,8 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l2delxunit * rightwallthickmm + l1delxunit * pushtipforward
-    p201y = y + l2delyunit * rightwallthickmm + l1delyunit * pushtipforward
+    p201x = x + l2delxunit * (rightwallthickmm + deepchambumpmm) + l1delxunit * pushtipforward
+    p201y = y + l2delyunit * (rightwallthickmm + deepchambumpmm) + l1delyunit * pushtipforward
 
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
@@ -3450,6 +3707,356 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
 
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
+end
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+# returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+    # calculate slope of sidewall in x-y plane
+    # get the raw points from the first line
+    l1p1x=p11[0]
+    l1p1y=p11[1]
+    l1p2x=p12[0]
+    l1p2y=p12[1]
+
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # calculate the cover plane
+    # if two planes are perpendicular, then their normal vectors must be perpendicular. 
+    # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -&gt; &lt;a, b, c&gt;
+    # the second plane&apos;s normal vector is perpendicular to all vectors contained in the plane
+    # p21 to p22 is a vector v contained within plane 2. 
+    # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+    
+    # plane 1 (y = mx + b) -&gt; (b = -mx +1y +0z)
+    n1 = [-1 * ml1, 1, 0]
+    
+    # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+    v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+    
+    #v n2 = cross product of n1 and v
+    n2x = n1[1]*v[2] - n1[2]*v[1]
+    n2y = n1[2]*v[0] - n1[0]*v[2]
+    n2z = n1[0]*v[1] - n1[1]*v[0]
+    n2 = [n2x, n2y, n2z]
+    
+    # find the d of the second plane
+    # n2x * x + n2y * y + n2z * z = d0
+    d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+    
+    # find the intersection line of the two planes
+    # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+    v3x = n1[1]*n2[2] - n1[2]*n2[1]
+    v3y = n1[2]*n2[0] - n1[0]*n2[2]
+    v3z = n1[0]*n2[1] - n1[1]*n2[0]
+    v3 = [v3x, v3y, v3z]
+    
+    # normalize the vector so the magnitude is 1
+    magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+    magnitude = sqrt(magnitude2)
+    v3xunit = v3x/magnitude
+    v3yunit = v3y/magnitude
+    v3zunit = v3z/magnitude
+    
+    # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+    if v3yunit &lt; 0:
+        v3xunit = v3xunit * -1
+        v3yunit = v3yunit * -1
+        v3zunit = v3zunit * -1
+    end
+    
+    # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+    # i will pick the y value of the left teach point
+    y = leftpoint[1]
+    # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+    # -ml1 * x = bl1 - y
+    x = (bl1 - y)/ (-1 * ml1)
+    # plane 2: d = n2x * x + n2y * y + n2z * z
+    # (d - n2x * x - n2y * y) = n2z * z
+    z = (d - n2x * x - n2y * y) / n2z
+    
+    # make point0 into a pose
+    point0 = p[x, y, z, 0, 0, 0]
+    
+    # find heading of main line
+    heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+    
+    # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+    ml2 = -1 / ml1
+    # y = ml2 * x + unknownB
+    # vector = [1, ml2]
+    mag2 = 1 + ml2 * ml2
+    mag = sqrt(mag2)
+    v4xunit = 1 / mag
+    v4yunit = ml2 / mag
+    # switch is to the x direction is negative
+    v4xunit = -1 * v4xunit
+    v4yunit = -1 * v4yunit
+    
+    ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+    return ret
+end
+
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    sidewallthick = sidewallthick
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = p0z
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        coverz = 0
+    else:
+        coverz = zpi
+    end
+    
+    # calculate pointtopvcham
+    chamferover = sidewallthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    x = p0x + v4xunit * chamferover
+    y = p0y + v4yunit * chamferover
+    z = coverz + tiltraise
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = coverz + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist - tiltraise
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+    
+end
+
+def main_calculate_floor_straight(p11, p12, p21, p22, floorthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_floor(struct1, floorthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# the path for welding a floor straight weld with v chisels on both sides. 
+# start at the right side and move left. 
+def calculate_straight_points_floor(struct1, floorthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do not, because the floors are low)
+    zpi = p0z
+    floorz = zpi
+    
+    # calculate pointtopvcham (left point) (tilted and tiltraised)
+    chamferup = floorthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    # on this one, move the tiltraise distance sideways (towards robot) and the chamferover distance up
+    x = p0x + v4xunit * tiltraise * -1
+    y = p0y + v4yunit * tiltraise * -1
+    z = floorz + chamferup
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, 1, 90 * pi / 180) 
+    # second rotation is about 180 degrees about the z axis. heading1 plus 90 degrees. gun is now pointing directly into the sidewall
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # third rotation is 10 degrees about the z axis. gun is now tilted back 10 degrees from the sidewall
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, 10 * pi / 180)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    # the non tilted angle is just m4
+    rxryrz = convert_matrix_to_axang(m4)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2 (right point) (tilted and tiltraised)
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    pointtopvcham2 = p[x2, y2, z2, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = 1 * 25.4 / 1000.0 # move back 1 inch from ptvc2 (in this case back means positive)
+    p1x = x2 + dist * v3xunit
+    p1y = y2 + dist * v3yunit
+    p1z = z2 + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = -0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x2 + dist * v3xunit
+    p2y = y2 + dist * v3yunit
+    p2z = z2 + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate point3 (end of flatten)
+    dist = -1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x2 + dist * v3xunit + tiltraise * v4xunit
+    p3y = y2 + dist * v3yunit + tiltraise * v4yunit
+    p3z = z2 + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate point4 (start of unflatten)
+    dist = 1.5 * 25.4 / 1000.0 
+    p4x = x + v3xunit * dist + tiltraise * v4xunit
+    p4y = y + v3yunit * dist + tiltraise * v4yunit
+    p4z = z + v3zunit * dist
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = 0.5 * 25.4 / 1000.0 
+    p5x = x + v3xunit * dist
+    p5y = y + v3yunit * dist
+    p5z = z + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = -2 * 25.4 / 1000.0 
+    p6x = x + v3xunit * dist
+    p6y = y + v3yunit * dist
+    p6z = z + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
 end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>
@@ -3575,6 +4182,11 @@ end
             </Assignment>
           </children>
         </If>
+        <Assignment valueSource="Operator" message="Does the cover have deep chamfers? (deeper than 0.21)" valueType="Boolean">
+          <variable name="deepcovercham" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+        </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -3849,6 +4461,20 @@ end
                 <ExpressionChar character="i"/>
                 <ExpressionChar character="c"/>
                 <ExpressionChar character="e"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="d"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="v"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="m"/>
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
@@ -3973,6 +4599,20 @@ end
                 <ExpressionChar character="i"/>
                 <ExpressionChar character="c"/>
                 <ExpressionChar character="e"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="d"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="v"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="m"/>
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
@@ -4671,15 +5311,48 @@ end
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../Assignment[8]/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <SuppressedNode>
           <suppressedNode class="Assignment" valueSource="Expression">
             <variable name="dummyvar" prefersPersistentValue="false" favourite="false">
@@ -4695,24 +5368,57 @@ end
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable reference="../../../../Folder/children/Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable name="p2" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable name="p2" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../If[3]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -5665,17 +6371,50 @@ end
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.012" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable name="p202" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable name="p202" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/Folder/children/Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../If[5]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -6088,7 +6827,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[4]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/If[3]/children/Move/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -6098,10 +6837,10 @@ end
             <CircleMove OrientationMode="FIXED">
               <children>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../../../SubProgram[3]/children/Move[5]/children/CircleMove/children/Waypoint/variable"/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/Move[3]/children/CircleMove/children/Waypoint/variable"/>
                 </Waypoint>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../../../SubProgram[3]/children/Move[5]/children/CircleMove/children/Waypoint[2]/variable"/>
+                  <variable reference="../../../../../../../../SubProgram[3]/children/Move[3]/children/CircleMove/children/Waypoint[2]/variable"/>
                 </Waypoint>
               </children>
             </CircleMove>
@@ -6139,7 +6878,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[7]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[5]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -6768,7 +7507,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[8]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[6]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -6907,7 +7646,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[13]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[11]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7001,7 +7740,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[16]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/If[5]/children/Move/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -7029,7 +7768,7 @@ end
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../../../SubProgram[3]/children/Move[17]/children/Waypoint/variable"/>
+              <variable reference="../../../../../../SubProgram[3]/children/Move[14]/children/Waypoint/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -11045,6 +11784,60 @@ def get_corner_homing_45_pathpoints_cover(point0):
     return ret
 end
 
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
+    ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
+    ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+# this function determines the starting touchpoints for homing in on cover straight geometry
+# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
+def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from
+    d0 = 0.05 # how far from the planes to approach from
+    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
+    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
+    
+    # calculate the points
+    ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
+    ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+    ph3 = p[lpx - d1, lpy, lpz - d0, 0, 0, 0] # left bottom approach
+    ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
 # this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
@@ -11688,12 +12481,42 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+# this function takes in a struct of only points. it checks those points for validity. 
+# if one of them is not valid, it throws a popup loop
+def check_validity_only(struct2):
+    validity = check_structofpoints_validity(struct2)
+    if not validity:
+    # bad
+    popuptext = &quot;Not all weldpoints are valid. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Position Error&quot;,blocking=True)
+    end
+    end
+end
+
+def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    #validity = check_validity_right(struct1, struct2)
-    struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+    if leftseam:
+        if leftobstacle:
+            struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            heading1deg = struct1[1] * 180/pi
+            if heading1deg &lt; 210:
+                popup(&quot;Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. &quot;, title=&quot;Alignment Error&quot;,blocking=True)
+            end
+        else:
+            struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        end
+    else:
+        if leftobstacle:
+            # error: this geometry is impossible for the robot to weld
+            popup(&quot;Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. &quot;, title=&quot;Geometry Error&quot;,blocking=True)
+        else:
+            struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        end
+    end
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -11703,6 +12526,7 @@ def main_calculate_step_left(p11, p12, p21, p22, p3, p13, p23, noncappingsidewal
     #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     #validity = check_validity_right(struct1, struct2)
     struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -11731,6 +12555,152 @@ def step_right_demo(struct1):
     popup(point_demo)
     ret = struct(point_demo = point_demo)
     return ret
+end
+
+# for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step. 
+def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # now calculate the points of the Up Around
+    # don&apos;t use heading3 at all. 
+    #point201 is at the chamfer intersection
+    p201x = xbottom
+    p201y = ybottom
+    p201z = z
+    
+    # rxryrz is the same 
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+    # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+    sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+    sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+    sidez = z
+    
+    # p202
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    p202x = sidex + rod * l1delxunit
+    p202y = sidey + rod * l1delyunit
+    p202z = sidez
+    point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+    # p204 end of circle move
+    p204x = sidex
+    p204y = sidey
+    p204z = sidez + rod
+    
+    # calculate rxryrz
+    # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+    # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+    #p205 (end of straight after cirlce move, before listleans
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+    #p206 (top of weld)
+    p206x = sidex + wd3 * listleans[0]
+    p206y = sidey + wd3 * listleans[1]
+    p206z = sidez + wd3
+    point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+    # p203 (middle of turn)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = sidez + delta
+    p203x = sidex + delta * l1delxunit
+    p203y = sidey + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 45 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+    return struct2
 end
 
 # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
@@ -12060,19 +13030,20 @@ end
 # returns the pathpoints
 # specifically for Around and Down then Straight (AtS)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice):
+# leftchoice is a boolean and deepcovercham is a boolean but leftwallthick, rightwallthick are decimals in inches. 
+def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice, deepcovercham):
     struct1 = analyze_touchpoints_only_cover(p11, p12, p21, p3)
     if leftchoice:
-        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham)
     else:
-        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham)
     end
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
-def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -12095,6 +13066,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -12124,9 +13100,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    # next, calculate point1
-    p1x = x + l1delxunit * wd1
-    p1y = y + l1delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l1delxunit * wd1 + deepchambumpmm * l2delxunit
+    p1y = y + l1delyunit * wd1 + deepchambumpmm * l2delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -12137,7 +13113,14 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l1delxunit * wtod
     p2ay = y + l1delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -12179,8 +13162,8 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
-    p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
+    p201x = x + l1delxunit * (leftwallthickmm + deepchambumpmm) + l2delxunit * pushtipforward 
+    p201y = y + l1delyunit * (leftwallthickmm + deepchambumpmm) + l2delyunit * pushtipforward
     
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading3 degrees) about z ccw
@@ -12235,6 +13218,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
     
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
     zpi = pointintersect[2]
@@ -12263,9 +13252,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
 
-    # next, calculate point1
-    p1x = x + l2delxunit * wd1
-    p1y = y + l2delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l2delxunit * wd1 + deepchambumpmm * l1delxunit
+    p1y = y + l2delyunit * wd1 + deepchambumpmm * l1delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
 
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -12276,7 +13265,14 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l2delxunit * wtod
     p2ay = y + l2delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -12318,8 +13314,8 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l2delxunit * rightwallthickmm + l1delxunit * pushtipforward
-    p201y = y + l2delyunit * rightwallthickmm + l1delyunit * pushtipforward
+    p201x = x + l2delxunit * (rightwallthickmm + deepchambumpmm) + l1delxunit * pushtipforward
+    p201y = y + l2delyunit * (rightwallthickmm + deepchambumpmm) + l1delyunit * pushtipforward
 
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
@@ -12348,6 +13344,356 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
 
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
     return struct2
+end
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# calculates the line of intersection of the sidewall plane (assumed vertical) and the cover plane (assumed perpendicular to sidewall plane)
+# returns a struct containing point0 (point on the intersection line, same y as leftpoint) and 3 components of the unit vector left to right and 2 components of the other direction in 2d
+def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
+    # calculate slope of sidewall in x-y plane
+    # get the raw points from the first line
+    l1p1x=p11[0]
+    l1p1y=p11[1]
+    l1p2x=p12[0]
+    l1p2y=p12[1]
+
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # calculate the cover plane
+    # if two planes are perpendicular, then their normal vectors must be perpendicular. 
+    # the first planes normal vector is n1, which is taken from the equation of the plane ax + by + cz = d -&gt; &lt;a, b, c&gt;
+    # the second plane&apos;s normal vector is perpendicular to all vectors contained in the plane
+    # p21 to p22 is a vector v contained within plane 2. 
+    # n2 is normal to both n1 AND v. to achieve a vector that is normal to both, take the cross product
+    
+    # plane 1 (y = mx + b) -&gt; (b = -mx +1y +0z)
+    n1 = [-1 * ml1, 1, 0]
+    
+    # v=P2−P1=(x2−x1,y2−y1,z2−z1)
+    v = [p21[0]-p22[0], p21[1]-p22[1], p21[2]-p22[2]]
+    
+    #v n2 = cross product of n1 and v
+    n2x = n1[1]*v[2] - n1[2]*v[1]
+    n2y = n1[2]*v[0] - n1[0]*v[2]
+    n2z = n1[0]*v[1] - n1[1]*v[0]
+    n2 = [n2x, n2y, n2z]
+    
+    # find the d of the second plane
+    # n2x * x + n2y * y + n2z * z = d0
+    d = n2x * p21[0] + n2y * p21[1] + n2z * p21[2]
+    
+    # find the intersection line of the two planes
+    # find the direction vector of that line by taking the cross product of the normal vector of those two planes
+    v3x = n1[1]*n2[2] - n1[2]*n2[1]
+    v3y = n1[2]*n2[0] - n1[0]*n2[2]
+    v3z = n1[0]*n2[1] - n1[1]*n2[0]
+    v3 = [v3x, v3y, v3z]
+    
+    # normalize the vector so the magnitude is 1
+    magnitude2 = v3x * v3x + v3y * v3y + v3z * v3z
+    magnitude = sqrt(magnitude2)
+    v3xunit = v3x/magnitude
+    v3yunit = v3y/magnitude
+    v3zunit = v3z/magnitude
+    
+    # make sure it is going the right way (from left to right). make sure the v3yunit is positive
+    if v3yunit &lt; 0:
+        v3xunit = v3xunit * -1
+        v3yunit = v3yunit * -1
+        v3zunit = v3zunit * -1
+    end
+    
+    # next we have to find a point on the line by setting one of the dimensions and solving the system of equations
+    # i will pick the y value of the left teach point
+    y = leftpoint[1]
+    # plane 1: -ml1 * x + 1 * y + 0 * z = bl1
+    # -ml1 * x = bl1 - y
+    x = (bl1 - y)/ (-1 * ml1)
+    # plane 2: d = n2x * x + n2y * y + n2z * z
+    # (d - n2x * x - n2y * y) = n2z * z
+    z = (d - n2x * x - n2y * y) / n2z
+    
+    # make point0 into a pose
+    point0 = p[x, y, z, 0, 0, 0]
+    
+    # find heading of main line
+    heading1 = convert_uv_to_heading(v3xunit, v3yunit)
+    
+    # make a unit vector perpendicular to this one in the xy plane pointing x -. will be used to move over the chamfer distance
+    ml2 = -1 / ml1
+    # y = ml2 * x + unknownB
+    # vector = [1, ml2]
+    mag2 = 1 + ml2 * ml2
+    mag = sqrt(mag2)
+    v4xunit = 1 / mag
+    v4yunit = ml2 / mag
+    # switch is to the x direction is negative
+    v4xunit = -1 * v4xunit
+    v4yunit = -1 * v4yunit
+    
+    ret = struct(point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit)
+    return ret
+end
+
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    sidewallthick = sidewallthick
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = p0z
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        coverz = 0
+    else:
+        coverz = zpi
+    end
+    
+    # calculate pointtopvcham
+    chamferover = sidewallthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    x = p0x + v4xunit * chamferover
+    y = p0y + v4yunit * chamferover
+    z = coverz + tiltraise
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = coverz + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist - tiltraise
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+    
+end
+
+def main_calculate_floor_straight(p11, p12, p21, p22, floorthick, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
+    struct2 = calculate_straight_points_floor(struct1, floorthick, leftpoint, rightpoint)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+# the path for welding a floor straight weld with v chisels on both sides. 
+# start at the right side and move left. 
+def calculate_straight_points_floor(struct1, floorthick, leftpointteach, rightpointteach):
+    # get the stuff
+    point0 = struct1[0]
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    v3xunit = struct1[1]
+    v3yunit = struct1[2]
+    v3zunit = struct1[3]
+    heading1 = struct1[4]
+    v4xunit = struct1[5]
+    v4yunit = struct1[6]
+    lpy = leftpointteach[1]
+    rpy = rightpointteach[1]
+    
+    # first, check if we need a lift column raise
+    # (we do not, because the floors are low)
+    zpi = p0z
+    floorz = zpi
+    
+    # calculate pointtopvcham (left point) (tilted and tiltraised)
+    chamferup = floorthick * 25.4 / 1000.0
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    # on this one, move the tiltraise distance sideways (towards robot) and the chamferover distance up
+    x = p0x + v4xunit * tiltraise * -1
+    y = p0y + v4yunit * tiltraise * -1
+    z = floorz + chamferup
+    
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, 1, 90 * pi / 180) 
+    # second rotation is about 180 degrees about the z axis. heading1 plus 90 degrees. gun is now pointing directly into the sidewall
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # third rotation is 10 degrees about the z axis. gun is now tilted back 10 degrees from the sidewall
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, 10 * pi / 180)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    # the non tilted angle is just m4
+    rxryrz = convert_matrix_to_axang(m4)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    pointtopvcham = p[x, y, z, rxt, ryt, rzt]
+    
+    # calculate distance between leftpoint and rightpoint
+    # we have the y distance. we need to find the total distance. 
+    # the unit vector (v3) should have a magnitude of 1. that&apos;s what analyze_touchpoints_only_cover_straight() calculated.
+    # so the total distance is y distance * 1 / v3yunit
+    ydist = rpy - lpy
+    totdist = ydist / v3yunit
+    
+    # calculate pointtopvcham2 (right point) (tilted and tiltraised)
+    x2 = x + v3xunit * totdist
+    y2 = y + v3yunit * totdist
+    z2 = z + v3zunit * totdist
+    pointtopvcham2 = p[x2, y2, z2, rxt, ryt, rzt]
+    
+    # calculate point1 (preheat)
+    dist = 1 * 25.4 / 1000.0 # move back 1 inch from ptvc2 (in this case back means positive)
+    p1x = x2 + dist * v3xunit
+    p1y = y2 + dist * v3yunit
+    p1z = z2 + dist * v3zunit
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = -0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x2 + dist * v3xunit
+    p2y = y2 + dist * v3yunit
+    p2z = z2 + dist * v3zunit
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate point3 (end of flatten)
+    dist = -1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x2 + dist * v3xunit + tiltraise * v4xunit
+    p3y = y2 + dist * v3yunit + tiltraise * v4yunit
+    p3z = z2 + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate point4 (start of unflatten)
+    dist = 1.5 * 25.4 / 1000.0 
+    p4x = x + v3xunit * dist + tiltraise * v4xunit
+    p4y = y + v3yunit * dist + tiltraise * v4yunit
+    p4z = z + v3zunit * dist
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = 0.5 * 25.4 / 1000.0 
+    p5x = x + v3xunit * dist
+    p5y = y + v3yunit * dist
+    p5z = z + v3zunit * dist
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = -2 * 25.4 / 1000.0 
+    p6x = x + v3xunit * dist
+    p6y = y + v3yunit * dist
+    p6z = z + v3zunit * dist
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    # return struct
+    ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
 end
 </cachedContents>
           <file>/programs/analyze_touchpoints.script</file>

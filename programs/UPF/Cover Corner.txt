@@ -105,6 +105,7 @@
        sidewall≔0.628
      Else
        sidewall≔0.375
+     deepcovercham≔'Does the cover have deep chamfers? (deeper than 0.21)'
      MoveJ
        Waypoint_46
      Set
@@ -117,11 +118,11 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_cover(p11,p12,p21,p3,sidewall,floorthick,leftchoice)
+       pathturn≔main_calculate_cover(p11,p12,p21,p3,sidewall,floorthick,leftchoice,deepcovercham)
        extrude_knife3()
        move_path_cover_left3()
      Else
-       pathturn≔main_calculate_cover(p11,p12,p21,p3,floorthick,sidewall,leftchoice)
+       pathturn≔main_calculate_cover(p11,p12,p21,p3,floorthick,sidewall,leftchoice,deepcovercham)
        extrude_knife3()
        move_path_cover_right3()
    align_for_cover_left
@@ -166,12 +167,20 @@
        Wait: 1.0
        'turn_extrusion_on()'
        Set DO[0]=On
-     MoveL
-       p2a
+     If deepcovercham
+       MoveL
+         p2a
+     Else
+       MoveL
+         p2a
      'dummyvar≔ True '
      Serial Bridge uR0
-     MoveL
-       p2
+     If deepcovercham
+       MoveL
+         p2
+     Else
+       MoveL
+         p2
      MoveP
        CircleMove
          p3
@@ -236,8 +245,12 @@
        Wait: 1.0
        'turn_extrusion_on()'
        Set DO[0]=On
-     MoveL
-       p202
+     If deepcovercham
+       MoveL
+         p202
+     Else
+       MoveL
+         p202
      Serial Bridge uR0
      Wait: 2.0
      Set DO[0]=Off

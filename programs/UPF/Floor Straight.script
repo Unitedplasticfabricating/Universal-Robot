@@ -1,6 +1,6 @@
 def Floor_Straight():
   global _hidden_verificationVariable=0
-  set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -8,14 +8,14 @@ def Floor_Straight():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-  set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +154,14 @@ def Floor_Straight():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_0e3ddd6c_f52c_4e31_83b3_dcd7e40bfc0a = 0.0
-  thread Step_Counter_Thread_f7df56f1_60d6_40ee_bc56_ccd0d1c4f7db():
+  step_count_0da8bb4b_0b10_43a7_87db_5f15cd3b82c3 = 0.0
+  thread Step_Counter_Thread_00f45e06_2705_4909_a06e_b6de057428d9():
     while (True):
-      step_count_0e3ddd6c_f52c_4e31_83b3_dcd7e40bfc0a = step_count_0e3ddd6c_f52c_4e31_83b3_dcd7e40bfc0a + 1.0
+      step_count_0da8bb4b_0b10_43a7_87db_5f15cd3b82c3 = step_count_0da8bb4b_0b10_43a7_87db_5f15cd3b82c3 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_f7df56f1_60d6_40ee_bc56_ccd0d1c4f7db()
+  run Step_Counter_Thread_00f45e06_2705_4909_a06e_b6de057428d9()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -2306,12 +2306,42 @@ def Floor_Straight():
         end
     end
     
-    def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+    # this function takes in a struct of only points. it checks those points for validity.
+    # if one of them is not valid, it throws a popup loop
+    def check_validity_only(struct2):
+        validity = check_structofpoints_validity(struct2)
+        if not validity:
+        # bad
+        popuptext = "Not all weldpoints are valid. "
+        # infinite loop
+        while 1==1:
+          popup(popuptext, title="Position Error",blocking=True)
+        end
+        end
+    end
+    
+    def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
         struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
         list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-        #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-        #validity = check_validity_right(struct1, struct2)
-        struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        if leftseam:
+            if leftobstacle:
+                struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+                heading1deg = struct1[1] * 180/pi
+                if heading1deg < 210:
+                    popup("Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. ", title="Alignment Error",blocking=True)
+                end
+            else:
+                struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            end
+        else:
+            if leftobstacle:
+                # error: this geometry is impossible for the robot to weld
+                popup("Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. ", title="Geometry Error",blocking=True)
+            else:
+                struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+            end
+        end
+        validity = check_validity_only(struct2)
         return struct2
     end
     
@@ -2321,6 +2351,7 @@ def Floor_Straight():
         #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
         #validity = check_validity_right(struct1, struct2)
         struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        validity = check_validity_only(struct2)
         return struct2
     end
     
@@ -2349,6 +2380,152 @@ def Floor_Straight():
         popup(point_demo)
         ret = struct(point_demo = point_demo)
         return ret
+    end
+    
+    # for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step.
+    def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+        # get the stuff from the struct
+        pointintersect = struct1[0]
+        heading1 = struct1[1]
+        heading2 = struct1[2]
+        heading3 = struct1[3]
+        l1delxunit = struct1[4]
+        l1delyunit = struct1[5]
+        l2delxunit = struct1[6]
+        l2delyunit = struct1[7]
+    
+        # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+        # find locations 8 inches away from  intersect point
+        # CONST
+        welddistance1 = 3 # first path first leg
+        welddistance2 = 3 # first path second leg
+        welddistance3 = 8 # vertical weld distance
+    
+        # inches
+        wd1 = welddistance1 * 25.4 / 1000
+        wd2 = welddistance2 * 25.4 / 1000
+        wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+        leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+        rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+        # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+        #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+        # point bottom (point of intersection of the two chamfers on the bottom)
+        xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+        ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+        z = pointintersect[2]
+    
+        # point 1
+        x = xbottom + l1delxunit * wd1
+        y = ybottom + l1delyunit * wd1
+    
+        # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+        m1 = get_rotation_matrix_from_description("z", 1, heading1)
+        # at this point we would multiply matrices, but there is only one matrix
+        rxryrz = convert_matrix_to_axang(m1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point1 = p[x, y, z, rx, ry, rz]
+    
+        # point 2
+        point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+        # point 4
+        # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+        m1 = get_rotation_matrix_from_description("z", 1, heading3)
+        # at this point we would multiply matrices, but there is only one matrix
+        rxryrz = convert_matrix_to_axang(m1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+        # point 5
+        x = xbottom + l2delxunit * wd2
+        y = ybottom + l2delyunit * wd2
+        point5 = p[x, y, z, rx, ry, rz]
+    
+        # now calculate the points of the Up Around
+        # don't use heading3 at all.
+        #point201 is at the chamfer intersection
+        p201x = xbottom
+        p201y = ybottom
+        p201z = z
+    
+        # rxryrz is the same
+        m1 = get_rotation_matrix_from_description("z", 1, heading1)
+        # at this point we would multiply matrices, but there is only one matrix
+        rxryrz = convert_matrix_to_axang(m1)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+        # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+        sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+        sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+        sidez = z
+    
+        # p202
+        roundoverdistance = 0.05
+        rod = roundoverdistance * 25.4 / 1000
+        p202x = sidex + rod * l1delxunit
+        p202y = sidey + rod * l1delyunit
+        p202z = sidez
+        point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+        # p204 end of circle move
+        p204x = sidex
+        p204y = sidey
+        p204z = sidez + rod
+    
+        # calculate rxryrz
+        # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+        m1 = get_rotation_matrix_from_description("x", 1, 90 * pi / 180)
+        # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+        # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+        m2 = get_rotation_matrix_from_description("z", 1, heading1)
+        m3 = multiply_matrix(m2, m1)
+        rxryrz = convert_matrix_to_axang(m3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+        #p205 (end of straight after cirlce move, before listleans
+        straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+        sld = straightlength * 25.4 / 1000
+        point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+        #p206 (top of weld)
+        p206x = sidex + wd3 * listleans[0]
+        p206y = sidey + wd3 * listleans[1]
+        p206z = sidez + wd3
+        point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+        # p203 (middle of turn)
+        # we know that the angle is exactly 90 degrees
+        delta = calc_rod_midpoint_90deg(rod)
+        p203z = sidez + delta
+        p203x = sidex + delta * l1delxunit
+        p203y = sidey + delta * l1delyunit
+    
+        # calculate rxryrz
+        m1 = get_rotation_matrix_from_description("x", 1, 45 * pi / 180)
+        m2 = get_rotation_matrix_from_description("z", 1, heading1)
+        m3 = multiply_matrix(m2, m1)
+        rxryrz = convert_matrix_to_axang(m3)
+        rx = rxryrz[0]
+        ry = rxryrz[1]
+        rz = rxryrz[2]
+        point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+        # form struct
+        struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+        return struct2
     end
     
     # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld.
@@ -3450,28 +3627,30 @@ def Floor_Straight():
     $ 336 "Waypoint_16" "breakAfter"
     movej(get_inverse_kin(Waypoint_16_p, qnear=Waypoint_16_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 342 "MoveL"
-    $ 343 "ph3a" "breakAfter"
+    $ 343 "ph4a" "breakAfter"
+    movel(ph4a, a=1.2, v=0.25)
+    $ 344 "ph3a" "breakAfter"
     movel(ph3a, a=1.2, v=0.25)
-    $ 344 "ph3" "breakAfter"
+    $ 345 "ph3" "breakAfter"
     movel(ph3, a=1.2, v=0.25)
-    $ 345 "MoveL"
-    $ 346 "Direction: Base Z+"
-    global move_thread_flag_346=0
-    thread move_thread_346():
+    $ 346 "MoveL"
+    $ 347 "Direction: Base Z+"
+    global move_thread_flag_347=0
+    thread move_thread_347():
       enter_critical
-      move_thread_flag_346 = 1
+      move_thread_flag_347 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_346 = 2
+      move_thread_flag_347 = 2
       exit_critical
     end
-    move_thread_flag_346 = 0
-    move_thread_han_346 = run move_thread_346()
+    move_thread_flag_347 = 0
+    move_thread_han_347 = run move_thread_347()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_346
+        kill move_thread_han_347
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3483,41 +3662,41 @@ def Floor_Straight():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 347 "Until (tool_contact_detection)"
+        $ 348 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 348 "p21≔get_actual_tcp_pose()"
+    $ 349 "p21≔get_actual_tcp_pose()"
     global p21= get_actual_tcp_pose ()
-    $ 349 "MoveL"
-    $ 350 "ph3" "breakAfter"
+    $ 350 "MoveL"
+    $ 351 "ph3" "breakAfter"
     movel(ph3, a=1.2, v=0.25)
-    $ 351 "ph3a" "breakAfter"
+    $ 352 "ph3a" "breakAfter"
     movel(ph3a, a=1.2, v=0.25)
-    $ 352 "ph4a" "breakAfter"
+    $ 353 "ph4a" "breakAfter"
     movel(ph4a, a=1.2, v=0.25)
-    $ 353 "MoveL"
-    $ 354 "ph4" "breakAfter"
+    $ 354 "MoveL"
+    $ 355 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 355 "MoveL"
-    $ 356 "Direction: Base Z+"
-    global move_thread_flag_356=0
-    thread move_thread_356():
+    $ 356 "MoveL"
+    $ 357 "Direction: Base Z+"
+    global move_thread_flag_357=0
+    thread move_thread_357():
       enter_critical
-      move_thread_flag_356 = 1
+      move_thread_flag_357 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_356 = 2
+      move_thread_flag_357 = 2
       exit_critical
     end
-    move_thread_flag_356 = 0
-    move_thread_han_356 = run move_thread_356()
+    move_thread_flag_357 = 0
+    move_thread_han_357 = run move_thread_357()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_356
+        kill move_thread_han_357
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -3529,22 +3708,22 @@ def Floor_Straight():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 357 "Until (tool_contact_detection)"
+        $ 358 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 358 "p22≔get_actual_tcp_pose()"
+    $ 359 "p22≔get_actual_tcp_pose()"
     global p22= get_actual_tcp_pose ()
-    $ 359 "MoveL"
-    $ 360 "ph4" "breakAfter"
+    $ 360 "MoveL"
+    $ 361 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 361 "ph4a" "breakAfter"
+    $ 362 "ph4a" "breakAfter"
     movel(ph4a, a=1.2, v=0.25)
-    $ 362 "MoveJ"
-    $ 363 "Waypoint_16" "breakAfter"
+    $ 363 "MoveJ"
+    $ 364 "Waypoint_16" "breakAfter"
     movej(get_inverse_kin(Waypoint_16_p, qnear=Waypoint_16_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 371 "Home"
+    $ 372 "Home"
     movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   end
   $ 2 "BeforeStart"
@@ -3746,25 +3925,25 @@ def Floor_Straight():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 372 "Thread_1"
+  $ 373 "Thread_1"
   thread Thread_1():
-    $ 373 "Loop  True "
+    $ 374 "Loop  True "
     while (  True  ):
-      $ 374 "If freedrive_m_var≟ True "
+      $ 375 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 375 "freedrive_mode()"
+        $ 376 "freedrive_mode()"
         freedrive_mode()
-        $ 376 "free_dr_already≔ True "
+        $ 377 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 377 "Else" "noBreak"
-        $ 378 "If free_dr_already"
+        $ 378 "Else" "noBreak"
+        $ 379 "If free_dr_already"
         if (free_dr_already):
-          $ 379 "end_freedrive_mode()"
+          $ 380 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 380 "sync()"
+      $ 381 "sync()"
       sync()
     end
   end
@@ -5565,12 +5744,42 @@ def Floor_Straight():
       end
   end
   
-  def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+  # this function takes in a struct of only points. it checks those points for validity.
+  # if one of them is not valid, it throws a popup loop
+  def check_validity_only(struct2):
+      validity = check_structofpoints_validity(struct2)
+      if not validity:
+      # bad
+      popuptext = "Not all weldpoints are valid. "
+      # infinite loop
+      while 1==1:
+        popup(popuptext, title="Position Error",blocking=True)
+      end
+      end
+  end
+  
+  def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
       struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
       list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-      #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-      #validity = check_validity_right(struct1, struct2)
-      struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+      if leftseam:
+          if leftobstacle:
+              struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+              heading1deg = struct1[1] * 180/pi
+              if heading1deg < 210:
+                  popup("Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. ", title="Alignment Error",blocking=True)
+              end
+          else:
+              struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+          end
+      else:
+          if leftobstacle:
+              # error: this geometry is impossible for the robot to weld
+              popup("Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. ", title="Geometry Error",blocking=True)
+          else:
+              struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+          end
+      end
+      validity = check_validity_only(struct2)
       return struct2
   end
   
@@ -5580,6 +5789,7 @@ def Floor_Straight():
       #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
       #validity = check_validity_right(struct1, struct2)
       struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+      validity = check_validity_only(struct2)
       return struct2
   end
   
@@ -5608,6 +5818,152 @@ def Floor_Straight():
       popup(point_demo)
       ret = struct(point_demo = point_demo)
       return ret
+  end
+  
+  # for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step.
+  def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+      # get the stuff from the struct
+      pointintersect = struct1[0]
+      heading1 = struct1[1]
+      heading2 = struct1[2]
+      heading3 = struct1[3]
+      l1delxunit = struct1[4]
+      l1delyunit = struct1[5]
+      l2delxunit = struct1[6]
+      l2delyunit = struct1[7]
+  
+      # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+      # find locations 8 inches away from  intersect point
+      # CONST
+      welddistance1 = 3 # first path first leg
+      welddistance2 = 3 # first path second leg
+      welddistance3 = 8 # vertical weld distance
+  
+      # inches
+      wd1 = welddistance1 * 25.4 / 1000
+      wd2 = welddistance2 * 25.4 / 1000
+      wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+      leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+      rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+  
+  
+      # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+      #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+  
+      # point bottom (point of intersection of the two chamfers on the bottom)
+      xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+      ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+      z = pointintersect[2]
+  
+      # point 1
+      x = xbottom + l1delxunit * wd1
+      y = ybottom + l1delyunit * wd1
+  
+      # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+      m1 = get_rotation_matrix_from_description("z", 1, heading1)
+      # at this point we would multiply matrices, but there is only one matrix
+      rxryrz = convert_matrix_to_axang(m1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point1 = p[x, y, z, rx, ry, rz]
+  
+      # point 2
+      point2 = p[xbottom, ybottom, z, rx, ry, rz]
+  
+      # point 4
+      # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+      m1 = get_rotation_matrix_from_description("z", 1, heading3)
+      # at this point we would multiply matrices, but there is only one matrix
+      rxryrz = convert_matrix_to_axang(m1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point4 = p[xbottom, ybottom, z, rx, ry, rz]
+  
+      # point 5
+      x = xbottom + l2delxunit * wd2
+      y = ybottom + l2delyunit * wd2
+      point5 = p[x, y, z, rx, ry, rz]
+  
+      # now calculate the points of the Up Around
+      # don't use heading3 at all.
+      #point201 is at the chamfer intersection
+      p201x = xbottom
+      p201y = ybottom
+      p201z = z
+  
+      # rxryrz is the same
+      m1 = get_rotation_matrix_from_description("z", 1, heading1)
+      # at this point we would multiply matrices, but there is only one matrix
+      rxryrz = convert_matrix_to_axang(m1)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point201 = p[p201x, p201y, p201z, rx, ry, rz]
+  
+      # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+      sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+      sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+      sidez = z
+  
+      # p202
+      roundoverdistance = 0.05
+      rod = roundoverdistance * 25.4 / 1000
+      p202x = sidex + rod * l1delxunit
+      p202y = sidey + rod * l1delyunit
+      p202z = sidez
+      point202 = p[p202x, p202y, p202z, rx, ry, rz]
+  
+      # p204 end of circle move
+      p204x = sidex
+      p204y = sidey
+      p204z = sidez + rod
+  
+      # calculate rxryrz
+      # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+      m1 = get_rotation_matrix_from_description("x", 1, 90 * pi / 180)
+      # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+      # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+      m2 = get_rotation_matrix_from_description("z", 1, heading1)
+      m3 = multiply_matrix(m2, m1)
+      rxryrz = convert_matrix_to_axang(m3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point204 = p[p204x, p204y, p204z, rx, ry, rz]
+  
+      #p205 (end of straight after cirlce move, before listleans
+      straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+      sld = straightlength * 25.4 / 1000
+      point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+  
+      #p206 (top of weld)
+      p206x = sidex + wd3 * listleans[0]
+      p206y = sidey + wd3 * listleans[1]
+      p206z = sidez + wd3
+      point206 = p[p206x, p206y, p206z, rx, ry, rz]
+  
+      # p203 (middle of turn)
+      # we know that the angle is exactly 90 degrees
+      delta = calc_rod_midpoint_90deg(rod)
+      p203z = sidez + delta
+      p203x = sidex + delta * l1delxunit
+      p203y = sidey + delta * l1delyunit
+  
+      # calculate rxryrz
+      m1 = get_rotation_matrix_from_description("x", 1, 45 * pi / 180)
+      m2 = get_rotation_matrix_from_description("z", 1, heading1)
+      m3 = multiply_matrix(m2, m1)
+      rxryrz = convert_matrix_to_axang(m3)
+      rx = rxryrz[0]
+      ry = rxryrz[1]
+      rz = rxryrz[2]
+      point203 = p[p203x, p203y, p203z, rx, ry, rz]
+  
+      # form struct
+      struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+      return struct2
   end
   
   # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld.
