@@ -3066,3 +3066,34 @@ def calculate_straight_points_floor(struct1, floorthick, leftpointteach, rightpo
     return ret
     
 end
+
+# this function determines the starting touchpoints for homing in on cover lt geometry
+# includes two points above the cover lt, closer to the robot than the lt, facing down
+def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from (in meters)
+    d0 = 0.05 # how far from the cover to approach from
+    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d2 = 0.00 # how far inwards the touchpoints are pushed
+    
+    # rxryrz
+    rxryrz = [0.334, 3.124, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate the points
+    ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    
+    ret = struct(ph1=ph1, ph2=ph2)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
