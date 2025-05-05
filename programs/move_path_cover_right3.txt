@@ -13,6 +13,9 @@
      pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
      p4a≔p[p4[0],p4[1],p4[2]-0.003,p4[3],p4[4],p4[5]]
      p2a≔pathturn[10]
+     p101≔pathturn[11]
+     p102≔pathturn[12]
+     p103≔pathturn[13]
      MoveJ
        pa1
      MoveL
@@ -24,11 +27,20 @@
        Wait: 1.0
        'turn_extrusion_on()'
        Set DO[0]=On
-     MoveL
-       p2a
+     If deepcovercham
+       MoveL
+         p2a
+     Else
+       MoveL
+         p2a
      Serial Bridge uR0
-     MoveL
-       p2
+     Set DO[0]=Off
+     If deepcovercham
+       MoveL
+         p2
+     Else
+       MoveL
+         p2
      MoveP
        CircleMove
          p3
@@ -37,11 +49,16 @@
        p4a
      Wait: 4.0
      Serial Bridge uR1
+     Set DO[0]=On
      Wait: 1.0
      MoveL
-       p5
+       p101
+     Set
+     MoveL
+       p102
      Serial Bridge uR0
-     Wait: 2.0
+     MoveL
+       p103
      Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+0.05,p5[1],p5[2],p5[3],p5[4],p5[5]]
@@ -85,14 +102,18 @@
        Wait: 1.0
        'turn_extrusion_on()'
        Set DO[0]=On
-     MoveL
-       p202
+     If deepcovercham
+       MoveL
+         p202
+     Else
+       MoveL
+         p202
      Serial Bridge uR0
      Wait: 2.0
      Set DO[0]=Off
      MoveJ
        pret4
      MoveJ
-       Waypoint_5
+       Waypoint_20
      Home
      MachineLogic Homing

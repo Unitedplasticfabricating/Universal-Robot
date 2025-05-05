@@ -8,7 +8,7 @@
   </kinematics>
   <children>
     <InitVariablesNode/>
-    <MainProgram runOnlyOnce="true" InitVariablesNode="false">
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <Comment/>
         <Script type="Line">
@@ -252,6 +252,63 @@
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p101" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p102" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="p103" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
           <children>
@@ -268,7 +325,9 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment/variable"/>
+              <variable name="p1" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Waypoint>
           </children>
         </Move>
@@ -339,15 +398,48 @@
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../Assignment[8]/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../Assignment[8]/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -356,31 +448,72 @@
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+        <Set type="DigitalOutput">
+          <pin reference="../../Folder/children/Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../Assignment[2]/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable name="p2" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../If[3]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
             <CircleMove OrientationMode="FIXED">
               <children>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[3]/variable"/>
+                  <variable name="p3" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
                 </Waypoint>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[4]/variable"/>
+                  <variable name="p4" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
                 </Waypoint>
               </children>
             </CircleMove>
@@ -406,10 +539,16 @@
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../Folder/children/Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
@@ -418,7 +557,19 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[5]/variable"/>
+              <variable reference="../../../../Assignment[9]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Set type="NoAction">
+          <tcp referencedName="pretend_welder"/>
+        </Set>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[10]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -430,13 +581,19 @@
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable reference="../../../../Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
-        <Wait type="Sleep">
-          <waitTime>2.0</waitTime>
-        </Wait>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[11]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
         <Set type="DigitalOutput">
           <pin reference="../../Folder/children/Set/pin"/>
           <digitalValue>0</digitalValue>
@@ -547,7 +704,9 @@
         </Assignment>
         <SuppressedNode>
           <suppressedNode class="Assignment" valueSource="Expression">
-            <variable reference="../../../Assignment[10]/variable"/>
+            <variable name="pret2" prefersPersistentValue="false" favourite="false">
+              <initializeExpression/>
+            </variable>
             <expression>
               <ExpressionChar character="p"/>
               <ExpressionChar character="["/>
@@ -627,7 +786,7 @@
         </SuppressedNode>
         <SuppressedNode>
           <suppressedNode class="Assignment" valueSource="Expression">
-            <variable reference="../../../Assignment[3]/variable"/>
+            <variable reference="../../../Move[3]/children/CircleMove/children/Waypoint/variable"/>
             <expression>
               <ExpressionChar character="p"/>
               <ExpressionChar character="a"/>
@@ -1072,14 +1231,16 @@
           </suppressedNode>
         </SuppressedNode>
         <Set type="NoAction">
-          <tcp referencedName="pretend_welder"/>
+          <tcp reference="../../Set[4]/tcp"/>
         </Set>
         <Move motionType="MoveL" speed="0.05" acceleration="0.05" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[9]/variable"/>
+              <variable name="pret1" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Waypoint>
           </children>
         </Move>
@@ -1088,7 +1249,7 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[10]/variable"/>
+              <variable reference="../../../../SuppressedNode/suppressedNode/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -1218,7 +1379,9 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[16]/variable"/>
+              <variable name="pret3" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Waypoint>
           </children>
         </Move>
@@ -1227,7 +1390,7 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[13]/variable"/>
+              <variable reference="../../../../Assignment[16]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -1239,11 +1402,11 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[14]/variable"/>
+              <variable reference="../../../../Assignment[17]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[15]/variable"/>
+              <variable reference="../../../../Assignment[18]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -1257,7 +1420,9 @@
                 <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
                 <Variable key="OUTPUT_VARIABLE">
-                  <variable reference="../../../../../../Contributed/dataModel/Variable/variable"/>
+                  <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
                 </Variable>
               </dataModel>
             </Contributed>
@@ -1307,15 +1472,50 @@
             </Set>
           </children>
         </Folder>
-        <Move motionType="MoveL" speed="0.012" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="m"/>
+          </expression>
           <children>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../Assignment[12]/variable"/>
-            </Waypoint>
+            <Move motionType="MoveL" speed="0.006" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable name="p202" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Waypoint>
+              </children>
+            </Move>
           </children>
-        </Move>
+        </If>
+        <If type="Else" checkContinuously="false">
+          <expression/>
+          <children>
+            <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" reference="../../../../Move/feature"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../../../If[5]/children/Move/children/Waypoint/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </If>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -1340,14 +1540,16 @@
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[17]/variable"/>
+              <variable name="pret4" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Waypoint>
           </children>
         </Move>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../Move/feature"/>
           <children>
-            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
+            <Waypoint type="Fixed" name="Waypoint_20" kinematicsFlags="3">
               <motionParameters/>
               <position>
                 <JointAngles angles="-1.1084698903771084, -1.6120482505177893, 2.1904850640545614, -0.5440229802855612, -0.5713420496459127, -0.0431436282365123"/>
@@ -1369,17 +1571,17 @@
           <dataModel>
             <data key="type" value="addMotor"/>
             <data key="numberAdded" value="0"/>
+            <data key="speed_in_mm_per_min" value="600"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="teachColor" value="BLUE"/>
             <data key="combo1" value="MachineMotion1"/>
             <data key="combo2" value="(1) Custom Actuator"/>
             <data key="combo3" value="Home"/>
             <data key="combo6" value="In series"/>
-            <data key="speed_in_mm_per_min" value="600"/>
-            <data key="acceleration_in_mm_per_s2" value="50.0"/>
             <data key="message" value="Homing"/>
             <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
             <data key="comboAddress" value="Address 1"/>
             <data key="comboActuator" value="Valve 1"/>
-            <data key="teachColor" value="BLUE"/>
           </dataModel>
         </Contributed>
       </children>

@@ -1347,6 +1347,61 @@ going forward i need to v chisel out a wedge that is the appropriate size. full 
 now i need to make the right weld. 
 right script file already incorporates deepcovercham. 
 
+i talked to dallas about how the robot welder worked. 
+he said he only used it for two corners. 
+he said it did everything well except the corners (lol)
+he said it caused a pinhole in the corner both times. 
+he said what he does is he welds the L, then preheats, then when he approaches for leg 3, he uses the tip to push the existing extrudant backwards, then welds. 
+instead of coming in straight, he comes in ahead, then slides backwards, using the tip to push the extrudant backwards. 
+and then he welds around. and that way, he doesnt get that bubble/pinhole leak. 
+
+the right cover corner worked great. 
+there was a huge gap between the endwall and cover (caused by warping) but it filled that gap up nicely. 
+
+cover straights
+i switched the program to run at 6 mm/s for deep covers. 
+it worked fine on the first weld but it was ever so slightly curling around the tip in front of the tip. 
+i was using the shoe that ryan had accidentally chiseled a slice into the tip. 
+i decided to switch shoes and put a brand new shoe on. 
+i then tried the long cover. it started the tiltback on the center of the cover, going towards the corner. 
+it was tilting back unnecessarily (there was no previous extrudant to link into) but i fugured it would be fine. 
+however, during that tiltback, we got a lot of extrudant in front of the tip. when it started going normally, it slowly sucked that back behind until there was none in front. 
+after going a little bit farther, it started to build up again in front of the tip. it kept building up until there was about 2x a tip's worth of volume in front of it. i stopped the program. 
+ryan 2 suggested increasing the speed from 6mm/s to 7. 
+the 7mm/s was better in some ways and worse in no ways. 
+there was less slag on the sides and it bubbled in front of the tip less often and smaller amounts. 
+it still did sometimes but yeah. 
+also it still looks like a full weld, like it's filling the chamfer completely. 
+i also notice that for both the 6mm/s and 7mm/s cover straight welds, there is like a central raised cylinder. the weld is tallest over the center of the chamfer. 
+it's possible this happens as it is cooling, like an uneven cooling effect. 
+on the endwall with the foam cell, there was no corner and the cover around the foam cell hadn't been welded. 
+so, it had to do an unnecessary tiltback at the start. 
+the same pattern happened as with the 6mm/s: it bubbled in front, then reduced, then came back. 
+this time it didnt get as big. less than one tip's worth of volume in front. so i let it go. 
+but this is now a pattern. you shouldn't start a cover straight unless there's a v chamfer to ride down. 
+
+i asked dallas to show me how to weld cover ltudes. 
+he said it's important to scrape the top of the cover around the slit, especially if it's textured. 
+he also v chiseled out both ends of the slit, making it just like a sidewall cover ramp in and ramp out. 
+
+INTERESTING
+mike krueger was talking to me about cover welding speeds. 
+he said he did NOT want his operators slowing down while welding covers because doing that can overheat the material and leave bubbles in the weld once it's trimmed off. i guess i will see if my weld left bubbles. 
+but on the contrary, i showed randy the weld, and he thought i was going too fast because it might not fill it all the way. 
+this is why we use the cobot because everybody has a different opinion and there's no consistency. 
+
+i manually moved the robot base so the front of the lift column was about two feet from the side of the tank. the cover is about 6 inches above the top of the lift column. 
+i can reach the entire ltude both in weld position and in tcp position (homing tcp down)
+in freedrive mode, it's a little difficult to move it from the side. it worked better if i moved my body around to the endwall and pulled it where i wanted from there. 
+it seems to work though.
+i will need to make a new teach position program : Test Teach Cover LT
+i will need to make a new homing program: Homing Cover LT
+i will need to make a new analyze_touchpoints_only: analyze_touchpoints_only_cover_lt()
+the operator will need to place the homing tcp right in the middle of the groove on both points. we will use the teach position coordiantes for x and y, both start and end, and only use the homing points for z. 
+if the new analyze_touchpoints_only_cover_lt() function calculates all of point0=point0, v3xunit=v3xunit, v3yunit=v3yunit, v3zunit=v3zunit, heading1=heading1, v4xunit=v4xunit, v4yunit=v4yunit...
+then we should be able to use the same calculate_straight_points_cover() function. 
+we will need a new move_points subprogram, because it goes at a different speed. due to fill size being in between regular chamfer volume and cover chamfer volume. 
+
 
 
 
