@@ -3160,12 +3160,12 @@ def calculate_points_cover_lt(struct1):
     # calculate rxryrz for tilted back
     # 3 rotations to make this happen. 
     # start point is straight up with the preheat pointed in the +y direction. 
-    # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
-    m1 = get_rotation_matrix_from_description("y", 1, 90 * pi / 180) 
-    # second rotation is about 180 degrees about the z axis. heading1 plus 90 degrees. gun is now pointing directly into the sidewall
-    m2 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
-    # third rotation is 10 degrees about the z axis. gun is now tilted back 10 degrees from the sidewall
-    m3 = get_rotation_matrix_from_description("z", 1, 10 * pi / 180)
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description("x", -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
     # combine them by multiplying m3 * m2 * m1
     # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
     m4 = multiply_matrix(m2, m1)
@@ -3174,8 +3174,14 @@ def calculate_points_cover_lt(struct1):
     rxt = rxryrzt[0]
     ryt = rxryrzt[1]
     rzt = rxryrzt[2]
-    # the non tilted angle is just m4
-    rxryrz = convert_matrix_to_axang(m4)
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
