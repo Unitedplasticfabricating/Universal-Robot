@@ -3237,3 +3237,107 @@ def calculate_points_cover_lt(struct1):
     return ret
     
 end
+
+def main_calculate_sleeve_fillet(p1, p2, p3):
+    
+end
+
+# given 3 points at the intersection of the sleeve and the sidewall, this calculates and returns 3 things:
+# the centerpoint of the circle on the plane, the normal vector of the plane, and the radius of the circle
+# then it returns 4 more things after converting to a vertical circle/plane: heading1 (into the plane), vecn, vecr, vecu
+def analyze_touchpoints_only_sleeve_fillet(p1, p2, p3):
+    x1 = p1[0]
+    y1 = p1[1]
+    z1 = p1[2]
+    x2 = p2[0]
+    y2 = p2[1]
+    z2 = p2[2]
+    x3 = p3[0]
+    y3 = p3[1]
+    z3 = p3[2]
+    
+    # calculate plane
+    # calculate ab (1->2) vector
+    abvec = [x2-x1, y2-y1, z2-z1]
+    # calculate ac (1->3) vector
+    acvec = [x3-x1, y3-y1, z3-z1]
+    #calculate the plane's normal vector = ab x ac
+    
+    n = crossproduct(abvec, acvec)
+    mag = sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2])
+    n = [n[0]/mag, n[1]/mag, n[2]/mag]
+    d = n[0] * x1 + n[1] * y1 + n[2] * z1
+    
+    # find the circle
+    # Midpoint of AB:
+    mab = [(x1 + x2)/2, (y1 + y2)/2, (z1 + z2)/2]
+    # midpoint of ac
+    mac = [(x3 + x1)/2, (y3 + y1)/2, (z3 + z1)/2]
+    # Get Normal Vectors to AB and AC in the Plane
+    # nab (normal to ab) = abvec x n
+    nab = crossproduct(abvec, n)
+    # nac (normal to ac) = acvec x n
+    nac = crossproduct(acvec, n)
+    # Define Perpendicular Bisector Lines
+    # Each line goes through a midpoint and extends in the direction of the na_
+    # we already have the equations of those lines in point vector form with l1 = mab + s * nab, and l2 = mac + t * nac
+    # define all the terms so the math is simpler when i have to do math
+    mabx = mab[0]
+    maby = mab[1]
+    mabz = mab[2]
+    nabx = nab[0]
+    naby = nab[1]
+    nabz = nab[2]
+    macx = mac[0]
+    macy = mac[1]
+    macz = mac[2]
+    nacx = nac[0]
+    nacy = nac[1]
+    nacz = nac[2]
+    # find the intersection point using the y and z equations
+    # maby + s * naby = macy + t * nacy
+    # mabz + s * nabz = macz + t * nacz
+    # first solve for s and take
+    # t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    # s = (t*nacz + macz - mabz) / nabz
+    s = (t*nacz + macz - mabz) / nabz
+    # find the point
+    # pcenter = mac + t * nac
+    pcenterx = macx + t * nacx
+    pcentery = macy + t * nacy
+    pcenterz = macz + t * nacz
+    rxryrz = [0.528, 4.631, 0.258] # demo point of the welder pointing forward into a sleeve
+    pcenter = p[pcenterx, pcentery, pcenterz, rxryrz[0], rxryrz[1], rxryrz[2]]
+    radius = distance_between(pcenterx, pcentery, pcenterz, x1, y1, z1)
+    
+    # ------ start calculation of vertical assumption -----
+    # assume the plane close to vertical
+    # fix it to make it actually vertical
+    # calculate the unit vector of up, and the unit vector of right. 
+    # calculate the heading from the +x axis to pointing straight into the wall. 
+    # the unit vector of up is [0, 0, 1] (because the plane is verticalized) (for easier calculations)
+    # first calculate the normal vector INTO the sidewall (make sure x is negative) and make it a unit vector
+    vecn = [n[0], n[1], 0] # vector normal
+    if vecn[0] > 0:
+        vecn = [-n[0], -n[1], 0]
+    end
+    mag = sqrt(vecn[0]*vecn[0]+vecn[1]*vecn[1])
+    vecn = [vecn[0]/mag, vecn[1]/mag, 0]
+    # next calculate the right normal vector (the vector IN the plane that goes to the right)
+    vecr = [vecn[1], -1*vecn[0], 0]
+    vecu = [0, 0, 1] # vector up
+    heading1 = convert_uv_to_heading(vecn[0], vecn[1])
+    
+    
+    ret = struct(pcenter=pcenter, planenormalvec=n, radius=radius, heading1=heading1, vecn=vecn, vecr=vecr, vecu=vecu)
+    return ret
+end
+
+def crossproduct(vec1, vec2):
+    nx = vec1[1]*vec2[2] - vec1[2]*vec2[1]
+    ny = vec1[2]*vec2[0] - vec1[0]*vec2[2]
+    nz = vec1[0]*vec2[1] - vec1[1]*vec2[0]
+    ret = [nx, ny, nz]
+    return ret
+end
