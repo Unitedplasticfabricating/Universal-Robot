@@ -2747,9 +2747,9 @@ def calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, dee
     zpi = pointintersect[2]
     if zpi > 0:
         liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
-        z = 0
+        z0 = 0
     else:
-        z = zpi
+        z0 = zpi
     end
     
     # first and second path
@@ -2904,7 +2904,7 @@ def calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, dee
     
     # calculate point 5c (point 103) (end of smear)
     dist = -2 * 25.4/1000
-    point103 = p[p102x, p102y, z - wd3 + dist, rx, ry, rz]
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx, ry, rz]
     
     # return
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
@@ -2949,9 +2949,9 @@ def calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, de
     zpi = pointintersect[2]
     if zpi > 0:
         liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
-        z = 0
+        z0 = 0
     else:
-        z = zpi
+        z0 = zpi
     end
     
     # first and second path
@@ -3106,7 +3106,7 @@ def calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, de
     
     # calculate point 5c (point 103) (end of smear)
     dist = -2 * 25.4/1000
-    point103 = p[p102x, p102y, z - wd3 + dist, rx6, ry6, rz6]
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx6, ry6, rz6]
     
     # return
     struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
