@@ -2844,12 +2844,42 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+# this function takes in a struct of only points. it checks those points for validity. 
+# if one of them is not valid, it throws a popup loop
+def check_validity_only(struct2):
+    validity = check_structofpoints_validity(struct2)
+    if not validity:
+    # bad
+    popuptext = &quot;Not all weldpoints are valid. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Position Error&quot;,blocking=True)
+    end
+    end
+end
+
+def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    #validity = check_validity_right(struct1, struct2)
-    struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+    if leftseam:
+        if leftobstacle:
+            struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            heading1deg = struct1[1] * 180/pi
+            if heading1deg &lt; 210:
+                popup(&quot;Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. &quot;, title=&quot;Alignment Error&quot;,blocking=True)
+            end
+        else:
+            struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        end
+    else:
+        if leftobstacle:
+            # error: this geometry is impossible for the robot to weld
+            popup(&quot;Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. &quot;, title=&quot;Geometry Error&quot;,blocking=True)
+        else:
+            struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        end
+    end
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -2859,6 +2889,7 @@ def main_calculate_step_left(p11, p12, p21, p22, p3, p13, p23, noncappingsidewal
     #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     #validity = check_validity_right(struct1, struct2)
     struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -2887,6 +2918,152 @@ def step_right_demo(struct1):
     popup(point_demo)
     ret = struct(point_demo = point_demo)
     return ret
+end
+
+# for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step. 
+def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # now calculate the points of the Up Around
+    # don&apos;t use heading3 at all. 
+    #point201 is at the chamfer intersection
+    p201x = xbottom
+    p201y = ybottom
+    p201z = z
+    
+    # rxryrz is the same 
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+    # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+    sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+    sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+    sidez = z
+    
+    # p202
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    p202x = sidex + rod * l1delxunit
+    p202y = sidey + rod * l1delyunit
+    p202z = sidez
+    point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+    # p204 end of circle move
+    p204x = sidex
+    p204y = sidey
+    p204z = sidez + rod
+    
+    # calculate rxryrz
+    # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+    # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+    #p205 (end of straight after cirlce move, before listleans
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+    #p206 (top of weld)
+    p206x = sidex + wd3 * listleans[0]
+    p206y = sidey + wd3 * listleans[1]
+    p206z = sidez + wd3
+    point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+    # p203 (middle of turn)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = sidez + delta
+    p203x = sidex + delta * l1delxunit
+    p203y = sidey + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 45 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+    return struct2
 end
 
 # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
@@ -3216,19 +3393,20 @@ end
 # returns the pathpoints
 # specifically for Around and Down then Straight (AtS)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice):
+# leftchoice is a boolean and deepcovercham is a boolean but leftwallthick, rightwallthick are decimals in inches. 
+def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice, deepcovercham):
     struct1 = analyze_touchpoints_only_cover(p11, p12, p21, p3)
     if leftchoice:
-        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham)
     else:
-        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham)
     end
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
-def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -3243,7 +3421,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -3251,6 +3429,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -3280,9 +3463,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    # next, calculate point1
-    p1x = x + l1delxunit * wd1
-    p1y = y + l1delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l1delxunit * wd1 + deepchambumpmm * l2delxunit
+    p1y = y + l1delyunit * wd1 + deepchambumpmm * l2delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -3293,7 +3476,14 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l1delxunit * wtod
     p2ay = y + l1delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -3326,17 +3516,47 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    #todo: calculate trail out points
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l1delxunit * tiltraise * -1
+    p102y = y + l1delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
     
-    #todo: calculate trail out point
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
-    p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
+    p201x = x + l1delxunit * (leftwallthickmm + deepchambumpmm) + l2delxunit * pushtipforward 
+    p201y = y + l1delyunit * (leftwallthickmm + deepchambumpmm) + l2delyunit * pushtipforward
     
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading3 degrees) about z ccw
@@ -3350,7 +3570,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l2delxunit * pushtipforward2
@@ -3363,11 +3583,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
-def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -3382,7 +3602,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -3390,6 +3610,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -3419,9 +3645,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
 
-    # next, calculate point1
-    p1x = x + l2delxunit * wd1
-    p1y = y + l2delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l2delxunit * wd1 + deepchambumpmm * l1delxunit
+    p1y = y + l2delyunit * wd1 + deepchambumpmm * l1delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
 
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -3432,7 +3658,14 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l2delxunit * wtod
     p2ay = y + l2delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -3465,17 +3698,47 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+
+    #todo: calculate trail out point
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l2delxunit * tiltraise * -1
+    p102y = y + l2delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
-
-    #todo: calculate trail out point
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l2delxunit * rightwallthickmm + l1delxunit * pushtipforward
-    p201y = y + l2delyunit * rightwallthickmm + l1delyunit * pushtipforward
+    p201x = x + l2delxunit * (rightwallthickmm + deepchambumpmm) + l1delxunit * pushtipforward
+    p201y = y + l2delyunit * (rightwallthickmm + deepchambumpmm) + l1delyunit * pushtipforward
 
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
@@ -3489,7 +3752,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l1delxunit * pushtipforward2
@@ -3502,13 +3765,417 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
-def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+def calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    x0 = pointintersect[0]
+    y0 = pointintersect[1]
+    z0 = pointintersect[2]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # CONST
+    welddistance1 = 6 # first path first leg (left side of L)
+    welddistance2 = 6 # first path second leg (Right Side of L) # inches
+    welddistance3 = 3 # second path (down sidewall) # inches
+    
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = pointintersect[2]
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        z0 = 0
+    else:
+        z0 = zpi
+    end
+    
+    # first and second path
+    
+    # calculate rxryrz1 (facing down, preheat rightish)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis)
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    # calculate rxryrz2 (gun facing down, preheat facing right and back)
+    # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    # calculate point centerchamfers (where the center of the two chamfers intersect 
+    pcx = x0 + (leftwallthickmm + deepchambumpmm) * l1delxunit + (rightwallthickmm + deepchambumpmm) * l2delxunit
+    pcy = y0 + (leftwallthickmm + deepchambumpmm) * l1delyunit + (rightwallthickmm + deepchambumpmm) * l2delyunit
+    pcz = z0
+    
+    # calculate point1 (start of weld)
+    p1x = pcx + l2delxunit * wd1
+    p1y = pcy + l2delyunit * wd1
+    p1z = pcz
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # calculate point2 (end of segment 1)
+    p2x = pcx
+    p2y = pcy
+    p2z = pcz
+    point2 = p[p2x, p2y, p2z, rx1, ry1, rz1]
+    
+    # calculate point3 (point at end of turn)
+    slide = 0.00 # slide distance : the distance the tip slides forward as it turns
+    p3x = pcx + slide * l1delxunit
+    p3y = pcy + slide * l1delyunit
+    p3z = pcz
+    point3 = p[p3x, p3y, p3z, rx2, ry2, rz2]
+    
+    # calculate point4 (end of segment 2)
+    p4x = pcx + wd2 * l1delxunit
+    p4y = pcy + wd2 * l1delyunit
+    p4z = pcz
+    point4 = p[p4x, p4y, p4z, rx2, ry2, rz2]
+    
+    # third path
+    
+    # calculate rxryrz3 (gun pointing down, preheat pointing toward corner. for left seam, pointing left)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis.
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 45 degrees ccw about z axis. x+ to heading1 is about 135 degrees. so our angle is heading1 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    # calculate rxryrz4 (gun at 45 around corner)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 135 * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    # calculate rxryrz5 (gun straight into left seam side chamfer, preheat down)
+    # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz5 = convert_matrix_to_axang(m3)
+    rx5 = rxryrz5[0]
+    ry5 = rxryrz5[1]
+    rz5 = rxryrz5[2]
+    
+    # calculate pointtopcham (the point at the top of the endwall chamfer) ( WHERE POINT3 WOULD BE IF RADIUS WAS 0)
+    ptcx = x0 + rightwallthickmm * l2delxunit
+    ptcy = y0 + rightwallthickmm * l2delyunit
+    ptcz = z0
+    
+    # calculate point201 (weld start)
+    # if deepchamfer, just ignore that. because if its deep chamfer then it filled more as well. so the hot extrudant should be to the same spot (same distance from the pointtopcham) whether it&apos;s big weld or small weld 
+    adjust = 0.0 # if you want to move the start point further away from corner (positive, mm) or closer to corner
+    p201x = x0 + rightwallthickmm * l2delxunit + leftwallthickmm * l1delxunit + adjust * l1delxunit
+    p201y = y0 + rightwallthickmm * l2delyunit + leftwallthickmm * l1delyunit + adjust * l1delyunit
+    p201z = z0
+    point201 = p[p201x, p201y, p201z, rx3, ry3, rz3]
+    
+    # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # calculate point202 (start of roundover)
+    p202x = ptcx + rod * l1delxunit
+    p202y = ptcy + rod * l1delyunit
+    p202z = z0
+    point202 = p[p202x, p202y, p202z, rx3, ry3, rz3]
+    
+    # calculate point203 (middle of roundover)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = ptcz - delta
+    p203x = ptcx + delta * l1delxunit
+    p203y = ptcy + delta * l1delyunit
+    point203 = p[p203x, p203y, p203z, rx4, ry4, rz4]
+    
+    # calculate point204 (end of roundover)
+    point204 = p[ptcx, ptcy, ptcz - rod, rx5, ry5, rz5]
+    
+    # calculate trail out points (tilt back and ride)
+    botvcham = wd3 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # point101 will still use backofhole, but points 102 and 103 will use normal weld tip tcp
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = ptcx
+    p101y = ptcy
+    p101z = ptcz - wd3 + dist
+    point101 = p[p101x, p101y, p101z, rx5, ry5, rz5]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = ptcx + l1delxunit * tiltraise * -1
+    p102y = ptcy + l1delyunit * tiltraise * -1
+    p102z = ptcz - wd3 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx, ry, rz]
+    
+    # return
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
+    return struct2
+    
+    
+end
+
+def calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    x0 = pointintersect[0]
+    y0 = pointintersect[1]
+    z0 = pointintersect[2]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # CONST
+    welddistance1 = 6 # first path first leg (left side of L)
+    welddistance2 = 6 # first path second leg (Right Side of L) # inches
+    welddistance3 = 3 # second path (down sidewall) # inches
+    
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = pointintersect[2]
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        z0 = 0
+    else:
+        z0 = zpi
+    end
+    
+    # first and second path
+    
+    # calculate rxryrz1 (facing down, preheat rightish)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis)
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    # calculate rxryrz2 (gun facing down, preheat facing right and back)
+    # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    # calculate point centerchamfers (where the center of the two chamfers intersect 
+    pcx = x0 + (leftwallthickmm + deepchambumpmm) * l1delxunit + (rightwallthickmm + deepchambumpmm) * l2delxunit
+    pcy = y0 + (leftwallthickmm + deepchambumpmm) * l1delyunit + (rightwallthickmm + deepchambumpmm) * l2delyunit
+    pcz = z0
+    
+    # calculate point1 (start of weld)
+    p1x = pcx + l2delxunit * wd1
+    p1y = pcy + l2delyunit * wd1
+    p1z = pcz
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # calculate point2 (end of segment 1)
+    p2x = pcx
+    p2y = pcy
+    p2z = pcz
+    point2 = p[p2x, p2y, p2z, rx1, ry1, rz1]
+    
+    # calculate point3 (point at end of turn)
+    slide = 0.00 # slide distance : the distance the tip slides forward as it turns
+    p3x = pcx + slide * l1delxunit
+    p3y = pcy + slide * l1delyunit
+    p3z = pcz
+    point3 = p[p3x, p3y, p3z, rx2, ry2, rz2]
+    
+    # calculate point4 (end of segment 2)
+    p4x = pcx + wd2 * l1delxunit
+    p4y = pcy + wd2 * l1delyunit
+    p4z = pcz
+    point4 = p[p4x, p4y, p4z, rx2, ry2, rz2]
+    
+    # third path
+    
+    # calculate rxryrz3 (gun pointing down, preheat pointing toward corner. for right seam, pointing right)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis.
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    # calculate rxryrz4 (gun at 45 around corner)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 135 * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    # calculate rxryrz5 (gun straight into right seam side chamfer, preheat down)
+    # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz5 = convert_matrix_to_axang(m3)
+    rx5 = rxryrz5[0]
+    ry5 = rxryrz5[1]
+    rz5 = rxryrz5[2]
+    
+    # calculate rxryrz6 (gun straight into right seam side chamfer, preheat down, 10 degrees tiltback)
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz6 = convert_matrix_to_axang(m3)
+    rx6 = rxryrz6[0]
+    ry6 = rxryrz6[1]
+    rz6 = rxryrz6[2]
+    
+    # calculate pointtopcham (the point at the top of the endwall chamfer) ( WHERE POINT3 WOULD BE IF RADIUS WAS 0)
+    ptcx = x0 + leftwallthickmm * l1delxunit
+    ptcy = y0 + leftwallthickmm * l1delyunit
+    ptcz = z0
+    
+    # calculate point201 (weld start)
+    # if deepchamfer, just ignore that. because if its deep chamfer then it filled more as well. so the hot extrudant should be to the same spot (same distance from the pointtopcham) whether it&apos;s big weld or small weld 
+    adjust = 0.0 # if you want to move the start point further away from corner (positive, mm) or closer to corner
+    p201x = x0 + rightwallthickmm * l2delxunit + leftwallthickmm * l1delxunit + adjust * l2delxunit
+    p201y = y0 + rightwallthickmm * l2delyunit + leftwallthickmm * l1delyunit + adjust * l2delyunit
+    p201z = z0
+    point201 = p[p201x, p201y, p201z, rx3, ry3, rz3]
+    
+    # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # calculate point202 (start of roundover)
+    p202x = ptcx + rod * l2delxunit
+    p202y = ptcy + rod * l2delyunit
+    p202z = z0
+    point202 = p[p202x, p202y, p202z, rx3, ry3, rz3]
+    
+    # calculate point203 (middle of roundover)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = ptcz - delta
+    p203x = ptcx + delta * l2delxunit
+    p203y = ptcy + delta * l2delyunit
+    point203 = p[p203x, p203y, p203z, rx4, ry4, rz4]
+    
+    # calculate point204 (end of roundover)
+    point204 = p[ptcx, ptcy, ptcz - rod, rx5, ry5, rz5]
+    
+    # calculate trail out points (tilt back and ride)
+    botvcham = wd3 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # point101 will still use backofhole, but points 102 and 103 will use normal weld tip tcp
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = ptcx
+    p101y = ptcy
+    p101z = ptcz - wd3 + dist
+    point101 = p[p101x, p101y, p101z, rx5, ry5, rz5]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = ptcx + l2delxunit * tiltraise * -1
+    p102y = ptcy + l2delyunit * tiltraise * -1
+    p102z = ptcz - wd3 + dist
+    point102 = p[p102x, p102y, p102z, rx6, ry6, rz6]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx6, ry6, rz6]
+    
+    # return
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
+    return struct2
+    
+end
+    
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint, deepcovercham):
     struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
-    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint, deepcovercham)
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
@@ -3607,7 +4274,7 @@ def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
     return ret
 end
 
-def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach, deepcovercham):
     # get the stuff
     point0 = struct1[0]
     p0x = point0[0]
@@ -3633,8 +4300,14 @@ def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, righ
         coverz = zpi
     end
     
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
     # calculate pointtopvcham
-    chamferover = sidewallthick * 25.4 / 1000.0
+    chamferover = sidewallthick * 25.4 / 1000.0 + deepchambumpmm
     tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
     x = p0x + v4xunit * chamferover
     y = p0y + v4yunit * chamferover
@@ -3852,6 +4525,396 @@ def calculate_straight_points_floor(struct1, floorthick, leftpointteach, rightpo
     
     # return struct
     ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+end
+
+# this function determines the starting touchpoints for homing in on cover lt geometry
+# includes two points above the cover lt, closer to the robot than the lt, facing down
+def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from (in meters)
+    d0 = 0.05 # how far from the cover to approach from
+    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d2 = 0.00 # how far inwards the touchpoints are pushed
+    
+    # rxryrz
+    rxryrz = [0.334, 3.124, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate the points
+    ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    
+    ret = struct(ph1=ph1, ph2=ph2)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+def main_calculate_cover_lt(p11, p12, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint)
+    struct2 = calculate_points_cover_lt(struct1)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+def analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint):
+    # calculate the slope of the groove in xy plane
+    l1p1x = leftpoint[0]
+    l1p1y = leftpoint[1]
+    l1p2x = rightpoint[0]
+    l1p2y = rightpoint[1]
+    
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # zraise (how much the z value changes from left point to right point
+    zraise = p12[2] - p11[2]
+    
+    #get the calcpoints
+    leftcalcpoint = [leftpoint[0], leftpoint[1], p11[2]]
+    rightcalcpoint = [rightpoint[0], rightpoint[1], p12[2]]
+    # get the vector from a to b
+    vec = [rightcalcpoint[0] - leftcalcpoint[0], rightcalcpoint[1] - leftcalcpoint[1], rightcalcpoint[2] - leftcalcpoint[2]]
+    # get the unit vector in 3d
+    mag3d = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2])
+    vec3dunit = [vec[0]/mag3d, vec[1]/mag3d, vec[2]/mag3d]
+    # get the unit vector in 2d
+    mag2d = sqrt(vec[0]*vec[0]+vec[1]*vec[1])
+    vec2dunit = [vec[0]/mag2d, vec[1]/mag2d]
+    # get the heading
+    heading1 = convert_uv_to_heading(vec2dunit[0], vec2dunit[1])
+    
+    ret = struct(leftcalcpoint=leftcalcpoint, rightcalcpoint=rightcalcpoint, vxunit=vec3dunit[0], vyunit=vec3dunit[1], vzunit=vec3dunit[2], heading1=heading1)
+    return ret
+end
+
+def calculate_points_cover_lt(struct1):
+    # get the stuff from struct
+    leftcalcpoint = struct1[0]
+    x = leftcalcpoint[0]
+    y = leftcalcpoint[1]
+    z = leftcalcpoint[2]
+    rightcalcpoint = struct1[1]
+    x2 = rightcalcpoint[0]
+    y2 = rightcalcpoint[1]
+    z2 = rightcalcpoint[2]
+    v3xunit = struct1[2]
+    v3yunit = struct1[3]
+    v3zunit = struct1[4]
+    heading1 = struct1[5]
+    
+    # first calculate rxryrz f normal and tiltback
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    
+    # calculate points 1-3
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit + tiltraise
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit + tiltraise
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = z + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate points 4-6
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist + tiltraise
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist + tiltraise
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    # return struct
+    ret = struct(pointtopvcham=leftcalcpoint, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+end
+
+def main_calculate_sleeve_fillet(p1, p2, p3):
+    struct1 = analyze_touchpoints_only_sleeve_fillet(p1, p2, p3)
+    struct2 = calculate_points_sleeve_fillet_quadonly(struct1)
+    return struct2
+end
+
+# given 3 points at the intersection of the sleeve and the sidewall, this calculates and returns 3 things:
+# the centerpoint of the circle on the plane, the normal vector of the plane, and the radius of the circle
+# then it returns 4 more things after converting to a vertical circle/plane: heading1 (into the plane), vecn, vecr, vecu
+def analyze_touchpoints_only_sleeve_fillet(p1, p2, p3):
+    x1 = p1[0]
+    y1 = p1[1]
+    z1 = p1[2]
+    x2 = p2[0]
+    y2 = p2[1]
+    z2 = p2[2]
+    x3 = p3[0]
+    y3 = p3[1]
+    z3 = p3[2]
+    
+    # calculate plane
+    # calculate ab (1-&gt;2) vector
+    abvec = [x2-x1, y2-y1, z2-z1]
+    # calculate ac (1-&gt;3) vector
+    acvec = [x3-x1, y3-y1, z3-z1]
+    #calculate the plane&apos;s normal vector = ab x ac
+    
+    n = crossproduct(abvec, acvec)
+    mag = sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2])
+    n = [n[0]/mag, n[1]/mag, n[2]/mag]
+    d = n[0] * x1 + n[1] * y1 + n[2] * z1
+    
+    # find the circle
+    # Midpoint of AB:
+    mab = [(x1 + x2)/2, (y1 + y2)/2, (z1 + z2)/2]
+    # midpoint of ac
+    mac = [(x3 + x1)/2, (y3 + y1)/2, (z3 + z1)/2]
+    # Get Normal Vectors to AB and AC in the Plane
+    # nab (normal to ab) = abvec x n
+    nab = crossproduct(abvec, n)
+    # nac (normal to ac) = acvec x n
+    nac = crossproduct(acvec, n)
+    # Define Perpendicular Bisector Lines
+    # Each line goes through a midpoint and extends in the direction of the na_
+    # we already have the equations of those lines in point vector form with l1 = mab + s * nab, and l2 = mac + t * nac
+    # define all the terms so the math is simpler when i have to do math
+    mabx = mab[0]
+    maby = mab[1]
+    mabz = mab[2]
+    nabx = nab[0]
+    naby = nab[1]
+    nabz = nab[2]
+    macx = mac[0]
+    macy = mac[1]
+    macz = mac[2]
+    nacx = nac[0]
+    nacy = nac[1]
+    nacz = nac[2]
+    # find the intersection point using the y and z equations
+    # maby + s * naby = macy + t * nacy
+    # mabz + s * nabz = macz + t * nacz
+    # first solve for s and take
+    # t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    # s = (t*nacz + macz - mabz) / nabz
+    s = (t*nacz + macz - mabz) / nabz
+    # find the point
+    # pcenter = mac + t * nac
+    pcenterx = macx + t * nacx
+    pcentery = macy + t * nacy
+    pcenterz = macz + t * nacz
+    rxryrz = [0.528, 4.631, 0.258] # demo point of the welder pointing forward into a sleeve
+    pcenter = p[pcenterx, pcentery, pcenterz, rxryrz[0], rxryrz[1], rxryrz[2]]
+    radius = distance_between(pcenterx, pcentery, pcenterz, x1, y1, z1)
+    
+    # ------ start calculation of vertical assumption -----
+    # assume the plane close to vertical
+    # fix it to make it actually vertical
+    # calculate the unit vector of up, and the unit vector of right. 
+    # calculate the heading from the +x axis to pointing straight into the wall. 
+    # the unit vector of up is [0, 0, 1] (because the plane is verticalized) (for easier calculations)
+    # first calculate the normal vector INTO the sidewall (make sure x is negative) and make it a unit vector
+    vecn = [n[0], n[1], 0] # vector normal
+    if vecn[0] &gt; 0:
+        vecn = [-n[0], -n[1], 0]
+    end
+    mag = sqrt(vecn[0]*vecn[0]+vecn[1]*vecn[1])
+    vecn = [vecn[0]/mag, vecn[1]/mag, 0]
+    # next calculate the right normal vector (the vector IN the plane that goes to the right)
+    vecr = [vecn[1], -1*vecn[0], 0]
+    vecu = [0, 0, 1] # vector up
+    heading1 = convert_uv_to_heading(vecn[0], vecn[1])
+    
+    
+    ret = struct(pcenter=pcenter, planenormalvec=n, radius=radius, heading1=heading1, vecn=vecn, vecr=vecr, vecu=vecu)
+    return ret
+end
+
+def crossproduct(vec1, vec2):
+    nx = vec1[1]*vec2[2] - vec1[2]*vec2[1]
+    ny = vec1[2]*vec2[0] - vec1[0]*vec2[2]
+    nz = vec1[0]*vec2[1] - vec1[1]*vec2[0]
+    ret = [nx, ny, nz]
+    return ret
+end
+
+def calculate_points_sleeve_fillet(struct1):
+    
+end
+
+# this function calculates only the four points of the quadrants, for the not real program. 
+# these calculations are easier so that&apos;s why i&apos;m starting with them first. 
+# this assumes a vertical plane
+def calculate_points_sleeve_fillet_quadonly(struct1):
+    # get the stuff from the struct
+    pcenter = struct1[0]
+    pcx = pcenter[0]
+    pcy = pcenter[1]
+    pcz = pcenter[2]
+    planenormalvec = struct1[1]
+    radius = struct1[2]
+    heading1 = struct1[3]
+    vecn = struct1[4]
+    vecnx = vecn[0]
+    vecny = vecn[1]
+    vecr = struct1[5]
+    vecrx = vecr[0]
+    vecry = vecr[1]
+    vecu = struct1[6]
+    vecuz = vecu[2]
+    
+    # define cushions (the backofhole can&apos;t actually touch the intersection of pipe and wall, it travels a certain distance around it
+    cushout = 0.005 # 5mm # the cushion out from the wall
+    cusharound = 0.005 # 5mm # the cushion around the sleeve. 
+    
+    # get the top point (point1)
+    # take the center point and move up the radius plus the cushions
+    p1x = pcx + vecnx * -1 * cushout
+    p1y = pcy + vecny * -1 * cushout
+    p1z = pcz + vecuz * radius + vecuz * cusharound
+    
+    # find rxryrz1
+    # first rotation is 135 degrees about the y- direction. 90 degrees to get flat. Tip pointing x-, preheat pointing y+. 45 more degrees to get at that above angle
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, -1, 135 * pi / 180)
+    # second rotation is heading1 – 180 degrees about the z+ axis to get pointing straight into wall. Heading1 should be about 180 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 180 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # get second point (right) (point2)
+    # take the center point and move right the radius plus the cushions
+    p2x = pcx + vecrx * radius + vecrx * cusharound + vecnx * -1 * cushout
+    p2y = pcy + vecry * radius + vecry * cusharound + vecny * -1 * cushout
+    p2z = pcz
+    
+    # find rxryrz2
+    # first rotation is 90 degrees about the x- axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    # second rotation is About 135 degrees about the z+ axis. This calculation is heading1 – 45 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+    
+    # get the third point (bottom) (point3)
+    p3x = pcx + vecnx * -1 * cushout
+    p3y = pcy + vecny * -1 * cushout
+    p3z = pcz - vecuz * radius - vecuz * cusharound
+    
+    # find rxryrz3
+    # first rotation is 45 degrees about the y+ axis
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, 1, 45 * pi / 180)
+    # second rotation is About 180 degrees about the z+ axis. This calculation is heading1 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    # get the fourth point (left) (point4)
+    p4x = pcx - vecrx * radius - vecrx * cusharound + vecnx * -1 * cushout
+    p4y = pcy - vecry * radius - vecry * cusharound + vecny * -1 * cushout
+    p4z = pcz
+    
+    # find rxryrz4
+    # first rotation is 90 degrees about the x+ axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation is heading1 + 45 degrees about the z+ axis. approx 225 degrees ccw
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+    
+    # return the points
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
     return ret
     
 end
@@ -8962,12 +10025,42 @@ def get_rotation_matrix_from_description(axis, direction, angle):
     end
 end
 
-def main_calculate_step_right(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top):
+# this function takes in a struct of only points. it checks those points for validity. 
+# if one of them is not valid, it throws a popup loop
+def check_validity_only(struct2):
+    validity = check_structofpoints_validity(struct2)
+    if not validity:
+    # bad
+    popuptext = &quot;Not all weldpoints are valid. &quot;
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title=&quot;Position Error&quot;,blocking=True)
+    end
+    end
+end
+
+def main_calculate_step(p11, p12, p21, p22, p3, p13, p23, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top, leftseam, leftobstacle):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    #validity = check_validity_right(struct1, struct2)
-    struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+    if leftseam:
+        if leftobstacle:
+            struct2 = calculate_LtUA_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+            heading1deg = struct1[1] * 180/pi
+            if heading1deg &lt; 210:
+                popup(&quot;Robot is not aligned 45 degree angle from corner. Wrist pinch may bonk, Align robot 45 degrees from corner and try again. &quot;, title=&quot;Alignment Error&quot;,blocking=True)
+            end
+        else:
+            struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+        end
+    else:
+        if leftobstacle:
+            # error: this geometry is impossible for the robot to weld
+            popup(&quot;Cannot weld a right seam, left obstacle step corner with robot. please weld by hand. &quot;, title=&quot;Geometry Error&quot;,blocking=True)
+        else:
+            struct2 = calculate_DAaU_step_right(struct1, list1, noncappingsidewallthick, cappingsidewallthick, tcp_pose_top)
+        end
+    end
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -8977,6 +10070,7 @@ def main_calculate_step_left(p11, p12, p21, p22, p3, p13, p23, noncappingsidewal
     #struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
     #validity = check_validity_right(struct1, struct2)
     struct2 = calculate_DAaU_step_left(struct1, list1, cappingsidewallthick, noncappingsidewallthick, tcp_pose_top)
+    validity = check_validity_only(struct2)
     return struct2
 end
 
@@ -9005,6 +10099,152 @@ def step_right_demo(struct1):
     popup(point_demo)
     ret = struct(point_demo = point_demo)
     return ret
+end
+
+# for a left seam step corner, calculate the toolpath points for a L (under) then Up and Around weld. for left obstacle step. 
+def calculate_LtUA_step_left(struct1, listleans, rightwallthick, leftwallthick, tcp_pose_top):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
+    # find locations 8 inches away from  intersect point
+    # CONST
+    welddistance1 = 3 # first path first leg
+    welddistance2 = 3 # first path second leg
+    welddistance3 = 8 # vertical weld distance
+    
+    # inches
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = tcp_pose_top[2] - pointintersect[2] # the z distance from the corner to the top of the weld
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    
+    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
+    #wd1 = tcp_pose_top[2] - pointintersect[2] - zup # this will need to change for step corner right
+    
+    # point bottom (point of intersection of the two chamfers on the bottom)
+    xbottom = pointintersect[0] + l1delxunit * leftwallthickmm + l2delxunit * rightwallthickmm
+    ybottom = pointintersect[1] + l1delyunit * leftwallthickmm + l2delyunit * rightwallthickmm
+    z = pointintersect[2]
+    
+    # point 1
+    x = xbottom + l1delxunit * wd1
+    y = ybottom + l1delyunit * wd1
+    
+    # get rxryrz for facing along towards the intersection. heading1 +90 deg - 90 deg
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point1 = p[x, y, z, rx, ry, rz]
+    
+    # point 2
+    point2 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 4
+    # get rxryrz for facing along the second edge pointed toward the left. heading 3 + 90 - 90
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point4 = p[xbottom, ybottom, z, rx, ry, rz]
+    
+    # point 5
+    x = xbottom + l2delxunit * wd2
+    y = ybottom + l2delyunit * wd2
+    point5 = p[x, y, z, rx, ry, rz]
+    
+    # now calculate the points of the Up Around
+    # don&apos;t use heading3 at all. 
+    #point201 is at the chamfer intersection
+    p201x = xbottom
+    p201y = ybottom
+    p201z = z
+    
+    # rxryrz is the same 
+    m1 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # at this point we would multiply matrices, but there is only one matrix
+    rxryrz = convert_matrix_to_axang(m1)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point201 = p[p201x, p201y, p201z, rx, ry, rz]
+    
+    # find side point (point on the side. where point 203 would be if roundoverdistance was 0)
+    sidex = pointintersect[0] + l2delxunit * rightwallthickmm
+    sidey = pointintersect[1] + l2delyunit * rightwallthickmm
+    sidez = z
+    
+    # p202
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    p202x = sidex + rod * l1delxunit
+    p202y = sidey + rod * l1delyunit
+    p202z = sidez
+    point202 = p[p202x, p202y, p202z, rx, ry, rz]
+    
+    # p204 end of circle move
+    p204x = sidex
+    p204y = sidey
+    p204z = sidez + rod
+    
+    # calculate rxryrz
+    # first rotation: 90 degrees about x axis. positive direction. preheat is now facing up, and gun tip is pointed towards y- direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation: rotate about z until you are facing into the front face. but only use heading 1
+    # heading 1 is about 225 degrees. i need to go about 225 degrees. starting from y- instead of x+ cancels out the extra 90 degrees needed to go into face1 instead of parallel to face1
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point204 = p[p204x, p204y, p204z, rx, ry, rz]
+    
+    #p205 (end of straight after cirlce move, before listleans
+    straightlength = 1.0 # the moveP blend radius for the circle move was set to 1.0 mm in FloorCorner. we should be more than 2.0mm away from point2
+    sld = straightlength * 25.4 / 1000
+    point205 = p[p204x, p204y, sidez + sld, rx, ry, rz]
+    
+    #p206 (top of weld)
+    p206x = sidex + wd3 * listleans[0]
+    p206y = sidey + wd3 * listleans[1]
+    p206z = sidez + wd3
+    point206 = p[p206x, p206y, p206z, rx, ry, rz]
+    
+    # p203 (middle of turn)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = sidez + delta
+    p203x = sidex + delta * l1delxunit
+    p203y = sidey + delta * l1delyunit
+    
+    # calculate rxryrz
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 45 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    m3 = multiply_matrix(m2, m1)
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point203 = p[p203x, p203y, p203z, rx, ry, rz]
+    
+    # form struct
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point201=point201, point202=point202, point203=point203, point204=point204, point205=point205, point206=point206)
+    return struct2
 end
 
 # for a right step corner, calculate the toolpath points for a L (under) then Up and Around weld. 
@@ -9334,19 +10574,20 @@ end
 # returns the pathpoints
 # specifically for Around and Down then Straight (AtS)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice):
+# leftchoice is a boolean and deepcovercham is a boolean but leftwallthick, rightwallthick are decimals in inches. 
+def main_calculate_cover(p11, p12, p21, p3, leftwallthick, rightwallthick, leftchoice, deepcovercham):
     struct1 = analyze_touchpoints_only_cover(p11, p12, p21, p3)
     if leftchoice:
-        struct2 = calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham)
     else:
-        struct2 = calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick)
+        struct2 = calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham)
     end
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
 end
 
-def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -9361,7 +10602,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -9369,6 +10610,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -9398,9 +10644,9 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
     
-    # next, calculate point1
-    p1x = x + l1delxunit * wd1
-    p1y = y + l1delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l1delxunit * wd1 + deepchambumpmm * l2delxunit
+    p1y = y + l1delyunit * wd1 + deepchambumpmm * l2delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
     
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -9411,7 +10657,14 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l1delxunit * wtod
     p2ay = y + l1delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -9444,17 +10697,47 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    #todo: calculate trail out points
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l1delxunit * tiltraise * -1
+    p102y = y + l1delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
     
-    #todo: calculate trail out point
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l1delxunit * leftwallthickmm + l2delxunit * pushtipforward
-    p201y = y + l1delyunit * leftwallthickmm + l2delyunit * pushtipforward
+    p201x = x + l1delxunit * (leftwallthickmm + deepchambumpmm) + l2delxunit * pushtipforward 
+    p201y = y + l1delyunit * (leftwallthickmm + deepchambumpmm) + l2delyunit * pushtipforward
     
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading3 degrees) about z ccw
@@ -9468,7 +10751,7 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l2delxunit * pushtipforward2
@@ -9481,11 +10764,11 @@ def calculate_AtS_points_cover_left(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l2delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
-def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
+def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham):
     # get the stuff from the struct
     pointintersect = struct1[0]
     heading1 = struct1[1]
@@ -9500,7 +10783,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     # find locations 8 inches away from  intersect point
     # CONST
     welddistance1 = 6 # first path first leg (down)
-    welddistance2 = 4 # first path second leg (under) # inches
+    welddistance2 = 3 # first path second leg (under) # inches
     welddistance3 = 6 # second path (back away) # inches
     
     wd1 = welddistance1 * 25.4 / 1000
@@ -9508,6 +10791,12 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     wd3 = welddistance3 * 25.4 / 1000
     leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
     rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
     
     # first, check if we need a lift column raise
     # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
@@ -9537,9 +10826,9 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     ry = rxryrz[1]
     rz = rxryrz[2]
 
-    # next, calculate point1
-    p1x = x + l2delxunit * wd1
-    p1y = y + l2delyunit * wd1
+    # next, calculate point1 (start point on top of cover welding towards corner)
+    p1x = x + l2delxunit * wd1 + deepchambumpmm * l1delxunit
+    p1y = y + l2delyunit * wd1 + deepchambumpmm * l1delyunit
     point1 = p[p1x, p1y, z, rx, ry, rz]
 
     # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
@@ -9550,7 +10839,14 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point2 = p[p2x, p2y, z, rx, ry, rz] 
     
     # make point2a, colinear between p1 and p2, which will be the place the welder shuts off during motion
-    wtod = 0.015 # weldturnoffdistance # meters from pointtopvcham # 10 mm (1.0 seconds)
+    shutofftime = 1.5 # seconds. this is how soon to shut off extrusion before we hit point 2. 
+    if deepcovercham:
+        speed = 6 # mm/s
+        wtod = shutofftime * speed / 1000 #weldturnoffdistance
+    else:
+        speed = 10 # mm/s
+        wtod = shutofftime * speed / 1000
+    end
     p2ax = x + l2delxunit * wtod
     p2ay = y + l2delyunit * wtod
     point2a = p[p2ax, p2ay, z, rx, ry, rz]
@@ -9583,17 +10879,47 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
     m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
     rxryrz = convert_matrix_to_axang(m3)
+    rx3 = rxryrz[0]
+    ry3 = rxryrz[1]
+    rz3 = rxryrz[2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+
+    #todo: calculate trail out point
+    botvcham = wd2 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = x
+    p101y = y
+    p101z = z - wd2 + dist
+    point101 = p[p101x, p101y, p101z, rx, ry, rz]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = x + l2delxunit * tiltraise * -1
+    p102y = y + l2delyunit * tiltraise * -1
+    p102z = z - wd2 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
-    point3 = p[p3x, p3y, p3z, rx, ry, rz]
-
-    #todo: calculate trail out point
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, z - wd2 + dist, rx, ry, rz]
     
     # calculate back-away (points 201 and 202)
     pushtipforward = 0.006 # 6 millimeters forward. the tip needs to clear the capping wall&apos;s angled chamfer to not BONK when getting into position
-    p201x = x + l2delxunit * rightwallthickmm + l1delxunit * pushtipforward
-    p201y = y + l2delyunit * rightwallthickmm + l1delyunit * pushtipforward
+    p201x = x + l2delxunit * (rightwallthickmm + deepchambumpmm) + l1delxunit * pushtipforward
+    p201y = y + l2delyunit * (rightwallthickmm + deepchambumpmm) + l1delyunit * pushtipforward
 
     # calculate rxryrz
     # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
@@ -9607,7 +10933,7 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     point201 = p[p201x, p201y, z, rx, ry, rz]
     
     # calculate point 201&apos;s preheat
-    pushtipforward2 = 0.012 - pushtipforward # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
+    pushtipforward2 = 0.012 - pushtipforward + deepchambumpmm # 12 mm forward to clear the existing extrudant (but still have the extrudant from this extrusion join the existing). subtract from previous to make it constant even if you change pushtipforward1
     preheatdistance = 0.010 # 10 mm . above what it would be pushed down
     point201a = p[p201x, p201y, z + preheatdistance, rx, ry, rz]
     p201bx = p201x + l1delxunit * pushtipforward2
@@ -9620,13 +10946,417 @@ def calculate_AtS_points_cover_right(struct1, leftwallthick, rightwallthick):
     p202y = p201y + wd3 * l1delyunit
     point202 = p[p202x, p202y, z, rx, ry, rz]
 
-    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a)
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point201=point201, point202=point202, point201a=point201a, point201b=point201b, point201c=point201c, point2a=point2a, point101=point101, point102=point102, point103=point103)
     return struct2
 end
 
-def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint):
+def calculate_LtAD_points_cover_left(struct1, leftwallthick, rightwallthick, deepcovercham):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    x0 = pointintersect[0]
+    y0 = pointintersect[1]
+    z0 = pointintersect[2]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # CONST
+    welddistance1 = 6 # first path first leg (left side of L)
+    welddistance2 = 6 # first path second leg (Right Side of L) # inches
+    welddistance3 = 3 # second path (down sidewall) # inches
+    
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = pointintersect[2]
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        z0 = 0
+    else:
+        z0 = zpi
+    end
+    
+    # first and second path
+    
+    # calculate rxryrz1 (facing down, preheat rightish)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis)
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    # calculate rxryrz2 (gun facing down, preheat facing right and back)
+    # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    # calculate point centerchamfers (where the center of the two chamfers intersect 
+    pcx = x0 + (leftwallthickmm + deepchambumpmm) * l1delxunit + (rightwallthickmm + deepchambumpmm) * l2delxunit
+    pcy = y0 + (leftwallthickmm + deepchambumpmm) * l1delyunit + (rightwallthickmm + deepchambumpmm) * l2delyunit
+    pcz = z0
+    
+    # calculate point1 (start of weld)
+    p1x = pcx + l2delxunit * wd1
+    p1y = pcy + l2delyunit * wd1
+    p1z = pcz
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # calculate point2 (end of segment 1)
+    p2x = pcx
+    p2y = pcy
+    p2z = pcz
+    point2 = p[p2x, p2y, p2z, rx1, ry1, rz1]
+    
+    # calculate point3 (point at end of turn)
+    slide = 0.00 # slide distance : the distance the tip slides forward as it turns
+    p3x = pcx + slide * l1delxunit
+    p3y = pcy + slide * l1delyunit
+    p3z = pcz
+    point3 = p[p3x, p3y, p3z, rx2, ry2, rz2]
+    
+    # calculate point4 (end of segment 2)
+    p4x = pcx + wd2 * l1delxunit
+    p4y = pcy + wd2 * l1delyunit
+    p4z = pcz
+    point4 = p[p4x, p4y, p4z, rx2, ry2, rz2]
+    
+    # third path
+    
+    # calculate rxryrz3 (gun pointing down, preheat pointing toward corner. for left seam, pointing left)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis.
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 45 degrees ccw about z axis. x+ to heading1 is about 135 degrees. so our angle is heading1 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    # calculate rxryrz4 (gun at 45 around corner)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 135 * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    # calculate rxryrz5 (gun straight into left seam side chamfer, preheat down)
+    # rotate about x 90 (forward). then rotate about z ~ 45 (ccw)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz5 = convert_matrix_to_axang(m3)
+    rx5 = rxryrz5[0]
+    ry5 = rxryrz5[1]
+    rz5 = rxryrz5[2]
+    
+    # calculate pointtopcham (the point at the top of the endwall chamfer) ( WHERE POINT3 WOULD BE IF RADIUS WAS 0)
+    ptcx = x0 + rightwallthickmm * l2delxunit
+    ptcy = y0 + rightwallthickmm * l2delyunit
+    ptcz = z0
+    
+    # calculate point201 (weld start)
+    # if deepchamfer, just ignore that. because if its deep chamfer then it filled more as well. so the hot extrudant should be to the same spot (same distance from the pointtopcham) whether it&apos;s big weld or small weld 
+    adjust = 0.0 # if you want to move the start point further away from corner (positive, mm) or closer to corner
+    p201x = x0 + rightwallthickmm * l2delxunit + leftwallthickmm * l1delxunit + adjust * l1delxunit
+    p201y = y0 + rightwallthickmm * l2delyunit + leftwallthickmm * l1delyunit + adjust * l1delyunit
+    p201z = z0
+    point201 = p[p201x, p201y, p201z, rx3, ry3, rz3]
+    
+    # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # calculate point202 (start of roundover)
+    p202x = ptcx + rod * l1delxunit
+    p202y = ptcy + rod * l1delyunit
+    p202z = z0
+    point202 = p[p202x, p202y, p202z, rx3, ry3, rz3]
+    
+    # calculate point203 (middle of roundover)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = ptcz - delta
+    p203x = ptcx + delta * l1delxunit
+    p203y = ptcy + delta * l1delyunit
+    point203 = p[p203x, p203y, p203z, rx4, ry4, rz4]
+    
+    # calculate point204 (end of roundover)
+    point204 = p[ptcx, ptcy, ptcz - rod, rx5, ry5, rz5]
+    
+    # calculate trail out points (tilt back and ride)
+    botvcham = wd3 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # point101 will still use backofhole, but points 102 and 103 will use normal weld tip tcp
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = ptcx
+    p101y = ptcy
+    p101z = ptcz - wd3 + dist
+    point101 = p[p101x, p101y, p101z, rx5, ry5, rz5]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = ptcx + l1delxunit * tiltraise * -1
+    p102y = ptcy + l1delyunit * tiltraise * -1
+    p102z = ptcz - wd3 + dist
+    
+    # calculate rxryrz
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz = convert_matrix_to_axang(m3)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    point102 = p[p102x, p102y, p102z, rx, ry, rz]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx, ry, rz]
+    
+    # return
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
+    return struct2
+    
+    
+end
+
+def calculate_LtAD_points_cover_right(struct1, leftwallthick, rightwallthick, deepcovercham):
+    # get the stuff from the struct
+    pointintersect = struct1[0]
+    x0 = pointintersect[0]
+    y0 = pointintersect[1]
+    z0 = pointintersect[2]
+    heading1 = struct1[1]
+    heading2 = struct1[2]
+    heading3 = struct1[3]
+    l1delxunit = struct1[4]
+    l1delyunit = struct1[5]
+    l2delxunit = struct1[6]
+    l2delyunit = struct1[7]
+    
+    # CONST
+    welddistance1 = 6 # first path first leg (left side of L)
+    welddistance2 = 6 # first path second leg (Right Side of L) # inches
+    welddistance3 = 3 # second path (down sidewall) # inches
+    
+    wd1 = welddistance1 * 25.4 / 1000
+    wd2 = welddistance2 * 25.4 / 1000
+    wd3 = welddistance3 * 25.4 / 1000
+    leftwallthickmm = leftwallthick * 25.4 / 1000 # in this step corner right, this is distance from left edge
+    rightwallthickmm =  rightwallthick * 25.4 / 1000 # in this step corner right, this is distance from right edge
+    
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
+    # first, check if we need a lift column raise
+    # (we do, because for maximum reach we want to make the lift pedestal be even with the top of the covers)
+    zpi = pointintersect[2]
+    if zpi &gt; 0:
+        liftcolumnzneeded = zpi * 1000.0 # the robot uses coordinates in meters, but the lift column uses coordinates in mm
+        z0 = 0
+    else:
+        z0 = zpi
+    end
+    
+    # first and second path
+    
+    # calculate rxryrz1 (facing down, preheat rightish)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis)
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    # calculate rxryrz2 (gun facing down, preheat facing right and back)
+    # rotate 180 degrees about x. then rotate (90 deg + heading1 degrees) about z ccw
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    # calculate point centerchamfers (where the center of the two chamfers intersect 
+    pcx = x0 + (leftwallthickmm + deepchambumpmm) * l1delxunit + (rightwallthickmm + deepchambumpmm) * l2delxunit
+    pcy = y0 + (leftwallthickmm + deepchambumpmm) * l1delyunit + (rightwallthickmm + deepchambumpmm) * l2delyunit
+    pcz = z0
+    
+    # calculate point1 (start of weld)
+    p1x = pcx + l2delxunit * wd1
+    p1y = pcy + l2delyunit * wd1
+    p1z = pcz
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # calculate point2 (end of segment 1)
+    p2x = pcx
+    p2y = pcy
+    p2z = pcz
+    point2 = p[p2x, p2y, p2z, rx1, ry1, rz1]
+    
+    # calculate point3 (point at end of turn)
+    slide = 0.00 # slide distance : the distance the tip slides forward as it turns
+    p3x = pcx + slide * l1delxunit
+    p3y = pcy + slide * l1delyunit
+    p3z = pcz
+    point3 = p[p3x, p3y, p3z, rx2, ry2, rz2]
+    
+    # calculate point4 (end of segment 2)
+    p4x = pcx + wd2 * l1delxunit
+    p4y = pcy + wd2 * l1delyunit
+    p4z = pcz
+    point4 = p[p4x, p4y, p4z, rx2, ry2, rz2]
+    
+    # third path
+    
+    # calculate rxryrz3 (gun pointing down, preheat pointing toward corner. for right seam, pointing right)
+    # start with rxryrz = 0,0,0 (gun facing up, preheat facing y+ axis.
+    # rotate it 180 degrees about x axis. gun facing down, preheat facing y- axis
+    # rotate it about 135 degrees ccw about z axis. x+ to heading3 is about 225 degrees. so our angle is heading3 - 90 degrees
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 180 * pi / 180) # rotation 1: 180 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2) # rotation 2
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    # calculate rxryrz4 (gun at 45 around corner)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 135 * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    # calculate rxryrz5 (gun straight into right seam side chamfer, preheat down)
+    # rotate about x 90 (forward). then rotate about z ~ 135 (ccw)
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz5 = convert_matrix_to_axang(m3)
+    rx5 = rxryrz5[0]
+    ry5 = rxryrz5[1]
+    rz5 = rxryrz5[2]
+    
+    # calculate rxryrz6 (gun straight into right seam side chamfer, preheat down, 10 degrees tiltback)
+    tiltangledeg = 10 # ten degree angle of tilt
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, (90 + tiltangledeg) * pi / 180) # rotation 1: 135 degrees forward about x axis
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading3 - pi/2)
+    m3 = multiply_matrix(m2, m1) #we rotate m1 first then m2, so we multiply in backwards order: 2 then 1
+    rxryrz6 = convert_matrix_to_axang(m3)
+    rx6 = rxryrz6[0]
+    ry6 = rxryrz6[1]
+    rz6 = rxryrz6[2]
+    
+    # calculate pointtopcham (the point at the top of the endwall chamfer) ( WHERE POINT3 WOULD BE IF RADIUS WAS 0)
+    ptcx = x0 + leftwallthickmm * l1delxunit
+    ptcy = y0 + leftwallthickmm * l1delyunit
+    ptcz = z0
+    
+    # calculate point201 (weld start)
+    # if deepchamfer, just ignore that. because if its deep chamfer then it filled more as well. so the hot extrudant should be to the same spot (same distance from the pointtopcham) whether it&apos;s big weld or small weld 
+    adjust = 0.0 # if you want to move the start point further away from corner (positive, mm) or closer to corner
+    p201x = x0 + rightwallthickmm * l2delxunit + leftwallthickmm * l1delxunit + adjust * l2delxunit
+    p201y = y0 + rightwallthickmm * l2delyunit + leftwallthickmm * l1delyunit + adjust * l2delyunit
+    p201z = z0
+    point201 = p[p201x, p201y, p201z, rx3, ry3, rz3]
+    
+    # the round over distance is the distance from pointbottomvcham to point2 (which will be the same as distance to p4)
+    roundoverdistance = 0.05
+    rod = roundoverdistance * 25.4 / 1000
+    
+    # calculate point202 (start of roundover)
+    p202x = ptcx + rod * l2delxunit
+    p202y = ptcy + rod * l2delyunit
+    p202z = z0
+    point202 = p[p202x, p202y, p202z, rx3, ry3, rz3]
+    
+    # calculate point203 (middle of roundover)
+    # we know that the angle is exactly 90 degrees
+    delta = calc_rod_midpoint_90deg(rod)
+    p203z = ptcz - delta
+    p203x = ptcx + delta * l2delxunit
+    p203y = ptcy + delta * l2delyunit
+    point203 = p[p203x, p203y, p203z, rx4, ry4, rz4]
+    
+    # calculate point204 (end of roundover)
+    point204 = p[ptcx, ptcy, ptcz - rod, rx5, ry5, rz5]
+    
+    # calculate trail out points (tilt back and ride)
+    botvcham = wd3 # where is the bottom of the v chamfer (z distance from top corner)
+    tcpdiff = 14 # mm. the difference between backofhole tcp and welder tcp (tip)
+    # point101 will still use backofhole, but points 102 and 103 will use normal weld tip tcp
+    # calculate point5a (point101) (start of tilt back) (start of unflatten)
+    dist = 1.5 * 25.4/1000 + tcpdiff/1000 # distance from botvcham
+    p101x = ptcx
+    p101y = ptcy
+    p101z = ptcz - wd3 + dist
+    point101 = p[p101x, p101y, p101z, rx5, ry5, rz5]
+    
+    # calculate point5b (point 102) (end of unflatten)
+    dist = 0.5 * 25.4 / 1000
+    tiltraise = 0.006
+    p102x = ptcx + l2delxunit * tiltraise * -1
+    p102y = ptcy + l2delyunit * tiltraise * -1
+    p102z = ptcz - wd3 + dist
+    point102 = p[p102x, p102y, p102z, rx6, ry6, rz6]
+    
+    # calculate point 5c (point 103) (end of smear)
+    dist = -2 * 25.4/1000
+    point103 = p[p102x, p102y, ptcz - wd3 + dist, rx6, ry6, rz6]
+    
+    # return
+    struct2 = struct(point1=point1, point2=point2, point3=point3, point4=point4, point201=point201, point202=point202, point203=point203, point204=point204, point101=point101, point102=point102, point103=point103)
+    return struct2
+    
+end
+    
+
+def main_calculate_cover_straight(p11, p12, p21, p22, sidewallthick, leftpoint, rightpoint, deepcovercham):
     struct1 = analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint)
-    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint)
+    struct2 = calculate_straight_points_cover(struct1, sidewallthick, leftpoint, rightpoint, deepcovercham)
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     #struct3 = check_validity_left(struct1, struct2)
     return struct2
@@ -9725,7 +11455,7 @@ def analyze_touchpoints_only_cover_straight(p11, p12, p21, p22, leftpoint):
     return ret
 end
 
-def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach):
+def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, rightpointteach, deepcovercham):
     # get the stuff
     point0 = struct1[0]
     p0x = point0[0]
@@ -9751,8 +11481,14 @@ def calculate_straight_points_cover(struct1, sidewallthick, leftpointteach, righ
         coverz = zpi
     end
     
+    if deepcovercham:
+        deepchambumpmm = 0.09 * 25.4/1000 # if there is a deep chamfer on the cover, bump the welder inwards 0.09 more inches. 
+    else:
+        deepchambumpmm = 0.0
+    end
+    
     # calculate pointtopvcham
-    chamferover = sidewallthick * 25.4 / 1000.0
+    chamferover = sidewallthick * 25.4 / 1000.0 + deepchambumpmm
     tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
     x = p0x + v4xunit * chamferover
     y = p0y + v4yunit * chamferover
@@ -9970,6 +11706,396 @@ def calculate_straight_points_floor(struct1, floorthick, leftpointteach, rightpo
     
     # return struct
     ret = struct(pointtopvcham=pointtopvcham, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+end
+
+# this function determines the starting touchpoints for homing in on cover lt geometry
+# includes two points above the cover lt, closer to the robot than the lt, facing down
+def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from (in meters)
+    d0 = 0.05 # how far from the cover to approach from
+    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d2 = 0.00 # how far inwards the touchpoints are pushed
+    
+    # rxryrz
+    rxryrz = [0.334, 3.124, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate the points
+    ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    
+    ret = struct(ph1=ph1, ph2=ph2)
+    is_robot_at_reachable_spot(leftpoint, ret)
+    return ret
+end
+
+def main_calculate_cover_lt(p11, p12, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint)
+    struct2 = calculate_points_cover_lt(struct1)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+def analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint):
+    # calculate the slope of the groove in xy plane
+    l1p1x = leftpoint[0]
+    l1p1y = leftpoint[1]
+    l1p2x = rightpoint[0]
+    l1p2y = rightpoint[1]
+    
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # zraise (how much the z value changes from left point to right point
+    zraise = p12[2] - p11[2]
+    
+    #get the calcpoints
+    leftcalcpoint = [leftpoint[0], leftpoint[1], p11[2]]
+    rightcalcpoint = [rightpoint[0], rightpoint[1], p12[2]]
+    # get the vector from a to b
+    vec = [rightcalcpoint[0] - leftcalcpoint[0], rightcalcpoint[1] - leftcalcpoint[1], rightcalcpoint[2] - leftcalcpoint[2]]
+    # get the unit vector in 3d
+    mag3d = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2])
+    vec3dunit = [vec[0]/mag3d, vec[1]/mag3d, vec[2]/mag3d]
+    # get the unit vector in 2d
+    mag2d = sqrt(vec[0]*vec[0]+vec[1]*vec[1])
+    vec2dunit = [vec[0]/mag2d, vec[1]/mag2d]
+    # get the heading
+    heading1 = convert_uv_to_heading(vec2dunit[0], vec2dunit[1])
+    
+    ret = struct(leftcalcpoint=leftcalcpoint, rightcalcpoint=rightcalcpoint, vxunit=vec3dunit[0], vyunit=vec3dunit[1], vzunit=vec3dunit[2], heading1=heading1)
+    return ret
+end
+
+def calculate_points_cover_lt(struct1):
+    # get the stuff from struct
+    leftcalcpoint = struct1[0]
+    x = leftcalcpoint[0]
+    y = leftcalcpoint[1]
+    z = leftcalcpoint[2]
+    rightcalcpoint = struct1[1]
+    x2 = rightcalcpoint[0]
+    y2 = rightcalcpoint[1]
+    z2 = rightcalcpoint[2]
+    v3xunit = struct1[2]
+    v3yunit = struct1[3]
+    v3zunit = struct1[4]
+    heading1 = struct1[5]
+    
+    # first calculate rxryrz f normal and tiltback
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description(&quot;z&quot;, 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    
+    # calculate points 1-3
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit + tiltraise
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit + tiltraise
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = z + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate points 4-6
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist + tiltraise
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist + tiltraise
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    # return struct
+    ret = struct(pointtopvcham=leftcalcpoint, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+end
+
+def main_calculate_sleeve_fillet(p1, p2, p3):
+    struct1 = analyze_touchpoints_only_sleeve_fillet(p1, p2, p3)
+    struct2 = calculate_points_sleeve_fillet_quadonly(struct1)
+    return struct2
+end
+
+# given 3 points at the intersection of the sleeve and the sidewall, this calculates and returns 3 things:
+# the centerpoint of the circle on the plane, the normal vector of the plane, and the radius of the circle
+# then it returns 4 more things after converting to a vertical circle/plane: heading1 (into the plane), vecn, vecr, vecu
+def analyze_touchpoints_only_sleeve_fillet(p1, p2, p3):
+    x1 = p1[0]
+    y1 = p1[1]
+    z1 = p1[2]
+    x2 = p2[0]
+    y2 = p2[1]
+    z2 = p2[2]
+    x3 = p3[0]
+    y3 = p3[1]
+    z3 = p3[2]
+    
+    # calculate plane
+    # calculate ab (1-&gt;2) vector
+    abvec = [x2-x1, y2-y1, z2-z1]
+    # calculate ac (1-&gt;3) vector
+    acvec = [x3-x1, y3-y1, z3-z1]
+    #calculate the plane&apos;s normal vector = ab x ac
+    
+    n = crossproduct(abvec, acvec)
+    mag = sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2])
+    n = [n[0]/mag, n[1]/mag, n[2]/mag]
+    d = n[0] * x1 + n[1] * y1 + n[2] * z1
+    
+    # find the circle
+    # Midpoint of AB:
+    mab = [(x1 + x2)/2, (y1 + y2)/2, (z1 + z2)/2]
+    # midpoint of ac
+    mac = [(x3 + x1)/2, (y3 + y1)/2, (z3 + z1)/2]
+    # Get Normal Vectors to AB and AC in the Plane
+    # nab (normal to ab) = abvec x n
+    nab = crossproduct(abvec, n)
+    # nac (normal to ac) = acvec x n
+    nac = crossproduct(acvec, n)
+    # Define Perpendicular Bisector Lines
+    # Each line goes through a midpoint and extends in the direction of the na_
+    # we already have the equations of those lines in point vector form with l1 = mab + s * nab, and l2 = mac + t * nac
+    # define all the terms so the math is simpler when i have to do math
+    mabx = mab[0]
+    maby = mab[1]
+    mabz = mab[2]
+    nabx = nab[0]
+    naby = nab[1]
+    nabz = nab[2]
+    macx = mac[0]
+    macy = mac[1]
+    macz = mac[2]
+    nacx = nac[0]
+    nacy = nac[1]
+    nacz = nac[2]
+    # find the intersection point using the y and z equations
+    # maby + s * naby = macy + t * nacy
+    # mabz + s * nabz = macz + t * nacz
+    # first solve for s and take
+    # t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    t = (macz*naby + maby*nabz - mabz*naby - macy*nabz) / (nacy*nabz - naby*nacz)
+    # s = (t*nacz + macz - mabz) / nabz
+    s = (t*nacz + macz - mabz) / nabz
+    # find the point
+    # pcenter = mac + t * nac
+    pcenterx = macx + t * nacx
+    pcentery = macy + t * nacy
+    pcenterz = macz + t * nacz
+    rxryrz = [0.528, 4.631, 0.258] # demo point of the welder pointing forward into a sleeve
+    pcenter = p[pcenterx, pcentery, pcenterz, rxryrz[0], rxryrz[1], rxryrz[2]]
+    radius = distance_between(pcenterx, pcentery, pcenterz, x1, y1, z1)
+    
+    # ------ start calculation of vertical assumption -----
+    # assume the plane close to vertical
+    # fix it to make it actually vertical
+    # calculate the unit vector of up, and the unit vector of right. 
+    # calculate the heading from the +x axis to pointing straight into the wall. 
+    # the unit vector of up is [0, 0, 1] (because the plane is verticalized) (for easier calculations)
+    # first calculate the normal vector INTO the sidewall (make sure x is negative) and make it a unit vector
+    vecn = [n[0], n[1], 0] # vector normal
+    if vecn[0] &gt; 0:
+        vecn = [-n[0], -n[1], 0]
+    end
+    mag = sqrt(vecn[0]*vecn[0]+vecn[1]*vecn[1])
+    vecn = [vecn[0]/mag, vecn[1]/mag, 0]
+    # next calculate the right normal vector (the vector IN the plane that goes to the right)
+    vecr = [vecn[1], -1*vecn[0], 0]
+    vecu = [0, 0, 1] # vector up
+    heading1 = convert_uv_to_heading(vecn[0], vecn[1])
+    
+    
+    ret = struct(pcenter=pcenter, planenormalvec=n, radius=radius, heading1=heading1, vecn=vecn, vecr=vecr, vecu=vecu)
+    return ret
+end
+
+def crossproduct(vec1, vec2):
+    nx = vec1[1]*vec2[2] - vec1[2]*vec2[1]
+    ny = vec1[2]*vec2[0] - vec1[0]*vec2[2]
+    nz = vec1[0]*vec2[1] - vec1[1]*vec2[0]
+    ret = [nx, ny, nz]
+    return ret
+end
+
+def calculate_points_sleeve_fillet(struct1):
+    
+end
+
+# this function calculates only the four points of the quadrants, for the not real program. 
+# these calculations are easier so that&apos;s why i&apos;m starting with them first. 
+# this assumes a vertical plane
+def calculate_points_sleeve_fillet_quadonly(struct1):
+    # get the stuff from the struct
+    pcenter = struct1[0]
+    pcx = pcenter[0]
+    pcy = pcenter[1]
+    pcz = pcenter[2]
+    planenormalvec = struct1[1]
+    radius = struct1[2]
+    heading1 = struct1[3]
+    vecn = struct1[4]
+    vecnx = vecn[0]
+    vecny = vecn[1]
+    vecr = struct1[5]
+    vecrx = vecr[0]
+    vecry = vecr[1]
+    vecu = struct1[6]
+    vecuz = vecu[2]
+    
+    # define cushions (the backofhole can&apos;t actually touch the intersection of pipe and wall, it travels a certain distance around it
+    cushout = 0.005 # 5mm # the cushion out from the wall
+    cusharound = 0.005 # 5mm # the cushion around the sleeve. 
+    
+    # get the top point (point1)
+    # take the center point and move up the radius plus the cushions
+    p1x = pcx + vecnx * -1 * cushout
+    p1y = pcy + vecny * -1 * cushout
+    p1z = pcz + vecuz * radius + vecuz * cusharound
+    
+    # find rxryrz1
+    # first rotation is 135 degrees about the y- direction. 90 degrees to get flat. Tip pointing x-, preheat pointing y+. 45 more degrees to get at that above angle
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, -1, 135 * pi / 180)
+    # second rotation is heading1 – 180 degrees about the z+ axis to get pointing straight into wall. Heading1 should be about 180 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 180 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # get second point (right) (point2)
+    # take the center point and move right the radius plus the cushions
+    p2x = pcx + vecrx * radius + vecrx * cusharound + vecnx * -1 * cushout
+    p2y = pcy + vecry * radius + vecry * cusharound + vecny * -1 * cushout
+    p2z = pcz
+    
+    # find rxryrz2
+    # first rotation is 90 degrees about the x- axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    # second rotation is About 135 degrees about the z+ axis. This calculation is heading1 – 45 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+    
+    # get the third point (bottom) (point3)
+    p3x = pcx + vecnx * -1 * cushout
+    p3y = pcy + vecny * -1 * cushout
+    p3z = pcz - vecuz * radius - vecuz * cusharound
+    
+    # find rxryrz3
+    # first rotation is 45 degrees about the y+ axis
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, 1, 45 * pi / 180)
+    # second rotation is About 180 degrees about the z+ axis. This calculation is heading1 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    # get the fourth point (left) (point4)
+    p4x = pcx - vecrx * radius - vecrx * cusharound + vecnx * -1 * cushout
+    p4y = pcy - vecry * radius - vecry * cusharound + vecny * -1 * cushout
+    p4z = pcz
+    
+    # find rxryrz4
+    # first rotation is 90 degrees about the x+ axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation is heading1 + 45 degrees about the z+ axis. approx 225 degrees ccw
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+    
+    # return the points
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
     return ret
     
 end
