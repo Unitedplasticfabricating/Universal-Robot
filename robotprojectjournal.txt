@@ -1402,6 +1402,72 @@ if the new analyze_touchpoints_only_cover_lt() function calculates all of point0
 then we should be able to use the same calculate_straight_points_cover() function. 
 we will need a new move_points subprogram, because it goes at a different speed. due to fill size being in between regular chamfer volume and cover chamfer volume. 
 
+this stupid cover lt homing program keeps touching off air and thinking it's touching tank. 
+so when it goes to weld, it's too high. 
+it seems random. 
+maybe i need to touch it twice and make sure that it's the same
+it happens maybe 1 in every 6 times. it could be due to the cords hitting. 
+i fixed it by adjusting the wwld wire sheath. it was bonking the cover. and so the robot was feeling that force and thought it was contact. 
+
+sleeves
+i made a demo program for fillet sleeves and flush sleeves. the fillet sleeve was pretty sweet but the flush sleeve twisted itself up and self-collided. 
+i talked to ryan and other people in the shop and they said fillet sleeves are the way to go, we are going away from flush sleeves. so that works well for me
+ill just focus on fillet sleeves. 
+im trying to figure out how i want to touch off and calculate these fillet sleeves. 
+if i touch 3 points around the ring, that gives me enough data to calculate the plane of the endwall.
+it also gives me enough data to calculate the center of the circle and the size of it. 
+that gives me all the data i need. 
+i calculate the plane, and center/size of the circle. 
+to make my calculations easier, i assume a vertical circle and vertical plane, based off of the center. 
+i calculate the points at the cardinal positions, including rxryrz. 
+i include cushions of 0.005 m (5mm) in the out and around directions. 
+i now go to try and run the program. 
+the first time, it looks like it's working, until it starts rotating and the top of the cage collides with the top of the endwall. 
+at a 45 degree angle, the cage sticks out farther than the weld tip. oof. 
+so, we run the program again. this time, after it has completed its touchpoints, we use allen wrenches and remove the cage. then we send it on its way.
+this time, it does not hit the top of the endwall. but as it is going around, it pushes the tip into the endwall and triggers protective stop. 
+i figure that we maybe moved the tank while we were unbolting the cage. the cage was on a cart with rollie wheels. 
+so, we prop up our end of the tank on jack stands to secure its location firm. this causes the plane to be slightly unvertical, but i figure it's close enough. 
+we bolt the cage back on loosely to get our touchpoint. and we touchoff. then we remove the cage and try to weld. again, as it is going from 1 to 2 it bonks into the sidewall. 
+this could be because it's assuming the sidewall is vertical but it's not (due to jack stands). i move z+ and z- and can see the tip going closer and further from the sidewall.
+this could be because when we bolted the cage back on loosely, it didn't bolt in quite the right spot so our tcp measurements were wrong. 
+this could be because my cushions aren't large enough. 
+it could be because my calculations weren't correct. 
+but when i moved to point2 manually, it certainly looked correct. the angle was correct, and y and z were correct, the x was just a millimeter or so into the endwall. 
+actually, i did find a bug in my code. for points 2 and 4, i was adding the vecnx times cushion out instead of subtracting it. 
+this would cause the tip to be pushed into the endwall 10mm in the x direction, which is exactly what happened. 
+shoot. 
+adam is welding the rest of the tank up right now. 
+
+after testing the tank, we found 3 leaks from the robot welded. 2 on step corners (one of each) and one cover corner, on the top. 
+we trimmed another cover corner down farther and found another leak (created?) around the edge, at the very top of the sidewall. 
+i think we should be doing cover corners with an L then around and down approach. 
+
+i am switching that program now. 
+i made all the points for that program. 
+when i run it though, it bonks on the p_5 portion.
+after testing, i relaized that i am sending it straight home after reaching p_5, and that was causing the bonk. 
+i also think that if i have large chamfers, i can send the segment 1 to the end (without the chamferbump). i know this is "past" where the next leg starts, but i have extra space on that side i want to utilize. 
+
+changing the homing tcp did make it complete the whole weld. it still was a little too low and too far in but at least it completed it. 
+i'll send it even a little further. 
+oh my god i finally got the calibration right godddddd
+that was so obnoxious. 
+maybe. it still might not be right. 
+this is retarded. i give up
+i cant work with this junk
+we need a better way to calibrate our tcp. this is ridiculous
+god damn it. this calibration is still not right. 
+fuck yes you stupid bitch. 
+i clamped the box down and secured it super well. i calibrated it using the auto calibration on the tip of the temperature probe. 
+it changed by a few mm in multiple directions. 
+it is a two person job. i had ryan help me. 
+i sent it on the right corner. it was perfect. 
+
+preheating the around and down: 
+because that portion uses backofhole, we don't have to come out from thebox at all. 
+just raise p_3 up z direction 15 mm, and that will preheat the perfect spot. 
+
 
 
 
