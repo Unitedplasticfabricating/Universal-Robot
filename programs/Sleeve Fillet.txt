@@ -1,0 +1,257 @@
+ Program
+   Variables Setup
+   BeforeStart
+     'Safe Home Folder'
+     ''for this, dont have to worry about the normal stuff. just send it up and home''
+     'Cover Safe Home Folder'
+   Robot Program
+     'start of main program'
+     Set
+     Home
+     Script: analyze_touchpoints.script
+     'welder_state_ready()'
+     'sidewallchoice≔'Is the sidewall 3/4 inch?''
+     'If sidewallchoice'
+     'deepcham≔'Is the chamfer extra deep? (more than 0.21)''
+     MoveJ
+       Waypoint_46
+     Set
+     Test_Teach_Sleeve_Fillet()
+     Set
+     kill threadId_Thread_1
+     Set
+     'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
+     'Call '
+     'MoveJ'
+     pathturn≔main_calculate_sleeve_fillet(tcp_pose_left, tcp_pose_right, tcp_3)
+     'extrude knife'
+     extrude_knife3()
+     'move_path_cover_left3()'
+     'pointtopvcham≔pathturn[0]'
+     'MachineLogic Move to Position'
+     'MoveJ'
+     align_sleeve_fillet_low()
+     move_sleeve_fillet_quad()
+     MoveJ
+       Waypoint_8
+       Waypoint_9
+     'MachineLogic Homing'
+     Home
+   Test_Teach_Sleeve_Fillet
+     Set
+     'MoveL'
+     MoveJ
+       Waypoint_40
+       'above waypoint is home'
+       'Waypoint_2'
+       'Waypoint_3'
+       Waypoint_4
+     Set
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Popup: Move the TCP to point 1 on the edge then click 'Continue'
+     tcp_pose_left≔get_actual_tcp_pose()
+     freedrive_m_var≔ False 
+     sync()
+     Wait: 0.01
+     MoveJ
+       Waypoint_4
+     MoveJ
+       Waypoint_5
+     freedrive_m_var≔ True 
+     Popup: Move the TCP to point 2 on the edge then click 'Continue'
+     tcp_pose_right≔get_actual_tcp_pose()
+     Popup: Move the TCP to point 3 on the edge then click 'Continue'
+     tcp_3≔get_actual_tcp_pose()
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+     MoveL
+       Direction: Base
+         Until (distance)
+     MoveJ
+       Waypoint_5
+       Waypoint_4
+       Waypoint_1
+   move_sleeve_fillet_quad
+     Set
+     'MoveJ'
+     'MoveJ'
+     'MoveP'
+     'MoveJ'
+     'half circle'
+     assign points
+       p1≔pathturn[0]
+       p2≔pathturn[1]
+       p3≔pathturn[2]
+       p4≔pathturn[3]
+       pa1≔p[p1[0]+0.05,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     full circle
+       'MoveJ'
+       MoveJ
+         'Waypoint_10'
+         'Waypoint_11'
+         'Waypoint_12'
+         pa1
+         p1
+       'MoveP'
+       MoveP
+         CircleMove
+           p2
+           p3
+         CircleMove
+           p4
+           p1
+       MoveL
+         Direction: Base
+           Until (distance)
+       Popup: pause
+       MoveJ
+         Waypoint_3
+         Waypoint_6
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+   move_path_cover_lt
+     p1≔pathturn[1]
+     p2≔pathturn[2]
+     p3≔pathturn[3]
+     p4≔pathturn[4]
+     p5≔pathturn[5]
+     p6≔pathturn[6]
+     pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     pret≔p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]
+     'go to preheat'
+     Set
+     MoveJ
+       pa1
+     MoveL
+       p1
+     Wait: 4.0
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 1.0
+     MoveL
+       p2
+       p3
+       p4
+       p5
+     'If deepcham'
+     Serial Bridge uR0
+     Set DO[0]=Off
+     MoveL
+       p6
+     Wait: 1.0
+     MoveL
+       pret
+   align_sleeve_fillet_low
+     Set
+     'MoveJ'
+     'MoveJ'
+     'MoveP'
+     'MoveJ'
+     'half circle'
+     'full circle'
+     MoveJ
+       'oldhome'
+       Waypoint_17
+     MoveJ
+       Waypoint_18
+     MoveJ
+       Waypoint_2
+     'MoveJ'
+   extrude_knife3
+     pre program stuff
+       Set
+       ek_sp≔get_actual_tcp_pose()
+       MoveL
+         ek_sp
+       'Script: analyze_touchpoints.script'
+     'list possible points'
+     robot 1 moves
+       If 1≟2
+         MoveJ
+           r1_ek_oldhome
+           r1_ek_extrude
+           r1_ek_front
+           r1_ek_middle
+           r1_ek_middle2
+           r1_ek_bottom
+           r1_ek_end
+     robot 2 moves
+       If 1≟2
+         MoveJ
+           r2_ek_oldhome
+           'Waypoint_1'
+           r2_ek_extrude
+           r2_ek_front
+           r2_ek_middle
+           r2_ek_bottom
+           r2_ek_end
+     'detemine correct points for which robot'
+     If robot_number≟1
+       robot1 positions
+         ek_oldhome≔r1_ek_oldhome_p
+         ek_extrude≔r1_ek_extrude_p
+         ek_front≔r1_ek_front_p
+         ek_middle≔r1_ek_middle_p
+         ek_middle2≔r1_ek_middle2_p
+         ek_bottom≔r1_ek_bottom_p
+         ek_end≔r1_ek_end_q
+     ElseIf robot_number≟2
+       robot1 positions
+         ek_oldhome≔r2_ek_oldhome_p
+         ek_extrude≔r2_ek_extrude_p
+         ek_front≔r2_ek_front_p
+         ek_middle≔r2_ek_middle_p
+         ek_middle2≔r2_ek_middle_p
+         ek_bottom≔r2_ek_bottom_p
+         ek_end≔r2_ek_end_q
+     'start of program'
+     'Home'
+     Set
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'move above bucket'
+     MoveJ
+       'r1_ek_extrude'
+       ek_extrude
+     'extrude out a foot'
+     'turn_extrusion_on()'
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 24.0
+     Serial Bridge uR0
+     Wait: 1.0
+     Set DO[0]=Off
+     'slice'
+     MoveL
+       'r1_ek_front'
+       'r1_ek_middle'
+       'r1_ek_middle2'
+       'r1_ek_bottom'
+       'r1_ek_end'
+       ek_front
+       ek_middle
+       ek_middle2
+       ek_bottom
+       ek_end
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'Home'
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+         free_dr_already≔ True 
+       Else
+         If free_dr_already
+           end_freedrive_mode()
+           free_dr_already≔ False 
+       sync()
+   'Thread_2'
