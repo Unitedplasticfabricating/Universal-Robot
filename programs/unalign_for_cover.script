@@ -1,17 +1,12 @@
-def move_path_cover_straight():
+def unalign_for_cover():
   global _hidden_verificationVariable=0
-  step_count_01f5a6c8_181f_4fb1_9154_f6521e7944d5 = 0.0
-  thread Step_Counter_Thread_a78b00b5_ec02_47e9_9be0_237c01b12c36():
-    while (True):
-      step_count_01f5a6c8_181f_4fb1_9154_f6521e7944d5 = step_count_01f5a6c8_181f_4fb1_9154_f6521e7944d5 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_a78b00b5_ec02_47e9_9be0_237c01b12c36()
-  set_tcp(p[-0.0010317764122757048,-0.018062446645763904,0.28523420717101033,0.0,0.0,0.0])
-  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_safety_mode_transition_hardness(1)
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -19,11 +14,8 @@ def move_path_cover_straight():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,84 +154,111 @@ def move_path_cover_straight():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  while (True):
-    $ 2 "Robot Program"
-    $ 3 "p1≔pathturn[1]"
-    global p1=pathturn[1]
-    $ 4 "p2≔pathturn[2]"
-    global p2=pathturn[2]
-    $ 5 "p3≔pathturn[3]"
-    global p3=pathturn[3]
-    $ 6 "p4≔pathturn[4]"
-    global p4=pathturn[4]
-    $ 7 "p5≔pathturn[5]"
-    global p5=pathturn[5]
-    $ 8 "p6≔pathturn[6]"
-    global p6=pathturn[6]
-    $ 9 "pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
-    global pa1=p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
-    $ 10 "pret≔p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]"
-    global pret=p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]
-    $ 11 "'go to preheat'"
-    # 'go to preheat'
-    $ 12 "Set"
-    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 13 "MoveJ"
-    $ 14 "pa1" "breakAfter"
-    movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 15 "MoveL"
-    $ 16 "p1" "breakAfter"
-    movel(p1, a=0.05, v=0.05)
-    $ 17 "Wait: 4.0"
-    sleep(4.0)
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 18 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 19 "Set DO[0]=On"
-    set_standard_digital_out(0, True)
-    $ 20 "Wait: 1.0"
-    sleep(1.0)
-    $ 26 "If deepcham"
-    if (deepcham):
-      $ 27 "MoveL"
-      $ 28 "p2" "breakAfter"
-      movel(p2, a=1.2, v=0.007)
-      $ 29 "p3" "breakAfter"
-      movel(p3, a=1.2, v=0.007)
-      $ 30 "p4" "breakAfter"
-      movel(p4, a=1.2, v=0.007)
-      $ 31 "p5" "breakAfter"
-      movel(p5, a=1.2, v=0.007)
-    else:
-      $ 32 "Else" "noBreak"
-      $ 33 "MoveL"
-      $ 34 "p2" "breakAfter"
-      movel(p2, a=1.2, v=0.01)
-      $ 35 "p3" "breakAfter"
-      movel(p3, a=1.2, v=0.01)
-      $ 36 "p4" "breakAfter"
-      movel(p4, a=1.2, v=0.01)
-      $ 37 "p5" "breakAfter"
-      movel(p5, a=1.2, v=0.01)
+  step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 = 0.0
+  thread Step_Counter_Thread_5cae079c_b6a8_4d9c_956a_44e16054eccd():
+    while (True):
+      step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 = step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 + 1.0
+      sync()
     end
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 38 "Serial Bridge uR0"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
-    # end: URCap Program Node
-    $ 39 "Set DO[0]=Off"
-    set_standard_digital_out(0, False)
-    $ 40 "MoveL"
-    $ 41 "p6" "breakAfter"
-    movel(p6, a=1.2, v=0.01)
-    $ 42 "Wait: 1.0"
-    sleep(1.0)
-    $ 43 "MoveL"
-    $ 44 "pret" "breakAfter"
-    movel(pret, a=0.05, v=0.05)
   end
+  run Step_Counter_Thread_5cae079c_b6a8_4d9c_956a_44e16054eccd()
+  def calculate_point_to_move_towards(feature, direction, position_distance):
+    local posDir=[direction[0], direction[1], direction[2]]
+    if (norm(posDir) < 1e-6):
+      return get_target_waypoint()
+    end
+    local direction_vector_normalized=normalize(posDir)
+    local displacement_pose=p[direction_vector_normalized[0] * position_distance,direction_vector_normalized[1] * position_distance,direction_vector_normalized[2] * position_distance,0,0,0]
+    local wanted_displacement_in_base_frame=pose_sub(pose_trans(feature, displacement_pose), feature)
+    return pose_add(get_target_waypoint(), wanted_displacement_in_base_frame)
+  end
+  global Waypoint_9_p=p[-.242109381762, .328859740510, .325759000406, -1.405332652358, 1.226734092173, -1.029352124345]
+  global Waypoint_9_q=[-3.630085628802167, -1.8749691927959926, -2.036734414610116, -2.3725978513806703, -3.7650640868214893, 1.3954688983392125]
+  global Waypoint_10_p=p[-.240919897414, .326606982418, .327046253747, -.783499228114, 1.948636770247, -1.629561181456]
+  global Waypoint_10_q=[-4.098476127203824, -1.8560160055412283, -2.0602626111701134, -2.371189229470515, -3.2917242638401625, 1.38870966600456]
+  $ 2 "Robot Program"
+  $ 25 "actualprogram"
+  $ 26 "MoveL"
+  $ 27 "Direction: Base X+"
+  global move_thread_flag_27=0
+  thread move_thread_27():
+    enter_critical
+    move_thread_flag_27 = 1
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,0.0], 0.15)
+    movel(towardsPos, a=1.2, v=0.25)
+    move_thread_flag_27 = 2
+    exit_critical
+  end
+  move_thread_flag_27 = 0
+  move_thread_han_27 = run move_thread_27()
+  while (True):
+    sleep(1.0E-10)
+    if (move_thread_flag_27 > 1):
+      join move_thread_han_27
+      $ 28 "Until (distance)"
+      break
+    end
+    sync()
+  end
+  $ 29 "MoveL"
+  $ 30 "Direction: Base Z+"
+  global move_thread_flag_30=0
+  thread move_thread_30():
+    enter_critical
+    move_thread_flag_30 = 1
+    local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 0.2)
+    movel(towardsPos, a=1.2, v=0.25)
+    move_thread_flag_30 = 2
+    exit_critical
+  end
+  move_thread_flag_30 = 0
+  move_thread_han_30 = run move_thread_30()
+  while (True):
+    sleep(1.0E-10)
+    if (move_thread_flag_30 > 1):
+      join move_thread_han_30
+      $ 31 "Until (distance)"
+      break
+    end
+    sync()
+  end
+  $ 32 "MoveJ"
+  $ 33 "Waypoint_9" "breakAfter"
+  movej(get_inverse_kin(Waypoint_9_p, qnear=Waypoint_9_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 34 "Waypoint_10" "breakAfter"
+  movej(get_inverse_kin(Waypoint_10_p, qnear=Waypoint_10_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 35 "Home"
+  movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  $ 36 "MachineLogic Homing"
+  while isVentionMovementBusyMachineMotion1==True:
+  sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+  isVentionMovementBusyMachineMotion1 = True
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  while(temp_estop_var_vention=="estop/status true"):
+  if temp_estop_var_vention=="estop/status true":
+  sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+  end
+  socket_send_string("estop/status;", "MachineMotion1")
+  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+  if temp_estop_var_vention=="estop/status true":
+  popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+  end
+  end
+  else:
+  popup("resource is being used already: MachineMotion1")
+  halt
+  end
+  isVentionMovementBusyMachineMotion1 = True
+  sendString("im_home_axis_1", "MachineMotion im_home_axis_1 = completed", "MachineMotion1")
+  isVentionMovementBusyMachineMotion1 = False
+  sendString("SET im_set_encoder_pos_aux_1 0.000", "Ack", "MachineMotion1")
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
 end
