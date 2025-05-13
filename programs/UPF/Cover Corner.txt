@@ -120,11 +120,14 @@
      If leftchoice≟ True 
        pathturn≔main_calculate_cover(p11,p12,p21,p3,sidewall,floorthick,leftchoice,deepcovercham)
        extrude_knife3()
-       move_path_cover_left3()
+       move_path_cover_LtAD()
+       unalign_for_cover()
      Else
        pathturn≔main_calculate_cover(p11,p12,p21,p3,floorthick,sidewall,leftchoice,deepcovercham)
        extrude_knife3()
-       move_path_cover_right3()
+       move_path_cover_LtAD()
+       unalign_for_cover()
+       'move_path_cover_right3()'
    align_for_cover_left
      'dummypoints'
      actualprogram
@@ -143,6 +146,154 @@
        MoveJ
          Waypoint_1
          Waypoint_3
+   move_path_cover_LtAD
+     Comment
+     align_for_cover_left()
+     Set
+     Comment
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p3≔pathturn[2]
+     p4≔pathturn[3]
+     'p5≔pathturn[4]'
+     pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     pa2≔p[p4[0],p4[1],p4[2]+0.05,p4[3],p4[4],p4[5]]
+     'p4a≔p[p4[0],p4[1],p4[2]-0.003,p4[3],p4[4],p4[5]]'
+     'p2a≔pathturn[10]'
+     p2u≔p[p2[0],p2[1],p2[2]+0.0016,p2[3],p2[4],p2[5]]
+     p3u≔p[p3[0],p3[1],p3[2]+0.0016,p3[3],p3[4],p3[5]]
+     MoveJ
+       pa1
+     MoveL
+       p1
+     Wait: 8.0
+     turn ext on
+       Serial Bridge uR1
+       Serial Bridge uR1
+       Wait: 1.0
+       'turn_extrusion_on()'
+       Set DO[0]=On
+     MoveL
+       p2
+     'dummyvar≔ True '
+     Serial Bridge uR0
+     Set DO[0]=Off
+     MoveL
+       p2u
+     MoveL
+       'p2u'
+       p3u
+       p3
+     turn ext on
+       Serial Bridge uR1
+       Serial Bridge uR1
+       Wait: 1.0
+       'turn_extrusion_on()'
+       Set DO[0]=On
+     'MoveP'
+     MoveL
+       p4
+     'Wait: 4.0'
+     'Serial Bridge uR1'
+     'Wait: 1.0'
+     'MoveL'
+     Serial Bridge uR0
+     Wait: 2.0
+     Set DO[0]=Off
+     MoveL
+       pa2
+     Comment
+     'pret1≔p[p5[0]+0.05,p5[1],p5[2],p5[3],p5[4],p5[5]]'
+     'pret2≔p[p5[0]+0.1,p5[1],p5[2]+0.2,p5[3],p5[4],p5[5]]'
+     'pret2≔p[p5[0],p5[1],p5[2]-0.05,0,0,3.5]'
+     p_1≔pathturn[4]
+     p_2≔pathturn[5]
+     p_3≔pathturn[6]
+     p_4≔pathturn[7]
+     p_5≔pathturn[8]
+     'p201≔pathturn[5]'
+     'p202≔pathturn[6]'
+     'p201a≔pathturn[7]'
+     'p201b≔pathturn[8]'
+     'p201c≔pathturn[9]'
+     'pret3≔p[p201[0],p201[1],p201[2]+0.05,p201[3],p201[4],p201[5]]'
+     'pret4≔p[p202[0],p202[1],p202[2]+0.05,p202[3],p202[4],p202[5]]'
+     p_pre_ret≔p[p_1[0],p_1[1],p_1[2]+0.05,p_1[3],p_1[4],p_1[5]]
+     p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2]+.1,p_3[3],p_3[4],p_3[5]]
+     p_preheat≔p[p_3[0],p_3[1],p_3[2]+0.015,p_3[3],p_3[4],p_3[5]]
+     'If leftchoice'
+     Set
+     MoveJ
+       p_pre_ret
+     MoveL
+       'p_pre_ret'
+       p_pre_ret2
+       p_preheat
+     Wait: 6.0
+     MoveL
+       p_pre_ret2
+       p_pre_ret
+     MoveL
+       p_1
+     turn ext on
+       Serial Bridge uR1
+       Serial Bridge uR1
+       Wait: 1.0
+       'turn_extrusion_on()'
+       Set DO[0]=On
+     MoveL
+       p_2
+     MoveP
+       CircleMove
+         p_3
+         p_4
+     MoveL
+       p_5
+     Set
+     p102≔pathturn[9]
+     p103≔pathturn[10]
+     MoveL
+       p102
+     Serial Bridge uR0
+     MoveL
+       p103
+     Set DO[0]=Off
+     'MoveL'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveJ'
+     'MoveL'
+     'Wait: 6.0'
+     'MoveL'
+     'turn ext on'
+     'MoveL'
+     'Serial Bridge uR0'
+     'Wait: 2.0'
+     'Set DO[0]=Off'
+     'MoveJ'
+     'MoveJ'
+     'Home'
+     'MachineLogic Homing'
+   unalign_for_cover
+     'dummypoints'
+     'actualprogram'
+     'MoveJ'
+     'MoveJ'
+     actualprogram
+       MoveL
+         Direction: Base X+
+           Until (distance)
+       MoveL
+         Direction: Base Z+
+           Until (distance)
+       MoveJ
+         Waypoint_23
+         Waypoint_24
+       Home
+       MachineLogic Homing
    move_path_cover_left3
      Comment
      align_for_cover_left()
