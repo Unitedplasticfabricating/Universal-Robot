@@ -1,7 +1,14 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.00103,-0.01806,0.2848,0.0,0.0,0.0])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  step_count_4dc2b0b7_5b68_4d7f_9aff_86be30d73c24 = 0.0
+  thread Step_Counter_Thread_b66f9ce8_830c_45bc_8ba8_a73ddb01a22e():
+    while (True):
+      step_count_4dc2b0b7_5b68_4d7f_9aff_86be30d73c24 = step_count_4dc2b0b7_5b68_4d7f_9aff_86be30d73c24 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_b66f9ce8_830c_45bc_8ba8_a73ddb01a22e()
+  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -14,8 +21,9 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
   set_safety_mode_transition_hardness(1)
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +162,6 @@ def Floor_Corner_Extended():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 = 0.0
-  thread Step_Counter_Thread_5cae079c_b6a8_4d9c_956a_44e16054eccd():
-    while (True):
-      step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 = step_count_6066afa7_6d3e_40c2_b283_208ec4fe33a3 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_5cae079c_b6a8_4d9c_956a_44e16054eccd()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -885,7 +885,7 @@ def Floor_Corner_Extended():
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 367 "Set"
-    set_tcp(p[-0.00103,-0.01806,0.2848,0.0,0.0,0.0])
+    set_tcp(p[-3.4459194423430706E-4,-0.016122577745637523,0.2834979079810125,0.0,0.0,0.0])
     $ 368 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
     $ 369 "freedrive_m_var≔ True "
@@ -1952,7 +1952,7 @@ def Floor_Corner_Extended():
       #constants
       #distances of how far away from point the touchpoints are
       d0 = 0.10 # how far from the box to retreat and approach
-      d1 = 0.03 # first distance from init point
+      d1 = 0.06 # first distance from init point
       d2 = 0.15 # second distance from init point
       d3 = 0.125 #vertical distance from first point
       sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
@@ -4704,8 +4704,8 @@ def Floor_Corner_Extended():
         vecuz = vecu[2]
     
         # define cushions (the backofhole can't actually touch the intersection of pipe and wall, it travels a certain distance around it
-        cushout = 0.005 # 5mm # the cushion out from the wall
-        cusharound = 0.005 # 5mm # the cushion around the sleeve.
+        cushout = 0.05 # 5mm # the cushion out from the wall
+        cusharound = 0.05 # 5mm # the cushion around the sleeve.
     
         # get the top point (point1)
         # take the center point and move up the radius plus the cushions
@@ -4967,7 +4967,7 @@ def Floor_Corner_Extended():
     $ 487 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
     # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
     $ 488 "Set"
-    set_tcp(p[-0.00103,-0.01806,0.2848,0.0,0.0,0.0])
+    set_tcp(p[-3.4459194423430706E-4,-0.016122577745637523,0.2834979079810125,0.0,0.0,0.0])
     $ 489 "'dummy move below for debug'"
     # 'dummy move below for debug'
     $ 494 "Wait: 1.0"
@@ -6581,7 +6581,7 @@ def Floor_Corner_Extended():
     #constants
     #distances of how far away from point the touchpoints are
     d0 = 0.10 # how far from the box to retreat and approach
-    d1 = 0.03 # first distance from init point
+    d1 = 0.06 # first distance from init point
     d2 = 0.15 # second distance from init point
     d3 = 0.125 #vertical distance from first point
     sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
@@ -9333,8 +9333,8 @@ def Floor_Corner_Extended():
       vecuz = vecu[2]
   
       # define cushions (the backofhole can't actually touch the intersection of pipe and wall, it travels a certain distance around it
-      cushout = 0.005 # 5mm # the cushion out from the wall
-      cusharound = 0.005 # 5mm # the cushion around the sleeve.
+      cushout = 0.05 # 5mm # the cushion out from the wall
+      cusharound = 0.05 # 5mm # the cushion around the sleeve.
   
       # get the top point (point1)
       # take the center point and move up the radius plus the cushions
@@ -9447,11 +9447,11 @@ def Floor_Corner_Extended():
   $ 108 "Waypoint_46" "breakAfter"
   movej(get_inverse_kin(Waypoint_46_p, qnear=Waypoint_46_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 109 "Set"
-  set_tcp(p[-0.00103,-0.01806,0.2848,0.0,0.0,0.0])
+  set_tcp(p[-3.4459194423430706E-4,-0.016122577745637523,0.2834979079810125,0.0,0.0,0.0])
   $ 110 "Test_Teach_Position()"
   Test_Teach_Position()
   $ 111 "Set"
-  set_tcp(p[-0.00103,-0.01806,0.2848,0.0,0.0,0.0])
+  set_tcp(p[-3.4459194423430706E-4,-0.016122577745637523,0.2834979079810125,0.0,0.0,0.0])
   $ 112 "kill threadId_Thread_1"
   kill threadId_Thread_1
   $ 113 "Corner_Homing_45()"
