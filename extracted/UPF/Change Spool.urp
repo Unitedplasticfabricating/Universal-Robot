@@ -8,14 +8,44 @@
   </kinematics>
   <children>
     <InitVariablesNode/>
-    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
+    <SpecialSequence type="BeforeStart">
+      <children>
+        <Folder name="premove" keepHidden="false">
+          <children>
+            <Set type="NoAction">
+              <tcp referencedName="pretend_welder"/>
+            </Set>
+            <Assignment valueSource="Expression">
+              <variable name="cur_pos" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionToken token="get_actual_tcp_pose"/>
+                <ExpressionChar character="("/>
+                <ExpressionChar character=")"/>
+              </expression>
+            </Assignment>
+            <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+              <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+              <children>
+                <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                  <motionParameters/>
+                  <variable reference="../../../../Assignment/variable"/>
+                </Waypoint>
+              </children>
+            </Move>
+          </children>
+        </Folder>
+      </children>
+    </SpecialSequence>
+    <MainProgram runOnlyOnce="false" InitVariablesNode="true">
       <children>
         <Comment comment="move robot above bucket"/>
         <Set type="NoAction">
-          <tcp referencedName="pretend_welder"/>
+          <tcp reference="../../../../SpecialSequence/children/Folder/children/Set/tcp"/>
         </Set>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-          <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="3">
               <motionParameters/>
