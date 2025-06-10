@@ -340,292 +340,293 @@ def Sleeve_Fillet_Tilt():
     global p4=pathturn[3]
     $ 253 "p1t≔pathturn[4]"
     global p1t=pathturn[4]
-    $ 254 "pa1≔p[p1[0]+0.05,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
+    $ 254 "p45≔pathturn[5]"
+    global p45=pathturn[5]
+    $ 255 "p22≔pathturn[6]"
+    global p22=pathturn[6]
+    $ 256 "pa1≔p[p1[0]+0.05,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
     global pa1=p[p1[0]+0.05,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
-    $ 255 "full circle"
-    $ 259 "MoveJ"
-    $ 263 "pa1" "breakAfter"
+    $ 257 "full circle"
+    $ 261 "MoveJ"
+    $ 265 "pa1" "breakAfter"
     movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 264 "p1" "breakAfter"
+    $ 266 "p1" "breakAfter"
     movej(p1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 265 "Wait: 6.0"
+    $ 267 "Wait: 6.0"
     sleep(6.0)
-    $ 266 "turn ext on"
+    $ 268 "turn ext on"
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 267 "Serial Bridge uR1"
+    $ 269 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 268 "Serial Bridge uR1"
+    $ 270 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 269 "Wait: 1.0"
+    $ 271 "Wait: 1.0"
     sleep(1.0)
-    $ 271 "Set DO[0]=On"
+    $ 273 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 279 "MoveP"
-    $ 280 "CircleMove"
-    $ 281 "p2" "noBreak"
+    $ 281 "MoveP"
+    $ 282 "CircleMove"
+    $ 283 "p2" "noBreak"
     
-    $ 282 "p3" "breakAfter"
+    $ 284 "p3" "breakAfter"
     movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 283 "CircleMove"
-    $ 284 "p4" "noBreak"
+    $ 285 "CircleMove"
+    $ 286 "p4" "noBreak"
     
-    $ 285 "p1" "breakAfter"
+    $ 287 "p1" "breakAfter"
     movec(p4, p1, a=1.2, v=0.01, r=0.0, mode=1)
-    $ 286 "MoveL"
-    $ 287 "p1t" "breakAfter"
+    $ 288 "MoveL"
+    $ 289 "p1t" "breakAfter"
     movel(p1t, a=1.2, v=0.1)
-    $ 288 "turn ext off"
+    $ 290 "turn ext off"
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 289 "Serial Bridge uR0"
+    $ 291 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 290 "Set DO[0]=Off"
+    $ 292 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 291 "MoveP"
-    $ 292 "CircleMove"
-    $ 293 "p2" "noBreak"
+    $ 293 "MoveP"
+    $ 294 "CircleMove"
+    $ 295 "p22" "noBreak"
     
-    $ 294 "p3" "breakAfter"
-    movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 295 "MoveL"
-    $ 296 "Direction: Base"
-    global move_thread_flag_296=0
-    thread move_thread_296():
+    $ 296 "p45" "breakAfter"
+    movec(p22, p45, a=1.2, v=0.01, r=0.025, mode=1)
+    $ 297 "MoveL"
+    $ 298 "Direction: Base"
+    global move_thread_flag_298=0
+    thread move_thread_298():
       enter_critical
-      move_thread_flag_296 = 1
+      move_thread_flag_298 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,-0.5], 0.01)
       movel(towardsPos, a=1.2, v=0.25)
-      move_thread_flag_296 = 2
+      move_thread_flag_298 = 2
       exit_critical
     end
-    move_thread_flag_296 = 0
-    move_thread_han_296 = run move_thread_296()
+    move_thread_flag_298 = 0
+    move_thread_han_298 = run move_thread_298()
     while (True):
       sleep(1.0E-10)
-      if (move_thread_flag_296 > 1):
-        join move_thread_han_296
-        $ 297 "Until (distance)"
+      if (move_thread_flag_298 > 1):
+        join move_thread_han_298
+        $ 299 "Until (distance)"
         break
       end
       sync()
     end
-    $ 298 "MoveL"
-    $ 299 "Direction: Base"
-    global move_thread_flag_299=0
-    thread move_thread_299():
+    $ 300 "MoveL"
+    $ 301 "Direction: Base"
+    global move_thread_flag_301=0
+    thread move_thread_301():
       enter_critical
-      move_thread_flag_299 = 1
+      move_thread_flag_301 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [1.0,0.0,-0.5], 0.1)
       movel(towardsPos, a=1.2, v=0.25)
-      move_thread_flag_299 = 2
+      move_thread_flag_301 = 2
       exit_critical
     end
-    move_thread_flag_299 = 0
-    move_thread_han_299 = run move_thread_299()
+    move_thread_flag_301 = 0
+    move_thread_han_301 = run move_thread_301()
     while (True):
       sleep(1.0E-10)
-      if (move_thread_flag_299 > 1):
-        join move_thread_han_299
-        $ 300 "Until (distance)"
+      if (move_thread_flag_301 > 1):
+        join move_thread_han_301
+        $ 302 "Until (distance)"
         break
       end
       sync()
     end
-    $ 307 "Popup: pause"
-    popup("pause", "Message", False, False, blocking=False)
-    halt
-    $ 308 "Home"
+    $ 309 "Home"
     movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_sleeve_fillet_low():
-    $ 316 "align_sleeve_fillet_low" "noBreak"
-    $ 317 "Set"
+    $ 317 "align_sleeve_fillet_low" "noBreak"
+    $ 318 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 372 "MoveJ"
-    $ 373 "'oldhome'"
+    $ 373 "MoveJ"
+    $ 374 "'oldhome'"
     # 'oldhome'
-    $ 374 "Waypoint_17" "breakAfter"
+    $ 375 "Waypoint_17" "breakAfter"
     movej(get_inverse_kin(Waypoint_17_p, qnear=Waypoint_17_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 375 "MoveJ"
-    $ 376 "Waypoint_18" "breakAfter"
+    $ 376 "MoveJ"
+    $ 377 "Waypoint_18" "breakAfter"
     movej(get_inverse_kin(Waypoint_18_p, qnear=Waypoint_18_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 377 "MoveJ"
-    $ 378 "Waypoint_2" "breakAfter"
+    $ 378 "MoveJ"
+    $ 379 "Waypoint_2" "breakAfter"
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
   end
   def extrude_knife3():
-    $ 382 "extrude_knife3" "noBreak"
-    $ 383 "pre program stuff"
-    $ 384 "Set"
+    $ 383 "extrude_knife3" "noBreak"
+    $ 384 "pre program stuff"
+    $ 385 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 385 "ek_sp≔get_actual_tcp_pose()"
+    $ 386 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 386 "MoveL"
-    $ 387 "ek_sp" "breakAfter"
+    $ 387 "MoveL"
+    $ 388 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 389 "'list possible points'"
+    $ 390 "'list possible points'"
     # 'list possible points'
-    $ 390 "robot 1 moves"
-    $ 391 "If 1≟2"
+    $ 391 "robot 1 moves"
+    $ 392 "If 1≟2"
     if (1 == 2):
-      $ 392 "MoveJ"
-      $ 393 "r1_ek_oldhome" "breakAfter"
+      $ 393 "MoveJ"
+      $ 394 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 394 "r1_ek_extrude" "breakAfter"
+      $ 395 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 395 "r1_ek_front" "breakAfter"
+      $ 396 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 396 "r1_ek_middle" "breakAfter"
+      $ 397 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 397 "r1_ek_middle2" "breakAfter"
+      $ 398 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 398 "r1_ek_bottom" "breakAfter"
+      $ 399 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 399 "r1_ek_end" "breakAfter"
+      $ 400 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 400 "robot 2 moves"
-    $ 401 "If 1≟2"
+    $ 401 "robot 2 moves"
+    $ 402 "If 1≟2"
     if (1 == 2):
-      $ 402 "MoveJ"
-      $ 403 "r2_ek_oldhome" "breakAfter"
+      $ 403 "MoveJ"
+      $ 404 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 405 "r2_ek_extrude" "breakAfter"
+      $ 406 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 406 "r2_ek_front" "breakAfter"
+      $ 407 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 407 "r2_ek_middle" "breakAfter"
+      $ 408 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 408 "r2_ek_bottom" "breakAfter"
+      $ 409 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 409 "r2_ek_end" "breakAfter"
+      $ 410 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 410 "'detemine correct points for which robot'"
+    $ 411 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 411 "If robot_number≟1"
+    $ 412 "If robot_number≟1"
     if (robot_number == 1):
-      $ 412 "robot1 positions"
-      $ 413 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 413 "robot1 positions"
+      $ 414 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 414 "ek_extrude≔r1_ek_extrude_p"
+      $ 415 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 415 "ek_front≔r1_ek_front_p"
+      $ 416 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 416 "ek_middle≔r1_ek_middle_p"
+      $ 417 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 417 "ek_middle2≔r1_ek_middle2_p"
+      $ 418 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 418 "ek_bottom≔r1_ek_bottom_p"
+      $ 419 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 419 "ek_end≔r1_ek_end_q"
+      $ 420 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 420 "ElseIf robot_number≟2"
+      $ 421 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 421 "robot1 positions"
-        $ 422 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 422 "robot1 positions"
+        $ 423 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 423 "ek_extrude≔r2_ek_extrude_p"
+        $ 424 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 424 "ek_front≔r2_ek_front_p"
+        $ 425 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 425 "ek_middle≔r2_ek_middle_p"
+        $ 426 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 426 "ek_middle2≔r2_ek_middle_p"
+        $ 427 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 427 "ek_bottom≔r2_ek_bottom_p"
+        $ 428 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 428 "ek_end≔r2_ek_end_q"
+        $ 429 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 429 "'start of program'"
+    $ 430 "'start of program'"
     # 'start of program'
-    $ 431 "Set"
+    $ 432 "Set"
     set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 432 "MoveJ"
-    $ 434 "ek_oldhome" "breakAfter"
+    $ 433 "MoveJ"
+    $ 435 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 435 "'above waypoint is home'"
+    $ 436 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 436 "'move above bucket'"
+    $ 437 "'move above bucket'"
     # 'move above bucket'
-    $ 437 "MoveJ"
-    $ 439 "ek_extrude" "breakAfter"
+    $ 438 "MoveJ"
+    $ 440 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 440 "'extrude out a foot'"
+    $ 441 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 442 "Serial Bridge uR1"
+    $ 443 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 443 "Set DO[0]=On"
+    $ 444 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 444 "Wait: 24.0"
+    $ 445 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 445 "Serial Bridge uR0"
+    $ 446 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 446 "Wait: 1.0"
+    $ 447 "Wait: 1.0"
     sleep(1.0)
-    $ 447 "Set DO[0]=Off"
+    $ 448 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 448 "'slice'"
+    $ 449 "'slice'"
     # 'slice'
-    $ 449 "MoveL"
-    $ 455 "ek_front" "breakAfter"
+    $ 450 "MoveL"
+    $ 456 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 456 "ek_middle" "breakAfter"
+    $ 457 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 457 "ek_middle2" "breakAfter"
+    $ 458 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 458 "ek_bottom" "breakAfter"
+    $ 459 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 459 "ek_end" "breakAfter"
+    $ 460 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 460 "MoveJ"
-    $ 462 "ek_oldhome" "breakAfter"
+    $ 461 "MoveJ"
+    $ 463 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 463 "'above waypoint is home'"
+    $ 464 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   $ 2 "BeforeStart"
-  $ 465 "Thread_1"
+  $ 466 "Thread_1"
   thread Thread_1():
-    $ 466 "Loop  True "
+    $ 467 "Loop  True "
     while (  True  ):
-      $ 467 "If freedrive_m_var≟ True "
+      $ 468 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 468 "freedrive_mode()"
+        $ 469 "freedrive_mode()"
         freedrive_mode()
-        $ 469 "free_dr_already≔ True "
+        $ 470 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 470 "Else" "noBreak"
-        $ 471 "If free_dr_already"
+        $ 471 "Else" "noBreak"
+        $ 472 "If free_dr_already"
         if (free_dr_already):
-          $ 472 "end_freedrive_mode()"
+          $ 473 "end_freedrive_mode()"
           end_freedrive_mode()
-          $ 473 "free_dr_already≔ False "
+          $ 474 "free_dr_already≔ False "
           global free_dr_already=  False  
         end
       end
-      $ 474 "sync()"
+      $ 475 "sync()"
       sync()
     end
   end
@@ -4284,7 +4285,7 @@ def Sleeve_Fillet_Tilt():
   
   def main_calculate_sleeve_fillet(p1, p2, p3):
       struct1 = analyze_touchpoints_only_sleeve_fillet(p1, p2, p3)
-      struct2 = calculate_points_sleeve_fillet_quadonly(struct1)
+      struct2 = calculate_points_sleeve_fillet(struct1)
       return struct2
   end
   
@@ -4388,14 +4389,118 @@ def Sleeve_Fillet_Tilt():
       return ret
   end
   
-  def calculate_points_sleeve_fillet(struct1):
-  
-  end
-  
   # this function calculates only the four points of the quadrants, for the not real program.
   # these calculations are easier so that's why i'm starting with them first.
   # this assumes a vertical plane
   def calculate_points_sleeve_fillet_quadonly(struct1):
+      # get the stuff from the struct
+      pcenter = struct1[0]
+      pcx = pcenter[0]
+      pcy = pcenter[1]
+      pcz = pcenter[2]
+      planenormalvec = struct1[1]
+      radius = struct1[2]
+      heading1 = struct1[3]
+      vecn = struct1[4]
+      vecnx = vecn[0]
+      vecny = vecn[1]
+      vecr = struct1[5]
+      vecrx = vecr[0]
+      vecry = vecr[1]
+      vecu = struct1[6]
+      vecuz = vecu[2]
+  
+      # define cushions (the backofhole can't actually touch the intersection of pipe and wall, it travels a certain distance around it
+      cushout = 0.006 # 5mm # the cushion out from the wall
+      cusharound = 0.006 # 5mm # the cushion around the sleeve.
+  
+      # get the top point (point1)
+      # take the center point and move up the radius plus the cushions
+      p1x = pcx + vecnx * -1 * cushout
+      p1y = pcy + vecny * -1 * cushout
+      p1z = pcz + vecuz * radius + vecuz * cusharound
+  
+      # find rxryrz1
+      # first rotation is 135 degrees about the y- direction. 90 degrees to get flat. Tip pointing x-, preheat pointing y+. 45 more degrees to get at that above angle
+      m1 = get_rotation_matrix_from_description("y", -1, 135 * pi / 180)
+      # second rotation is heading1 – 180 degrees about the z+ axis to get pointing straight into wall. Heading1 should be about 180 degrees
+      m2 = get_rotation_matrix_from_description("z", 1, heading1 - 180 * pi/180)
+      # combine them by multiplying
+      m3 = multiply_matrix(m2, m1)
+      rxryrz1 = convert_matrix_to_axang(m3)
+      rx1 = rxryrz1[0]
+      ry1 = rxryrz1[1]
+      rz1 = rxryrz1[2]
+  
+      point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+  
+      # get second point (right) (point2)
+      # take the center point and move right the radius plus the cushions
+      p2x = pcx + vecrx * radius + vecrx * cusharound + vecnx * -1 * cushout
+      p2y = pcy + vecry * radius + vecry * cusharound + vecny * -1 * cushout
+      p2z = pcz
+  
+      # find rxryrz2
+      # first rotation is 90 degrees about the x- axis
+      m1 = get_rotation_matrix_from_description("x", -1, 90 * pi / 180)
+      # second rotation is About 135 degrees about the z+ axis. This calculation is heading1 – 45 degrees
+      m2 = get_rotation_matrix_from_description("z", 1, heading1 - 45 * pi/180)
+      # combine them by multiplying
+      m3 = multiply_matrix(m2, m1)
+      rxryrz2 = convert_matrix_to_axang(m3)
+      rx2 = rxryrz2[0]
+      ry2 = rxryrz2[1]
+      rz2 = rxryrz2[2]
+  
+      point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+  
+      # get the third point (bottom) (point3)
+      p3x = pcx + vecnx * -1 * cushout
+      p3y = pcy + vecny * -1 * cushout
+      p3z = pcz - vecuz * radius - vecuz * cusharound
+  
+      # find rxryrz3
+      # first rotation is 45 degrees about the y+ axis
+      m1 = get_rotation_matrix_from_description("y", 1, 45 * pi / 180)
+      # second rotation is About 180 degrees about the z+ axis. This calculation is heading1 degrees
+      m2 = get_rotation_matrix_from_description("z", 1, heading1)
+      # combine them by multiplying
+      m3 = multiply_matrix(m2, m1)
+      rxryrz3 = convert_matrix_to_axang(m3)
+      rx3 = rxryrz3[0]
+      ry3 = rxryrz3[1]
+      rz3 = rxryrz3[2]
+  
+      point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+  
+      # get the fourth point (left) (point4)
+      p4x = pcx - vecrx * radius - vecrx * cusharound + vecnx * -1 * cushout
+      p4y = pcy - vecry * radius - vecry * cusharound + vecny * -1 * cushout
+      p4z = pcz
+  
+      # find rxryrz4
+      # first rotation is 90 degrees about the x+ axis
+      m1 = get_rotation_matrix_from_description("x", 1, 90 * pi / 180)
+      # second rotation is heading1 + 45 degrees about the z+ axis. approx 225 degrees ccw
+      m2 = get_rotation_matrix_from_description("z", 1, heading1 + 45 * pi/180)
+      # combine them by multiplying
+      m3 = multiply_matrix(m2, m1)
+      rxryrz4 = convert_matrix_to_axang(m3)
+      rx4 = rxryrz4[0]
+      ry4 = rxryrz4[1]
+      rz4 = rxryrz4[2]
+  
+      point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+  
+      # return the points
+      ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
+      return ret
+  
+  end
+  
+  # this function calculates the points necessary for the fillet sleeve weld path.
+  # this assumes a vertical plane
+  def calculate_points_sleeve_fillet(struct1):
       # get the stuff from the struct
       pcenter = struct1[0]
       pcx = pcenter[0]
@@ -4508,11 +4613,27 @@ def Sleeve_Fillet_Tilt():
       ry1t = rxryrz1tilt[1]
       rz1t = rxryrz1tilt[2]
   
+      # point 1, but with the tilt back angle
       point1t = p[p1x, p1y, p1z, rx1t, ry1t, rz1t]
   
+      # point45 (the point 45 degrees along the path) (has no rxryrz data) (because if we do fixed angle circle move it wont use that anyways, it'l just use the angle from p1t)
+      distup = cos(45 * pi/180) * (radius + cusharound)
+      distover = sin(45 * pi/180) * (radius + cusharound)
+      p45x = pcx + vecrx * distover + vecnx * -1 * cushout
+      p45y = pcy + vecry * distover + vecny * -1 * cushout
+      p45z = pcz + vecuz * distup
+      point45 = p[p45x, p45y, p45z, 0,0,0]
+  
+      # point22 (22.5 degrees of angle)
+      distup = cos(22.5 * pi/180) * (radius + cusharound)
+      distover = sin(22.5 * pi/180) * (radius + cusharound)
+      p22x = pcx + vecrx * distover + vecnx * -1 * cushout
+      p22y = pcy + vecry * distover + vecny * -1 * cushout
+      p22z = pcz + vecuz * distup
+      point22 = p[p22x, p22y, p22z, 0,0,0]
   
       # return the points
-      ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point1t=point1t)
+      ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point1t=point1t, point45=point45, point22=point22)
       return ret
   
   end

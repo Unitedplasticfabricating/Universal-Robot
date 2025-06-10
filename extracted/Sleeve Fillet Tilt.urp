@@ -5749,7 +5749,7 @@ end
 
 def main_calculate_sleeve_fillet(p1, p2, p3):
     struct1 = analyze_touchpoints_only_sleeve_fillet(p1, p2, p3)
-    struct2 = calculate_points_sleeve_fillet_quadonly(struct1)
+    struct2 = calculate_points_sleeve_fillet(struct1)
     return struct2
 end
 
@@ -5853,14 +5853,118 @@ def crossproduct(vec1, vec2):
     return ret
 end
 
-def calculate_points_sleeve_fillet(struct1):
-    
-end
-
 # this function calculates only the four points of the quadrants, for the not real program. 
 # these calculations are easier so that&apos;s why i&apos;m starting with them first. 
 # this assumes a vertical plane
 def calculate_points_sleeve_fillet_quadonly(struct1):
+    # get the stuff from the struct
+    pcenter = struct1[0]
+    pcx = pcenter[0]
+    pcy = pcenter[1]
+    pcz = pcenter[2]
+    planenormalvec = struct1[1]
+    radius = struct1[2]
+    heading1 = struct1[3]
+    vecn = struct1[4]
+    vecnx = vecn[0]
+    vecny = vecn[1]
+    vecr = struct1[5]
+    vecrx = vecr[0]
+    vecry = vecr[1]
+    vecu = struct1[6]
+    vecuz = vecu[2]
+    
+    # define cushions (the backofhole can&apos;t actually touch the intersection of pipe and wall, it travels a certain distance around it
+    cushout = 0.006 # 5mm # the cushion out from the wall
+    cusharound = 0.006 # 5mm # the cushion around the sleeve. 
+    
+    # get the top point (point1)
+    # take the center point and move up the radius plus the cushions
+    p1x = pcx + vecnx * -1 * cushout
+    p1y = pcy + vecny * -1 * cushout
+    p1z = pcz + vecuz * radius + vecuz * cusharound
+    
+    # find rxryrz1
+    # first rotation is 135 degrees about the y- direction. 90 degrees to get flat. Tip pointing x-, preheat pointing y+. 45 more degrees to get at that above angle
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, -1, 135 * pi / 180)
+    # second rotation is heading1 – 180 degrees about the z+ axis to get pointing straight into wall. Heading1 should be about 180 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 180 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz1 = convert_matrix_to_axang(m3)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    
+    # get second point (right) (point2)
+    # take the center point and move right the radius plus the cushions
+    p2x = pcx + vecrx * radius + vecrx * cusharound + vecnx * -1 * cushout
+    p2y = pcy + vecry * radius + vecry * cusharound + vecny * -1 * cushout
+    p2z = pcz
+    
+    # find rxryrz2
+    # first rotation is 90 degrees about the x- axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, -1, 90 * pi / 180)
+    # second rotation is About 135 degrees about the z+ axis. This calculation is heading1 – 45 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 - 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz2 = convert_matrix_to_axang(m3)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+    
+    # get the third point (bottom) (point3)
+    p3x = pcx + vecnx * -1 * cushout
+    p3y = pcy + vecny * -1 * cushout
+    p3z = pcz - vecuz * radius - vecuz * cusharound
+    
+    # find rxryrz3
+    # first rotation is 45 degrees about the y+ axis
+    m1 = get_rotation_matrix_from_description(&quot;y&quot;, 1, 45 * pi / 180)
+    # second rotation is About 180 degrees about the z+ axis. This calculation is heading1 degrees
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz3 = convert_matrix_to_axang(m3)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    
+    # get the fourth point (left) (point4)
+    p4x = pcx - vecrx * radius - vecrx * cusharound + vecnx * -1 * cushout
+    p4y = pcy - vecry * radius - vecry * cusharound + vecny * -1 * cushout
+    p4z = pcz
+    
+    # find rxryrz4
+    # first rotation is 90 degrees about the x+ axis
+    m1 = get_rotation_matrix_from_description(&quot;x&quot;, 1, 90 * pi / 180)
+    # second rotation is heading1 + 45 degrees about the z+ axis. approx 225 degrees ccw
+    m2 = get_rotation_matrix_from_description(&quot;z&quot;, 1, heading1 + 45 * pi/180)
+    # combine them by multiplying
+    m3 = multiply_matrix(m2, m1)
+    rxryrz4 = convert_matrix_to_axang(m3)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+    
+    # return the points
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
+    return ret
+    
+end
+
+# this function calculates the points necessary for the fillet sleeve weld path. 
+# this assumes a vertical plane
+def calculate_points_sleeve_fillet(struct1):
     # get the stuff from the struct
     pcenter = struct1[0]
     pcx = pcenter[0]
@@ -5973,11 +6077,27 @@ def calculate_points_sleeve_fillet_quadonly(struct1):
     ry1t = rxryrz1tilt[1]
     rz1t = rxryrz1tilt[2]
     
+    # point 1, but with the tilt back angle
     point1t = p[p1x, p1y, p1z, rx1t, ry1t, rz1t]
     
+    # point45 (the point 45 degrees along the path) (has no rxryrz data) (because if we do fixed angle circle move it wont use that anyways, it&apos;l just use the angle from p1t)
+    distup = cos(45 * pi/180) * (radius + cusharound)
+    distover = sin(45 * pi/180) * (radius + cusharound)
+    p45x = pcx + vecrx * distover + vecnx * -1 * cushout
+    p45y = pcy + vecry * distover + vecny * -1 * cushout
+    p45z = pcz + vecuz * distup
+    point45 = p[p45x, p45y, p45z, 0,0,0]
+    
+    # point22 (22.5 degrees of angle)
+    distup = cos(22.5 * pi/180) * (radius + cusharound)
+    distover = sin(22.5 * pi/180) * (radius + cusharound)
+    p22x = pcx + vecrx * distover + vecnx * -1 * cushout
+    p22y = pcy + vecry * distover + vecny * -1 * cushout
+    p22z = pcz + vecuz * distup
+    point22 = p[p22x, p22y, p22z, 0,0,0]
     
     # return the points
-    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point1t=point1t)
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point1t=point1t, point45=point45, point22=point22)
     return ret
     
 end
@@ -7535,6 +7655,42 @@ end
               </expression>
             </Assignment>
             <Assignment valueSource="Expression">
+              <variable name="p45" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="5"/>
+                <ExpressionChar character="]"/>
+              </expression>
+            </Assignment>
+            <Assignment valueSource="Expression">
+              <variable name="p22" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="6"/>
+                <ExpressionChar character="]"/>
+              </expression>
+            </Assignment>
+            <Assignment valueSource="Expression">
               <variable name="pa1" prefersPersistentValue="false" favourite="false">
                 <initializeExpression/>
               </variable>
@@ -7672,7 +7828,7 @@ end
                 </SuppressedNode>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                   <motionParameters/>
-                  <variable reference="../../../../../../Folder/children/Assignment[6]/variable"/>
+                  <variable reference="../../../../../../Folder/children/Assignment[8]/variable"/>
                 </Waypoint>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
                   <motionParameters/>
@@ -7690,8 +7846,8 @@ end
                     <data key="NODE_TITLE" value="Serial Bridge uR1"/>
                     <data key="Command" value="[252,82,49]"/>
                     <data key="QUERY" value="false"/>
-                    <data key="OUTPUT_ENTRY" value="Static"/>
                     <data key="byte_array" value="true"/>
+                    <data key="OUTPUT_ENTRY" value="Static"/>
                     <Variable key="OUTPUT_VARIABLE">
                       <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                         <initializeExpression/>
@@ -7862,9 +8018,7 @@ end
                     <data key="Command" value="[252,82,48]"/>
                     <data key="OUTPUT_ENTRY" value="Static"/>
                     <Variable key="OUTPUT_VARIABLE">
-                      <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                        <initializeExpression/>
-                      </variable>
+                      <variable reference="../../../../../../Folder/children/Contributed[2]/dataModel/Variable/variable"/>
                     </Variable>
                   </dataModel>
                 </Contributed>
@@ -7880,10 +8034,10 @@ end
                 <CircleMove OrientationMode="FIXED">
                   <children>
                     <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                      <variable reference="../../../../../../../../Folder/children/Assignment[2]/variable"/>
+                      <variable reference="../../../../../../../../Folder/children/Assignment[7]/variable"/>
                     </Waypoint>
                     <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                      <variable reference="../../../../../../../../Folder/children/Assignment[3]/variable"/>
+                      <variable reference="../../../../../../../../Folder/children/Assignment[6]/variable"/>
                     </Waypoint>
                   </children>
                 </CircleMove>
@@ -8009,7 +8163,6 @@ end
             </children>
           </suppressedNode>
         </SuppressedNode>
-        <Popup type="Message" haltProgram="true" message="pause" inputType="Text"/>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
@@ -11124,7 +11277,9 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SubProgram[2]/children/Folder[2]/children/Folder[2]/children/Contributed/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
