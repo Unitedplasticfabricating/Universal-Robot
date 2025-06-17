@@ -1565,7 +1565,51 @@ this welder failed to extrude (robot 2) two times while welding the tiny tee for
 wade changed the cage on robot 2 to be set with a set screw. 
 hopefully thins makes it so that we don't have to recalibrate every time we take the cage off and put it back on. 
 i think the welder itself should be calibrated still. we took it off but those bolts were not very loose. 
+with the set screws back on i knew i needed to calibrate it first before i messed around with sleeve welding. 
+so i calibrated the top tcp (to the temp probe) and then ran a box corner (dry run). 
+the calibration barely changed. 
+the calibration was right but the shoe looked crooked. 
+aha. ohhhh. i figured out what the issue was. calibrating before was probably right but the shoe was put back on the gun crooked after wade switched the heating element. 
+thats what made it collide during sleeve welding. i didnt notice it because it was mid-turn. not ortho. 
+still bad. 
+i welded a box floor corner. the weld was not good. admittedly, it was a wade box with different chamfers. 
+so ill weld a normal box. 
+before that i dry run it. 
+it looks slightly tilted too far forward. 
+i loosen the bolts that connect the gun to the mounting plate. there is a lot of rotational play in that direction. 
+i orient the robot to straight vertical, then put the brakes on. 
+i use a level to level the gun vertically, then tighten those two screws. 
+hopefully that helps.
+dry run again. normal box floor corner. 
+on the first pass, the tip is too far left and too far out. 
+on the second pass, tip is too far out and too far down. 
+on third pass it is perfect. 
+wtf. 
+what would explain these?
+first pass - tip too far left: either tcp_top z is too small (needs to be increased) OR tcp_weld z value is too big (needs to be decreased)
+first pass - tip too far out: either tcp_top_z is too small (needs to be increased) OR tcp_weld_y value is too big (needs to be made smaller). 
+second pass - tip too far out: either tcp_top_z is too small (needs to be increased) OR tcp_weld_y value is too big (needs to be made smaller).
+second pass: tip too far down: either tcp_top z is too small or tcp_weld z (welder is too low) so tcp_weld z value is too high (needs to be made smaller)
 
+the pattern is that the tcp_top z is too small and the weld y and z are too big, but why isnt the third pass wrong then?
+if this was the case, what would happen on the third pass?
+tcp_top z too small would make the pass too far out and too low.
+tcp_weld y too big would make the pass too high
+tcp_weld z too big would make the pass too far out
+
+so maybe i need to increase the tcp_top z and decrease the tcp_weld y.
+just by a mm each. 
+idk dude. i feel like im just guessing. 
+i think i should calibrate the weld tip first. 
+ok.
+i calibrated the weld tip first, using the very back of the tip as the point. 
+the y value was 6 mm more (because of tip), and the z value was exactly the same. x value was different by 4 mm. that's front to back along the shoe. that doesnt matter. 
+this is stupid
+
+try decreasing the z of the weld, and increasing the z of the top, both by 1mm
+
+that worked pretty good. maybe the _top adjustment was a little too much. i could drop that down half an inch. 
+but now the bottom passes (second and third leg) are at an even height. 
 
 
 
