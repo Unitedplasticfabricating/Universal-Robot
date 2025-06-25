@@ -1,5 +1,13 @@
 def Floor_Corner_Extended_Test():
   global _hidden_verificationVariable=0
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -7,15 +15,7 @@ def Floor_Corner_Extended_Test():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_tcp(p[0.022417322437838096,-0.3284097395444287,0.10591480095305433,1.2092,-1.2092,1.2092])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +154,14 @@ def Floor_Corner_Extended_Test():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_47ec95db_daad_41da_b79f_9f7c13cc72ac = 0.0
-  thread Step_Counter_Thread_e2f704e3_a049_417e_a545_9a5de34db737():
+  step_count_e3caae29_9445_46b4_8010_0b088cf5f232 = 0.0
+  thread Step_Counter_Thread_d064c6c2_cb45_4f02_b40d_31c201a1532d():
     while (True):
-      step_count_47ec95db_daad_41da_b79f_9f7c13cc72ac = step_count_47ec95db_daad_41da_b79f_9f7c13cc72ac + 1.0
+      step_count_e3caae29_9445_46b4_8010_0b088cf5f232 = step_count_e3caae29_9445_46b4_8010_0b088cf5f232 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_e2f704e3_a049_417e_a545_9a5de34db737()
+  run Step_Counter_Thread_d064c6c2_cb45_4f02_b40d_31c201a1532d()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -319,7 +319,7 @@ def Floor_Corner_Extended_Test():
     $ 142 "align_ready_for_welding()"
     align_ready_for_welding()
     $ 143 "Set"
-    set_tcp(p[-0.00588,-0.33377999999999997,0.10496,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.0,-0.3312,0.105,1.2092,-1.2092,1.2092])
     $ 144 "Comment"
     # Comment
     $ 145 "p1≔pathturn[0]"
@@ -525,7 +525,7 @@ def Floor_Corner_Extended_Test():
     $ 212 "p_pre_ret" "breakAfter"
     movel(p_pre_ret, a=1.2, v=0.25)
     $ 213 "Set"
-    set_tcp(p[-0.00588,-0.33377999999999997,0.10496,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.0,-0.3312,0.105,1.2092,-1.2092,1.2092])
     $ 214 "MoveL"
     $ 215 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
@@ -917,7 +917,7 @@ def Floor_Corner_Extended_Test():
     $ 384 "extrude_knife3" "noBreak"
     $ 385 "pre program stuff"
     $ 386 "Set"
-    set_tcp(p[-0.00588,-0.33377999999999997,0.10496,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.0,-0.3312,0.105,1.2092,-1.2092,1.2092])
     $ 387 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
     $ 388 "MoveL"
@@ -4805,7 +4805,7 @@ def Floor_Corner_Extended_Test():
     
         # define cushions (the backofhole can't actually touch the intersection of pipe and wall, it travels a certain distance around it
         cushout = 0.006 # 5mm # the cushion out from the wall
-        cusharound = 0.006 # 5mm # the cushion around the sleeve.
+        cusharound = 0.004 # 5mm # the cushion around the sleeve.
     
         # get the top point (point1)
         # take the center point and move up the radius plus the cushions
@@ -5002,7 +5002,7 @@ def Floor_Corner_Extended_Test():
     $ 431 "'start of program'"
     # 'start of program'
     $ 433 "Set"
-    set_tcp(p[-0.00588,-0.33377999999999997,0.10496,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.0,-0.3312,0.105,1.2092,-1.2092,1.2092])
     $ 434 "MoveJ"
     $ 436 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
@@ -9567,7 +9567,7 @@ def Floor_Corner_Extended_Test():
   
       # define cushions (the backofhole can't actually touch the intersection of pipe and wall, it travels a certain distance around it
       cushout = 0.006 # 5mm # the cushion out from the wall
-      cusharound = 0.006 # 5mm # the cushion around the sleeve.
+      cusharound = 0.004 # 5mm # the cushion around the sleeve.
   
       # get the top point (point1)
       # take the center point and move up the radius plus the cushions
@@ -9722,7 +9722,7 @@ def Floor_Corner_Extended_Test():
   $ 113 "Corner_Homing_45()"
   Corner_Homing_45()
   $ 114 "Set"
-  set_tcp(p[-0.00588,-0.33377999999999997,0.10496,1.2092,-1.2092,1.2092])
+  set_tcp(p[0.0,-0.3312,0.105,1.2092,-1.2092,1.2092])
   $ 119 "If leftchoice≟ True "
   if (leftchoice ==   True  ):
     $ 120 "pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)"
