@@ -1139,14 +1139,14 @@ def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
     ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
     
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
-    is_robot_at_reachable_spot(leftpoint, ret)
+    is_robot_at_reachable_spot(leftpoint, ret, 4)
     return ret
 end
 
 # this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
-def is_robot_at_reachable_spot(point0, struct_touchpoints):
+def is_robot_at_reachable_spot(point0, struct_touchpoints, structlength = 9):
   # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z < -400)
   lc_height = get_lift_column_height_condensed()
   # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
@@ -1171,7 +1171,7 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
     listproblems = ""
     listnames = ["ph1", "ph2", "ph3", "ph4", "ph5", "ph6", "ph7", "ph2up", "ph4up"]
     i = 0
-    structlength = 9
+    # structlength = 9 # used to be a declare statement here. now it is a parameter. floor corner has 9. other features have less
     while i < structlength:
       curr = struct_touchpoints[i]
       valid = get_inverse_kin_has_solution(curr)
