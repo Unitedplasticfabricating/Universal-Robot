@@ -56,8 +56,8 @@
                 <data key="NODE_TITLE" value="Serial Bridge uR0"/>
                 <data key="Command" value="[252,82,48]"/>
                 <data key="QUERY" value="false"/>
-                <data key="OUTPUT_ENTRY" value="Static"/>
                 <data key="byte_array" value="true"/>
+                <data key="OUTPUT_ENTRY" value="Static"/>
                 <Variable key="OUTPUT_VARIABLE">
                   <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                     <initializeExpression/>
@@ -948,6 +948,77 @@
                   </expression>
                   <children>
                     <Comment comment="go straight to home"/>
+                  </children>
+                </If>
+                <If type="ElseIf" checkContinuously="false">
+                  <expression>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="1"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="2"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="0"/>
+                    <ExpressionChar character="9"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="-"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="7"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionToken token=" and "/>
+                    <ExpressionChar character="j"/>
+                    <ExpressionChar character="p"/>
+                    <ExpressionChar character="["/>
+                    <ExpressionChar character="5"/>
+                    <ExpressionChar character="]"/>
+                    <ExpressionChar character="&lt;"/>
+                    <ExpressionChar character="."/>
+                    <ExpressionChar character="8"/>
+                    <ExpressionChar character="7"/>
+                  </expression>
+                  <children>
+                    <Comment comment="go to oldhome"/>
                   </children>
                 </If>
                 <If type="ElseIf" checkContinuously="false">
@@ -2197,14 +2268,14 @@ def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
     ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
     
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
-    is_robot_at_reachable_spot(leftpoint, ret)
+    is_robot_at_reachable_spot(leftpoint, ret, 4)
     return ret
 end
 
 # this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
-def is_robot_at_reachable_spot(point0, struct_touchpoints):
+def is_robot_at_reachable_spot(point0, struct_touchpoints, structlength = 9):
   # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -400)
   lc_height = get_lift_column_height_condensed()
   # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
@@ -2229,7 +2300,7 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints):
     listproblems = &quot;&quot;
     listnames = [&quot;ph1&quot;, &quot;ph2&quot;, &quot;ph3&quot;, &quot;ph4&quot;, &quot;ph5&quot;, &quot;ph6&quot;, &quot;ph7&quot;, &quot;ph2up&quot;, &quot;ph4up&quot;]
     i = 0
-    structlength = 9
+    # structlength = 9 # used to be a declare statement here. now it is a parameter. floor corner has 9. other features have less
     while i &lt; structlength:
       curr = struct_touchpoints[i]
       valid = get_inverse_kin_has_solution(curr)
@@ -6281,7 +6352,9 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
@@ -6321,9 +6394,7 @@ end
             <data key="Command" value="[252,82,48]"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -13496,21 +13567,23 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="1">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="0.22554703699045842, -0.067751860338233, 1.9464568075254185, -3.1908122323970574, 1.6284580253943952, -0.21770840853777518"/>
-                <TCPOffset pose="1.4000000000000001E-4, -0.01751, 0.284, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
-                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
-                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
-                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
-                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_3" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="0.22554703699045842, -0.067751860338233, 1.9464568075254185, -3.1908122323970574, 1.6284580253943952, -0.21770840853777518"/>
+                  <TCPOffset pose="1.4000000000000001E-4, -0.01751, 0.284, 0.0, 0.0, 0.0"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                    <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                    <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                    <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                    <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
             <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="1">
               <motionParameters/>
               <position>
