@@ -99,13 +99,19 @@
        sidewall≔0.628
      Else
        sidewall≔0.375
-     MoveJ
-       Waypoint_46
+     'Set'
+     'MoveL'
      Set
+     MoveJ
+       Waypoint_75
+     Set
+     MoveJ
+       'Waypoint_46'
+       Waypoint_21
      Test_Teach_Straight()
      Set
      kill threadId_Thread_1
-     Straight_Homing_Floor()
+     Straight_Homing_Floor_2()
      Set
      'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
      'Call '
@@ -157,6 +163,7 @@
      p6≔pathturn[6]
      pa1≔p[p1[0]+0.05,p1[1],p1[2],p1[3],p1[4],p1[5]]
      pret≔p[p6[0]+0.05,p6[1],p6[2],p6[3],p6[4],p6[5]]
+     pret2≔p[-0.81,p6[1],p6[2],p6[3],p6[4],p6[5]]
      'go to preheat'
      Set
      MoveJ
@@ -179,6 +186,7 @@
      Wait: 1.0
      MoveL
        pret
+       pret2
      MoveJ
        Waypoint_18
    extrude_knife3
@@ -264,9 +272,10 @@
        ek_oldhome
        'above waypoint is home'
      'Home'
-   Straight_Homing_Floor
+   Straight_Homing_Floor_2
      Set
      'dummy move below for debug'
+     'dummy points'
      'Home'
      'MoveJ'
      'MoveJ'
@@ -278,51 +287,44 @@
      ph2≔path_pre[1]
      ph3≔path_pre[2]
      ph4≔path_pre[3]
-     ph4a≔p[ph4[0]+0.2,ph4[1],ph4[2],ph4[3],ph4[4],ph4[5]]
-     ph3a≔p[ph3[0]+0.2,ph3[1],ph3[2],ph3[3],ph3[4],ph3[5]]
+     ph4a≔p[ph4[0]+0.1,ph4[1],ph4[2],ph4[3],ph4[4],ph4[5]]
      MoveL
        Direction: Base X+
          Until (distance)
+     'MoveJ'
      MoveL
-       'Waypoint_11'
-       Waypoint_1
-     MoveL
-       ph1
+       ph2
      MoveL
        Direction: Base X-
          Until (tool_contact_detection)
-     p11≔get_actual_tcp_pose()
+     p12≔get_actual_tcp_pose()
      MoveL
-       ph1
        ph2
+       ph1
      MoveL
        Direction: Base X-
          Until (tool_contact_detection)
      'p13≔get_actual_tcp_pose()'
      'MoveJ'
      'MoveL'
-     p12≔get_actual_tcp_pose()
+     p11≔get_actual_tcp_pose()
      MoveJ
-       ph2
-     MoveL
        ph1
-     MoveJ
-       'Waypoint_11'
-       Waypoint_3
-       'Waypoint_3'
-       'Waypoint_9'
-       'Waypoint_6'
-       'Waypoint_15'
-       'Waypoint_8'
-       'Waypoint_12'
-       'Waypoint_13'
-       Waypoint_17
-       Waypoint_16
      'MoveJ'
+     'start of new section'
+     ph_back≔p[-0.85,ph1[1],ph1[2],ph1[3],ph1[4],ph1[5]]
+     'start spin'
      MoveL
-       ph4a
+       ph_back
+     MoveJ
+       Waypoint_1
+       Waypoint_3
+       Waypoint_6
+     ph3a≔p[ph3[0]+0.1,ph3[1],ph3[2],ph3[3],ph3[4],ph3[5]]
+     MoveL
        ph3a
        ph3
+     Wait: 0.5
      MoveL
        Direction: Base Z+
          Until (tool_contact_detection)
@@ -331,8 +333,8 @@
        ph3
        ph3a
        ph4a
-     MoveL
        ph4
+     Wait: 0.5
      MoveL
        Direction: Base Z+
          Until (tool_contact_detection)
@@ -340,10 +342,20 @@
      MoveL
        ph4
        ph4a
-       MoveJ
-         Waypoint_16
-     'MoveJ'
+     'retreat'
+     MoveJ
+       Waypoint_8
+     MoveL
+       'Waypoint_20'
+       Waypoint_24
+       Waypoint_23
+     MoveJ
+       Waypoint_22
      Home
+     'end of new section'
+     'MoveJ'
+     'MoveJ'
+     'old'
    Thread_1
      Loop  True 
        If freedrive_m_var≟ True 
