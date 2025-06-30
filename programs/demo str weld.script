@@ -1,15 +1,14 @@
 def demo_str_weld():
   global _hidden_verificationVariable=0
-  step_count_c90cb05d_1fa7_4065_be0f_e1a803f35593 = 0.0
-  thread Step_Counter_Thread_72022220_0d77_438f_af48_4c30d40b79cd():
+  step_count_2cfc2fc2_a6e8_4f7d_a4fb_c196435fb725 = 0.0
+  thread Step_Counter_Thread_55247a7e_3a8d_43b5_a410_aac7bdddf898():
     while (True):
-      step_count_c90cb05d_1fa7_4065_be0f_e1a803f35593 = step_count_c90cb05d_1fa7_4065_be0f_e1a803f35593 + 1.0
+      step_count_2cfc2fc2_a6e8_4f7d_a4fb_c196435fb725 = step_count_2cfc2fc2_a6e8_4f7d_a4fb_c196435fb725 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_72022220_0d77_438f_af48_4c30d40b79cd()
-  set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  run Step_Counter_Thread_55247a7e_3a8d_43b5_a410_aac7bdddf898()
+  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -17,13 +16,14 @@ def demo_str_weld():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_safety_mode_transition_hardness(1)
   set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
+  set_gravity([0.0, 0.0, 9.82])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -166,12 +166,12 @@ def demo_str_weld():
   global Waypoint_1_q=[-0.35401277016160826, -1.2139462677784527, 1.5878387874396154, 1.1069165929565097, -0.0023738326664366483, -1.7891447305770605]
   global Waypoint_2_p=p[-1.227598234704, .220265085274, .236167319485, .283179353874, 3.090027292373, .069748122096]
   global Waypoint_2_q=[-0.3526385466205042, -1.1869800847819825, 1.61772329012026, -0.3976321977427979, 1.4028925895690918, -0.05309898058046514]
-  global Waypoint_80_p=p[-1.271201604705, .220265084841, .152902937942, .195503915411, 3.124974553140, -.018480414096]
-  global Waypoint_80_q=[-0.37236501271832534, -1.1061436200518617, 1.6285334451849929, -0.5118490246542544, 1.3244189399807205, 0.009121867924933191]
-  global Waypoint_81_p=p[-1.270494213456, .220989613260, .038339529511, -.196001578934, -3.134860377862, .013019579415]
-  global Waypoint_81_q=[-0.37336933313971876, -1.0352950390031896, 1.7041748457604673, -0.6698963276025296, 1.3234070161507931, 0.009010455493521974]
-  global Waypoint_82_p=p[-1.205017592143, .704901477842, .037008632524, -.196001578935, -3.134860377862, .013019579415]
-  global Waypoint_82_q=[-0.7858357457311769, -0.9106244626770552, 1.4798526127509375, -0.5706790741930874, 0.9109077140131321, 0.009554187440969919]
+  global Waypoint_86_p=p[-1.480462269306, .776092131523, .236167319845, .257847463395, 3.127989269682, -.004656334813]
+  global Waypoint_86_q=[-0.6747915916960352, -0.6520593508233876, 0.6998754878790217, -0.045347974568038296, 1.061329375560593, 0.0019789725127647984]
+  global Waypoint_87_p=p[-1.481956935894, .776092131240, .043475260687, .257847463396, 3.127989269682, -.004656334813]
+  global Waypoint_87_q=[-0.6742347910406039, -0.6003803627396973, 0.8664173656590246, -0.2635085652261093, 1.061960064671208, 0.0018561010009721102]
+  global Waypoint_88_p=p[-1.583022975684, .129316941868, .044575480358, .257847463397, 3.127989269682, -.004656334813]
+  global Waypoint_88_q=[-0.2101418873780041, -0.7267313906217101, 1.115525606548879, -0.38639349169964987, 1.5261257711151934, 0.0030425737237633754]
   def calculate_point_to_move_towards(feature, direction, position_distance):
     local posDir=[direction[0], direction[1], direction[2]]
     if (norm(posDir) < 1e-6):
@@ -195,70 +195,70 @@ def demo_str_weld():
   $ 7 "Waypoint_2" "breakAfter"
   movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 9 "MoveJ"
-  $ 38 "Waypoint_80" "breakAfter"
-  movej(get_inverse_kin(Waypoint_80_p, qnear=Waypoint_80_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 39 "MoveL"
-  $ 68 "Waypoint_81" "breakAfter"
-  movel(Waypoint_81_p, a=1.2, v=0.1)
-  $ 69 "turn ext on"
+  $ 40 "Waypoint_86" "breakAfter"
+  movej(get_inverse_kin(Waypoint_86_p, qnear=Waypoint_86_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 41 "MoveL"
+  $ 72 "Waypoint_87" "breakAfter"
+  movel(Waypoint_87_p, a=1.2, v=0.1)
+  $ 73 "turn ext on"
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.9.0, WireTank, LLC
   #   Type: WireTank Serial
-  $ 70 "Serial Bridge uR1"
+  $ 74 "Serial Bridge uR1"
   SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
   # end: URCap Program Node
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.9.0, WireTank, LLC
   #   Type: WireTank Serial
-  $ 71 "Serial Bridge uR1"
+  $ 75 "Serial Bridge uR1"
   SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
   # end: URCap Program Node
-  $ 72 "Wait: 1.0"
+  $ 76 "Wait: 1.0"
   sleep(1.0)
-  $ 74 "Set DO[0]=On"
+  $ 78 "Set DO[0]=On"
   set_standard_digital_out(0, True)
-  $ 75 "Wait: 1.0"
+  $ 79 "Wait: 1.0"
   sleep(1.0)
-  $ 76 "MoveL"
-  $ 101 "Waypoint_82" "breakAfter"
-  movel(Waypoint_82_p, a=1.2, v=0.01)
+  $ 80 "MoveL"
+  $ 107 "Waypoint_88" "breakAfter"
+  movel(Waypoint_88_p, a=1.2, v=0.01)
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.9.0, WireTank, LLC
   #   Type: WireTank Serial
-  $ 102 "Serial Bridge uR0"
+  $ 108 "Serial Bridge uR0"
   SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
   # end: URCap Program Node
-  $ 103 "MoveL"
-  $ 104 "Direction: Base Z+"
-  global move_thread_flag_104=0
-  thread move_thread_104():
+  $ 109 "MoveL"
+  $ 110 "Direction: Base Z+"
+  global move_thread_flag_110=0
+  thread move_thread_110():
     enter_critical
-    move_thread_flag_104 = 1
+    move_thread_flag_110 = 1
     local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 0.15)
     movel(towardsPos, a=1.2, v=0.25)
-    move_thread_flag_104 = 2
+    move_thread_flag_110 = 2
     exit_critical
   end
-  move_thread_flag_104 = 0
-  move_thread_han_104 = run move_thread_104()
+  move_thread_flag_110 = 0
+  move_thread_han_110 = run move_thread_110()
   while (True):
     sleep(1.0E-10)
-    if (move_thread_flag_104 > 1):
-      join move_thread_han_104
-      $ 105 "Until (distance)"
+    if (move_thread_flag_110 > 1):
+      join move_thread_han_110
+      $ 111 "Until (distance)"
       break
     end
     sync()
   end
-  $ 106 "Set DO[0]=Off"
+  $ 112 "Set DO[0]=Off"
   set_standard_digital_out(0, False)
-  $ 107 "MoveJ"
-  $ 108 "Waypoint_63" "breakAfter"
+  $ 113 "MoveJ"
+  $ 114 "Waypoint_63" "breakAfter"
   movej(get_inverse_kin(Waypoint_63_p, qnear=Waypoint_63_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 109 "Waypoint_2" "breakAfter"
+  $ 115 "Waypoint_2" "breakAfter"
   movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 110 "Waypoint_1" "breakAfter"
+  $ 116 "Waypoint_1" "breakAfter"
   movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 111 "Home"
+  $ 117 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end
