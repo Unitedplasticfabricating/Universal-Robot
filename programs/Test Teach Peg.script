@@ -1,16 +1,5 @@
 def Test_Teach_Peg():
   global _hidden_verificationVariable=0
-  step_count_19815d25_afcd_4d74_9931_c86894946488 = 0.0
-  thread Step_Counter_Thread_788e37ef_dab6_49d1_b813_cac1e92c7e88():
-    while (True):
-      step_count_19815d25_afcd_4d74_9931_c86894946488 = step_count_19815d25_afcd_4d74_9931_c86894946488 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_788e37ef_dab6_49d1_b813_cac1e92c7e88()
-  set_safety_mode_transition_hardness(1)
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -18,12 +7,15 @@ def Test_Teach_Peg():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_safety_mode_transition_hardness(1)
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
   set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,31 +154,39 @@ def Test_Teach_Peg():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_9c754030_a783_4727_8e10_804c7b6f999a = 0.0
+  thread Step_Counter_Thread_d4a0bf49_ee01_4da3_9805_815d133d97a5():
+    while (True):
+      step_count_9c754030_a783_4727_8e10_804c7b6f999a = step_count_9c754030_a783_4727_8e10_804c7b6f999a + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_d4a0bf49_ee01_4da3_9805_815d133d97a5()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_40_p=p[.360688403366, .270119715397, .646144746546, .057805349154, 2.125995180379, 2.134053153683]
   global Waypoint_40_q=[-3.4579489866839808, -2.0569035015501917, 2.3265796343432825, -0.22706706941638188, -0.1993501822101038, -0.10534793535341436]
   global Waypoint_3_p=p[-.565561213657, -.088282455918, .748933518927, .347029359730, 3.101499736541, -.038451502133]
   global Waypoint_3_q=[-0.20992943689837773, -1.9784871065419498, 2.1181745704300012, 4.596341596371087, -1.5479914230732055, -1.5583000940644602]
-  $ 22 "Thread_1"
+  $ 27 "Thread_1"
   thread Thread_1():
-    $ 23 "Loop  True "
+    $ 28 "Loop  True "
     while (  True  ):
-      $ 24 "If freedrive_m_var≟ True "
+      $ 29 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 25 "freedrive_mode()"
+        $ 30 "freedrive_mode()"
         freedrive_mode()
-        $ 26 "free_dr_already≔ True "
+        $ 31 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 27 "Else" "noBreak"
-        $ 28 "If free_dr_already"
+        $ 32 "Else" "noBreak"
+        $ 33 "If free_dr_already"
         if (free_dr_already):
-          $ 29 "end_freedrive_mode()"
+          $ 34 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 30 "sync()"
+      $ 35 "sync()"
       sync()
     end
   end
@@ -195,34 +195,45 @@ def Test_Teach_Peg():
     $ 2 "Robot Program"
     $ 3 "Set"
     set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
-    $ 7 "MoveJ"
-    $ 8 "Waypoint_40" "breakAfter"
+    $ 7 "ask how many"
+    $ 8 "num_pegs≔'Weld how many pegs now?'"
+    global num_pegs=request_integer_from_primary_client("Weld how many pegs now?")
+    $ 9 "If num_pegs<1"
+    if (num_pegs<1):
+      $ 10 "Loop"
+      while (True):
+        $ 11 "Popup: invalid: negative number given. restart program"
+        popup("invalid: negative number given. restart program", "Message", False, False, blocking=True)
+      end
+    end
+    $ 12 "MoveJ"
+    $ 13 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 9 "'above waypoint is home'"
+    $ 14 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 11 "Waypoint_3" "breakAfter"
+    $ 16 "Waypoint_3" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 12 "Set"
+    $ 17 "Set"
     set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
-    $ 13 "freedrive_m_var≔ False "
+    $ 18 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 14 "freedrive_m_var≔ True "
+    $ 19 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 15 "Popup: Move the TCP to the left side of the weld (very center of groove), then click 'Continue'"
+    $ 20 "Popup: Move the TCP to the left side of the weld (very center of groove), then click 'Continue'"
     popup("Move the TCP to the left side of the weld (very center of groove), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 16 "tcp_pose_left≔get_actual_tcp_pose()"
+    $ 21 "tcp_pose_left≔get_actual_tcp_pose()"
     global tcp_pose_left= get_actual_tcp_pose ()
-    $ 17 "Popup: Move the TCP to the right side of the weld (very center of groove), then click 'Continue'"
+    $ 22 "Popup: Move the TCP to the right side of the weld (very center of groove), then click 'Continue'"
     popup("Move the TCP to the right side of the weld (very center of groove), then click 'Continue'", "Message", False, False, blocking=True)
-    $ 18 "tcp_pose_right≔get_actual_tcp_pose()"
+    $ 23 "tcp_pose_right≔get_actual_tcp_pose()"
     global tcp_pose_right= get_actual_tcp_pose ()
-    $ 19 "freedrive_m_var≔ False "
+    $ 24 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 20 "Wait: 0.25"
+    $ 25 "Wait: 0.25"
     sleep(0.25)
-    $ 21 "sync()"
+    $ 26 "sync()"
     sync()
   end
 end
