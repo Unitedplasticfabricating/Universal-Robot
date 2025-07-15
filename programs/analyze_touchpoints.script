@@ -3998,11 +3998,14 @@ def calculate_points_sleeve_fillet(struct1):
 end
 
 def make_pose_list(length):
-    pose_list = []
-    i = 0
+    if length < 1:
+        ret = []
+        return ret
+    end
+    pose_list = [p[0, 0, 0, 0, 0, 0]]
+    i = 1
     while i < length:
-        # Insert dummy pose — use zeroed pose as placeholder
-        pose_list = pose_list + [p[0,0,0,0,0,0]]
+        pose_list = pose_list + [p[0, 0, 0, 0, 0, 0]]
         i = i + 1
     end
     return pose_list
