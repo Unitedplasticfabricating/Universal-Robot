@@ -2,7 +2,7 @@
 # define pi
 pi = 3.1415926535
 # initialize a lift column extension needed of 0.0
-global liftcolumnzneeded = 0.0
+global liftcolumnzneeded = 0.0 # set this variable in mm
 
 # this is the main entry point for calculations.
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
@@ -4047,6 +4047,103 @@ def make_pose_list(length):
     end
 end
 
-def main_calculate_pegs(list_poses):
+# this function calculates the poses required on the weldpath for a specific teach pose for peg center.
+# call this function for every peg you want to weld. 
+def main_calculate_peg(pose1):
+    # constants
+    peg_width = 2.05 # inches
+    fixture_height = 1.5 # inches
+    cushout = 0.006 # 5mm # the cushion out from the wall
+    cusharound = 0.004 # 5mm # the cushion around the sleeve. 
+    delz = fixture_height *25.4/1000 - cushout
+    rad = peg_width *1/2 * 25.4/1000 + cusharound
+    
+    # calculate angles
+    # rxryrz1 (for point 1 (back side of peg)
+    # start with gun facing up, shield tip pointing in x+ direction
+    # rotate about y axis (y-) 135 degrees. 
+    # thats it. (for the other ones, then rotate 90 degrees about z axis from this spot
+    m0 = get_rotation_matrix_from_description("y", -1, 225 * pi / 180)
+    rxryrz1 = convert_matrix_to_axang(m0)
+    rx1 = rxryrz1[0]
+    ry1 = rxryrz1[1]
+    rz1 = rxryrz1[2]
+    
+    # rxryrz2 
+    # second rotation is 90 degrees about z- axis
+    m1 = get_rotation_matrix_from_description("z", -1, 90 * pi / 180)
+    m2 = m3 = multiply_matrix(m1, m0)
+    rxryrz2 = convert_matrix_to_axang(m2)
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    # rxryrz3
+    # second rotation is 180 degrees about z- axis
+    m1 = get_rotation_matrix_from_description("z", -1, 180 * pi / 180)
+    m2 = m3 = multiply_matrix(m1, m0)
+    rxryrz3 = convert_matrix_to_axang(m2)
+    rx3 = rxryrz3[0]
+    ry3 = rxryrz3[1]
+    rz3 = rxryrz3[2]
+    
+    # rxryrz4
+    # second rotation is 270 degrees about z- axis
+    m1 = get_rotation_matrix_from_description("z", -1, 270 * pi / 180)
+    m2 = m3 = multiply_matrix(m1, m0)
+    rxryrz4 = convert_matrix_to_axang(m2)
+    rx4 = rxryrz4[0]
+    ry4 = rxryrz4[1]
+    rz4 = rxryrz4[2]
+    
+    # get points
+    # get lift column height based on z value
+    # if z is between +1 feet and -1 feet then go to 750
+    # if z is greater than +1 feet but less than +4 feet, then go to 880
+    # if z is greater than +4 feet, then error
+    # if z is less than -1 feet, then go to 750 mm above z. 
+    
+    # scrap that. new rules
+    # go to 750 mm above z.
+    # if that result is above 880, then go to 880.
+    # that will work until we get problems
+    
+    z0 = pose1[2] # the teach point's z value (taken when lift column = 0)
+    lczn = z0 + .750 # lift column z needed
+    if lczn > .880:
+        lczn = .880
+    end
+    liftcolumnzneeded = lczn * 1000 # set the z position
+    zposerel = z0 - lczn # z pose relative = the teach point's z value at the new lift column position. 
+    
+    pcenterx = pose1[0]
+    pcentery = pose1[1]
+    
+    #points
+    p1x = pcenterx - rad
+    p1y = pcentery
+    p1z = zposerel - delz
+    
+    p2x = pcenterx
+    p2y = pcentery + rad
+    p2z = zposerel - delz
+    
+    p3x = pcenterx + rad
+    p3y = pcentery
+    p3z = zposerel - delz
+    
+    p4x = pcenterx
+    p4y = pcentery - rad
+    p4z = zposerel - delz
+    
+    point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+    point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+    point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+    point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+    
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
+    return ret
+    
+    
     
 end
