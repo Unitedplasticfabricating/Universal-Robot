@@ -1,4 +1,4 @@
-def demo_peg():
+def align_peg():
   global _hidden_verificationVariable=0
   step_count_2f499d59_ce4f_417b_bac8_1e264bb882ee = 0.0
   thread Step_Counter_Thread_9ba0b380_111f_45b8_aa82_6756fc3de38a():
@@ -172,21 +172,9 @@ def demo_peg():
   global Waypoint_14_q=[-0.5158586283097799, -0.5527913860734417, 2.071402294861347, -2.3774332267686886, -1.8798700141428775, -0.3741446825320738]
   global Waypoint_15_p=p[-1.155522576512, .247304255352, -.556073372562, .107496200150, 2.331994643957, -.011811996768]
   global Waypoint_15_q=[-0.3522416004512925, -0.22417573490188847, 1.4245226792197414, -3.5192886576508875, -1.4036558589659123, -3.356968747927858]
-  global Waypoint_18_p=p[-.939675094691, .242158588783, -.688931462624, .185799497490, 2.440305612427, -.033098608278]
-  global Waypoint_18_q=[-0.4515305576865245, -0.11677251965064173, 1.6881370959121385, -3.9971850927625523, -1.3521673519742698, -3.362576251916517]
-  global Waypoint_19_p=p[-.939675094808, .242158588839, -.719895844863, .185799497490, 2.440305612427, -.033098608278]
-  global Waypoint_19_q=[-0.4515511797556293, -0.0806390875363796, 1.65622806465098, -4.001401618123724, -1.3521450501635721, -3.36261226131543]
-  global ViaPoint_5_p=p[-.907204912708, .264784629769, -.719899998261, 1.873840104138, 1.759389353393, -.653102831148]
-  global ViaPoint_5_q=[-0.5060214920474859, -0.13422991229719727, 1.7933217739942342, -3.6954069419041238, -2.345412265203656, -2.2272789958369668]
-  global EndPoint_3_p=p[-.881393083068, .236091509244, -.719899996517, -2.921622237405, .223511391958, 1.059696386990]
-  global EndPoint_3_q=[-0.4941922498240361, -0.366528207137808, 1.9775970148489037, -2.331322828366682, -1.8226773511189238, -0.24684150245642034]
-  global ViaPoint_6_p=p[-.912548255351, .210580021925, -.719899997267, -1.717734049029, 1.909100649376, .647845411495]
-  global ViaPoint_6_q=[-0.4341768676385165, -0.2852496793703114, 1.9498451544777904, -2.8758681558316064, -0.7528071078937408, 1.0640994632694927]
   $ 2 "Robot Program"
   $ 3 "'leave home'"
   # 'leave home'
-  $ 4 "Set"
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
   # begin: URCap Program Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -221,11 +209,6 @@ def demo_peg():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 6 "MoveJ"
-  $ 7 "Waypoint_1" "breakAfter"
-  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 8 "Waypoint_2" "breakAfter"
-  movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 9 "'spin?'"
   # 'spin?'
   $ 10 "'points'"
@@ -236,35 +219,19 @@ def demo_peg():
   $ 102 "Set"
   set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
   $ 103 "MoveJ"
-  $ 104 "Waypoint_13" "breakAfter"
+  $ 104 "Waypoint_1" "breakAfter"
+  movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 105 "Waypoint_2" "breakAfter"
+  movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 106 "MoveJ"
+  $ 107 "Waypoint_13" "breakAfter"
   movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 105 "MoveL"
-  $ 106 "Waypoint_14" "breakAfter"
+  $ 108 "MoveL"
+  $ 109 "Waypoint_14" "breakAfter"
   movel(Waypoint_14_p, a=1.2, v=0.25)
-  $ 107 "MoveJ"
-  $ 108 "Waypoint_15" "breakAfter"
+  $ 110 "MoveJ"
+  $ 111 "Waypoint_15" "breakAfter"
   movej(get_inverse_kin(Waypoint_15_p, qnear=Waypoint_15_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 109 "MoveL"
-  $ 110 "Waypoint_18" "breakAfter"
-  movel(Waypoint_18_p, a=1.2, v=0.25)
-  $ 111 "Waypoint_19" "breakAfter"
-  movel(Waypoint_19_p, a=1.2, v=0.25)
-  $ 112 "Wait: 2.0"
-  sleep(2.0)
-  $ 113 "MoveP"
-  $ 114 "CircleMove"
-  $ 115 "ViaPoint_5" "noBreak"
-  
-  $ 116 "EndPoint_3" "breakAfter"
-  movec(ViaPoint_5_p, EndPoint_3_p, a=1.2, v=0.01, r=0.025, mode=1)
-  $ 117 "CircleMove"
-  $ 118 "ViaPoint_6" "noBreak"
-  
-  $ 119 "Waypoint_19" "breakAfter"
-  movec(ViaPoint_6_p, Waypoint_19_p, a=1.2, v=0.01, r=0.025, mode=1)
-  $ 120 "CircleMove"
-  $ 121 "ViaPoint_5" "noBreak"
-  
-  $ 122 "EndPoint_3" "breakAfter"
-  movec(ViaPoint_5_p, EndPoint_3_p, a=1.2, v=0.01, r=0.025, mode=1)
+  $ 112 "'end of approach'"
+  # 'end of approach'
 end
