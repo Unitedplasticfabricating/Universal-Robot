@@ -2070,25 +2070,23 @@
                 <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
               </children>
             </If>
-            <SuppressedNode>
-              <suppressedNode class="Contributed" strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
-                <dataModel>
-                  <data key="type" value="addMotor"/>
-                  <data key="numberAdded" value="0"/>
-                  <data key="speed_in_mm_per_min" value="600"/>
-                  <data key="acceleration_in_mm_per_s2" value="50.0"/>
-                  <data key="teachColor" value="BLUE"/>
-                  <data key="combo1" value="MachineMotion1"/>
-                  <data key="combo2" value="(1) Custom Actuator"/>
-                  <data key="combo3" value="Home"/>
-                  <data key="combo6" value="In series"/>
-                  <data key="message" value="Homing"/>
-                  <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
-                  <data key="comboAddress" value="Address 1"/>
-                  <data key="comboActuator" value="Valve 1"/>
-                </dataModel>
-              </suppressedNode>
-            </SuppressedNode>
+            <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+              <dataModel>
+                <data key="type" value="addMotor"/>
+                <data key="numberAdded" value="0"/>
+                <data key="speed_in_mm_per_min" value="600"/>
+                <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                <data key="teachColor" value="BLUE"/>
+                <data key="combo1" value="MachineMotion1"/>
+                <data key="combo2" value="(1) Custom Actuator"/>
+                <data key="combo3" value="Home"/>
+                <data key="combo6" value="In series"/>
+                <data key="message" value="Homing"/>
+                <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
+                <data key="comboAddress" value="Address 1"/>
+                <data key="comboActuator" value="Valve 1"/>
+              </dataModel>
+            </Contributed>
           </children>
         </Folder>
       </children>
@@ -6175,7 +6173,7 @@ def main_calculate_peg(pose1):
     # rxryrz2 
     # second rotation is 90 degrees about z- axis
     m1 = get_rotation_matrix_from_description(&quot;z&quot;, -1, 90 * pi / 180)
-    m2 = m3 = multiply_matrix(m1, m0)
+    m2 = multiply_matrix(m1, m0)
     rxryrz2 = convert_matrix_to_axang(m2)
     rx2 = rxryrz2[0]
     ry2 = rxryrz2[1]
@@ -6184,7 +6182,7 @@ def main_calculate_peg(pose1):
     # rxryrz3
     # second rotation is 180 degrees about z- axis
     m1 = get_rotation_matrix_from_description(&quot;z&quot;, -1, 180 * pi / 180)
-    m2 = m3 = multiply_matrix(m1, m0)
+    m2 = multiply_matrix(m1, m0)
     rxryrz3 = convert_matrix_to_axang(m2)
     rx3 = rxryrz3[0]
     ry3 = rxryrz3[1]
@@ -6193,7 +6191,7 @@ def main_calculate_peg(pose1):
     # rxryrz4
     # second rotation is 270 degrees about z- axis
     m1 = get_rotation_matrix_from_description(&quot;z&quot;, -1, 270 * pi / 180)
-    m2 = m3 = multiply_matrix(m1, m0)
+    m2 = multiply_matrix(m1, m0)
     rxryrz4 = convert_matrix_to_axang(m2)
     rx4 = rxryrz4[0]
     ry4 = rxryrz4[1]
@@ -6244,7 +6242,7 @@ def main_calculate_peg(pose1):
     point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
     point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
     
-    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4)
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, liftcolumnzneeded=liftcolumnzneeded)
     return ret
     
     
@@ -6619,6 +6617,46 @@ end
             </If>
           </children>
         </Folder>
+        <Assignment valueSource="Expression">
+          <variable name="dummy" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
         <Script type="Line">
           <expression>
             <ExpressionChar character="a"/>
@@ -6634,6 +6672,14 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+        <Assignment valueSource="Expression">
+          <variable name="pose_index" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="0"/>
+          </expression>
+        </Assignment>
         <Loop type="While" checkContinuously="false">
           <expression>
             <ExpressionChar character="p"/>
@@ -6723,6 +6769,52 @@ end
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
+            <Folder name="liftcolumnup" keepHidden="false">
+              <children>
+                <Assignment valueSource="Expression">
+                  <variable name="liftcolumnz" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                  <expression>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="i"/>
+                    <ExpressionChar character="f"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="c"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="u"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="z"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="d"/>
+                  </expression>
+                </Assignment>
+                <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+                  <dataModel>
+                    <data key="type" value="addMotor"/>
+                    <data key="numberAdded" value="0"/>
+                    <data key="speed_in_mm_per_min" value="600"/>
+                    <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                    <data key="ActuatorPos" value="liftcolumnz"/>
+                    <data key="teachColor" value="BLUE"/>
+                    <data key="combo1" value="MachineMotion1"/>
+                    <data key="combo2" value="(1) Custom Actuator"/>
+                    <data key="combo3" value="Move to Position"/>
+                    <data key="combo6" value="In series"/>
+                    <data key="message" value="Move to Position"/>
+                    <data key="description" value="Moves the actuator to a specified position from the home location."/>
+                    <data key="comboAddress" value="Address 1"/>
+                    <data key="comboActuator" value="Valve 1"/>
+                  </dataModel>
+                </Contributed>
+              </children>
+            </Folder>
             <Script type="Line">
               <expression>
                 <ExpressionChar character="w"/>
@@ -6738,9 +6830,7 @@ end
               </expression>
             </Script>
             <Assignment valueSource="Expression">
-              <variable name="pose_index" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Assignment[2]/variable"/>
               <expression>
                 <ExpressionChar character="p"/>
                 <ExpressionChar character="o"/>
@@ -6823,6 +6913,9 @@ end
             </expression>
           </suppressedNode>
         </SuppressedNode>
+        <Set type="NoAction">
+          <tcp reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Set/tcp"/>
+        </Set>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
           <children>
@@ -6862,17 +6955,17 @@ end
           <dataModel>
             <data key="type" value="addMotor"/>
             <data key="numberAdded" value="0"/>
+            <data key="speed_in_mm_per_min" value="3000.0"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="teachColor" value="BLUE"/>
             <data key="combo1" value="MachineMotion1"/>
             <data key="combo2" value="(1) Custom Actuator"/>
             <data key="combo3" value="Home"/>
             <data key="combo6" value="In series"/>
-            <data key="speed_in_mm_per_min" value="3000.0"/>
-            <data key="acceleration_in_mm_per_s2" value="50.0"/>
             <data key="message" value="Homing"/>
             <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
             <data key="comboAddress" value="Address 1"/>
             <data key="comboActuator" value="Valve 1"/>
-            <data key="teachColor" value="BLUE"/>
           </dataModel>
         </Contributed>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
@@ -6967,7 +7060,7 @@ end
               </expression>
             </Assignment>
             <Assignment valueSource="Expression">
-              <variable reference="../../../../../../MainProgram/children/Loop/children/Assignment[3]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/Assignment[2]/variable"/>
               <expression>
                 <ExpressionChar character="0"/>
               </expression>
@@ -7127,7 +7220,7 @@ end
               <waitTime>1.0</waitTime>
             </Wait>
             <Assignment valueSource="Expression">
-              <variable reference="../../../../../../MainProgram/children/Loop/children/Assignment[3]/variable"/>
+              <variable reference="../../../../../../MainProgram/children/Assignment[2]/variable"/>
               <expression>
                 <ExpressionChar character="p"/>
                 <ExpressionChar character="o"/>
@@ -7394,7 +7487,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="align_peg" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/align_peg.urp</programFile>
+      <programFile>/programs/align_peg.urp</programFile>
       <children>
         <Comment comment="leave home"/>
         <SuppressedNode>
@@ -7402,24 +7495,70 @@ end
             <tcp reference="../../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Set/tcp"/>
           </suppressedNode>
         </SuppressedNode>
-        <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
-          <dataModel>
-            <data key="type" value="addMotor"/>
-            <data key="numberAdded" value="0"/>
-            <data key="speed_in_mm_per_min" value="3000.0"/>
-            <data key="acceleration_in_mm_per_s2" value="50.0"/>
-            <data key="ActuatorPos" value="750.0"/>
-            <data key="teachColor" value="BLUE"/>
-            <data key="combo1" value="MachineMotion1"/>
-            <data key="combo2" value="(1) Custom Actuator"/>
-            <data key="combo3" value="Move to Position"/>
-            <data key="combo6" value="In series"/>
-            <data key="message" value="Move to Position"/>
-            <data key="description" value="Moves the actuator to a specified position from the home location."/>
-            <data key="comboAddress" value="Address 1"/>
-            <data key="comboActuator" value="Valve 1"/>
-          </dataModel>
-        </Contributed>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+            <dataModel>
+              <data key="type" value="addMotor"/>
+              <data key="numberAdded" value="0"/>
+              <data key="speed_in_mm_per_min" value="3000.0"/>
+              <data key="acceleration_in_mm_per_s2" value="50.0"/>
+              <data key="ActuatorPos" value="liftcolumnzneeded"/>
+              <data key="teachColor" value="BLUE"/>
+              <data key="combo1" value="MachineMotion1"/>
+              <data key="combo2" value="(1) Custom Actuator"/>
+              <data key="combo3" value="Move to Position"/>
+              <data key="combo6" value="In series"/>
+              <data key="message" value="Move to Position"/>
+              <data key="description" value="Moves the actuator to a specified position from the home location."/>
+              <data key="comboAddress" value="Address 1"/>
+              <data key="comboActuator" value="Valve 1"/>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <Folder name="liftcolumnup" keepHidden="false">
+          <children>
+            <Assignment valueSource="Expression">
+              <variable reference="../../../../../../MainProgram/children/Loop/children/Folder/children/Assignment/variable"/>
+              <expression>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="f"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="m"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="z"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="d"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="d"/>
+              </expression>
+            </Assignment>
+            <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+              <dataModel>
+                <data key="type" value="addMotor"/>
+                <data key="numberAdded" value="0"/>
+                <data key="speed_in_mm_per_min" value="600"/>
+                <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                <data key="ActuatorPos" value="liftcolumnz"/>
+                <data key="teachColor" value="BLUE"/>
+                <data key="combo1" value="MachineMotion1"/>
+                <data key="combo2" value="(1) Custom Actuator"/>
+                <data key="combo3" value="Move to Position"/>
+                <data key="combo6" value="In series"/>
+                <data key="message" value="Move to Position"/>
+                <data key="description" value="Moves the actuator to a specified position from the home location."/>
+                <data key="comboAddress" value="Address 1"/>
+                <data key="comboActuator" value="Valve 1"/>
+              </dataModel>
+            </Contributed>
+          </children>
+        </Folder>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
             <feature class="GeomFeatureReference" reference="../../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>

@@ -32,7 +32,7 @@
          'finish with oldhome then above then home'
          'MoveJ'
          Home
-       'MachineLogic Homing'
+       MachineLogic Homing
    Robot Program
      'start of main program'
      Set
@@ -63,14 +63,20 @@
          MachineLogic Move to Position
        Else
          extrude_knife3()
+     dummy≔main_calculate_peg(poses_list[0])
      align_peg()
+     pose_index≔0
      Loop pose_index < num_pegs
        pose_cur≔poses_list[pose_index]
        pathturn≔main_calculate_peg(pose_cur)
+       liftcolumnup
+         liftcolumnz≔liftcolumnzneeded
+         MachineLogic Move to Position
        weld_peg()
        pose_index≔pose_index +1
      'pathturn≔main_calculate_pegs(poses_list)'
      'move_path_cover_lt()'
+     Set
      MoveJ
        Waypoint_8
        Waypoint_9
@@ -139,7 +145,10 @@
    align_peg
      'leave home'
      'Set'
-     MachineLogic Move to Position
+     'MachineLogic Move to Position'
+     liftcolumnup
+       liftcolumnz≔liftcolumnzneeded
+       MachineLogic Move to Position
      'MoveJ'
      'spin?'
      'points'
