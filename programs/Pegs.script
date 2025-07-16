@@ -194,6 +194,8 @@ def Pegs():
   global Waypoint_14_q=[-0.5158586283097799, -0.5527913860734417, 2.071402294861347, -2.3774332267686886, -1.8798700141428775, -0.3741446825320738]
   global Waypoint_15_p=p[-1.155522576512, .247304255352, -.556073372562, .107496200150, 2.331994643957, -.011811996768]
   global Waypoint_15_q=[-0.3522416004512925, -0.22417573490188847, 1.4245226792197414, -3.5192886576508875, -1.4036558589659123, -3.356968747927858]
+  global Waypoint_20_p=p[-1.155522576512, .247304255352, -.556073372562, .107496200150, 2.331994643957, -.011811996768]
+  global Waypoint_20_q=[-0.3522416004512925, -0.22417573490188847, 1.4245226792197414, -3.5192886576508875, -1.4036558589659123, -3.356968747927858]
   global r1_ek_oldhome_p=p[.397380247322, .356253634699, .319820846021, 2.316316320871, 2.057594704604, .074118471609]
   global r1_ek_oldhome_q=[-3.457949940358297, -2.056894441644186, 2.32658034959902, -0.2270551484874268, -0.19935208955873662, -0.10533696809877569]
   global r1_ek_extrude_p=p[.454852104155, .405448828659, .064015413765, 2.316807606413, 2.051392071696, .076664825947]
@@ -221,142 +223,142 @@ def Pegs():
   global r2_ek_end_p=p[.537335106646, .429305280055, .080868477459, -2.170411249266, -2.268200695175, -.015853660146]
   global r2_ek_end_q=[-3.205098875769389, -1.5204959829395506, 2.3387656715508855, -0.724001524008818, -0.10681294496314919, -0.09956563917089412]
   def Test_Teach_Peg():
-    $ 176 "Test_Teach_Peg" "noBreak"
-    $ 177 "Set"
+    $ 177 "Test_Teach_Peg" "noBreak"
+    $ 178 "Set"
     set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
-    $ 181 "ask how many"
-    $ 182 "num_pegs≔'Weld how many pegs now?'"
+    $ 182 "ask how many"
+    $ 183 "num_pegs≔'Weld how many pegs now?'"
     global num_pegs=request_integer_from_primary_client("Weld how many pegs now?")
-    $ 183 "If num_pegs<1"
+    $ 184 "If num_pegs<1"
     if (num_pegs<1):
-      $ 184 "Loop"
+      $ 185 "Loop"
       while (True):
-        $ 185 "Popup: invalid: negative number given. restart program"
+        $ 186 "Popup: invalid: negative number given. restart program"
         popup("invalid: negative number given. restart program", "Message", False, False, blocking=True)
       end
     end
-    $ 186 "poses_list≔make_pose_list(num_pegs)"
+    $ 187 "poses_list≔make_pose_list(num_pegs)"
     global poses_list=make_pose_list(num_pegs)
-    $ 187 "pose_index≔0"
+    $ 188 "pose_index≔0"
     global pose_index=0
-    $ 188 "MoveJ"
-    $ 189 "Waypoint_40" "breakAfter"
+    $ 189 "MoveJ"
+    $ 190 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 190 "'above waypoint is home'"
+    $ 191 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 192 "Waypoint_3" "breakAfter"
+    $ 193 "Waypoint_3" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_3_p, qnear=Waypoint_3_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 193 "Set"
+    $ 194 "Set"
     set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
-    $ 194 "freedrive_m_var≔ False "
+    $ 195 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 195 "freedrive_m_var≔ True "
+    $ 196 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 196 "Loop pose_index < num_pegs"
+    $ 197 "Loop pose_index < num_pegs"
     while (pose_index < num_pegs):
-      $ 197 "Popup: Move the TCP to the peg fixture center, then click 'Continue'"
+      $ 198 "Popup: Move the TCP to the peg fixture center, then click 'Continue'"
       popup("Move the TCP to the peg fixture center, then click 'Continue'", "Message", False, False, blocking=True)
-      $ 198 "tcp_pose_left≔get_actual_tcp_pose()"
+      $ 199 "tcp_pose_left≔get_actual_tcp_pose()"
       global tcp_pose_left= get_actual_tcp_pose ()
-      $ 199 "poses_list[pose_index] = tcp_pose_left"
+      $ 200 "poses_list[pose_index] = tcp_pose_left"
       poses_list[pose_index] = tcp_pose_left
-      $ 200 "Wait: 1.0"
+      $ 201 "Wait: 1.0"
       sleep(1.0)
-      $ 201 "pose_index≔pose_index +1"
+      $ 202 "pose_index≔pose_index +1"
       global pose_index=pose_index +1
     end
-    $ 204 "freedrive_m_var≔ False "
+    $ 205 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 205 "Wait: 0.25"
+    $ 206 "Wait: 0.25"
     sleep(0.25)
-    $ 206 "sync()"
+    $ 207 "sync()"
     sync()
   end
   def weld_peg():
-    $ 207 "weld_peg" "noBreak"
-    $ 208 "'get the points'"
+    $ 208 "weld_peg" "noBreak"
+    $ 209 "'get the points'"
     # 'get the points'
-    $ 209 "p1≔pathturn[0]"
+    $ 210 "p1≔pathturn[0]"
     global p1=pathturn[0]
-    $ 210 "p2≔pathturn[1]"
+    $ 211 "p2≔pathturn[1]"
     global p2=pathturn[1]
-    $ 211 "p3≔pathturn[2]"
+    $ 212 "p3≔pathturn[2]"
     global p3=pathturn[2]
-    $ 212 "p4≔pathturn[3]"
+    $ 213 "p4≔pathturn[3]"
     global p4=pathturn[3]
-    $ 213 "p1a1≔p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
+    $ 214 "p1a1≔p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
     global p1a1=p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
-    $ 214 "'assume its already aligned somewhat over the tank area'"
+    $ 215 "'assume its already aligned somewhat over the tank area'"
     # 'assume its already aligned somewhat over the tank area'
-    $ 215 "MoveL"
-    $ 216 "p1a1" "breakAfter"
+    $ 216 "MoveL"
+    $ 217 "p1a1" "breakAfter"
     movel(p1a1, a=1.2, v=0.1)
-    $ 217 "MoveL"
-    $ 218 "p1" "breakAfter"
+    $ 218 "MoveL"
+    $ 219 "p1" "breakAfter"
     movel(p1, a=1.2, v=0.01)
-    $ 219 "'preheat'"
+    $ 220 "'preheat'"
     # 'preheat'
-    $ 220 "Wait: 6.0"
+    $ 221 "Wait: 6.0"
     sleep(6.0)
-    $ 221 "'turn extrusion on'"
+    $ 222 "'turn extrusion on'"
     # 'turn extrusion on'
-    $ 222 "MoveP"
-    $ 223 "CircleMove"
-    $ 224 "p2" "noBreak"
+    $ 223 "MoveP"
+    $ 224 "CircleMove"
+    $ 225 "p2" "noBreak"
     
-    $ 225 "p3" "breakAfter"
+    $ 226 "p3" "breakAfter"
     movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 226 "CircleMove"
-    $ 227 "p4" "noBreak"
+    $ 227 "CircleMove"
+    $ 228 "p4" "noBreak"
     
-    $ 228 "p1" "breakAfter"
+    $ 229 "p1" "breakAfter"
     movec(p4, p1, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 229 "'turn extrusion off'"
+    $ 230 "'turn extrusion off'"
     # 'turn extrusion off'
-    $ 230 "MoveP"
-    $ 231 "CircleMove"
-    $ 232 "p2" "noBreak"
+    $ 231 "MoveP"
+    $ 232 "CircleMove"
+    $ 233 "p2" "noBreak"
     
-    $ 233 "p3" "breakAfter"
+    $ 234 "p3" "breakAfter"
     movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 234 "'retreat'"
+    $ 235 "'retreat'"
     # 'retreat'
-    $ 235 "MoveL"
-    $ 236 "Direction: Base Z+"
-    global move_thread_flag_236=0
-    thread move_thread_236():
+    $ 236 "MoveL"
+    $ 237 "Direction: Base Z+"
+    global move_thread_flag_237=0
+    thread move_thread_237():
       enter_critical
-      move_thread_flag_236 = 1
+      move_thread_flag_237 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 0.1)
       movel(towardsPos, a=1.2, v=0.25)
-      move_thread_flag_236 = 2
+      move_thread_flag_237 = 2
       exit_critical
     end
-    move_thread_flag_236 = 0
-    move_thread_han_236 = run move_thread_236()
+    move_thread_flag_237 = 0
+    move_thread_han_237 = run move_thread_237()
     while (True):
       sleep(1.0E-10)
-      if (move_thread_flag_236 > 1):
-        join move_thread_han_236
-        $ 237 "Until (distance)"
+      if (move_thread_flag_237 > 1):
+        join move_thread_han_237
+        $ 238 "Until (distance)"
         break
       end
       sync()
     end
   end
   def align_peg():
-    $ 238 "align_peg" "noBreak"
-    $ 239 "'leave home'"
+    $ 239 "align_peg" "noBreak"
+    $ 240 "'leave home'"
     # 'leave home'
-    $ 242 "liftcolumnup"
-    $ 243 "liftcolumnz≔liftcolumnzneeded"
+    $ 243 "liftcolumnup"
+    $ 244 "liftcolumnz≔liftcolumnzneeded"
     global liftcolumnz=liftcolumnzneeded
     # begin: URCap Program Node
     #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
     #   Type: MachineLogic for Universal Robots
-    $ 244 "MachineLogic Move to Position"
+    $ 245 "MachineLogic Move to Position"
     while isVentionMovementBusyMachineMotion1==True:
     sleep(0.05)
     end
@@ -388,172 +390,178 @@ def Pegs():
     isVentionMovementBusyMachineMotion1 = False
     sleep(0.03)
     # end: URCap Program Node
-    $ 248 "'spin?'"
+    $ 249 "'spin?'"
     # 'spin?'
-    $ 249 "'points'"
+    $ 250 "'points'"
     # 'points'
-    $ 339 "fifth (backofhole)"
-    $ 340 "'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'"
+    $ 340 "fifth (backofhole)"
+    $ 341 "'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'"
     # 'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'
-    $ 341 "Set"
+    $ 342 "Set"
     set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 342 "MoveJ"
-    $ 343 "Waypoint_1" "breakAfter"
+    $ 343 "MoveJ"
+    $ 344 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 344 "Waypoint_4" "breakAfter"
+    $ 345 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 345 "MoveJ"
-    $ 346 "Waypoint_13" "breakAfter"
+    $ 346 "MoveJ"
+    $ 347 "Waypoint_13" "breakAfter"
     movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 347 "MoveL"
-    $ 348 "Waypoint_14" "breakAfter"
+    $ 348 "MoveL"
+    $ 349 "Waypoint_14" "breakAfter"
     movel(Waypoint_14_p, a=1.2, v=0.25)
-    $ 349 "MoveJ"
-    $ 350 "Waypoint_15" "breakAfter"
+    $ 350 "MoveJ"
+    $ 351 "Waypoint_15" "breakAfter"
     movej(get_inverse_kin(Waypoint_15_p, qnear=Waypoint_15_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 351 "'end of approach'"
+    $ 352 "'end of approach'"
     # 'end of approach'
   end
+  def peg_unwind():
+    $ 367 "peg_unwind" "noBreak"
+    $ 398 "MoveJ"
+    $ 399 "Waypoint_20" "breakAfter"
+    movej(get_inverse_kin(Waypoint_20_p, qnear=Waypoint_20_q), a=1.3962634015954636, v=1.0471975511965976)
+  end
   def extrude_knife3():
-    $ 366 "extrude_knife3" "noBreak"
-    $ 367 "pre program stuff"
-    $ 368 "Set"
+    $ 400 "extrude_knife3" "noBreak"
+    $ 401 "pre program stuff"
+    $ 402 "Set"
     set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 369 "ek_sp≔get_actual_tcp_pose()"
+    $ 403 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 370 "MoveL"
-    $ 371 "ek_sp" "breakAfter"
+    $ 404 "MoveL"
+    $ 405 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 373 "'list possible points'"
+    $ 407 "'list possible points'"
     # 'list possible points'
-    $ 374 "robot 1 moves"
-    $ 375 "If 1≟2"
+    $ 408 "robot 1 moves"
+    $ 409 "If 1≟2"
     if (1 == 2):
-      $ 376 "MoveJ"
-      $ 377 "r1_ek_oldhome" "breakAfter"
+      $ 410 "MoveJ"
+      $ 411 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 378 "r1_ek_extrude" "breakAfter"
+      $ 412 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 379 "r1_ek_front" "breakAfter"
+      $ 413 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 380 "r1_ek_middle" "breakAfter"
+      $ 414 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 381 "r1_ek_middle2" "breakAfter"
+      $ 415 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 382 "r1_ek_bottom" "breakAfter"
+      $ 416 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 383 "r1_ek_end" "breakAfter"
+      $ 417 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 384 "robot 2 moves"
-    $ 385 "If 1≟2"
+    $ 418 "robot 2 moves"
+    $ 419 "If 1≟2"
     if (1 == 2):
-      $ 386 "MoveJ"
-      $ 387 "r2_ek_oldhome" "breakAfter"
+      $ 420 "MoveJ"
+      $ 421 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 389 "r2_ek_extrude" "breakAfter"
+      $ 423 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 390 "r2_ek_front" "breakAfter"
+      $ 424 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 391 "r2_ek_middle" "breakAfter"
+      $ 425 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 392 "r2_ek_bottom" "breakAfter"
+      $ 426 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 393 "r2_ek_end" "breakAfter"
+      $ 427 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 394 "'detemine correct points for which robot'"
+    $ 428 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 395 "If robot_number≟1"
+    $ 429 "If robot_number≟1"
     if (robot_number == 1):
-      $ 396 "robot1 positions"
-      $ 397 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 430 "robot1 positions"
+      $ 431 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 398 "ek_extrude≔r1_ek_extrude_p"
+      $ 432 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 399 "ek_front≔r1_ek_front_p"
+      $ 433 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 400 "ek_middle≔r1_ek_middle_p"
+      $ 434 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 401 "ek_middle2≔r1_ek_middle2_p"
+      $ 435 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 402 "ek_bottom≔r1_ek_bottom_p"
+      $ 436 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 403 "ek_end≔r1_ek_end_q"
+      $ 437 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 404 "ElseIf robot_number≟2"
+      $ 438 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 405 "robot1 positions"
-        $ 406 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 439 "robot1 positions"
+        $ 440 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 407 "ek_extrude≔r2_ek_extrude_p"
+        $ 441 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 408 "ek_front≔r2_ek_front_p"
+        $ 442 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 409 "ek_middle≔r2_ek_middle_p"
+        $ 443 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 410 "ek_middle2≔r2_ek_middle_p"
+        $ 444 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 411 "ek_bottom≔r2_ek_bottom_p"
+        $ 445 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 412 "ek_end≔r2_ek_end_q"
+        $ 446 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 413 "'start of program'"
+    $ 447 "'start of program'"
     # 'start of program'
-    $ 415 "Set"
+    $ 449 "Set"
     set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 416 "MoveJ"
-    $ 418 "ek_oldhome" "breakAfter"
+    $ 450 "MoveJ"
+    $ 452 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 419 "'above waypoint is home'"
+    $ 453 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 420 "'move above bucket'"
+    $ 454 "'move above bucket'"
     # 'move above bucket'
-    $ 421 "MoveJ"
-    $ 423 "ek_extrude" "breakAfter"
+    $ 455 "MoveJ"
+    $ 457 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 424 "'extrude out a foot'"
+    $ 458 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 426 "Serial Bridge uR1"
+    $ 460 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 427 "Set DO[0]=On"
+    $ 461 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 428 "Wait: 24.0"
+    $ 462 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 429 "Serial Bridge uR0"
+    $ 463 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 430 "Wait: 1.0"
+    $ 464 "Wait: 1.0"
     sleep(1.0)
-    $ 431 "Set DO[0]=Off"
+    $ 465 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 432 "'slice'"
+    $ 466 "'slice'"
     # 'slice'
-    $ 433 "MoveL"
-    $ 439 "ek_front" "breakAfter"
+    $ 467 "MoveL"
+    $ 473 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 440 "ek_middle" "breakAfter"
+    $ 474 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 441 "ek_middle2" "breakAfter"
+    $ 475 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 442 "ek_bottom" "breakAfter"
+    $ 476 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 443 "ek_end" "breakAfter"
+    $ 477 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 444 "MoveJ"
-    $ 446 "ek_oldhome" "breakAfter"
+    $ 478 "MoveJ"
+    $ 480 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 447 "'above waypoint is home'"
+    $ 481 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   $ 2 "BeforeStart"
@@ -659,25 +667,25 @@ def Pegs():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 449 "Thread_1"
+  $ 483 "Thread_1"
   thread Thread_1():
-    $ 450 "Loop  True "
+    $ 484 "Loop  True "
     while (  True  ):
-      $ 451 "If freedrive_m_var≟ True "
+      $ 485 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 452 "freedrive_mode()"
+        $ 486 "freedrive_mode()"
         freedrive_mode()
-        $ 453 "free_dr_already≔ True "
+        $ 487 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 454 "Else" "noBreak"
-        $ 455 "If free_dr_already"
+        $ 488 "Else" "noBreak"
+        $ 489 "If free_dr_already"
         if (free_dr_already):
-          $ 456 "end_freedrive_mode()"
+          $ 490 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 457 "sync()"
+      $ 491 "sync()"
       sync()
     end
   end
@@ -4963,17 +4971,19 @@ def Pegs():
   global pose_index=0
   $ 160 "Loop pose_index < num_pegs"
   while (pose_index < num_pegs):
-    $ 161 "pose_cur≔poses_list[pose_index]"
+    $ 161 "peg_unwind()"
+    peg_unwind()
+    $ 162 "pose_cur≔poses_list[pose_index]"
     global pose_cur=poses_list[pose_index]
-    $ 162 "pathturn≔main_calculate_peg(pose_cur)"
+    $ 163 "pathturn≔main_calculate_peg(pose_cur)"
     global pathturn=main_calculate_peg(pose_cur)
-    $ 163 "liftcolumnup"
-    $ 164 "liftcolumnz≔liftcolumnzneeded"
+    $ 164 "liftcolumnup"
+    $ 165 "liftcolumnz≔liftcolumnzneeded"
     global liftcolumnz=liftcolumnzneeded
     # begin: URCap Program Node
     #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
     #   Type: MachineLogic for Universal Robots
-    $ 165 "MachineLogic Move to Position"
+    $ 166 "MachineLogic Move to Position"
     while isVentionMovementBusyMachineMotion1==True:
     sleep(0.05)
     end
@@ -5005,22 +5015,22 @@ def Pegs():
     isVentionMovementBusyMachineMotion1 = False
     sleep(0.03)
     # end: URCap Program Node
-    $ 166 "weld_peg()"
+    $ 167 "weld_peg()"
     weld_peg()
-    $ 167 "pose_index≔pose_index +1"
+    $ 168 "pose_index≔pose_index +1"
     global pose_index=pose_index +1
   end
-  $ 170 "Set"
+  $ 171 "Set"
   set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-  $ 171 "MoveJ"
-  $ 172 "Waypoint_8" "breakAfter"
+  $ 172 "MoveJ"
+  $ 173 "Waypoint_8" "breakAfter"
   movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 173 "Waypoint_9" "breakAfter"
+  $ 174 "Waypoint_9" "breakAfter"
   movej(get_inverse_kin(Waypoint_9_p, qnear=Waypoint_9_q), a=1.3962634015954636, v=1.0471975511965976)
   # begin: URCap Program Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
-  $ 174 "MachineLogic Homing"
+  $ 175 "MachineLogic Homing"
   while isVentionMovementBusyMachineMotion1==True:
   sleep(0.05)
   end
@@ -5049,6 +5059,6 @@ def Pegs():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 175 "Home"
+  $ 176 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end
