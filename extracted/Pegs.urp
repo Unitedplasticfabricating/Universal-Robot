@@ -6815,9 +6815,9 @@ end
                   <dataModel>
                     <data key="type" value="addMotor"/>
                     <data key="numberAdded" value="0"/>
-                    <data key="speed_in_mm_per_min" value="600"/>
                     <data key="acceleration_in_mm_per_s2" value="50.0"/>
                     <data key="ActuatorPos" value="liftcolumnz"/>
+                    <data key="speed_in_mm_per_min" value="6000.0"/>
                     <data key="teachColor" value="BLUE"/>
                     <data key="combo1" value="MachineMotion1"/>
                     <data key="combo2" value="(1) Custom Actuator"/>
@@ -7293,6 +7293,9 @@ end
     </SubProgram>
     <SubProgram name="weld_peg" keepHidden="false" keepSynchronizedWithDisk="false">
       <children>
+        <Set type="NoAction">
+          <tcp referencedName="sleeve_piv"/>
+        </Set>
         <Comment comment="get the points"/>
         <Assignment valueSource="Expression">
           <variable name="p1" prefersPersistentValue="false" favourite="false">
@@ -7445,6 +7448,24 @@ end
           <waitTime>6.0</waitTime>
         </Wait>
         <Comment comment="turn extrusion on"/>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Set[2]/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
         <Move motionType="MoveP" speed="0.01" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
           <children>
@@ -7471,6 +7492,20 @@ end
           </children>
         </Move>
         <Comment comment="turn extrusion off"/>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="QUERY" value="false"/>
+            <data key="NODE_TITLE" value="Serial Bridge uR0"/>
+            <data key="Command" value="[252,82,48]"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
         <Move motionType="MoveP" speed="0.01" acceleration="1.2" blendRadius="0.025" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
           <children>
@@ -7486,6 +7521,10 @@ end
             </CircleMove>
           </children>
         </Move>
+        <Set type="DigitalOutput">
+          <pin reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Set[2]/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <Comment comment="retreat"/>
         <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
@@ -7559,7 +7598,6 @@ end
               <dataModel>
                 <data key="type" value="addMotor"/>
                 <data key="numberAdded" value="0"/>
-                <data key="speed_in_mm_per_min" value="600"/>
                 <data key="acceleration_in_mm_per_s2" value="50.0"/>
                 <data key="ActuatorPos" value="liftcolumnz"/>
                 <data key="teachColor" value="BLUE"/>
@@ -7571,6 +7609,7 @@ end
                 <data key="description" value="Moves the actuator to a specified position from the home location."/>
                 <data key="comboAddress" value="Address 1"/>
                 <data key="comboActuator" value="Valve 1"/>
+                <data key="speed_in_mm_per_min" value="6000.0"/>
               </dataModel>
             </Contributed>
           </children>
@@ -8714,7 +8753,7 @@ end
       </children>
     </SubProgram>
     <SubProgram name="peg_unwind" keepHidden="false" keepSynchronizedWithDisk="false">
-      <programFile resolves-to="file">/programs/peg_unwind.urp</programFile>
+      <programFile>/programs/peg_unwind.urp</programFile>
       <children>
         <SuppressedNode>
           <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
@@ -11342,12 +11381,10 @@ end
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
             <data key="Command" value="[252,82,49]"/>
             <data key="QUERY" value="false"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -11358,6 +11395,11 @@ end
         <Wait type="Sleep">
           <waitTime>24.0</waitTime>
         </Wait>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>2.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="QUERY" value="false"/>
@@ -11366,9 +11408,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>

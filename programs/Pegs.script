@@ -1,5 +1,10 @@
 def Pegs():
   global _hidden_verificationVariable=0
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -8,14 +13,9 @@ def Pegs():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
   global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -154,14 +154,14 @@ def Pegs():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_e89c1251_ad0a_48d8_95ac_27a6df9b2e8f = 0.0
-  thread Step_Counter_Thread_60a0c79f_52a1_4b1a_8720_451ae21c65b0():
+  step_count_b09ed42b_cded_42ef_ab91_dc8d5ffd4738 = 0.0
+  thread Step_Counter_Thread_ee583d2d_20a1_43eb_b66f_2a784bfcf197():
     while (True):
-      step_count_e89c1251_ad0a_48d8_95ac_27a6df9b2e8f = step_count_e89c1251_ad0a_48d8_95ac_27a6df9b2e8f + 1.0
+      step_count_b09ed42b_cded_42ef_ab91_dc8d5ffd4738 = step_count_b09ed42b_cded_42ef_ab91_dc8d5ffd4738 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_60a0c79f_52a1_4b1a_8720_451ae21c65b0()
+  run Step_Counter_Thread_ee583d2d_20a1_43eb_b66f_2a784bfcf197()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -278,87 +278,105 @@ def Pegs():
   end
   def weld_peg():
     $ 208 "weld_peg" "noBreak"
-    $ 209 "'get the points'"
+    $ 209 "Set"
+    set_tcp(p[0.0174,-0.328,0.105,1.2092,-1.2092,1.2092])
+    $ 210 "'get the points'"
     # 'get the points'
-    $ 210 "p1≔pathturn[0]"
+    $ 211 "p1≔pathturn[0]"
     global p1=pathturn[0]
-    $ 211 "p2≔pathturn[1]"
+    $ 212 "p2≔pathturn[1]"
     global p2=pathturn[1]
-    $ 212 "p3≔pathturn[2]"
+    $ 213 "p3≔pathturn[2]"
     global p3=pathturn[2]
-    $ 213 "p4≔pathturn[3]"
+    $ 214 "p4≔pathturn[3]"
     global p4=pathturn[3]
-    $ 214 "p1a1≔p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
+    $ 215 "p1a1≔p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]"
     global p1a1=p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
-    $ 215 "'assume its already aligned somewhat over the tank area'"
+    $ 216 "'assume its already aligned somewhat over the tank area'"
     # 'assume its already aligned somewhat over the tank area'
-    $ 216 "MoveL"
-    $ 217 "p1a1" "breakAfter"
+    $ 217 "MoveL"
+    $ 218 "p1a1" "breakAfter"
     movel(p1a1, a=1.2, v=0.1)
-    $ 218 "MoveL"
-    $ 219 "p1" "breakAfter"
+    $ 219 "MoveL"
+    $ 220 "p1" "breakAfter"
     movel(p1, a=1.2, v=0.01)
-    $ 220 "'preheat'"
+    $ 221 "'preheat'"
     # 'preheat'
-    $ 221 "Wait: 6.0"
+    $ 222 "Wait: 6.0"
     sleep(6.0)
-    $ 222 "'turn extrusion on'"
+    $ 223 "'turn extrusion on'"
     # 'turn extrusion on'
-    $ 223 "MoveP"
-    $ 224 "CircleMove"
-    $ 225 "p2" "noBreak"
-    
-    $ 226 "p3" "breakAfter"
-    movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 224 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
+    $ 225 "Set DO[0]=On"
+    set_standard_digital_out(0, True)
+    $ 226 "MoveP"
     $ 227 "CircleMove"
-    $ 228 "p4" "noBreak"
+    $ 228 "p2" "noBreak"
     
-    $ 229 "p1" "breakAfter"
-    movec(p4, p1, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 230 "'turn extrusion off'"
-    # 'turn extrusion off'
-    $ 231 "MoveP"
-    $ 232 "CircleMove"
-    $ 233 "p2" "noBreak"
-    
-    $ 234 "p3" "breakAfter"
+    $ 229 "p3" "breakAfter"
     movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
-    $ 235 "'retreat'"
+    $ 230 "CircleMove"
+    $ 231 "p4" "noBreak"
+    
+    $ 232 "p1" "breakAfter"
+    movec(p4, p1, a=1.2, v=0.01, r=0.025, mode=1)
+    $ 233 "'turn extrusion off'"
+    # 'turn extrusion off'
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 234 "Serial Bridge uR0"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
+    # end: URCap Program Node
+    $ 235 "MoveP"
+    $ 236 "CircleMove"
+    $ 237 "p2" "noBreak"
+    
+    $ 238 "p3" "breakAfter"
+    movec(p2, p3, a=1.2, v=0.01, r=0.025, mode=1)
+    $ 239 "Set DO[0]=Off"
+    set_standard_digital_out(0, False)
+    $ 240 "'retreat'"
     # 'retreat'
-    $ 236 "MoveL"
-    $ 237 "Direction: Base Z+"
-    global move_thread_flag_237=0
-    thread move_thread_237():
+    $ 241 "MoveL"
+    $ 242 "Direction: Base Z+"
+    global move_thread_flag_242=0
+    thread move_thread_242():
       enter_critical
-      move_thread_flag_237 = 1
+      move_thread_flag_242 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 0.1)
       movel(towardsPos, a=1.2, v=0.25)
-      move_thread_flag_237 = 2
+      move_thread_flag_242 = 2
       exit_critical
     end
-    move_thread_flag_237 = 0
-    move_thread_han_237 = run move_thread_237()
+    move_thread_flag_242 = 0
+    move_thread_han_242 = run move_thread_242()
     while (True):
       sleep(1.0E-10)
-      if (move_thread_flag_237 > 1):
-        join move_thread_han_237
-        $ 238 "Until (distance)"
+      if (move_thread_flag_242 > 1):
+        join move_thread_han_242
+        $ 243 "Until (distance)"
         break
       end
       sync()
     end
   end
   def align_peg():
-    $ 239 "align_peg" "noBreak"
-    $ 240 "'leave home'"
+    $ 244 "align_peg" "noBreak"
+    $ 245 "'leave home'"
     # 'leave home'
-    $ 243 "liftcolumnup"
-    $ 244 "liftcolumnz≔liftcolumnzneeded"
+    $ 248 "liftcolumnup"
+    $ 249 "liftcolumnz≔liftcolumnzneeded"
     global liftcolumnz=liftcolumnzneeded
     # begin: URCap Program Node
     #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
     #   Type: MachineLogic for Universal Robots
-    $ 245 "MachineLogic Move to Position"
+    $ 250 "MachineLogic Move to Position"
     while isVentionMovementBusyMachineMotion1==True:
     sleep(0.05)
     end
@@ -380,7 +398,7 @@ def Pegs():
     popup("resource is being used already: MachineMotion1")
     halt
     end
-    sendString("SET speed_v2 600000.000", "Ack", "MachineMotion1")
+    sendString("SET speed_v2 6000000.000", "Ack", "MachineMotion1")
     sendString("SET acceleration_v2 50000.000", "Ack", "MachineMotion1")
     string_vention=intToString(liftcolumnz*1000,"MachineMotion1")
     sendString("SET de_move_abs_1 "+string_vention, "Ack", "MachineMotion1")
@@ -390,178 +408,178 @@ def Pegs():
     isVentionMovementBusyMachineMotion1 = False
     sleep(0.03)
     # end: URCap Program Node
-    $ 249 "'spin?'"
+    $ 254 "'spin?'"
     # 'spin?'
-    $ 250 "'points'"
+    $ 255 "'points'"
     # 'points'
-    $ 340 "fifth (backofhole)"
-    $ 341 "'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'"
+    $ 345 "fifth (backofhole)"
+    $ 346 "'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'"
     # 'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'
-    $ 342 "Set"
+    $ 347 "Set"
     set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 343 "MoveJ"
-    $ 344 "Waypoint_1" "breakAfter"
+    $ 348 "MoveJ"
+    $ 349 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 345 "Waypoint_4" "breakAfter"
+    $ 350 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 346 "MoveJ"
-    $ 347 "Waypoint_13" "breakAfter"
+    $ 351 "MoveJ"
+    $ 352 "Waypoint_13" "breakAfter"
     movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 348 "MoveL"
-    $ 349 "Waypoint_14" "breakAfter"
+    $ 353 "MoveL"
+    $ 354 "Waypoint_14" "breakAfter"
     movel(Waypoint_14_p, a=1.2, v=0.25)
-    $ 350 "MoveJ"
-    $ 351 "Waypoint_15" "breakAfter"
+    $ 355 "MoveJ"
+    $ 356 "Waypoint_15" "breakAfter"
     movej(get_inverse_kin(Waypoint_15_p, qnear=Waypoint_15_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 352 "'end of approach'"
+    $ 357 "'end of approach'"
     # 'end of approach'
   end
   def peg_unwind():
-    $ 367 "peg_unwind" "noBreak"
-    $ 398 "MoveJ"
-    $ 399 "Waypoint_20" "breakAfter"
+    $ 372 "peg_unwind" "noBreak"
+    $ 403 "MoveJ"
+    $ 404 "Waypoint_20" "breakAfter"
     movej(get_inverse_kin(Waypoint_20_p, qnear=Waypoint_20_q), a=1.3962634015954636, v=1.0471975511965976)
   end
   def extrude_knife3():
-    $ 400 "extrude_knife3" "noBreak"
-    $ 401 "pre program stuff"
-    $ 402 "Set"
+    $ 405 "extrude_knife3" "noBreak"
+    $ 406 "pre program stuff"
+    $ 407 "Set"
     set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 403 "ek_sp≔get_actual_tcp_pose()"
+    $ 408 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 404 "MoveL"
-    $ 405 "ek_sp" "breakAfter"
+    $ 409 "MoveL"
+    $ 410 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 407 "'list possible points'"
+    $ 412 "'list possible points'"
     # 'list possible points'
-    $ 408 "robot 1 moves"
-    $ 409 "If 1≟2"
+    $ 413 "robot 1 moves"
+    $ 414 "If 1≟2"
     if (1 == 2):
-      $ 410 "MoveJ"
-      $ 411 "r1_ek_oldhome" "breakAfter"
+      $ 415 "MoveJ"
+      $ 416 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 412 "r1_ek_extrude" "breakAfter"
+      $ 417 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 413 "r1_ek_front" "breakAfter"
+      $ 418 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 414 "r1_ek_middle" "breakAfter"
+      $ 419 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 415 "r1_ek_middle2" "breakAfter"
+      $ 420 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 416 "r1_ek_bottom" "breakAfter"
+      $ 421 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 417 "r1_ek_end" "breakAfter"
+      $ 422 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 418 "robot 2 moves"
-    $ 419 "If 1≟2"
+    $ 423 "robot 2 moves"
+    $ 424 "If 1≟2"
     if (1 == 2):
-      $ 420 "MoveJ"
-      $ 421 "r2_ek_oldhome" "breakAfter"
+      $ 425 "MoveJ"
+      $ 426 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 423 "r2_ek_extrude" "breakAfter"
+      $ 428 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 424 "r2_ek_front" "breakAfter"
+      $ 429 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 425 "r2_ek_middle" "breakAfter"
+      $ 430 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 426 "r2_ek_bottom" "breakAfter"
+      $ 431 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 427 "r2_ek_end" "breakAfter"
+      $ 432 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 428 "'detemine correct points for which robot'"
+    $ 433 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 429 "If robot_number≟1"
+    $ 434 "If robot_number≟1"
     if (robot_number == 1):
-      $ 430 "robot1 positions"
-      $ 431 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 435 "robot1 positions"
+      $ 436 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 432 "ek_extrude≔r1_ek_extrude_p"
+      $ 437 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 433 "ek_front≔r1_ek_front_p"
+      $ 438 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 434 "ek_middle≔r1_ek_middle_p"
+      $ 439 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 435 "ek_middle2≔r1_ek_middle2_p"
+      $ 440 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 436 "ek_bottom≔r1_ek_bottom_p"
+      $ 441 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 437 "ek_end≔r1_ek_end_q"
+      $ 442 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 438 "ElseIf robot_number≟2"
+      $ 443 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 439 "robot1 positions"
-        $ 440 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 444 "robot1 positions"
+        $ 445 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 441 "ek_extrude≔r2_ek_extrude_p"
+        $ 446 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 442 "ek_front≔r2_ek_front_p"
+        $ 447 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 443 "ek_middle≔r2_ek_middle_p"
+        $ 448 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 444 "ek_middle2≔r2_ek_middle_p"
+        $ 449 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 445 "ek_bottom≔r2_ek_bottom_p"
+        $ 450 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 446 "ek_end≔r2_ek_end_q"
+        $ 451 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 447 "'start of program'"
+    $ 452 "'start of program'"
     # 'start of program'
-    $ 449 "Set"
+    $ 454 "Set"
     set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
-    $ 450 "MoveJ"
-    $ 452 "ek_oldhome" "breakAfter"
-    movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 453 "'above waypoint is home'"
-    # 'above waypoint is home'
-    $ 454 "'move above bucket'"
-    # 'move above bucket'
     $ 455 "MoveJ"
-    $ 457 "ek_extrude" "breakAfter"
+    $ 457 "ek_oldhome" "breakAfter"
+    movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
+    $ 458 "'above waypoint is home'"
+    # 'above waypoint is home'
+    $ 459 "'move above bucket'"
+    # 'move above bucket'
+    $ 460 "MoveJ"
+    $ 462 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 458 "'extrude out a foot'"
+    $ 463 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 460 "Serial Bridge uR1"
+    $ 465 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 461 "Set DO[0]=On"
+    $ 466 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 462 "Wait: 24.0"
+    $ 467 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 463 "Serial Bridge uR0"
+    $ 469 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 464 "Wait: 1.0"
+    $ 470 "Wait: 1.0"
     sleep(1.0)
-    $ 465 "Set DO[0]=Off"
+    $ 471 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 466 "'slice'"
+    $ 472 "'slice'"
     # 'slice'
-    $ 467 "MoveL"
-    $ 473 "ek_front" "breakAfter"
+    $ 473 "MoveL"
+    $ 479 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 474 "ek_middle" "breakAfter"
+    $ 480 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 475 "ek_middle2" "breakAfter"
+    $ 481 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 476 "ek_bottom" "breakAfter"
+    $ 482 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 477 "ek_end" "breakAfter"
+    $ 483 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 478 "MoveJ"
-    $ 480 "ek_oldhome" "breakAfter"
+    $ 484 "MoveJ"
+    $ 486 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 481 "'above waypoint is home'"
+    $ 487 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   $ 2 "BeforeStart"
@@ -667,25 +685,25 @@ def Pegs():
   isVentionMovementBusyMachineMotion1 = False
   sleep(0.03)
   # end: URCap Program Node
-  $ 483 "Thread_1"
+  $ 489 "Thread_1"
   thread Thread_1():
-    $ 484 "Loop  True "
+    $ 490 "Loop  True "
     while (  True  ):
-      $ 485 "If freedrive_m_var≟ True "
+      $ 491 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 486 "freedrive_mode()"
+        $ 492 "freedrive_mode()"
         freedrive_mode()
-        $ 487 "free_dr_already≔ True "
+        $ 493 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 488 "Else" "noBreak"
-        $ 489 "If free_dr_already"
+        $ 494 "Else" "noBreak"
+        $ 495 "If free_dr_already"
         if (free_dr_already):
-          $ 490 "end_freedrive_mode()"
+          $ 496 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 491 "sync()"
+      $ 497 "sync()"
       sync()
     end
   end
@@ -5005,7 +5023,7 @@ def Pegs():
     popup("resource is being used already: MachineMotion1")
     halt
     end
-    sendString("SET speed_v2 600000.000", "Ack", "MachineMotion1")
+    sendString("SET speed_v2 6000000.000", "Ack", "MachineMotion1")
     sendString("SET acceleration_v2 50000.000", "Ack", "MachineMotion1")
     string_vention=intToString(liftcolumnz*1000,"MachineMotion1")
     sendString("SET de_move_abs_1 "+string_vention, "Ack", "MachineMotion1")

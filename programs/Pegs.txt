@@ -113,6 +113,7 @@
      Wait: 0.25
      sync()
    weld_peg
+     Set
      'get the points'
      p1≔pathturn[0]
      p2≔pathturn[1]
@@ -127,6 +128,8 @@
      'preheat'
      Wait: 6.0
      'turn extrusion on'
+     Serial Bridge uR1
+     Set DO[0]=On
      MoveP
        CircleMove
          p2
@@ -135,10 +138,12 @@
          p4
          p1
      'turn extrusion off'
+     Serial Bridge uR0
      MoveP
        CircleMove
          p2
          p3
+     Set DO[0]=Off
      'retreat'
      MoveL
        Direction: Base Z+
@@ -242,6 +247,7 @@
      Serial Bridge uR1
      Set DO[0]=On
      Wait: 24.0
+     'Wait: 2.0'
      Serial Bridge uR0
      Wait: 1.0
      Set DO[0]=Off
