@@ -1,0 +1,63 @@
+ Program
+   Variables Setup
+   Robot Program
+     Set
+     'dummy move below for debug'
+     'Home'
+     'MoveJ'
+     'MoveJ'
+     Wait: 1.0
+     'tp≔get_actual_tcp_pose()'
+     Script: analyze_touchpoints.script
+     path_pre≔get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     MoveJ
+       Waypoint_11
+     MoveL
+       ph1
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph1
+       ph2
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     'p13≔get_actual_tcp_pose()'
+     'MoveJ'
+     'MoveL'
+     p12≔get_actual_tcp_pose()
+     MoveJ
+       ph2
+     MoveJ
+       ph1
+     MoveJ
+       Waypoint_11
+       'Waypoint_3'
+       Waypoint_6
+     'MoveJ'
+     MoveJ
+       ph3
+     MoveL
+       Direction: Base Z-
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       ph3
+     MoveJ
+       ph4
+     MoveL
+       Direction: Base Z-
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveL
+       ph4
+       MoveJ
+         Waypoint_11
+     'MoveJ'
+     Home

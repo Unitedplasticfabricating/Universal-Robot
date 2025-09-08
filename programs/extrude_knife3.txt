@@ -1,18 +1,66 @@
  Program
    Variables Setup
    Robot Program
+     pre program stuff
+       Set
+       ek_sp≔get_actual_tcp_pose()
+       MoveL
+         ek_sp
+       Script: analyze_touchpoints.script
+     'list possible points'
+     robot 1 moves
+       If 1≟2
+         MoveJ
+           r1_ek_oldhome
+           r1_ek_extrude
+           r1_ek_front
+           r1_ek_middle
+           r1_ek_middle2
+           r1_ek_bottom
+           r1_ek_end
+     robot 2 moves
+       If 1≟2
+         MoveJ
+           r2_ek_oldhome
+           'Waypoint_1'
+           r2_ek_extrude
+           r2_ek_front
+           r2_ek_middle
+           r2_ek_bottom
+           r2_ek_end
+     'detemine correct points for which robot'
+     If robot_number≟1
+       robot1 positions
+         ek_oldhome≔r1_ek_oldhome_p
+         ek_extrude≔r1_ek_extrude_p
+         ek_front≔r1_ek_front_p
+         ek_middle≔r1_ek_middle_p
+         ek_middle2≔r1_ek_middle2_p
+         ek_bottom≔r1_ek_bottom_p
+         ek_end≔r1_ek_end_q
+     ElseIf robot_number≟2
+       robot1 positions
+         ek_oldhome≔r2_ek_oldhome_p
+         ek_extrude≔r2_ek_extrude_p
+         ek_front≔r2_ek_front_p
+         ek_middle≔r2_ek_middle_p
+         ek_middle2≔r2_ek_middle_p
+         ek_bottom≔r2_ek_bottom_p
+         ek_end≔r2_ek_end_q
+     'start of program'
      'Home'
      Set
      MoveJ
-       Waypoint_20
+       'r1_ek_oldhome'
+       ek_oldhome
        'above waypoint is home'
      'move above bucket'
      MoveJ
-       Waypoint_3
+       'r1_ek_extrude'
+       ek_extrude
      'extrude out a foot'
-     'Serial Bridge uR1'
-     Script: analyze_touchpoints.script
      turn_extrusion_on()
+     'Serial Bridge uR1'
      Set DO[0]=On
      Wait: 24.0
      Serial Bridge uR0
@@ -20,12 +68,18 @@
      Set DO[0]=Off
      'slice'
      MoveL
-       Waypoint_21
-       Waypoint_42
-       Waypoint_43
-       Waypoint_44
-       Waypoint_74
+       'r1_ek_front'
+       'r1_ek_middle'
+       'r1_ek_middle2'
+       'r1_ek_bottom'
+       'r1_ek_end'
+       ek_front
+       ek_middle
+       ek_middle2
+       ek_bottom
+       ek_end
      MoveJ
-       Waypoint_45
+       'r1_ek_oldhome'
+       ek_oldhome
        'above waypoint is home'
      'Home'

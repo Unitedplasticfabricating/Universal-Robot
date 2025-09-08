@@ -1,0 +1,281 @@
+ Program
+   Variables Setup
+   BeforeStart
+     'Safe Home Folder'
+     'for this, dont have to worry about the normal stuff. just send it up and home'
+     Cover Safe Home Folder
+       'if robot is not at home, send it back to home safely'
+       'make sure the tcp is welder'
+       Set
+       sp≔get_actual_tcp_pose()
+       MoveL
+         sp
+         'if first move is to a variable, skip automove'
+       'turn off welder'
+       Serial Bridge uR0
+       Set DO[0]=Off
+       jp≔get_actual_joint_positions()
+       If sp[0]>0.600
+         'if x > 600 then above then home'
+         MoveJ
+           'Waypoint_47'
+           Waypoint_76
+         Home
+       Else
+         Popup: retreating to home
+         MoveL
+           Direction: Base Z+
+             Until (distance)
+         ''for rules 2-8, finish with oldhome then above then home''
+         'If -1.74<jp[4] and jp[4]<1.05 and -1.74<jp[3] and jp[3]<1.74'
+         'insert logic for how to get back to oldhome'
+         'finish with oldhome then above then home'
+         'MoveJ'
+         Home
+       MachineLogic Homing
+   Robot Program
+     'start of main program'
+     Set
+     Home
+     Script: analyze_touchpoints.script
+     'welder_state_ready()'
+     'sidewallchoice≔'Is the sidewall 3/4 inch?''
+     'If sidewallchoice'
+     'deepcham≔'Is the chamfer extra deep? (more than 0.21)''
+     'MoveJ'
+     Set
+     Test_Teach_Peg()
+     Set
+     kill threadId_Thread_1
+     'Cover_LT_Homing()'
+     MoveL
+       Direction: Base Z+
+         Until (distance)
+     MoveJ
+       Waypoint_3
+       Waypoint_40
+     Set
+     extrude knife
+       lch≔get_lift_column_height_condensed()
+       If lch > 1
+         MachineLogic Homing
+         extrude_knife3()
+         MachineLogic Move to Position
+       Else
+         extrude_knife3()
+     dummy≔main_calculate_peg(poses_list[0])
+     align_peg()
+     pose_index≔0
+     Loop pose_index < num_pegs
+       peg_unwind()
+       pose_cur≔poses_list[pose_index]
+       pathturn≔main_calculate_peg(pose_cur)
+       liftcolumnup
+         liftcolumnz≔liftcolumnzneeded
+         MachineLogic Move to Position
+       weld_peg()
+       pose_index≔pose_index +1
+     'pathturn≔main_calculate_pegs(poses_list)'
+     'move_path_cover_lt()'
+     Set
+     MoveJ
+       Waypoint_8
+       Waypoint_9
+     MachineLogic Homing
+     Home
+   Test_Teach_Peg
+     Set
+     'MoveL'
+     ask how many
+       num_pegs≔'Weld how many pegs now?'
+       If num_pegs<1
+         Loop
+           Popup: invalid: negative number given. restart program
+       poses_list≔make_pose_list(num_pegs)
+       pose_index≔0
+     MoveJ
+       Waypoint_40
+       'above waypoint is home'
+       'Waypoint_2'
+       Waypoint_3
+     Set
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Loop pose_index < num_pegs
+       Popup: Move the TCP to the peg fixture center, then click 'Continue'
+       tcp_pose_left≔get_actual_tcp_pose()
+       poses_list[pose_index] = tcp_pose_left
+       Wait: 1.0
+       pose_index≔pose_index +1
+     'Popup: Move the TCP to the right side of the weld (very center of groove), then click 'Continue''
+     'tcp_pose_right≔get_actual_tcp_pose()'
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+   weld_peg
+     Set
+     'get the points'
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p3≔pathturn[2]
+     p4≔pathturn[3]
+     p1a1≔p[p1[0]-0.02,p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
+     'assume its already aligned somewhat over the tank area'
+     MoveL
+       p1a1
+     MoveL
+       p1
+     'preheat'
+     Wait: 6.0
+     'turn extrusion on'
+     Serial Bridge uR1
+     Wait: 1.2
+     Set DO[0]=On
+     MoveP
+       CircleMove
+         p2
+         p3
+       CircleMove
+         p4
+         p1
+     'turn extrusion off'
+     Serial Bridge uR0
+     MoveP
+       CircleMove
+         p2
+         p3
+     Set DO[0]=Off
+     'retreat'
+     MoveL
+       Direction: Base Z+
+         Until (distance)
+   align_peg
+     'leave home'
+     'Set'
+     'MachineLogic Move to Position'
+     liftcolumnup
+       liftcolumnz≔liftcolumnzneeded
+       MachineLogic Move to Position
+     'MoveJ'
+     'spin?'
+     'points'
+     'If 1≟2'
+     'If 1≟2'
+     'second try'
+     'third try'
+     'fourth (peg)'
+     fifth (backofhole)
+       'worked pretty good. my 4 points were not a circle so it moved kind of wonky. but still spun'
+       Set
+       MoveJ
+         Waypoint_1
+         Waypoint_4
+       MoveJ
+         Waypoint_13
+       MoveL
+         Waypoint_14
+       MoveJ
+         Waypoint_15
+       'end of approach'
+       'MoveL'
+       'Wait: 2.0'
+       'MoveP'
+   peg_unwind
+     'MoveJ'
+     'fifth (backofhole)'
+     MoveJ
+       Waypoint_20
+   extrude_knife3
+     pre program stuff
+       Set
+       ek_sp≔get_actual_tcp_pose()
+       MoveL
+         ek_sp
+       'Script: analyze_touchpoints.script'
+     'list possible points'
+     robot 1 moves
+       If 1≟2
+         MoveJ
+           r1_ek_oldhome
+           r1_ek_extrude
+           r1_ek_front
+           r1_ek_middle
+           r1_ek_middle2
+           r1_ek_bottom
+           r1_ek_end
+     robot 2 moves
+       If 1≟2
+         MoveJ
+           r2_ek_oldhome
+           'Waypoint_1'
+           r2_ek_extrude
+           r2_ek_front
+           r2_ek_middle
+           r2_ek_bottom
+           r2_ek_end
+     'detemine correct points for which robot'
+     If robot_number≟1
+       robot1 positions
+         ek_oldhome≔r1_ek_oldhome_p
+         ek_extrude≔r1_ek_extrude_p
+         ek_front≔r1_ek_front_p
+         ek_middle≔r1_ek_middle_p
+         ek_middle2≔r1_ek_middle2_p
+         ek_bottom≔r1_ek_bottom_p
+         ek_end≔r1_ek_end_q
+     ElseIf robot_number≟2
+       robot1 positions
+         ek_oldhome≔r2_ek_oldhome_p
+         ek_extrude≔r2_ek_extrude_p
+         ek_front≔r2_ek_front_p
+         ek_middle≔r2_ek_middle_p
+         ek_middle2≔r2_ek_middle_p
+         ek_bottom≔r2_ek_bottom_p
+         ek_end≔r2_ek_end_q
+     'start of program'
+     'Home'
+     Set
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'move above bucket'
+     MoveJ
+       'r1_ek_extrude'
+       ek_extrude
+     'extrude out a foot'
+     'turn_extrusion_on()'
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 24.0
+     'Wait: 2.0'
+     Serial Bridge uR0
+     Wait: 1.0
+     Set DO[0]=Off
+     'slice'
+     MoveL
+       'r1_ek_front'
+       'r1_ek_middle'
+       'r1_ek_middle2'
+       'r1_ek_bottom'
+       'r1_ek_end'
+       ek_front
+       ek_middle
+       ek_middle2
+       ek_bottom
+       ek_end
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'Home'
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+         free_dr_already≔ True 
+       Else
+         If free_dr_already
+           end_freedrive_mode()
+       sync()
+   'Thread_2'
