@@ -119,7 +119,8 @@
      If leftchoice≟ True 
        pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
-       Call move_path_3left
+       'Call move_path_3left'
+       move_path_3left()
      Else
        pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
@@ -142,7 +143,9 @@
      pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
      liftcolumnup
        liftcolumnz≔liftcolumnzneeded
-       MachineLogic Move to Position
+       If liftcolumnz>0
+         MachineLogic Move to Position
+         'Popup'
      MoveJ
        pa1
      MoveL
@@ -234,8 +237,11 @@
      MoveJ
        Waypoint_37
        'above point is home'
-       liftcolumnz≔liftcolumnzneeded
-       MachineLogic Move to Position
+       liftcolumnup
+         liftcolumnz≔liftcolumnzneeded
+         If liftcolumnz>0
+           MachineLogic Move to Position
+           'Popup'
        Waypoint_15
        Waypoint_25
        Waypoint_72
@@ -370,7 +376,6 @@
        ek_sp≔get_actual_tcp_pose()
        MoveL
          ek_sp
-       'Script: analyze_touchpoints.script'
      'list possible points'
      robot 1 moves
        If 1≟2
@@ -487,6 +492,7 @@
      MoveL
        ph1
        ph2
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)
@@ -494,6 +500,7 @@
      MoveJ
        ph2
        ph2up
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)
@@ -501,17 +508,19 @@
      MoveJ
        ph2up
        ph3
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)
      p12≔get_actual_tcp_pose()
      'MoveJ'
-     MoveJ
+     MoveL
        ph3
        ph1
      'MoveJ'
      MoveL
        ph4
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)
@@ -519,6 +528,7 @@
      MoveL
        ph4
        ph4up
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)
@@ -526,6 +536,7 @@
      MoveL
        ph4up
        ph5
+     Wait: 0.5
      MoveL
        Direction: Base
          Until (tool_contact_detection)

@@ -1,5 +1,15 @@
 def Floor_Straight():
   global _hidden_verificationVariable=0
+  step_count_02f7f9f4_8caf_4bf3_9cdf_c28f8e86e72b = 0.0
+  thread Step_Counter_Thread_09827d70_495d_4325_ab5a_c69fb99dc6a8():
+    while (True):
+      step_count_02f7f9f4_8caf_4bf3_9cdf_c28f8e86e72b = step_count_02f7f9f4_8caf_4bf3_9cdf_c28f8e86e72b + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_09827d70_495d_4325_ab5a_c69fb99dc6a8()
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -8,22 +18,14 @@ def Floor_Straight():
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
   set_safety_mode_transition_hardness(1)
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_gravity([0.0, 0.0, 9.82])
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  global robot_number=2
+  global robot_number=1
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  # begin: URCap Installation Node
-  #   Source: UR Connect, 1.13.79, Universal Robots
-  #   Type: UR Connect
-  myurRPC = rpc_factory("xmlrpc","http://127.0.0.1:40474")
-  # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -154,14 +156,6 @@ def Floor_Straight():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_4584c799_5c6e_46ea_a51f_5159dc67ea11 = 0.0
-  thread Step_Counter_Thread_6cdf2b12_51e1_4001_a478_3bff69e4b65b():
-    while (True):
-      step_count_4584c799_5c6e_46ea_a51f_5159dc67ea11 = step_count_4584c799_5c6e_46ea_a51f_5159dc67ea11 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_6cdf2b12_51e1_4001_a478_3bff69e4b65b()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -263,7 +257,7 @@ def Floor_Straight():
   def Test_Teach_Straight():
     $ 136 "Test_Teach_Straight" "noBreak"
     $ 137 "Set"
-    set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+    set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
     $ 141 "MoveJ"
     $ 142 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
@@ -274,7 +268,7 @@ def Floor_Straight():
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 145 "Set"
-    set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+    set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
     $ 146 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
     $ 147 "freedrive_m_var≔ True "
@@ -325,7 +319,7 @@ def Floor_Straight():
     $ 179 "'go to preheat'"
     # 'go to preheat'
     $ 180 "Set"
-    set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
     $ 181 "MoveJ"
     $ 182 "pa1" "breakAfter"
     movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
@@ -379,7 +373,7 @@ def Floor_Straight():
     $ 204 "extrude_knife3" "noBreak"
     $ 205 "pre program stuff"
     $ 206 "Set"
-    set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
     $ 207 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
     $ 208 "MoveL"
@@ -465,7 +459,7 @@ def Floor_Straight():
     $ 251 "'start of program'"
     # 'start of program'
     $ 253 "Set"
-    set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
     $ 254 "MoveJ"
     $ 256 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
@@ -520,7 +514,7 @@ def Floor_Straight():
   def Straight_Homing_Floor_2():
     $ 287 "Straight_Homing_Floor_2" "noBreak"
     $ 288 "Set"
-    set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+    set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
     $ 289 "'dummy move below for debug'"
     # 'dummy move below for debug'
     $ 302 "Wait: 1.0"
@@ -530,7 +524,7 @@ def Floor_Straight():
     # define pi
     pi = 3.1415926535
     # initialize a lift column extension needed of 0.0
-    global liftcolumnzneeded = 0.0
+    global liftcolumnzneeded = 0.0 # set this variable in mm
     
     # this is the main entry point for calculations.
     # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
@@ -1661,8 +1655,8 @@ def Floor_Straight():
         d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
     
         # calculate the points
-        ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
-        ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+        ph1 = p[lpx + d0, lpy, lpz + d1, 1.209, -1.209, -1.209] # left side approach
+        ph2 = p[rpx + d0, rpy, rpz + d1, 1.209, -1.209, -1.209] # right side approach
         ph3 = p[lpx - d1, lpy, lpz - d0, 0, 0, 0] # left bottom approach
         ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
     
@@ -4524,6 +4518,157 @@ def Floor_Straight():
         return ret
     
     end
+    
+    def make_pose_list(length):
+        if length < 1:
+            ret = []
+            return ret
+        end
+        if length == 1:
+            pose_list = [p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 2:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 3:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 4:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 5:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 6:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 7:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 8:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length == 9:
+            pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+            return pose_list
+        end
+        if length > 9:
+            popuptext = "Program is only capable of storing 9 pegs at once. You selected more than 9. "
+            # infinite loop
+            while 1==1:
+                popup(popuptext, title="Too Many Pegs",blocking=True)
+            end
+        end
+    end
+    
+    # this function calculates the poses required on the weldpath for a specific teach pose for peg center.
+    # call this function for every peg you want to weld.
+    def main_calculate_peg(pose1):
+        # constants
+        peg_width = 2.05 # inches
+        fixture_height = 1.5 # inches
+        cushout = 0.006 # 5mm # the cushion out from the wall
+        cusharound = 0.004 # 5mm # the cushion around the sleeve.
+        delz = fixture_height *25.4/1000 - cushout
+        rad = peg_width *1/2 * 25.4/1000 + cusharound
+    
+        # calculate angles
+        # rxryrz1 (for point 1 (back side of peg)
+        # start with gun facing up, shield tip pointing in x+ direction
+        # rotate about y axis (y-) 135 degrees.
+        # thats it. (for the other ones, then rotate 90 degrees about z axis from this spot
+        m0 = get_rotation_matrix_from_description("y", -1, 225 * pi / 180)
+        rxryrz1 = convert_matrix_to_axang(m0)
+        rx1 = rxryrz1[0]
+        ry1 = rxryrz1[1]
+        rz1 = rxryrz1[2]
+    
+        # rxryrz2
+        # second rotation is 90 degrees about z- axis
+        m1 = get_rotation_matrix_from_description("z", -1, 90 * pi / 180)
+        m2 = multiply_matrix(m1, m0)
+        rxryrz2 = convert_matrix_to_axang(m2)
+        rx2 = rxryrz2[0]
+        ry2 = rxryrz2[1]
+        rz2 = rxryrz2[2]
+    
+        # rxryrz3
+        # second rotation is 180 degrees about z- axis
+        m1 = get_rotation_matrix_from_description("z", -1, 180 * pi / 180)
+        m2 = multiply_matrix(m1, m0)
+        rxryrz3 = convert_matrix_to_axang(m2)
+        rx3 = rxryrz3[0]
+        ry3 = rxryrz3[1]
+        rz3 = rxryrz3[2]
+    
+        # rxryrz4
+        # second rotation is 270 degrees about z- axis
+        m1 = get_rotation_matrix_from_description("z", -1, 270 * pi / 180)
+        m2 = multiply_matrix(m1, m0)
+        rxryrz4 = convert_matrix_to_axang(m2)
+        rx4 = rxryrz4[0]
+        ry4 = rxryrz4[1]
+        rz4 = rxryrz4[2]
+    
+        # get points
+        # get lift column height based on z value
+        # if z is between +1 feet and -1 feet then go to 750
+        # if z is greater than +1 feet but less than +4 feet, then go to 880
+        # if z is greater than +4 feet, then error
+        # if z is less than -1 feet, then go to 750 mm above z.
+    
+        # scrap that. new rules
+        # go to 750 mm above z.
+        # if that result is above 880, then go to 880.
+        # that will work until we get problems
+    
+        z0 = pose1[2] # the teach point's z value (taken when lift column = 0)
+        lczn = z0 + .750 # lift column z needed
+        if lczn > .880:
+            lczn = .880
+        end
+        liftcolumnzneeded = lczn * 1000 # set the z position
+        zposerel = z0 - lczn # z pose relative = the teach point's z value at the new lift column position.
+    
+        pcenterx = pose1[0]
+        pcentery = pose1[1]
+    
+        #points
+        p1x = pcenterx - rad
+        p1y = pcentery
+        p1z = zposerel - delz
+    
+        p2x = pcenterx
+        p2y = pcentery + rad
+        p2z = zposerel - delz
+    
+        p3x = pcenterx + rad
+        p3y = pcentery
+        p3z = zposerel - delz
+    
+        p4x = pcenterx
+        p4y = pcentery - rad
+        p4z = zposerel - delz
+    
+        point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+        point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+        point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+        point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+    
+        ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, liftcolumnzneeded=liftcolumnzneeded)
+        return ret
+    
+    
+    
+    end
     $ 305 "path_pre≔get_straight_homing_pathpoints_floor(tcp_pose_left,tcp_pose_right)"
     global path_pre=get_straight_homing_pathpoints_floor(tcp_pose_left,tcp_pose_right)
     $ 306 "ph1≔path_pre[0]"
@@ -4759,9 +4904,9 @@ def Floor_Straight():
     movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 375 "MoveL"
     $ 377 "Waypoint_24" "breakAfter"
-    movel(Waypoint_24_p, a=0.1, v=0.25)
+    movel(Waypoint_24_p, a=0.5, v=0.4)
     $ 378 "Waypoint_23" "breakAfter"
-    movel(Waypoint_23_p, a=0.1, v=0.25)
+    movel(Waypoint_23_p, a=0.5, v=0.4)
     $ 379 "MoveJ"
     $ 380 "Waypoint_22" "breakAfter"
     movej(get_inverse_kin(Waypoint_22_p, qnear=Waypoint_22_q), a=1.3962634015954636, v=1.0471975511965976)
@@ -4777,7 +4922,7 @@ def Floor_Straight():
   $ 5 "'make sure the tcp is welder'"
   # 'make sure the tcp is welder'
   $ 6 "Set"
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   $ 7 "sp≔get_actual_tcp_pose()"
   global sp= get_actual_tcp_pose ()
   $ 8 "MoveL"
@@ -5002,7 +5147,7 @@ def Floor_Straight():
   $ 93 "'start of main program'"
   # 'start of main program'
   $ 94 "Set"
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   $ 95 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   $ 96 "Script: analyze_touchpoints.script"
@@ -5010,7 +5155,7 @@ def Floor_Straight():
   # define pi
   pi = 3.1415926535
   # initialize a lift column extension needed of 0.0
-  global liftcolumnzneeded = 0.0
+  global liftcolumnzneeded = 0.0 # set this variable in mm
   
   # this is the main entry point for calculations.
   # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
@@ -6141,8 +6286,8 @@ def Floor_Straight():
       d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
   
       # calculate the points
-      ph1 = p[lpx + d0, lpy, lpz + d2, 1.209, -1.209, -1.209] # left side approach
-      ph2 = p[rpx + d0, rpy, rpz + d2, 1.209, -1.209, -1.209] # right side approach
+      ph1 = p[lpx + d0, lpy, lpz + d1, 1.209, -1.209, -1.209] # left side approach
+      ph2 = p[rpx + d0, rpy, rpz + d1, 1.209, -1.209, -1.209] # right side approach
       ph3 = p[lpx - d1, lpy, lpz - d0, 0, 0, 0] # left bottom approach
       ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
   
@@ -9004,6 +9149,157 @@ def Floor_Straight():
       return ret
   
   end
+  
+  def make_pose_list(length):
+      if length < 1:
+          ret = []
+          return ret
+      end
+      if length == 1:
+          pose_list = [p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 2:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 3:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 4:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 5:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 6:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 7:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 8:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length == 9:
+          pose_list = [p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0], p[0, 0, 0, 0, 0, 0]]
+          return pose_list
+      end
+      if length > 9:
+          popuptext = "Program is only capable of storing 9 pegs at once. You selected more than 9. "
+          # infinite loop
+          while 1==1:
+              popup(popuptext, title="Too Many Pegs",blocking=True)
+          end
+      end
+  end
+  
+  # this function calculates the poses required on the weldpath for a specific teach pose for peg center.
+  # call this function for every peg you want to weld.
+  def main_calculate_peg(pose1):
+      # constants
+      peg_width = 2.05 # inches
+      fixture_height = 1.5 # inches
+      cushout = 0.006 # 5mm # the cushion out from the wall
+      cusharound = 0.004 # 5mm # the cushion around the sleeve.
+      delz = fixture_height *25.4/1000 - cushout
+      rad = peg_width *1/2 * 25.4/1000 + cusharound
+  
+      # calculate angles
+      # rxryrz1 (for point 1 (back side of peg)
+      # start with gun facing up, shield tip pointing in x+ direction
+      # rotate about y axis (y-) 135 degrees.
+      # thats it. (for the other ones, then rotate 90 degrees about z axis from this spot
+      m0 = get_rotation_matrix_from_description("y", -1, 225 * pi / 180)
+      rxryrz1 = convert_matrix_to_axang(m0)
+      rx1 = rxryrz1[0]
+      ry1 = rxryrz1[1]
+      rz1 = rxryrz1[2]
+  
+      # rxryrz2
+      # second rotation is 90 degrees about z- axis
+      m1 = get_rotation_matrix_from_description("z", -1, 90 * pi / 180)
+      m2 = multiply_matrix(m1, m0)
+      rxryrz2 = convert_matrix_to_axang(m2)
+      rx2 = rxryrz2[0]
+      ry2 = rxryrz2[1]
+      rz2 = rxryrz2[2]
+  
+      # rxryrz3
+      # second rotation is 180 degrees about z- axis
+      m1 = get_rotation_matrix_from_description("z", -1, 180 * pi / 180)
+      m2 = multiply_matrix(m1, m0)
+      rxryrz3 = convert_matrix_to_axang(m2)
+      rx3 = rxryrz3[0]
+      ry3 = rxryrz3[1]
+      rz3 = rxryrz3[2]
+  
+      # rxryrz4
+      # second rotation is 270 degrees about z- axis
+      m1 = get_rotation_matrix_from_description("z", -1, 270 * pi / 180)
+      m2 = multiply_matrix(m1, m0)
+      rxryrz4 = convert_matrix_to_axang(m2)
+      rx4 = rxryrz4[0]
+      ry4 = rxryrz4[1]
+      rz4 = rxryrz4[2]
+  
+      # get points
+      # get lift column height based on z value
+      # if z is between +1 feet and -1 feet then go to 750
+      # if z is greater than +1 feet but less than +4 feet, then go to 880
+      # if z is greater than +4 feet, then error
+      # if z is less than -1 feet, then go to 750 mm above z.
+  
+      # scrap that. new rules
+      # go to 750 mm above z.
+      # if that result is above 880, then go to 880.
+      # that will work until we get problems
+  
+      z0 = pose1[2] # the teach point's z value (taken when lift column = 0)
+      lczn = z0 + .750 # lift column z needed
+      if lczn > .880:
+          lczn = .880
+      end
+      liftcolumnzneeded = lczn * 1000 # set the z position
+      zposerel = z0 - lczn # z pose relative = the teach point's z value at the new lift column position.
+  
+      pcenterx = pose1[0]
+      pcentery = pose1[1]
+  
+      #points
+      p1x = pcenterx - rad
+      p1y = pcentery
+      p1z = zposerel - delz
+  
+      p2x = pcenterx
+      p2y = pcentery + rad
+      p2z = zposerel - delz
+  
+      p3x = pcenterx + rad
+      p3y = pcentery
+      p3z = zposerel - delz
+  
+      p4x = pcenterx
+      p4y = pcentery - rad
+      p4z = zposerel - delz
+  
+      point1 = p[p1x, p1y, p1z, rx1, ry1, rz1]
+      point2 = p[p2x, p2y, p2z, rx2, ry2, rz2]
+      point3 = p[p3x, p3y, p3z, rx3, ry3, rz3]
+      point4 = p[p4x, p4y, p4z, rx4, ry4, rz4]
+  
+      ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, liftcolumnzneeded=liftcolumnzneeded)
+      return ret
+  
+  
+  
+  end
   $ 98 "sidewallchoice≔'Is the floor 3/4 inch?'"
   global sidewallchoice=request_boolean_from_primary_client("Is the floor 3/4 inch?")
   $ 99 "If sidewallchoice"
@@ -9016,25 +9312,25 @@ def Floor_Straight():
     global sidewall=0.375
   end
   $ 106 "Set"
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   $ 107 "MoveJ"
   $ 108 "Waypoint_75" "breakAfter"
   movej(get_inverse_kin(Waypoint_75_p, qnear=Waypoint_75_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 109 "Set"
-  set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
   $ 110 "MoveJ"
   $ 112 "Waypoint_21" "breakAfter"
   movej(get_inverse_kin(Waypoint_21_p, qnear=Waypoint_21_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 113 "Test_Teach_Straight()"
   Test_Teach_Straight()
   $ 114 "Set"
-  set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
   $ 115 "kill threadId_Thread_1"
   kill threadId_Thread_1
   $ 116 "Straight_Homing_Floor_2()"
   Straight_Homing_Floor_2()
   $ 117 "Set"
-  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   $ 122 "pathturn≔main_calculate_floor_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)"
   global pathturn=main_calculate_floor_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)
   $ 123 "extrude_knife3()"

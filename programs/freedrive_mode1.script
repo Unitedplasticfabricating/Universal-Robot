@@ -1,14 +1,7 @@
 def freedrive_mode1():
   global _hidden_verificationVariable=0
-  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-  set_safety_mode_transition_hardness(1)
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_gravity([0.0, 0.0, 9.82])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -16,14 +9,14 @@ def freedrive_mode1():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  global robot_number=2
+  set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  # begin: URCap Installation Node
-  #   Source: UR Connect, 1.13.79, Universal Robots
-  #   Type: UR Connect
-  myurRPC = rpc_factory("xmlrpc","http://127.0.0.1:40474")
-  # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -154,14 +147,14 @@ def freedrive_mode1():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_180e5910_9a75_428e_b335_32fb1023a526 = 0.0
-  thread Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca():
+  step_count_f7e8d2d4_89aa_47cf_9072_43bb880272e2 = 0.0
+  thread Step_Counter_Thread_24d9dd0f_64c6_407e_b79d_0f24f14914e8():
     while (True):
-      step_count_180e5910_9a75_428e_b335_32fb1023a526 = step_count_180e5910_9a75_428e_b335_32fb1023a526 + 1.0
+      step_count_f7e8d2d4_89aa_47cf_9072_43bb880272e2 = step_count_f7e8d2d4_89aa_47cf_9072_43bb880272e2 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_477c9a7a_a780_4362_853b_fa8699b24cca()
+  run Step_Counter_Thread_24d9dd0f_64c6_407e_b79d_0f24f14914e8()
   while (True):
     $ 2 "Robot Program"
     $ 3 "freedrive_mode()"

@@ -1,0 +1,261 @@
+ Program
+   Variables Setup
+   Robot Program
+     'start of main program'
+     Home
+     Set
+     Test_Teach_Position()
+     Set
+     Corner_Homing_45()
+     Set
+     extrude_knife()
+     Script: analyze_touchpoints.script
+     path1≔analyze_touchpoints(p11,p12,p21,p22,p3)
+     Call move_path_1
+     MoveJ
+       Waypoint_19
+     Home
+   Test_Teach_Position
+     Home
+     'MoveL'
+     MoveJ
+       Waypoint_2
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Popup: Move the robot to the peg center, then click 'Continue'
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+     tcp_pose≔get_actual_joint_positions()
+   move_path_1
+     pa1≔path1[1]
+     pa2≔path1[2]
+     p1≔path1[3]
+     p2≔path1[4]
+     p3≔path1[5]
+     p4≔path1[6]
+     p5≔path1[7]
+     pr1≔path1[8]
+     pvr1≔path1[12]
+     pvr2≔path1[13]
+     MoveJ
+       'Waypoint_9'
+       Waypoint_7
+     MoveJ
+       pa1
+     MoveL
+       pa2
+     MoveL
+       p1
+     Wait: 1.0
+     MoveL
+       p2
+     MoveP
+       CircleMove
+         p3
+         p4
+     MoveL
+       p5
+     MoveL
+       pr1
+     'MoveJ'
+     'MoveJ'
+     MoveJ
+       Waypoint_20
+       Waypoint_21
+     MoveJ
+       pvr1
+     MoveL
+       pvr2
+   Corner_Homing_BRB
+     'Use this program when tool is already positioned close to corner (back right bottom corner)'
+     'tool flange will seek all 3 sides. will save those 5 locs in p__'
+     align_tcp_left()
+     'right side'
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     align_tcp_forward()
+     'back side'
+     MoveL
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     'regroup for up turn'
+     MoveL
+       Direction: Base X+
+         Until (distance)
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     align_tcp_up()
+     MoveL
+       Direction: Base X-
+         Until (distance)
+       Direction: Base Y-
+         Until (distance)
+     'bottom side'
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (distance)
+       Direction: Base Y+
+         Until (distance)
+   extrude_knife
+     'Move to bucket'
+     MoveJ
+       Waypoint_3
+     MoveL
+       Waypoint_4
+     'extrude out a foot'
+     Wait: 6.0
+     MoveL
+       'slice over knife'
+       Waypoint_5
+     MoveL
+       Waypoint_6
+       'raise up away from knife'
+     Home
+   align_tcp_left
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
+     MoveJ
+       aligned_y_pose
+   align_tcp_forward
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]
+     MoveJ
+       aligned_y_pose
+   align_tcp_up
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
+     MoveJ
+       aligned_y_pose
+   Corner_Homing_45
+     'Use this program when tool is already positioned close to corner at 45deg'
+     'tool flange will seek all 3 sides. will save those 5 locs in p__'
+     Set
+     'dummy move below for debug'
+     'Home'
+     'MoveJ'
+     Wait: 1.0
+     tp≔get_actual_tcp_pose()
+     Script: analyze_touchpoints.script
+     path_pre≔get_corner_homing_45_pathpoints(tp)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     ph5≔path_pre[4]
+     ph6≔path_pre[5]
+     ph7≔path_pre[6]
+     MoveJ
+       ph1
+       ph2
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+       Waypoint_10
+     MoveJ
+       Waypoint_11
+       Waypoint_12
+     MoveJ
+       ph4
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveJ
+       ph5
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveJ
+       ph5
+       ph4
+       Waypoint_13
+       Waypoint_14
+       Waypoint_15
+       Waypoint_16
+       ph6
+       ph7
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveJ
+       ph7
+       ph6
+       Waypoint_17
+       Waypoint_18
+     Home
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+       Else
+         end_freedrive_mode()
+       sync()

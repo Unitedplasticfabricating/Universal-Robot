@@ -1,0 +1,80 @@
+ Program
+   Variables Setup
+   Robot Program
+     'Use this program when tool is already positioned close to corner (back right bottom corner)'
+     'tool flange will seek all 3 sides. will save those 5 locs in p__'
+     align_tcp_left()
+     'right side'
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     align_tcp_forward()
+     'back side'
+     MoveL
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     MoveL
+       Direction: Base Y-
+         Until (distance)
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     'regroup for up turn'
+     MoveL
+       Direction: Base X+
+         Until (distance)
+       Direction: Base Y+
+         Until (distance)
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     align_tcp_up()
+     MoveL
+       Direction: Base X-
+         Until (distance)
+       Direction: Base Y-
+         Until (distance)
+     'bottom side'
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveL
+       Direction: Base Z-
+         Until (distance)
+     MoveL
+       Direction: Base X+
+         Until (distance)
+       Direction: Base Y+
+         Until (distance)
