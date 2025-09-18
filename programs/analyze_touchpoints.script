@@ -1383,7 +1383,7 @@ def check_validity_right(struct1, struct2):
     end
   end
   
-  # check whether the path involves weird turns or joint limits. currently just checks the first position
+  # check whether the path involves weird turns or joint limits. first position
   p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
   joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
   allGood = True
@@ -1407,6 +1407,36 @@ def check_validity_right(struct1, struct2):
   
   if not allGood:
     struct2 = floor_corner_lift_column_extend_right(struct2)
+  end
+  
+  # check whether the path involves weird turns or joint limits. final position (end of leg 3)
+  joints_raa4 = [-0.8909156958209437, -1.3431089532426377, 2.273750130330221, 0.7266384798237304, 1.5611975193023682, 1.8127720355987549]
+  joints_p_3 = get_inverse_kin(struct2[6], joints_raa4) # struct2[6] is p_3
+  joints_p_4 = get_inverse_kin(struct2[7], joints_p_3) # struct2[7] is p_4
+  joints_p_5 = get_inverse_kin(struct2[8], joints_p_4) # struct2[8] is p_5
+  joints_1 = joints_p_5
+  p_prev = joints_p_4
+  allGood = True
+  i = 0
+  structlength = 6
+  while i < structlength:
+    joint_curr = joints_1[i]
+    # check for anything that exceeds joint limits
+    degreesmax = 360 * pi / 180 
+    if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+      allGood = False
+    end
+    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+    maxdifference = 150 * pi / 180 
+    difference = joint_curr - p_prev[i]
+    if difference > maxdifference or difference * -1 > maxdifference:
+      allGood = False
+    end
+    i = i + 1
+  end
+  
+  if not allGood:
+    struct2 = floor_corner_right_p_3_reduce(struct2)
   end
   
   # return struct2 back
@@ -1544,6 +1574,37 @@ def can_pose_be_reached_without_twist(pose, orig_joints):
     return allGood
   end
   
+end
+
+def floor_corner_right_p_3_reduce(struct2, orig_joints):
+  # we know that p_5 cannot be accessed without a twist 
+  # calculate the distance p_5 needs to be changed (in the direction of p_4)
+  
+  #calculate unit vector from p_5 towards p_4
+  point_4 = struct2[7]
+  point_5 = struct2[8]
+  vecx = point_4[0] - point_5[0]
+  vecy = point_4[1] - point_5[1]
+  vecz = point_4[2] - point_5[2]
+  mag = sqrt(vecx*vecx + vecy*vecy + vecz*vecz)
+  uvx = vecx / mag
+  uvy = vecy / mag
+  uvz = vecz / mag
+  
+  moveincrement = 2.0 # mm
+  enoughMoveAdded = False
+  movement = 0
+  
+  while not enoughMoveAdded:
+    movement = movement + moveincrement
+    # set the orig_joints for p_4. p1 was calculated and passed into this function
+    # get the modified point:
+    testp_5 = p[point_5[0] + uvx*movement, point_5[1] + uvy*movement, point_5[2] + uvz*movement, point_5[3], point_5[4], point_5[5]]
+    enoughMoveAdded = can_pose_be_reached_without_twist(testp_5, orig_joints)
+  end
+  
+  ret = struct(point1=struct2[0],point2=struct2[1],point4=struct2[2],point5=struct2[3],point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=testp_5)
+  return ret
 end
 
 # this function sends a signal to turn extrusion on
