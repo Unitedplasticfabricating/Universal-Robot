@@ -1688,6 +1688,19 @@ open google chrome
 go to 192.168.7.2:3000
 username is debianpassword is temppwd or temppwd1 or whatever you set it to
 
+adding right floor corner weld limit
+sometimes when doing a right corner weld, the final point (p_5) is too far away. and the robot elbow goes full extension before it reaches it. this causes a fault. i want to check for that, and stop the robot before it does that. 
+i need to do an extension check (like i did for p1). 
+but instead of raising the lift column, i will need to move the point back towards p_4 if indeed there is a problem.
+i already check validity. so that means the point is valid and reachable, just not without a twist. not smoothly from the p_4 joint combo. 
+so, i need to determine the "starting" joint angles. 
+this is harder than the first point, because p_4 is not a fixed point like the approach to p1. 
+what is a fixed point in move_path_3right is raa4. 
+It goes from raa4, then goes to p_pre_ret2, which is just a 10cm translation of p_3. 
+from p_3 i can go to p_4.
+i can use that as my starting joint angles. 
+raa4 is [-0.8909156958209437, -1.3431089532426377, 2.273750130330221, 0.7266384798237304, 1.5611975193023682, 1.8127720355987549]
+
 
 
 
