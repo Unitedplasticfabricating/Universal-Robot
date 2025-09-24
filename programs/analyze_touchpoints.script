@@ -1043,14 +1043,28 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   if pointtop[2] == 0:
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] > 1.0: # 0.914m = 36 inches
+  elif pointtop[2] < ph2[2] + .05: # if the top point is less than 5 cm higher than the homing points
+    ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+  elif pointtop[2] > 1.0: # (deprecated) 0.914m = 36 inches
     ph2up = p[ph2[0], ph2[1], 1.0, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], 1.0, ph4[3], ph4[4], ph4[5]]
   else:
     ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
   end
-  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
+  
+  # add the MIDDLE vertical touchpoints
+  if pointtop[2] > ph2[2] + .05:
+    # calculate halfwayz
+    halfwayz = (ph2up[2] + ph2[2])/2
+    ph2uphalf = p[ph2[0], ph2[1], halfwayz, ph2[3], ph2[4], ph2[5]]
+    ph4uphalf = p[ph4[0], ph4[1], halfwayz, ph4[3], ph4[4], ph4[5]]
+  else:
+    ph2uphalf = p[0, 0, 0, 0, 0, 0]
+    ph4uphalf = p[0, 0, 0, 0, 0, 0]
+  end
+  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up, ph2uphalf=ph2uphalf, ph4uphalf=ph4uphalf)
   is_robot_at_reachable_spot(point0, ret)
   return ret
 end
