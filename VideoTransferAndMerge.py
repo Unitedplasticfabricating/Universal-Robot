@@ -1,9 +1,13 @@
 import os
 import subprocess
 import shutil
+import cv2 # pip3 install opencv-python
+import numpy as np
+from collections import deque
+# install ffmpeg from https://www.gyan.dev/ffmpeg/builds/ (ffmpeg-release-full.7z)
 
-SDletter = 'G:\\' # SDcard drive letter
-RVletter = 'F:\\' # RobotVideos folder drive letter
+SDletter = 'D:\\' # SDcard drive letter
+RVletter = 'H:\\' # RobotVideos folder drive letter
 PermLoc = 'K:\\calvin\\robotvideos\\' # Permanent location for saving the processed files
 
 def main():
@@ -94,6 +98,8 @@ def copyVideosFromMicroSD():
             print(f"All files and folders in '{destination_folder}' deleted. ")
         copied = copy_folder(source_folder, destination_folder)
         if copied == True:
+            # the code below was deleted
+            '''
             # delete all the things on the sd card (cannot delete the sd card itself)
             for item in os.listdir(root_source_folder):
                 source_item = os.path.join(root_source_folder, item)
@@ -106,6 +112,12 @@ def copyVideosFromMicroSD():
                 else:
                     os.remove(source_item)
                     print(f"Deleted '{source_item}' . ")
+            '''
+            # delete the record folder
+            print(f"Deleting source folder '{source_folder}' from SD source...")
+            shutil.rmtree(source_folder)
+        else:
+            print(f"Not Deleting source folder '{source_folder}' from SD source.")
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
         
@@ -308,6 +320,7 @@ def move_folder_without_overwriting(source_folder, destination_folder):
             success = False
 
     return success
+
 
 if __name__ == '__main__':
     # Execute when the module is not initialized from an import statement.
