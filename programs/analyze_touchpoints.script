@@ -608,7 +608,7 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamfe
     rz = rxryrz[2]
     
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1, rx, ry, rz]
+    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1/2, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -708,7 +708,7 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamfer
     rz = rxryrz[2]
     
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
-    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1, rx, ry, rz]
+    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1/2, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -1057,8 +1057,8 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
   elif pointtop[2] < ph2[2] + .05: # if the top point is less than 5 cm higher than the homing points
-    ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
+    ph2up = p[ph2[0], ph2[1], ph2[2]+.05, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], ph4[2]+.05, ph4[3], ph4[4], ph4[5]]
   elif pointtop[2] > 1.0: # (deprecated) 0.914m = 36 inches
     ph2up = p[ph2[0], ph2[1], 1.0, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], 1.0, ph4[3], ph4[4], ph4[5]]
@@ -1074,8 +1074,9 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
     ph2uphalf = p[ph2[0], ph2[1], halfwayz, ph2[3], ph2[4], ph2[5]]
     ph4uphalf = p[ph4[0], ph4[1], halfwayz, ph4[3], ph4[4], ph4[5]]
   else:
-    ph2uphalf = p[0, 0, 0, 0, 0, 0]
-    ph4uphalf = p[0, 0, 0, 0, 0, 0]
+    halfwayz = (ph2up[2] + ph2[2])/2
+    ph2uphalf = p[ph2[0], ph2[1], halfwayz, ph2[3], ph2[4], ph2[5]]
+    ph4uphalf = p[ph4[0], ph4[1], halfwayz, ph4[3], ph4[4], ph4[5]]
   end
   ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up, ph2uphalf=ph2uphalf, ph4uphalf=ph4uphalf)
   is_robot_at_reachable_spot(point0, ret)
@@ -1504,7 +1505,7 @@ def floor_corner_lift_column_extend_right(struct2):
   
   
   liftcolumnzneeded = liftColumnHeightTest
-  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], p1half=testp1half)
+  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point1half=testp1half)
   return ret
   
 end
@@ -1569,7 +1570,7 @@ def floor_corner_lift_column_extend_left(struct2):
     end
   else:
     liftcolumnzneeded = liftColumnHeightTest
-    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], p1half=testp1half)
+    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point1half=testp1half)
     return ret
   end
 end
