@@ -1,0 +1,352 @@
+ Program
+   Variables Setup
+   Robot Program
+     'start of main program'
+     Home
+     Set
+     Test_Teach_Position()
+     Set
+     Corner_Homing_45()
+     Set
+     extrude_knife2()
+     Script: analyze_touchpoints.script
+     'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
+     'Call move_path_1'
+     'MoveJ'
+     pathturn≔main_calculate_right(p11,p12,p21,p22,p3,p13,p23)
+     'Popup'
+     Call move_path_3right
+     Home
+   move_path_3right
+     'this is the path for Down, Over, then Back Around'
+     Comment
+     Home
+     MoveJ
+       Waypoint_6
+       Waypoint_1
+       Waypoint_7
+       'Waypoint_1'
+       'Waypoint_2'
+       'Waypoint_3'
+       'Home'
+     Comment
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p4≔pathturn[2]
+     p5≔pathturn[3]
+     MoveJ
+       p1
+     Wait: 8.0
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p2
+     Serial Bridge uR0
+     Wait: 0.5
+     'thread2trigger≔ True '
+     MoveL
+       p4
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p5
+     Serial Bridge uR0
+     Wait: 2.0
+     Comment
+     pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
+     p_1≔pathturn[4]
+     p_2≔pathturn[5]
+     p_3≔pathturn[6]
+     p_4≔pathturn[7]
+     p_5≔pathturn[8]
+     p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     p_pre_ret≔p[p_1[0]+.03,p_1[1]+.03,p_1[2],p_1[3],p_1[4],p_1[5]]
+     p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     MoveJ
+       pret1
+       Waypoint_8
+       Waypoint_9
+       Waypoint_22
+     'preheat'
+     MoveJ
+       p_pre_ret
+       p_pre_ret2
+       p_preheat
+     Wait: 8.0
+     MoveJ
+       p_pre_ret2
+       p_pre_ret
+     Set
+     MoveL
+       p_1
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p_2
+     MoveP
+       CircleMove
+         p_3
+         p_4
+     MoveL
+       p_5
+     Serial Bridge uR0
+     Wait: 2.0
+     MoveL
+       Waypoint_23
+     MoveJ
+       Waypoint_24
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Home
+   move_path_3left
+     'this is the path for Down, Over, then Back Around'
+     Comment
+     Home
+     MoveJ
+       Waypoint_15
+       Waypoint_25
+       Waypoint_26
+       Waypoint_27
+       'Waypoint_1'
+       'Waypoint_2'
+       'Waypoint_3'
+       'Home'
+     Comment
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p4≔pathturn[2]
+     p5≔pathturn[3]
+     pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
+     MoveJ
+       pa1
+       p1
+     Wait: 8.0
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p2
+     Serial Bridge uR0
+     Wait: 0.5
+     MoveL
+       p4
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p5
+     Serial Bridge uR0
+     Wait: 2.0
+     Comment
+     pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
+     p_1≔pathturn[4]
+     p_2≔pathturn[5]
+     p_3≔pathturn[6]
+     p_4≔pathturn[7]
+     p_5≔pathturn[8]
+     p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]
+     p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     MoveJ
+       pret1
+       Waypoint_28
+       'now go into the ccw weld position'
+       Waypoint_29
+       Comment
+       Waypoint_30
+       Waypoint_31
+       'Waypoint_9'
+       'Waypoint_22'
+     'MoveP'
+     MoveJ
+       p_pre_ret
+       p_pre_ret2
+       p_preheat
+     Wait: 8.0
+     MoveJ
+       p_pre_ret2
+       p_pre_ret
+     Set
+     MoveL
+       p_1
+     Serial Bridge uR1
+     Wait: 1.0
+     MoveL
+       p_2
+     MoveP
+       CircleMove
+         p_3
+         p_4
+     MoveL
+       p_5
+     'MoveL'
+     'MoveJ'
+     MoveJ
+       Waypoint_32
+       Waypoint_33
+     Comment
+     MoveJ
+       Waypoint_16
+       Waypoint_17
+       Waypoint_18
+       'Waypoint_14'
+       'Waypoint_15'
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Home
+   Test_Teach_Position
+     Home
+     'MoveL'
+     MoveJ
+       Waypoint_2
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Popup: Move the robot to the peg center, then click 'Continue'
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+     tcp_pose≔get_actual_joint_positions()
+   'move_path_1'
+   align_tcp_left
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]
+     MoveJ
+       aligned_y_pose
+   extrude_knife2
+     Home
+     Set
+     MoveJ
+       Waypoint_3
+     'extrude out a foot'
+     Serial Bridge uR1
+     Wait: 24.0
+     Serial Bridge uR0
+     Popup: grab extrusion then press ok
+     Home
+   align_tcp_forward
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]
+     MoveJ
+       aligned_y_pose
+   align_tcp_up
+     'this program aligns the tcp parallel to the y direction'
+     cp≔get_actual_tcp_pose()
+     aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]
+     MoveJ
+       aligned_y_pose
+   Corner_Homing_45
+     'Use this program when tool is already positioned close to corner at 45deg'
+     'tool flange will seek all 3 sides. will save those 5 locs in p__'
+     Set
+     'dummy move below for debug'
+     'Home'
+     'MoveJ'
+     Wait: 1.0
+     tp≔get_actual_tcp_pose()
+     Script: analyze_touchpoints.script
+     path_pre≔get_corner_homing_45_pathpoints(tp)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     ph5≔path_pre[4]
+     ph6≔path_pre[5]
+     ph7≔path_pre[6]
+     ph2up≔path_pre[7]
+     ph4up≔path_pre[8]
+     MoveJ
+       ph1
+       ph2
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph2up
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p13≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveJ
+       ph3
+       Waypoint_4
+     MoveJ
+       Waypoint_5
+       'Waypoint_5'
+       Waypoint_10
+     MoveJ
+       ph4
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveJ
+       ph4up
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p23≔get_actual_tcp_pose()
+     MoveJ
+       ph5
+     MoveL
+       Direction: Base
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveJ
+       ph5
+       ph4
+       'Waypoint_5'
+       Waypoint_11
+       Waypoint_12
+       Waypoint_4
+       Waypoint_13
+       ph6
+       ph7
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p3≔get_actual_tcp_pose()
+     MoveJ
+       ph7
+       ph6
+       Waypoint_14
+       Waypoint_4
+     Home
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+     Comment
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+       Else
+         end_freedrive_mode()
+       sync()
+   Thread_2
+     Loop  True 
+       If thread2trigger≟ True 
+         'do the dot extrude'
+         Wait: 5.0
+         Serial Bridge uR1
+         Wait: 2.0
+         Serial Bridge uR0
+         thread2trigger≔ False 
+       sync()

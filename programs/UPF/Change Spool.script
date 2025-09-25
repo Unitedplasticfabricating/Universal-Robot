@@ -1,5 +1,7 @@
 def Change_Spool():
   global _hidden_verificationVariable=0
+  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -7,23 +9,15 @@ def Change_Spool():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
-  set_tcp(p[1.491633848342E-4,-0.017242757429925926,0.28359028873595327,0.0,0.0,0.0])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  global robot_number=2
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_gravity([0.0, 0.0, 9.82])
+  global robot_number=1
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  # begin: URCap Installation Node
-  #   Source: UR Connect, 1.13.79, Universal Robots
-  #   Type: UR Connect
-  myurRPC = rpc_factory("xmlrpc","http://127.0.0.1:40474")
-  # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -154,53 +148,46 @@ def Change_Spool():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_484dbd2d_6d7b_4365_a49e_a4c65240fa26 = 0.0
-  thread Step_Counter_Thread_97bfc6a6_90ae_4d82_bffc_3ec28b6324c7():
+  step_count_e39b0222_88b0_46a7_9401_7d0ecd69f378 = 0.0
+  thread Step_Counter_Thread_7611b265_9c3a_4a9a_98b3_10d955536963():
     while (True):
-      step_count_484dbd2d_6d7b_4365_a49e_a4c65240fa26 = step_count_484dbd2d_6d7b_4365_a49e_a4c65240fa26 + 1.0
+      step_count_e39b0222_88b0_46a7_9401_7d0ecd69f378 = step_count_e39b0222_88b0_46a7_9401_7d0ecd69f378 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_97bfc6a6_90ae_4d82_bffc_3ec28b6324c7()
+  run Step_Counter_Thread_7611b265_9c3a_4a9a_98b3_10d955536963()
   global Waypoint_1_p=p[.454835880563, .405454485482, .142441515034, 2.316817702755, 2.051416454504, .076631452206]
   global Waypoint_1_q=[-3.2745700518237513, -1.6645180187621058, 2.405001465474264, -0.1810414356044312, -0.01416188875307256, -0.6267707983600062]
-  $ 2 "BeforeStart"
-  $ 3 "premove"
-  $ 4 "Set"
-  set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-  $ 5 "cur_pos≔get_actual_tcp_pose()"
-  global cur_pos= get_actual_tcp_pose ()
-  $ 6 "MoveJ"
-  $ 7 "cur_pos" "breakAfter"
-  movej(cur_pos, a=1.3962634015954636, v=1.0471975511965976)
   while (True):
-    $ 8 "Robot Program"
-    $ 9 "'move robot above bucket'"
+    $ 2 "Robot Program"
+    $ 3 "'move robot above bucket'"
     # 'move robot above bucket'
-    $ 10 "Set"
-    set_tcp(p[-0.0095,-0.328,0.10573,1.2092,-1.2092,1.2092])
-    $ 11 "MoveJ"
-    $ 12 "Waypoint_1" "breakAfter"
+    $ 4 "HwResp≔[0,0,0]"
+    global HwResp=[0,0,0]
+    $ 5 "Set"
+    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+    $ 6 "MoveJ"
+    $ 7 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 14 "Set DO[0]=On"
-    set_standard_digital_out(0, True)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 15 "Serial Bridge uR1"
+    $ 9 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 18 "Popup: on"
+    $ 10 "Set DO[0]=On"
+    set_standard_digital_out(0, True)
+    $ 13 "Popup: on"
     popup("on", "Message", False, False, blocking=True)
-    $ 19 "Set DO[0]=Off"
+    $ 14 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 20 "Serial Bridge uR0"
+    $ 15 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 22 "Popup: off"
+    $ 17 "Popup: off"
     popup("off", "Message", False, False, blocking=True)
   end
 end

@@ -1,0 +1,112 @@
+<URProgram name="extrude_knife_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2">
+  <kinematics status="LINEARIZED" validChecksum="true">
+    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+  </kinematics>
+  <children>
+    <InitVariablesNode>
+      <variables>
+        <variable name="freedrive_m_var">
+          <expression>
+            <ExpressionToken token=" False "/>
+          </expression>
+        </variable>
+      </variables>
+    </InitVariablesNode>
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
+      <children>
+        <Comment comment="Move to bucket"/>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_3" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-2.7853482405291956, -1.8143698177733363, 2.4549508730517786, -2.210560461083883, -1.5711315313922327, 1.9254603385925293"/>
+                <TCPOffset pose="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-2.785483185444967, -1.6431261501707972, 2.568024222050802, -2.49489750484609, -1.5709694067584437, 1.9253177642822266"/>
+                <TCPOffset pose="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Comment comment="extrude out a foot"/>
+        <Wait type="Sleep">
+          <waitTime>1.0</waitTime>
+        </Wait>
+        <Move motionType="MoveL" speed="0.04" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Comment comment="slice over knife"/>
+            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-2.9616554419146937, -1.7250400982298792, 2.631975237523214, -2.4769565067686976, -1.5710294882403772, 1.7491776943206787"/>
+                <TCPOffset pose="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+          <feature class="GeomFeatureReference" reference="../../Move/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-2.961463991795675, -1.9219290218748988, 2.4929660002337855, -2.141019483605856, -1.571230713521139, 1.7493857145309448"/>
+                <TCPOffset pose="0.0, 0.0, 0.019, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Comment comment="raise up away from knife"/>
+          </children>
+        </Move>
+        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+      </children>
+    </MainProgram>
+  </children>
+</URProgram>

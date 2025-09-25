@@ -1,0 +1,30 @@
+ Program
+   Variables Setup
+   Robot Program
+     'Call Test_Teach_Position'
+     'MoveL'
+     MoveL
+       Waypoint_3
+       Waypoint_4
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 1.5
+     'MoveL'
+     Wait: 20.0
+     Serial Bridge uR0
+     Set DO[0]=Off
+     MoveL
+       Direction: Base Z+
+         Until (distance)
+   Test_Teach_Position
+     Home
+     'MoveL'
+     MoveJ
+       Waypoint_2
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     'Popup: Move the robot to the peg center, then click 'Continue''
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+     tcp_pose≔get_actual_joint_positions()
