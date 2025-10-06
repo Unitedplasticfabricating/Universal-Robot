@@ -1,20 +1,20 @@
-<URProgram name="move_path_3right_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.14.5" lastSavedIn="5.14.5" robotSerialNumber="20236801216" createdInPolyscopeProgramVersion="0" lastSavedInPolycopeProgramVersion="2">
+<URProgram name="move_path_3right_1" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.21.3" lastSavedIn="5.21.3" robotSerialNumber="20246801938" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2">
   <kinematics status="LINEARIZED" validChecksum="true">
-    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
-    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
-    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
-    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
-    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+    <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+    <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+    <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+    <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+    <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
   </kinematics>
   <children>
     <InitVariablesNode>
       <variables>
-        <variable name="freedrive_m_var">
+        <variable name="free_dr_already">
           <expression>
             <ExpressionToken token=" False "/>
           </expression>
         </variable>
-        <variable name="thread2trigger">
+        <variable name="freedrive_m_var">
           <expression>
             <ExpressionToken token=" False "/>
           </expression>
@@ -25,9 +25,8 @@
       <children>
         <Comment comment="this is the path for Down, Over, then Back Around"/>
         <Comment/>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <SuppressedNode>
-          <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+          <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
             <feature class="GeomFeatureReference" referencedName="Joint_0_name"/>
             <children>
               <Waypoint type="Fixed" name="Waypoint_6" kinematicsFlags="3">
@@ -234,7 +233,113 @@
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Assignment valueSource="Expression">
+          <variable name="pa1" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="+"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="4"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="["/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character="]"/>
+            <ExpressionChar character="]"/>
+          </expression>
+        </Assignment>
+        <Assignment valueSource="Expression">
+          <variable name="liftcolumnz" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="z"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="d"/>
+          </expression>
+        </Assignment>
+        <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+          <dataModel>
+            <data key="type" value="addMotor"/>
+            <data key="numberAdded" value="0"/>
+            <data key="speed_in_mm_per_min" value="600"/>
+            <data key="acceleration_in_mm_per_s2" value="50.0"/>
+            <data key="ActuatorPos" value="liftcolumnz"/>
+            <data key="teachColor" value="BLUE"/>
+            <data key="combo1" value="MachineMotion1"/>
+            <data key="combo2" value="(1) Custom Actuator"/>
+            <data key="combo3" value="Move to Position"/>
+            <data key="combo6" value="In series"/>
+            <data key="message" value="Move to Position"/>
+            <data key="description" value="Moves the actuator to a specified position from the home location."/>
+            <data key="comboAddress" value="Address 1"/>
+            <data key="comboActuator" value="Valve 1"/>
+          </dataModel>
+        </Contributed>
+        <Move motionType="MoveJ" speed="0.3490658503988659" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
+          <children>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[5]/variable"/>
+            </Waypoint>
+          </children>
+        </Move>
+        <Move motionType="MoveL" speed="0.05" acceleration="0.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -248,10 +353,24 @@
         </Wait>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
-            <data key="byte_array" value="true"/>
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
             <data key="Command" value="[252,82,49]"/>
             <data key="QUERY" value="false"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable name="HwResp" prefersPersistentValue="false" favourite="false">
@@ -263,7 +382,36 @@
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="x"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <Set type="DigitalOutput">
+          <pin referencedName="digital_out[0]"/>
+          <digitalValue>1</digitalValue>
+        </Set>
+        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -277,29 +425,21 @@
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
         <Wait type="Sleep">
           <waitTime>0.5</waitTime>
         </Wait>
-        <SuppressedNode>
-          <suppressedNode class="Assignment" valueSource="Expression">
-            <variable name="thread2trigger" prefersPersistentValue="false" favourite="false">
-              <initializeExpression/>
-            </variable>
-            <expression>
-              <ExpressionToken token=" True "/>
-            </expression>
-          </suppressedNode>
-        </SuppressedNode>
-        <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose">
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
+        <Move motionType="MoveL" speed="0.12" acceleration="0.01" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -310,22 +450,61 @@
         </Move>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
-            <data key="byte_array" value="true"/>
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
             <data key="Command" value="[252,82,49]"/>
             <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="QUERY" value="false"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose">
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="x"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
+        <Move motionType="MoveL" speed="0.01" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
@@ -342,13 +521,17 @@
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
+              <variable reference="../../../../Contributed[2]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
         <Wait type="Sleep">
           <waitTime>2.0</waitTime>
         </Wait>
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
         <Comment/>
         <Assignment valueSource="Expression">
           <variable name="pret1" prefersPersistentValue="false" favourite="false">
@@ -656,12 +839,13 @@
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
-        <Move motionType="MoveJ" speed="1.3962634015954636" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Comment comment="twist"/>
+        <Move motionType="MoveJ" speed="1.3962634015954636" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[5]/variable"/>
+              <variable reference="../../../../Assignment[7]/variable"/>
             </Waypoint>
             <Waypoint type="Fixed" name="Waypoint_8" kinematicsFlags="-1">
               <motionParameters jointSpeed="1.0471975511965976" jointAcceleration="1.3962634015954636" cartesianSpeed="0.25" cartesianAcceleration="1.2"/>
@@ -679,10 +863,10 @@
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
             <SuppressedNode>
-              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_9" kinematicsFlags="-1">
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_22" kinematicsFlags="1">
                 <motionParameters/>
                 <position>
-                  <JointAngles angles="-1.3071630636798304, -1.3366777312806626, 2.2083633581744593, 3.7187773424335937, -2.9519384543048304, 0.9132363796234131"/>
+                  <JointAngles angles="-1.4685500303851526, -0.9664557737163086, 1.6195090452777308, 0.9282776552387695, 1.6574476957321167, 0.2630845010280609"/>
                   <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
                   <Kinematics status="LINEARIZED" validChecksum="true">
                     <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
@@ -695,11 +879,16 @@
                 <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
               </suppressedNode>
             </SuppressedNode>
-            <Waypoint type="Fixed" name="Waypoint_22" kinematicsFlags="1">
+          </children>
+        </Move>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
+          <children>
+            <Waypoint type="Fixed" name="raa1" kinematicsFlags="1">
               <motionParameters/>
               <position>
-                <JointAngles angles="-1.4685500303851526, -0.9664557737163086, 1.6195090452777308, 0.9282776552387695, 1.6574476957321167, 0.2630845010280609"/>
-                <TCPOffset pose="-0.0042110779091591305, -0.2798289119592719, 0.10591607363377763, 1.2092, -1.2092, 1.2092"/>
+                <JointAngles angles="-1.1455705801593226, -1.5426994071206828, 2.8454588095294397, 4.979022520571508, -4.9029627482043665, 1.5718539953231812"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
                 <Kinematics status="LINEARIZED" validChecksum="true">
                   <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
                   <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
@@ -710,54 +899,173 @@
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
+            <Waypoint type="Fixed" name="raa2" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-1.2560303846942347, -1.339010552769043, 2.4151175657855433, 3.6540276247211914, -2.7377544085132044, 1.1360299587249756"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Waypoint type="Fixed" name="raa3" kinematicsFlags="1">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-1.8931763807879847, -1.3096025747111817, 2.212959591542379, 0.7217818933674316, 1.639076590538025, 0.8125834465026855"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Waypoint type="Fixed" name="raa4" kinematicsFlags="1">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-0.8909156958209437, -1.3431089532426377, 2.273750130330221, 0.7266384798237304, 1.5611975193023682, 1.8127720355987549"/>
+                <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                  <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                  <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                  <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                  <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_2" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-1.4802840391742151, -0.9255126279643555, 1.5415189901935022, 0.9643162924000244, 1.6575241088867188, 0.25130072236061096"/>
+                  <TCPOffset pose="-0.00549, -0.328, 0.10639, 1.2092, -1.2092, 1.2092"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.4899131651953954E-7, -0.5163156704236374, 5.626292263290917, 1.173211441187188, 7.813190464889264E-7, -4.300337819590494E-7"/>
+                    <a value="-2.1311773410863242E-5, -0.748896650969478, -0.2818596402230846, -4.017768931271778E-5, -5.5248926104535545E-5, 0.0"/>
+                    <d value="0.23622484809471647, -424.08293337258226, -1564.6687202774174, 1988.9516200232913, 0.15909435754571752, 0.1538726401599885"/>
+                    <alpha value="1.5708436258517133, 0.001002489552312882, 3.374880014158008E-4, 1.571488190319432, -1.569996211212667, 0.0"/>
+                    <jointChecksum value="-1252576034, -1269366749, 685297201, -1257350671, -1278514167, -1281348999"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
           </children>
         </Move>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="f"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="z"/>
+            <ExpressionChar character="≠"/>
+            <ExpressionChar character="0"/>
+            <ExpressionChar character="."/>
+            <ExpressionChar character="0"/>
+          </expression>
+          <children>
+            <Contributed strategyClass="com.ur.urcap.examples.MachineLogic_for_Universal_Robots.MachineLogic" strategyProgramNodeType="MachineLogic for Universal Robots" strategyURCapDeveloper="Vention Inc." strategyURCapName="MachineLogic for Universal Robots">
+              <dataModel>
+                <data key="type" value="addMotor"/>
+                <data key="numberAdded" value="0"/>
+                <data key="speed_in_mm_per_min" value="600"/>
+                <data key="acceleration_in_mm_per_s2" value="50.0"/>
+                <data key="teachColor" value="BLUE"/>
+                <data key="combo1" value="MachineMotion1"/>
+                <data key="combo2" value="(1) Custom Actuator"/>
+                <data key="combo3" value="Home"/>
+                <data key="combo6" value="In series"/>
+                <data key="message" value="Homing"/>
+                <data key="description" value="Moves the actuator in the negative direction until the home sensor is triggered and sets position to zero (0)."/>
+                <data key="comboAddress" value="Address 1"/>
+                <data key="comboActuator" value="Valve 1"/>
+              </dataModel>
+            </Contributed>
+          </children>
+        </If>
         <Comment comment="preheat"/>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <SuppressedNode>
+          <suppressedNode class="Move" motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+            <feature class="GeomFeatureReference" reference="../../../SuppressedNode/suppressedNode/feature"/>
+            <children>
+              <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+                <motionParameters/>
+                <variable reference="../../../../../Assignment[14]/variable"/>
+              </Waypoint>
+            </children>
+          </suppressedNode>
+        </SuppressedNode>
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[12]/variable"/>
+              <variable reference="../../../../Assignment[15]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
               <variable reference="../../../../Assignment[13]/variable"/>
-            </Waypoint>
-            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-              <motionParameters/>
-              <variable reference="../../../../Assignment[11]/variable"/>
             </Waypoint>
           </children>
         </Move>
         <Wait type="Sleep">
-          <waitTime>8.0</waitTime>
+          <waitTime>6.0</waitTime>
         </Wait>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[13]/variable"/>
+              <variable reference="../../../../Assignment[15]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[12]/variable"/>
+              <variable reference="../../../../Assignment[14]/variable"/>
             </Waypoint>
           </children>
         </Move>
         <Set type="NoAction">
           <tcp referencedName="backofhole"/>
         </Set>
-        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveL" speed="0.05" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[6]/variable"/>
+              <variable reference="../../../../Assignment[8]/variable"/>
             </Waypoint>
           </children>
         </Move>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../Contributed[2]/dataModel/Variable/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
@@ -773,36 +1081,68 @@
         <Wait type="Sleep">
           <waitTime>1.0</waitTime>
         </Wait>
-        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>1</digitalValue>
+        </Set>
+        <SuppressedNode>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="x"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
+          </suppressedNode>
+        </SuppressedNode>
+        <Wait type="Sleep">
+          <waitTime>1.0</waitTime>
+        </Wait>
+        <Move motionType="MoveL" speed="0.01" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[7]/variable"/>
+              <variable reference="../../../../Assignment[9]/variable"/>
             </Waypoint>
           </children>
         </Move>
-        <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveP" speed="5.0E-4" acceleration="0.01" blendRadius="0.001" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <CircleMove OrientationMode="FIXED">
               <children>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[8]/variable"/>
+                  <variable reference="../../../../../../Assignment[10]/variable"/>
                 </Waypoint>
                 <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
-                  <variable reference="../../../../../../Assignment[9]/variable"/>
+                  <variable reference="../../../../../../Assignment[11]/variable"/>
                 </Waypoint>
               </children>
             </CircleMove>
           </children>
         </Move>
-        <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveL" speed="0.012" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
-              <variable reference="../../../../Assignment[10]/variable"/>
+              <variable reference="../../../../Assignment[12]/variable"/>
             </Waypoint>
           </children>
         </Move>
@@ -811,17 +1151,21 @@
             <data key="QUERY" value="false"/>
             <data key="NODE_TITLE" value="Serial Bridge uR0"/>
             <data key="Command" value="[252,82,48]"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../Contributed[2]/dataModel/Variable/variable"/>
+              <variable reference="../../../../Contributed[3]/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
         <Wait type="Sleep">
           <waitTime>2.0</waitTime>
         </Wait>
-        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose">
+        <Set type="DigitalOutput">
+          <pin reference="../../Set/pin"/>
+          <digitalValue>0</digitalValue>
+        </Set>
+        <Move motionType="MoveL" speed="0.25" acceleration="1.2" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_23" kinematicsFlags="-1">
@@ -841,7 +1185,7 @@
             </Waypoint>
           </children>
         </Move>
-        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose">
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../SuppressedNode/suppressedNode/feature"/>
           <children>
             <Waypoint type="Fixed" name="Waypoint_24" kinematicsFlags="1">
@@ -877,14 +1221,6 @@
             <Comment comment="above waypoint is home"/>
           </children>
         </Move>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <Comment/>
-        <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
       </children>
     </MainProgram>
   </children>

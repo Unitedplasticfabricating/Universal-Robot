@@ -3,7 +3,6 @@
    Robot Program
      'this is the path for Down, Over, then Back Around'
      Comment
-     Home
      'MoveJ'
      align_ready_for_welding()
      Comment
@@ -11,24 +10,36 @@
      p2≔pathturn[1]
      p4≔pathturn[2]
      p5≔pathturn[3]
+     pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
+     liftcolumnz≔liftcolumnzneeded
+     MachineLogic Move to Position
      MoveJ
+       pa1
+     MoveL
        p1
      Wait: 8.0
      Serial Bridge uR1
+     Serial Bridge uR1
      Wait: 1.0
+     'turn_extrusion_on()'
+     Set DO[0]=On
      MoveL
        p2
      Serial Bridge uR0
      Wait: 0.5
-     'thread2trigger≔ True '
+     Set DO[0]=Off
      MoveL
        p4
      Serial Bridge uR1
+     Serial Bridge uR1
      Wait: 1.0
+     'turn_extrusion_on()'
+     Set DO[0]=On
      MoveL
        p5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
      p_1≔pathturn[4]
@@ -39,24 +50,36 @@
      p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      p_pre_ret≔p[p_1[0]+.03,p_1[1]+.03,p_1[2],p_1[3],p_1[4],p_1[5]]
      p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     'twist'
      MoveJ
        pret1
        Waypoint_8
-       'Waypoint_9'
-       Waypoint_22
-     'preheat'
+       'Waypoint_22'
      MoveJ
-       p_pre_ret
+       raa1
+       raa2
+       raa3
+       raa4
+       'Waypoint_2'
+     If liftcolumnz≠0.0
+       MachineLogic Homing
+     'preheat'
+     'MoveJ'
+     MoveL
        p_pre_ret2
        p_preheat
-     Wait: 8.0
-     MoveJ
+     Wait: 6.0
+     MoveL
        p_pre_ret2
        p_pre_ret
      Set
      MoveL
        p_1
      Serial Bridge uR1
+     Serial Bridge uR1
+     Wait: 1.0
+     Set DO[0]=On
+     'turn_extrusion_on()'
      Wait: 1.0
      MoveL
        p_2
@@ -68,17 +91,10 @@
        p_5
      Serial Bridge uR0
      Wait: 2.0
+     Set DO[0]=Off
      MoveL
        Waypoint_23
      MoveJ
        Waypoint_24
        Waypoint_39
        'above waypoint is home'
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Comment
-     Home

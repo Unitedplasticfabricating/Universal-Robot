@@ -1,15 +1,15 @@
 def Floor_Corner_Extended():
   global _hidden_verificationVariable=0
-  step_count_436c9618_b4e8_4c06_8870_438b21847c7b = 0.0
-  thread Step_Counter_Thread_ef031338_58af_4396_be2a_840f4c389739():
+  step_count_b9957e28_1e29_403b_9be1_c81da19e3a99 = 0.0
+  thread Step_Counter_Thread_cc354336_11fe_4a29_99b6_d35e9e08bdbf():
     while (True):
-      step_count_436c9618_b4e8_4c06_8870_438b21847c7b = step_count_436c9618_b4e8_4c06_8870_438b21847c7b + 1.0
+      step_count_b9957e28_1e29_403b_9be1_c81da19e3a99 = step_count_b9957e28_1e29_403b_9be1_c81da19e3a99 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_ef031338_58af_4396_be2a_840f4c389739()
+  run Step_Counter_Thread_cc354336_11fe_4a29_99b6_d35e9e08bdbf()
+  set_gravity([0.0, 0.0, 9.82])
   set_safety_mode_transition_hardness(1)
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -17,15 +17,21 @@ def Floor_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
-  global robot_number=1
+  global robot_number=2
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  # begin: URCap Installation Node
+  #   Source: UR Connect, 1.13.79, Universal Robots
+  #   Type: UR Connect
+  myurRPC = rpc_factory("xmlrpc","http://127.0.0.1:40474")
+  # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
   #   Type: MachineLogic for Universal Robots
@@ -307,34 +313,34 @@ def Floor_Corner_Extended():
   global Waypoint_41_p=p[.392127936214, .533269017847, .644148583936, .057822570580, 2.125982462550, 2.134033989912]
   global Waypoint_41_q=[-3.4579578081714075, -2.0569120846190394, 2.3265841642962855, -0.22706885755572515, -0.1993349234210413, -0.10534984270204717]
   def move_path_3right():
-    $ 133 "move_path_3right" "noBreak"
-    $ 134 "'this is the path for Down, Over, then Back Around'"
+    $ 134 "move_path_3right" "noBreak"
+    $ 135 "'this is the path for Down, Over, then Back Around'"
     # 'this is the path for Down, Over, then Back Around'
-    $ 135 "Comment"
+    $ 136 "Comment"
     # Comment
-    $ 144 "align_ready_for_welding()"
+    $ 145 "align_ready_for_welding()"
     align_ready_for_welding()
-    $ 145 "Comment"
+    $ 146 "Comment"
     # Comment
-    $ 146 "p1≔pathturn[0]"
+    $ 147 "p1≔pathturn[0]"
     global p1=pathturn[0]
-    $ 147 "p2≔pathturn[1]"
+    $ 148 "p2≔pathturn[1]"
     global p2=pathturn[1]
-    $ 148 "p4≔pathturn[2]"
+    $ 149 "p4≔pathturn[2]"
     global p4=pathturn[2]
-    $ 149 "p5≔pathturn[3]"
+    $ 150 "p5≔pathturn[3]"
     global p5=pathturn[3]
-    $ 150 "pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]"
+    $ 151 "pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]"
     global pa1=p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
-    $ 151 "liftcolumnup"
-    $ 152 "liftcolumnz≔liftcolumnzneeded"
+    $ 152 "liftcolumnup"
+    $ 153 "liftcolumnz≔liftcolumnzneeded"
     global liftcolumnz=liftcolumnzneeded
-    $ 153 "If liftcolumnz>0"
+    $ 154 "If liftcolumnz>0"
     if (liftcolumnz>0):
       # begin: URCap Program Node
       #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
       #   Type: MachineLogic for Universal Robots
-      $ 154 "MachineLogic Move to Position"
+      $ 155 "MachineLogic Move to Position"
       while isVentionMovementBusyMachineMotion1==True:
       sleep(0.05)
       end
@@ -522,7 +528,7 @@ def Floor_Corner_Extended():
     $ 215 "p_pre_ret" "breakAfter"
     movel(p_pre_ret, a=1.2, v=0.25)
     $ 216 "Set"
-    set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
+    set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
     $ 217 "MoveL"
     $ 218 "p_1" "breakAfter"
     movel(p_1, a=1.2, v=0.05)
@@ -550,6 +556,7 @@ def Floor_Corner_Extended():
     $ 227 "MoveP"
     $ 228 "CircleMove"
     $ 229 "p_3" "noBreak"
+    
     $ 230 "p_4" "breakAfter"
     movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
     $ 231 "MoveL"
@@ -628,128 +635,128 @@ def Floor_Corner_Extended():
       sleep(0.03)
       # end: URCap Program Node
     end
-    $ 253 "Waypoint_15" "breakAfter"
+    $ 252 "Waypoint_15" "breakAfter"
     movej(get_inverse_kin(Waypoint_15_p, qnear=Waypoint_15_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 254 "Waypoint_25" "breakAfter"
+    $ 253 "Waypoint_25" "breakAfter"
     movej(get_inverse_kin(Waypoint_25_p, qnear=Waypoint_25_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 255 "Waypoint_72" "breakAfter"
+    $ 254 "Waypoint_72" "breakAfter"
     movej(get_inverse_kin(Waypoint_72_p, qnear=Waypoint_72_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 256 "Waypoint_26" "breakAfter"
+    $ 255 "Waypoint_26" "breakAfter"
     movej(get_inverse_kin(Waypoint_26_p, qnear=Waypoint_26_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 257 "Waypoint_27" "breakAfter"
+    $ 256 "Waypoint_27" "breakAfter"
     movej(get_inverse_kin(Waypoint_27_p, qnear=Waypoint_27_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 262 "Comment"
+    $ 261 "Comment"
     # Comment
-    $ 263 "p1≔pathturn[0]"
+    $ 262 "p1≔pathturn[0]"
     global p1=pathturn[0]
-    $ 264 "p2≔pathturn[1]"
+    $ 263 "p2≔pathturn[1]"
     global p2=pathturn[1]
-    $ 265 "p4≔pathturn[2]"
+    $ 264 "p4≔pathturn[2]"
     global p4=pathturn[2]
-    $ 266 "p5≔pathturn[3]"
+    $ 265 "p5≔pathturn[3]"
     global p5=pathturn[3]
-    $ 267 "pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]"
+    $ 266 "pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]"
     global pa1=p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
-    $ 268 "MoveJ"
-    $ 269 "pa1" "breakAfter"
+    $ 267 "MoveJ"
+    $ 268 "pa1" "breakAfter"
     movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 270 "MoveL"
-    $ 271 "p1" "breakAfter"
+    $ 269 "MoveL"
+    $ 270 "p1" "breakAfter"
     movel(p1, a=0.1, v=0.05)
-    $ 272 "Wait: 8.0"
+    $ 271 "Wait: 8.0"
     sleep(8.0)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 272 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
     $ 273 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 274 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 275 "Wait: 1.0"
+    $ 274 "Wait: 1.0"
     sleep(1.0)
-    $ 277 "Set DO[0]=On"
+    $ 276 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 278 "MoveL"
-    $ 279 "p2" "breakAfter"
+    $ 277 "MoveL"
+    $ 278 "p2" "breakAfter"
     movel(p2, a=0.1, v=0.01)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 280 "Serial Bridge uR0"
+    $ 279 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 281 "Wait: 0.5"
+    $ 280 "Wait: 0.5"
     sleep(0.5)
-    $ 282 "Set DO[0]=Off"
+    $ 281 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 283 "MoveL"
-    $ 284 "p4" "breakAfter"
+    $ 282 "MoveL"
+    $ 283 "p4" "breakAfter"
     movel(p4, a=0.01, v=0.12)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 284 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
     $ 285 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 286 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 287 "Wait: 1.0"
+    $ 286 "Wait: 1.0"
     sleep(1.0)
-    $ 289 "Set DO[0]=On"
+    $ 288 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 290 "MoveL"
-    $ 291 "p5" "breakAfter"
+    $ 289 "MoveL"
+    $ 290 "p5" "breakAfter"
     movel(p5, a=0.1, v=0.01)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 292 "Serial Bridge uR0"
+    $ 291 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 293 "Wait: 2.0"
+    $ 292 "Wait: 2.0"
     sleep(2.0)
-    $ 294 "Set DO[0]=Off"
+    $ 293 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 295 "Comment"
+    $ 294 "Comment"
     # Comment
-    $ 296 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
+    $ 295 "pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]"
     global pret1=p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
-    $ 297 "p_1≔pathturn[4]"
+    $ 296 "p_1≔pathturn[4]"
     global p_1=pathturn[4]
-    $ 298 "p_2≔pathturn[5]"
+    $ 297 "p_2≔pathturn[5]"
     global p_2=pathturn[5]
-    $ 299 "p_3≔pathturn[6]"
+    $ 298 "p_3≔pathturn[6]"
     global p_3=pathturn[6]
-    $ 300 "p_4≔pathturn[7]"
+    $ 299 "p_4≔pathturn[7]"
     global p_4=pathturn[7]
-    $ 301 "p_5≔pathturn[8]"
+    $ 300 "p_5≔pathturn[8]"
     global p_5=pathturn[8]
-    $ 302 "p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
+    $ 301 "p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
     global p_preheat=p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
-    $ 303 "p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]"
+    $ 302 "p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]"
     global p_pre_ret=p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]
-    $ 304 "p_pre_ret2≔p[p_3[0]+.03,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
+    $ 303 "p_pre_ret2≔p[p_3[0]+.03,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]"
     global p_pre_ret2=p[p_3[0]+.03,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
-    $ 305 "MoveJ"
-    $ 306 "pret1" "breakAfter"
+    $ 304 "MoveJ"
+    $ 305 "pret1" "breakAfter"
     movej(pret1, a=1.3962634015954636, v=1.3962634015954636)
-    $ 307 "Waypoint_28" "breakAfter"
+    $ 306 "Waypoint_28" "breakAfter"
     movej(get_inverse_kin(Waypoint_28_p, qnear=Waypoint_28_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 308 "If liftcolumnz≠0.0"
+    $ 307 "If liftcolumnz≠0.0"
     if (liftcolumnz != 0.0):
       # begin: URCap Program Node
       #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
       #   Type: MachineLogic for Universal Robots
-      $ 309 "MachineLogic Homing"
+      $ 308 "MachineLogic Homing"
       while isVentionMovementBusyMachineMotion1==True:
       sleep(0.05)
       end
@@ -779,376 +786,377 @@ def Floor_Corner_Extended():
       sleep(0.03)
       # end: URCap Program Node
     end
-    $ 310 "'now go into the ccw weld position'"
+    $ 309 "'now go into the ccw weld position'"
     # 'now go into the ccw weld position'
-    $ 311 "Waypoint_29" "breakAfter"
+    $ 310 "Waypoint_29" "breakAfter"
     movej(get_inverse_kin(Waypoint_29_p, qnear=Waypoint_29_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 312 "Comment"
+    $ 311 "Comment"
     # Comment
-    $ 313 "Waypoint_30" "breakAfter"
+    $ 312 "Waypoint_30" "breakAfter"
     movej(get_inverse_kin(Waypoint_30_p, qnear=Waypoint_30_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 314 "Waypoint_31" "breakAfter"
+    $ 313 "Waypoint_31" "breakAfter"
     movej(get_inverse_kin(Waypoint_31_p, qnear=Waypoint_31_q), a=1.3962634015954636, v=1.3962634015954636)
-    $ 323 "MoveL"
-    $ 324 "p_pre_ret" "breakAfter"
+    $ 322 "MoveL"
+    $ 323 "p_pre_ret" "breakAfter"
     movel(p_pre_ret, a=1.2, v=0.25)
-    $ 325 "p_pre_ret2" "breakAfter"
+    $ 324 "p_pre_ret2" "breakAfter"
     movel(p_pre_ret2, a=1.2, v=0.25)
-    $ 326 "p_preheat" "breakAfter"
+    $ 325 "p_preheat" "breakAfter"
     movel(p_preheat, a=1.2, v=0.25)
-    $ 327 "Wait: 6.0"
+    $ 326 "Wait: 6.0"
     sleep(6.0)
-    $ 328 "MoveL"
-    $ 329 "p_pre_ret2" "breakAfter"
+    $ 327 "MoveL"
+    $ 328 "p_pre_ret2" "breakAfter"
     movel(p_pre_ret2, a=1.2, v=0.25)
-    $ 330 "p_pre_ret" "breakAfter"
+    $ 329 "p_pre_ret" "breakAfter"
     movel(p_pre_ret, a=1.2, v=0.25)
-    $ 331 "Set"
-    set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
-    $ 332 "MoveL"
-    $ 333 "p_1" "breakAfter"
+    $ 330 "Set"
+    set_tcp(p[0.00451,-0.328,0.105,1.2092,-1.2092,1.2092])
+    $ 331 "MoveL"
+    $ 332 "p_1" "breakAfter"
     movel(p_1, a=0.1, v=0.05)
+    # begin: URCap Program Node
+    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+    #   Type: WireTank Serial
+    $ 333 "Serial Bridge uR1"
+    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
+    # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
     $ 334 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    # begin: URCap Program Node
-    #   Source: WireTank Serial, 4.9.0, WireTank, LLC
-    #   Type: WireTank Serial
-    $ 335 "Serial Bridge uR1"
-    SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
-    # end: URCap Program Node
-    $ 336 "Wait: 1.0"
+    $ 335 "Wait: 1.0"
     sleep(1.0)
-    $ 337 "Set DO[0]=On"
+    $ 336 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 339 "Wait: 1.0"
+    $ 338 "Wait: 1.0"
     sleep(1.0)
-    $ 340 "MoveL"
-    $ 341 "p_2" "breakAfter"
+    $ 339 "MoveL"
+    $ 340 "p_2" "breakAfter"
     movel(p_2, a=1.2, v=0.01)
-    $ 342 "MoveP"
-    $ 343 "CircleMove"
-    $ 344 "p_3" "noBreak"
-    $ 345 "p_4" "breakAfter"
+    $ 341 "MoveP"
+    $ 342 "CircleMove"
+    $ 343 "p_3" "noBreak"
+    
+    $ 344 "p_4" "breakAfter"
     movec(p_3, p_4, a=0.01, v=5.0E-4, r=0.0, mode=1)
-    $ 346 "MoveL"
-    $ 347 "p_5" "breakAfter"
+    $ 345 "MoveL"
+    $ 346 "p_5" "breakAfter"
     movel(p_5, a=1.2, v=0.012)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 348 "Serial Bridge uR0"
+    $ 347 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 349 "Wait: 2.0"
+    $ 348 "Wait: 2.0"
     sleep(2.0)
-    $ 350 "Set DO[0]=Off"
+    $ 349 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 355 "MoveJ"
-    $ 356 "Waypoint_32" "breakAfter"
+    $ 354 "MoveJ"
+    $ 355 "Waypoint_32" "breakAfter"
     movej(get_inverse_kin(Waypoint_32_p, qnear=Waypoint_32_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 357 "Waypoint_33" "breakAfter"
+    $ 356 "Waypoint_33" "breakAfter"
     movej(get_inverse_kin(Waypoint_33_p, qnear=Waypoint_33_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 358 "Waypoint_73" "breakAfter"
+    $ 357 "Waypoint_73" "breakAfter"
     movej(get_inverse_kin(Waypoint_73_p, qnear=Waypoint_73_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 359 "Comment"
+    $ 358 "Comment"
     # Comment
-    $ 360 "MoveJ"
-    $ 361 "Waypoint_16" "breakAfter"
+    $ 359 "MoveJ"
+    $ 360 "Waypoint_16" "breakAfter"
     movej(get_inverse_kin(Waypoint_16_p, qnear=Waypoint_16_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 362 "Waypoint_17" "breakAfter"
+    $ 361 "Waypoint_17" "breakAfter"
     movej(get_inverse_kin(Waypoint_17_p, qnear=Waypoint_17_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 363 "Waypoint_18" "breakAfter"
+    $ 362 "Waypoint_18" "breakAfter"
     movej(get_inverse_kin(Waypoint_18_p, qnear=Waypoint_18_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 364 "Waypoint_38" "breakAfter"
+    $ 363 "Waypoint_38" "breakAfter"
     movej(get_inverse_kin(Waypoint_38_p, qnear=Waypoint_38_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 365 "'above point is home'"
+    $ 364 "'above point is home'"
     # 'above point is home'
   end
   def Test_Teach_Position():
-    $ 366 "Test_Teach_Position" "noBreak"
-    $ 370 "MoveJ"
-    $ 371 "Waypoint_40" "breakAfter"
+    $ 365 "Test_Teach_Position" "noBreak"
+    $ 369 "MoveJ"
+    $ 370 "Waypoint_40" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_40_p, qnear=Waypoint_40_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 372 "'above waypoint is home'"
+    $ 371 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 373 "Waypoint_2" "breakAfter"
+    $ 372 "Waypoint_2" "breakAfter"
     set_tcp(p[0.0,0.0,0.019,0.0,0.0,0.0])
     movej(get_inverse_kin(Waypoint_2_p, qnear=Waypoint_2_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 374 "Set"
-    set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
-    $ 375 "freedrive_m_var≔ False "
+    $ 373 "Set"
+    set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+    $ 374 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 376 "freedrive_m_var≔ True "
+    $ 375 "freedrive_m_var≔ True "
     global freedrive_m_var=  True  
-    $ 377 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
+    $ 376 "Popup: Move the TCP to the top of the weld, then click 'Continue'"
     popup("Move the TCP to the top of the weld, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 378 "tcp_pose_top≔get_actual_tcp_pose()"
+    $ 377 "tcp_pose_top≔get_actual_tcp_pose()"
     global tcp_pose_top= get_actual_tcp_pose ()
-    $ 379 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
+    $ 378 "Popup: Move the TCP to the corner of the tank, then click 'Continue'"
     popup("Move the TCP to the corner of the tank, then click 'Continue'", "Message", False, False, blocking=True)
-    $ 380 "tcp_pose≔get_actual_tcp_pose()"
+    $ 379 "tcp_pose≔get_actual_tcp_pose()"
     global tcp_pose= get_actual_tcp_pose ()
-    $ 381 "freedrive_m_var≔ False "
+    $ 380 "freedrive_m_var≔ False "
     global freedrive_m_var=  False  
-    $ 382 "Wait: 0.25"
+    $ 381 "Wait: 0.25"
     sleep(0.25)
-    $ 383 "sync()"
+    $ 382 "sync()"
     sync()
   end
   def align_tcp_left():
-    $ 384 "align_tcp_left" "noBreak"
-    $ 385 "'this program aligns the tcp parallel to the y direction'"
+    $ 383 "align_tcp_left" "noBreak"
+    $ 384 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 386 "cp≔get_actual_tcp_pose()"
+    $ 385 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 387 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
+    $ 386 "aligned_y_pose≔p[cp[0],cp[1],cp[2],1.570796,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],1.570796,0,0]
-    $ 388 "MoveJ"
-    $ 389 "aligned_y_pose" "breakAfter"
+    $ 387 "MoveJ"
+    $ 388 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def extrude_knife3():
-    $ 390 "extrude_knife3" "noBreak"
-    $ 391 "pre program stuff"
-    $ 392 "Set"
-    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
-    $ 393 "ek_sp≔get_actual_tcp_pose()"
+    $ 389 "extrude_knife3" "noBreak"
+    $ 390 "pre program stuff"
+    $ 391 "Set"
+    set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
+    $ 392 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
-    $ 394 "MoveL"
-    $ 395 "ek_sp" "breakAfter"
+    $ 393 "MoveL"
+    $ 394 "ek_sp" "breakAfter"
     movel(ek_sp, a=1.2, v=0.005)
-    $ 396 "'list possible points'"
+    $ 395 "'list possible points'"
     # 'list possible points'
-    $ 397 "robot 1 moves"
-    $ 398 "If 1≟2"
+    $ 396 "robot 1 moves"
+    $ 397 "If 1≟2"
     if (1 == 2):
-      $ 399 "MoveJ"
-      $ 400 "r1_ek_oldhome" "breakAfter"
+      $ 398 "MoveJ"
+      $ 399 "r1_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r1_ek_oldhome_p, qnear=r1_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 401 "r1_ek_extrude" "breakAfter"
+      $ 400 "r1_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r1_ek_extrude_p, qnear=r1_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 402 "r1_ek_front" "breakAfter"
+      $ 401 "r1_ek_front" "breakAfter"
       movej(get_inverse_kin(r1_ek_front_p, qnear=r1_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 403 "r1_ek_middle" "breakAfter"
+      $ 402 "r1_ek_middle" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle_p, qnear=r1_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 404 "r1_ek_middle2" "breakAfter"
+      $ 403 "r1_ek_middle2" "breakAfter"
       movej(get_inverse_kin(r1_ek_middle2_p, qnear=r1_ek_middle2_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 405 "r1_ek_bottom" "breakAfter"
+      $ 404 "r1_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r1_ek_bottom_p, qnear=r1_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 406 "r1_ek_end" "breakAfter"
+      $ 405 "r1_ek_end" "breakAfter"
       movej(get_inverse_kin(r1_ek_end_p, qnear=r1_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 407 "robot 2 moves"
-    $ 408 "If 1≟2"
+    $ 406 "robot 2 moves"
+    $ 407 "If 1≟2"
     if (1 == 2):
-      $ 409 "MoveJ"
-      $ 410 "r2_ek_oldhome" "breakAfter"
+      $ 408 "MoveJ"
+      $ 409 "r2_ek_oldhome" "breakAfter"
       movej(get_inverse_kin(r2_ek_oldhome_p, qnear=r2_ek_oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 412 "r2_ek_extrude" "breakAfter"
+      $ 411 "r2_ek_extrude" "breakAfter"
       movej(get_inverse_kin(r2_ek_extrude_p, qnear=r2_ek_extrude_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 413 "r2_ek_front" "breakAfter"
+      $ 412 "r2_ek_front" "breakAfter"
       movej(get_inverse_kin(r2_ek_front_p, qnear=r2_ek_front_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 414 "r2_ek_middle" "breakAfter"
+      $ 413 "r2_ek_middle" "breakAfter"
       movej(get_inverse_kin(r2_ek_middle_p, qnear=r2_ek_middle_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 415 "r2_ek_bottom" "breakAfter"
+      $ 414 "r2_ek_bottom" "breakAfter"
       movej(get_inverse_kin(r2_ek_bottom_p, qnear=r2_ek_bottom_q), a=1.3962634015954636, v=1.0471975511965976)
-      $ 416 "r2_ek_end" "breakAfter"
+      $ 415 "r2_ek_end" "breakAfter"
       movej(get_inverse_kin(r2_ek_end_p, qnear=r2_ek_end_q), a=1.3962634015954636, v=1.0471975511965976)
     end
-    $ 417 "'detemine correct points for which robot'"
+    $ 416 "'detemine correct points for which robot'"
     # 'detemine correct points for which robot'
-    $ 418 "If robot_number≟1"
+    $ 417 "If robot_number≟1"
     if (robot_number == 1):
-      $ 419 "robot1 positions"
-      $ 420 "ek_oldhome≔r1_ek_oldhome_p"
+      $ 418 "robot1 positions"
+      $ 419 "ek_oldhome≔r1_ek_oldhome_p"
       global ek_oldhome=r1_ek_oldhome_p
-      $ 421 "ek_extrude≔r1_ek_extrude_p"
+      $ 420 "ek_extrude≔r1_ek_extrude_p"
       global ek_extrude=r1_ek_extrude_p
-      $ 422 "ek_front≔r1_ek_front_p"
+      $ 421 "ek_front≔r1_ek_front_p"
       global ek_front=r1_ek_front_p
-      $ 423 "ek_middle≔r1_ek_middle_p"
+      $ 422 "ek_middle≔r1_ek_middle_p"
       global ek_middle=r1_ek_middle_p
-      $ 424 "ek_middle2≔r1_ek_middle2_p"
+      $ 423 "ek_middle2≔r1_ek_middle2_p"
       global ek_middle2=r1_ek_middle2_p
-      $ 425 "ek_bottom≔r1_ek_bottom_p"
+      $ 424 "ek_bottom≔r1_ek_bottom_p"
       global ek_bottom=r1_ek_bottom_p
-      $ 426 "ek_end≔r1_ek_end_q"
+      $ 425 "ek_end≔r1_ek_end_q"
       global ek_end=r1_ek_end_q
     else:
-      $ 427 "ElseIf robot_number≟2"
+      $ 426 "ElseIf robot_number≟2"
       if (robot_number == 2):
-        $ 428 "robot1 positions"
-        $ 429 "ek_oldhome≔r2_ek_oldhome_p"
+        $ 427 "robot1 positions"
+        $ 428 "ek_oldhome≔r2_ek_oldhome_p"
         global ek_oldhome=r2_ek_oldhome_p
-        $ 430 "ek_extrude≔r2_ek_extrude_p"
+        $ 429 "ek_extrude≔r2_ek_extrude_p"
         global ek_extrude=r2_ek_extrude_p
-        $ 431 "ek_front≔r2_ek_front_p"
+        $ 430 "ek_front≔r2_ek_front_p"
         global ek_front=r2_ek_front_p
-        $ 432 "ek_middle≔r2_ek_middle_p"
+        $ 431 "ek_middle≔r2_ek_middle_p"
         global ek_middle=r2_ek_middle_p
-        $ 433 "ek_middle2≔r2_ek_middle_p"
+        $ 432 "ek_middle2≔r2_ek_middle_p"
         global ek_middle2=r2_ek_middle_p
-        $ 434 "ek_bottom≔r2_ek_bottom_p"
+        $ 433 "ek_bottom≔r2_ek_bottom_p"
         global ek_bottom=r2_ek_bottom_p
-        $ 435 "ek_end≔r2_ek_end_q"
+        $ 434 "ek_end≔r2_ek_end_q"
         global ek_end=r2_ek_end_q
       end
     end
-    $ 436 "'start of program'"
+    $ 435 "'start of program'"
     # 'start of program'
-    $ 438 "Set"
-    set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
-    $ 439 "MoveJ"
-    $ 441 "ek_oldhome" "breakAfter"
+    $ 437 "Set"
+    set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
+    $ 438 "MoveJ"
+    $ 440 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 442 "'above waypoint is home'"
+    $ 441 "'above waypoint is home'"
     # 'above waypoint is home'
-    $ 443 "'move above bucket'"
+    $ 442 "'move above bucket'"
     # 'move above bucket'
-    $ 444 "MoveJ"
-    $ 446 "ek_extrude" "breakAfter"
+    $ 443 "MoveJ"
+    $ 445 "ek_extrude" "breakAfter"
     movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-    $ 447 "'extrude out a foot'"
+    $ 446 "'extrude out a foot'"
     # 'extrude out a foot'
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 449 "Serial Bridge uR1"
+    $ 448 "Serial Bridge uR1"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
     # end: URCap Program Node
-    $ 450 "Set DO[0]=On"
+    $ 449 "Set DO[0]=On"
     set_standard_digital_out(0, True)
-    $ 451 "Wait: 24.0"
+    $ 450 "Wait: 24.0"
     sleep(24.0)
     # begin: URCap Program Node
     #   Source: WireTank Serial, 4.9.0, WireTank, LLC
     #   Type: WireTank Serial
-    $ 452 "Serial Bridge uR0"
+    $ 451 "Serial Bridge uR0"
     SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
     # end: URCap Program Node
-    $ 453 "Wait: 1.0"
+    $ 452 "Wait: 1.0"
     sleep(1.0)
-    $ 454 "Set DO[0]=Off"
+    $ 453 "Set DO[0]=Off"
     set_standard_digital_out(0, False)
-    $ 455 "'slice'"
+    $ 454 "'slice'"
     # 'slice'
-    $ 456 "MoveL"
-    $ 462 "ek_front" "breakAfter"
+    $ 455 "MoveL"
+    $ 461 "ek_front" "breakAfter"
     movel(ek_front, a=0.05, v=0.03)
-    $ 463 "ek_middle" "breakAfter"
+    $ 462 "ek_middle" "breakAfter"
     movel(ek_middle, a=0.05, v=0.03)
-    $ 464 "ek_middle2" "breakAfter"
+    $ 463 "ek_middle2" "breakAfter"
     movel(ek_middle2, a=0.05, v=0.03)
-    $ 465 "ek_bottom" "breakAfter"
+    $ 464 "ek_bottom" "breakAfter"
     movel(ek_bottom, a=0.05, v=0.03)
-    $ 466 "ek_end" "breakAfter"
+    $ 465 "ek_end" "breakAfter"
     movel(ek_end, a=0.05, v=0.03)
-    $ 467 "MoveJ"
-    $ 469 "ek_oldhome" "breakAfter"
+    $ 466 "MoveJ"
+    $ 468 "ek_oldhome" "breakAfter"
     movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-    $ 470 "'above waypoint is home'"
+    $ 469 "'above waypoint is home'"
     # 'above waypoint is home'
   end
   def align_tcp_forward():
-    $ 472 "align_tcp_forward" "noBreak"
-    $ 473 "'this program aligns the tcp parallel to the y direction'"
+    $ 471 "align_tcp_forward" "noBreak"
+    $ 472 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 474 "cp≔get_actual_tcp_pose()"
+    $ 473 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 475 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
+    $ 474 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,-1.570796,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,-1.570796,0]
-    $ 476 "MoveJ"
-    $ 477 "aligned_y_pose" "breakAfter"
+    $ 475 "MoveJ"
+    $ 476 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_tcp_up():
-    $ 478 "align_tcp_up" "noBreak"
-    $ 479 "'this program aligns the tcp parallel to the y direction'"
+    $ 477 "align_tcp_up" "noBreak"
+    $ 478 "'this program aligns the tcp parallel to the y direction'"
     # 'this program aligns the tcp parallel to the y direction'
-    $ 480 "cp≔get_actual_tcp_pose()"
+    $ 479 "cp≔get_actual_tcp_pose()"
     global cp= get_actual_tcp_pose ()
-    $ 481 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
+    $ 480 "aligned_y_pose≔p[cp[0],cp[1],cp[2],0,0,0]"
     global aligned_y_pose=p[cp[0],cp[1],cp[2],0,0,0]
-    $ 482 "MoveJ"
-    $ 483 "aligned_y_pose" "breakAfter"
+    $ 481 "MoveJ"
+    $ 482 "aligned_y_pose" "breakAfter"
     movej(aligned_y_pose, a=1.3962634015954636, v=1.0471975511965976)
   end
   def align_ready_for_welding():
-    $ 484 "align_ready_for_welding" "noBreak"
-    $ 485 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
+    $ 483 "align_ready_for_welding" "noBreak"
+    $ 484 "'this program takes the welder from home to a position alined ready for welding (vertically down)'"
     # 'this program takes the welder from home to a position alined ready for welding (vertically down)'
-    $ 486 "MoveJ"
-    $ 487 "oldhome" "breakAfter"
+    $ 485 "MoveJ"
+    $ 486 "oldhome" "breakAfter"
     movej(get_inverse_kin(oldhome_p, qnear=oldhome_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 488 "Waypoint_34" "breakAfter"
+    $ 487 "Waypoint_34" "breakAfter"
     movej(get_inverse_kin(Waypoint_34_p, qnear=Waypoint_34_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 489 "Waypoint_35" "breakAfter"
+    $ 488 "Waypoint_35" "breakAfter"
     movej(get_inverse_kin(Waypoint_35_p, qnear=Waypoint_35_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 490 "Waypoint_36" "breakAfter"
+    $ 489 "Waypoint_36" "breakAfter"
     movej(get_inverse_kin(Waypoint_36_p, qnear=Waypoint_36_q), a=1.3962634015954636, v=1.0471975511965976)
   end
   def Corner_Homing_45():
-    $ 491 "Corner_Homing_45" "noBreak"
-    $ 492 "'Use this program when tool is already positioned close to corner at 45deg'"
+    $ 490 "Corner_Homing_45" "noBreak"
+    $ 491 "'Use this program when tool is already positioned close to corner at 45deg'"
     # 'Use this program when tool is already positioned close to corner at 45deg'
-    $ 493 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
+    $ 492 "'tool flange will seek all 3 sides. will save those 5 locs in p__'"
     # 'tool flange will seek all 3 sides. will save those 5 locs in p__'
-    $ 494 "Set"
-    set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
-    $ 503 "Wait: 1.0"
+    $ 493 "Set"
+    set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+    $ 502 "Wait: 1.0"
     sleep(1.0)
-    $ 504 "tp≔get_actual_tcp_pose()"
+    $ 503 "tp≔get_actual_tcp_pose()"
     global tp= get_actual_tcp_pose ()
-    $ 508 "path_pre≔get_corner_homing_45_pathpoints(tp,tcp_pose_top)"
+    $ 507 "path_pre≔get_corner_homing_45_pathpoints(tp,tcp_pose_top)"
     global path_pre=get_corner_homing_45_pathpoints(tp,tcp_pose_top)
-    $ 509 "ph1≔path_pre[0]"
+    $ 508 "ph1≔path_pre[0]"
     global ph1=path_pre[0]
-    $ 510 "ph2≔path_pre[1]"
+    $ 509 "ph2≔path_pre[1]"
     global ph2=path_pre[1]
-    $ 511 "ph3≔path_pre[2]"
+    $ 510 "ph3≔path_pre[2]"
     global ph3=path_pre[2]
-    $ 512 "ph4≔path_pre[3]"
+    $ 511 "ph4≔path_pre[3]"
     global ph4=path_pre[3]
-    $ 513 "ph5≔path_pre[4]"
+    $ 512 "ph5≔path_pre[4]"
     global ph5=path_pre[4]
-    $ 514 "ph6≔path_pre[5]"
+    $ 513 "ph6≔path_pre[5]"
     global ph6=path_pre[5]
-    $ 515 "ph7≔path_pre[6]"
+    $ 514 "ph7≔path_pre[6]"
     global ph7=path_pre[6]
-    $ 516 "ph2up≔path_pre[7]"
+    $ 515 "ph2up≔path_pre[7]"
     global ph2up=path_pre[7]
-    $ 517 "ph4up≔path_pre[8]"
+    $ 516 "ph4up≔path_pre[8]"
     global ph4up=path_pre[8]
-    $ 518 "MoveL"
-    $ 519 "ph1" "breakAfter"
+    $ 517 "MoveL"
+    $ 518 "ph1" "breakAfter"
     movel(ph1, a=0.2, v=0.25)
-    $ 520 "ph2" "breakAfter"
+    $ 519 "ph2" "breakAfter"
     movel(ph2, a=0.2, v=0.25)
-    $ 521 "Wait: 0.5"
+    $ 520 "Wait: 0.5"
     sleep(0.5)
-    $ 522 "MoveL"
-    $ 523 "Direction: Base"
-    global move_thread_flag_523=0
-    thread move_thread_523():
+    $ 521 "MoveL"
+    $ 522 "Direction: Base"
+    global move_thread_flag_522=0
+    thread move_thread_522():
       enter_critical
-      move_thread_flag_523 = 1
+      move_thread_flag_522 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_523 = 2
+      move_thread_flag_522 = 2
       exit_critical
     end
-    move_thread_flag_523 = 0
-    move_thread_han_523 = run move_thread_523()
+    move_thread_flag_522 = 0
+    move_thread_han_522 = run move_thread_522()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_523
+        kill move_thread_han_522
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1160,38 +1168,38 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 524 "Until (tool_contact_detection)"
+        $ 523 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 525 "p11≔get_actual_tcp_pose()"
+    $ 524 "p11≔get_actual_tcp_pose()"
     global p11= get_actual_tcp_pose ()
-    $ 526 "MoveJ"
-    $ 527 "ph2" "breakAfter"
+    $ 525 "MoveJ"
+    $ 526 "ph2" "breakAfter"
     movej(ph2, a=1.3962634015954636, v=1.0471975511965976)
-    $ 528 "ph2up" "breakAfter"
+    $ 527 "ph2up" "breakAfter"
     movej(ph2up, a=1.3962634015954636, v=1.0471975511965976)
-    $ 529 "Wait: 0.5"
+    $ 528 "Wait: 0.5"
     sleep(0.5)
-    $ 530 "MoveL"
-    $ 531 "Direction: Base"
-    global move_thread_flag_531=0
-    thread move_thread_531():
+    $ 529 "MoveL"
+    $ 530 "Direction: Base"
+    global move_thread_flag_530=0
+    thread move_thread_530():
       enter_critical
-      move_thread_flag_531 = 1
+      move_thread_flag_530 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_531 = 2
+      move_thread_flag_530 = 2
       exit_critical
     end
-    move_thread_flag_531 = 0
-    move_thread_han_531 = run move_thread_531()
+    move_thread_flag_530 = 0
+    move_thread_han_530 = run move_thread_530()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_531
+        kill move_thread_han_530
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1203,38 +1211,38 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 532 "Until (tool_contact_detection)"
+        $ 531 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 533 "p13≔get_actual_tcp_pose()"
+    $ 532 "p13≔get_actual_tcp_pose()"
     global p13= get_actual_tcp_pose ()
-    $ 534 "MoveJ"
-    $ 535 "ph2up" "breakAfter"
+    $ 533 "MoveJ"
+    $ 534 "ph2up" "breakAfter"
     movej(ph2up, a=1.3962634015954636, v=1.0471975511965976)
-    $ 536 "ph3" "breakAfter"
+    $ 535 "ph3" "breakAfter"
     movej(ph3, a=1.3962634015954636, v=1.0471975511965976)
-    $ 537 "Wait: 0.5"
+    $ 536 "Wait: 0.5"
     sleep(0.5)
-    $ 538 "MoveL"
-    $ 539 "Direction: Base"
-    global move_thread_flag_539=0
-    thread move_thread_539():
+    $ 537 "MoveL"
+    $ 538 "Direction: Base"
+    global move_thread_flag_538=0
+    thread move_thread_538():
       enter_critical
-      move_thread_flag_539 = 1
+      move_thread_flag_538 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1,-1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_539 = 2
+      move_thread_flag_538 = 2
       exit_critical
     end
-    move_thread_flag_539 = 0
-    move_thread_han_539 = run move_thread_539()
+    move_thread_flag_538 = 0
+    move_thread_han_538 = run move_thread_538()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_539
+        kill move_thread_han_538
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1246,41 +1254,41 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 540 "Until (tool_contact_detection)"
+        $ 539 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 541 "p12≔get_actual_tcp_pose()"
+    $ 540 "p12≔get_actual_tcp_pose()"
     global p12= get_actual_tcp_pose ()
-    $ 545 "MoveL"
-    $ 546 "ph3" "breakAfter"
+    $ 544 "MoveL"
+    $ 545 "ph3" "breakAfter"
     movel(ph3, a=1.2, v=0.25)
-    $ 547 "ph1" "breakAfter"
+    $ 546 "ph1" "breakAfter"
     movel(ph1, a=1.2, v=0.25)
-    $ 552 "MoveL"
-    $ 553 "ph4" "breakAfter"
+    $ 551 "MoveL"
+    $ 552 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 554 "Wait: 0.5"
+    $ 553 "Wait: 0.5"
     sleep(0.5)
-    $ 555 "MoveL"
-    $ 556 "Direction: Base"
-    global move_thread_flag_556=0
-    thread move_thread_556():
+    $ 554 "MoveL"
+    $ 555 "Direction: Base"
+    global move_thread_flag_555=0
+    thread move_thread_555():
       enter_critical
-      move_thread_flag_556 = 1
+      move_thread_flag_555 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_556 = 2
+      move_thread_flag_555 = 2
       exit_critical
     end
-    move_thread_flag_556 = 0
-    move_thread_han_556 = run move_thread_556()
+    move_thread_flag_555 = 0
+    move_thread_han_555 = run move_thread_555()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_556
+        kill move_thread_han_555
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1292,38 +1300,38 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 557 "Until (tool_contact_detection)"
+        $ 556 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 558 "p21≔get_actual_tcp_pose()"
+    $ 557 "p21≔get_actual_tcp_pose()"
     global p21= get_actual_tcp_pose ()
-    $ 559 "MoveL"
-    $ 560 "ph4" "breakAfter"
+    $ 558 "MoveL"
+    $ 559 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 561 "ph4up" "breakAfter"
+    $ 560 "ph4up" "breakAfter"
     movel(ph4up, a=1.2, v=0.25)
-    $ 562 "Wait: 0.5"
+    $ 561 "Wait: 0.5"
     sleep(0.5)
-    $ 563 "MoveL"
-    $ 564 "Direction: Base"
-    global move_thread_flag_564=0
-    thread move_thread_564():
+    $ 562 "MoveL"
+    $ 563 "Direction: Base"
+    global move_thread_flag_563=0
+    thread move_thread_563():
       enter_critical
-      move_thread_flag_564 = 1
+      move_thread_flag_563 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_564 = 2
+      move_thread_flag_563 = 2
       exit_critical
     end
-    move_thread_flag_564 = 0
-    move_thread_han_564 = run move_thread_564()
+    move_thread_flag_563 = 0
+    move_thread_han_563 = run move_thread_563()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_564
+        kill move_thread_han_563
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1335,38 +1343,38 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 565 "Until (tool_contact_detection)"
+        $ 564 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 566 "p23≔get_actual_tcp_pose()"
+    $ 565 "p23≔get_actual_tcp_pose()"
     global p23= get_actual_tcp_pose ()
-    $ 567 "MoveL"
-    $ 568 "ph4up" "breakAfter"
+    $ 566 "MoveL"
+    $ 567 "ph4up" "breakAfter"
     movel(ph4up, a=1.2, v=0.25)
-    $ 569 "ph5" "breakAfter"
+    $ 568 "ph5" "breakAfter"
     movel(ph5, a=1.2, v=0.25)
-    $ 570 "Wait: 0.5"
+    $ 569 "Wait: 0.5"
     sleep(0.5)
-    $ 571 "MoveL"
-    $ 572 "Direction: Base"
-    global move_thread_flag_572=0
-    thread move_thread_572():
+    $ 570 "MoveL"
+    $ 571 "Direction: Base"
+    global move_thread_flag_571=0
+    thread move_thread_571():
       enter_critical
-      move_thread_flag_572 = 1
+      move_thread_flag_571 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [-1.0,1.0,0.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_572 = 2
+      move_thread_flag_571 = 2
       exit_critical
     end
-    move_thread_flag_572 = 0
-    move_thread_han_572 = run move_thread_572()
+    move_thread_flag_571 = 0
+    move_thread_han_571 = run move_thread_571()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_572
+        kill move_thread_han_571
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1378,52 +1386,52 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 573 "Until (tool_contact_detection)"
+        $ 572 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 574 "p22≔get_actual_tcp_pose()"
+    $ 573 "p22≔get_actual_tcp_pose()"
     global p22= get_actual_tcp_pose ()
-    $ 585 "MoveJ"
-    $ 586 "ph5" "breakAfter"
+    $ 584 "MoveJ"
+    $ 585 "ph5" "breakAfter"
     movej(ph5, a=1.3962634015954636, v=1.0471975511965976)
-    $ 587 "MoveL"
-    $ 588 "ph4" "breakAfter"
+    $ 586 "MoveL"
+    $ 587 "ph4" "breakAfter"
     movel(ph4, a=1.2, v=0.25)
-    $ 589 "ph1" "breakAfter"
+    $ 588 "ph1" "breakAfter"
     movel(ph1, a=1.2, v=0.25)
-    $ 590 "MoveJ"
-    $ 591 "Waypoint_4" "breakAfter"
+    $ 589 "MoveJ"
+    $ 590 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 592 "Waypoint_13" "breakAfter"
+    $ 591 "Waypoint_13" "breakAfter"
     movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 593 "Waypoint_1" "breakAfter"
+    $ 592 "Waypoint_1" "breakAfter"
     movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 594 "ph6" "breakAfter"
+    $ 593 "ph6" "breakAfter"
     movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-    $ 595 "ph7" "breakAfter"
+    $ 594 "ph7" "breakAfter"
     movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-    $ 596 "Wait: 1.0"
+    $ 595 "Wait: 1.0"
     sleep(1.0)
-    $ 600 "MoveL"
-    $ 601 "Direction: Base Z+"
-    global move_thread_flag_601=0
-    thread move_thread_601():
+    $ 599 "MoveL"
+    $ 600 "Direction: Base Z+"
+    global move_thread_flag_600=0
+    thread move_thread_600():
       enter_critical
-      move_thread_flag_601 = 1
+      move_thread_flag_600 = 1
       local towardsPos=calculate_point_to_move_towards(p[0.0,0.0,0.0,0.0,0.0,0.0], [0.0,0.0,1.0], 1000.0)
       movel(towardsPos, a=0.1, v=0.02)
-      move_thread_flag_601 = 2
+      move_thread_flag_600 = 2
       exit_critical
     end
-    move_thread_flag_601 = 0
-    move_thread_han_601 = run move_thread_601()
+    move_thread_flag_600 = 0
+    move_thread_han_600 = run move_thread_600()
     while (True):
       local targetTcpDirection=get_target_tcp_speed()
       local stepsToRetract=tool_contact(direction=targetTcpDirection)
       if (stepsToRetract > 0):
-        kill move_thread_han_601
+        kill move_thread_han_600
         stopl(3.0)
         local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
         local contactPose=get_forward_kin(backTrackMovement)
@@ -1435,26 +1443,28 @@ def Floor_Corner_Extended():
           retractTo = pose_sub(contactPose, additionalRetraction)
         end
         movel(retractTo, a=3.0, v=0.1)
-        $ 602 "Until (tool_contact_detection)"
+        $ 601 "Until (tool_contact_detection)"
         break
       end
       sync()
     end
-    $ 603 "p3≔get_actual_tcp_pose()"
+    $ 602 "p3≔get_actual_tcp_pose()"
     global p3= get_actual_tcp_pose ()
-    $ 604 "MoveJ"
-    $ 605 "ph7" "breakAfter"
+    $ 603 "MoveJ"
+    $ 604 "ph7" "breakAfter"
     movej(ph7, a=1.3962634015954636, v=1.0471975511965976)
-    $ 606 "ph6" "breakAfter"
+    $ 605 "ph6" "breakAfter"
     movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
-    $ 607 "Waypoint_14" "breakAfter"
+    $ 606 "Waypoint_14" "breakAfter"
     movej(get_inverse_kin(Waypoint_14_p, qnear=Waypoint_14_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 608 "Waypoint_4" "breakAfter"
+    $ 607 "Waypoint_4" "breakAfter"
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 609 "Waypoint_41" "breakAfter"
+    $ 608 "Waypoint_41" "breakAfter"
     movej(get_inverse_kin(Waypoint_41_p, qnear=Waypoint_41_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 610 "'above waypoint is home'"
+    $ 609 "'above waypoint is home'"
     # 'above waypoint is home'
+    $ 611 "Comment"
+    # Comment
     $ 612 "Comment"
     # Comment
     $ 613 "Comment"
@@ -1465,8 +1475,6 @@ def Floor_Corner_Extended():
     # Comment
     $ 616 "Comment"
     # Comment
-    $ 617 "Comment"
-    # Comment
   end
   $ 2 "BeforeStart"
   $ 3 "Safe Home Folder"
@@ -1475,7 +1483,7 @@ def Floor_Corner_Extended():
   $ 5 "'make sure the tcp is welder'"
   # 'make sure the tcp is welder'
   $ 6 "Set"
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
   $ 7 "sp≔get_actual_tcp_pose()"
   global sp= get_actual_tcp_pose ()
   $ 8 "MoveL"
@@ -1667,25 +1675,25 @@ def Floor_Corner_Extended():
     sleep(0.03)
     # end: URCap Program Node
   end
-  $ 618 "Thread_1"
+  $ 617 "Thread_1"
   thread Thread_1():
-    $ 619 "Loop  True "
+    $ 618 "Loop  True "
     while (  True  ):
-      $ 620 "If freedrive_m_var≟ True "
+      $ 619 "If freedrive_m_var≟ True "
       if (freedrive_m_var ==   True  ):
-        $ 621 "freedrive_mode()"
+        $ 620 "freedrive_mode()"
         freedrive_mode()
-        $ 622 "free_dr_already≔ True "
+        $ 621 "free_dr_already≔ True "
         global free_dr_already=  True  
       else:
-        $ 623 "Else" "noBreak"
-        $ 624 "If free_dr_already"
+        $ 622 "Else" "noBreak"
+        $ 623 "If free_dr_already"
         if (free_dr_already):
-          $ 625 "end_freedrive_mode()"
+          $ 624 "end_freedrive_mode()"
           end_freedrive_mode()
         end
       end
-      $ 626 "sync()"
+      $ 625 "sync()"
       sync()
     end
   end
@@ -1694,7 +1702,7 @@ def Floor_Corner_Extended():
   $ 91 "'start of main program'"
   # 'start of main program'
   $ 92 "Set"
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
   $ 93 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   $ 94 "Script: analyze_touchpoints.script"
@@ -2743,9 +2751,9 @@ def Floor_Corner_Extended():
     if pointtop[2] == 0:
       ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
       ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-    elif pointtop[2] > 1.0: # 0.914m = 36 inches
-      ph2up = p[ph2[0], ph2[1], 1.0, ph2[3], ph2[4], ph2[5]]
-      ph4up = p[ph4[0], ph4[1], 1.0, ph4[3], ph4[4], ph4[5]]
+    elif pointtop[2] > p0z + 0.914: # 0.914m = 36 inches
+      ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
+      ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
     else:
       ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
       ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
@@ -5937,41 +5945,43 @@ def Floor_Corner_Extended():
     $ 106 "floorthick≔0.375"
     global floorthick=0.375
   end
-  $ 107 "MoveJ"
-  $ 108 "Waypoint_46" "breakAfter"
+  $ 107 "Set"
+  set_tcp(p[-0.0095,-0.328,0.105,1.2092,-1.2092,1.2092])
+  $ 108 "MoveJ"
+  $ 109 "Waypoint_46" "breakAfter"
   movej(get_inverse_kin(Waypoint_46_p, qnear=Waypoint_46_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 109 "Set"
-  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
-  $ 110 "Test_Teach_Position()"
+  $ 110 "Set"
+  set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+  $ 111 "Test_Teach_Position()"
   Test_Teach_Position()
-  $ 111 "Set"
-  set_tcp(p[0.0027,-0.0049299999999999995,0.2846,0.0,0.0,0.0])
-  $ 112 "kill threadId_Thread_1"
+  $ 112 "Set"
+  set_tcp(p[1.4000000000000001E-4,-0.01751,0.284,0.0,0.0,0.0])
+  $ 113 "kill threadId_Thread_1"
   kill threadId_Thread_1
-  $ 113 "Corner_Homing_45()"
+  $ 114 "Corner_Homing_45()"
   Corner_Homing_45()
-  $ 114 "Set"
-  set_tcp(p[-0.00549,-0.328,0.10639,1.2092,-1.2092,1.2092])
-  $ 119 "If leftchoice≟ True "
+  $ 115 "Set"
+  set_tcp(p[-0.011699999999999999,-0.328,0.105,1.2092,-1.2092,1.2092])
+  $ 120 "If leftchoice≟ True "
   if (leftchoice ==   True  ):
-    $ 120 "pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)"
+    $ 121 "pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)"
     global pathturn=main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
-    $ 121 "extrude_knife3()"
+    $ 122 "extrude_knife3()"
     extrude_knife3()
-    $ 123 "move_path_3left()"
+    $ 124 "move_path_3left()"
     move_path_3left()
   else:
-    $ 124 "Else" "noBreak"
-    $ 125 "pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)"
+    $ 125 "Else" "noBreak"
+    $ 126 "pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)"
     global pathturn=main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
-    $ 126 "extrude_knife3()"
+    $ 127 "extrude_knife3()"
     extrude_knife3()
-    $ 127 "move_path_3right()"
+    $ 128 "move_path_3right()"
     move_path_3right()
   end
-  $ 129 "MoveJ"
-  $ 131 "Waypoint_20" "breakAfter"
+  $ 130 "MoveJ"
+  $ 132 "Waypoint_20" "breakAfter"
   movej(get_inverse_kin(Waypoint_20_p, qnear=Waypoint_20_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 132 "Home"
+  $ 133 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end

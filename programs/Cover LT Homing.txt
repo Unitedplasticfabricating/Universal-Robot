@@ -1,0 +1,42 @@
+ Program
+   Variables Setup
+   Robot Program
+     Set
+     'assume the person has just taught the right point and pressed continue.'
+     'Home'
+     'MoveJ'
+     'MoveJ'
+     Wait: 1.0
+     'tp≔get_actual_tcp_pose()'
+     Script: analyze_touchpoints.script
+     path_pre≔get_straight_homing_pathpoints_cover(tcp_pose_left,tcp_pose_right)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     'ph3≔path_pre[2]'
+     'ph4≔path_pre[3]'
+     MoveL
+       Direction: Base Z+
+         Until (distance)
+     MoveL
+       ph2
+     MoveL
+       Direction: Base Z-
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveL
+       ph2
+       ph1
+     MoveL
+       Direction: Base Z-
+         Until (tool_contact_detection)
+     'p13≔get_actual_tcp_pose()'
+     'MoveJ'
+     'MoveL'
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph1
+     MoveJ
+       ph1
+     MoveJ
+       Waypoint_7
+     Home

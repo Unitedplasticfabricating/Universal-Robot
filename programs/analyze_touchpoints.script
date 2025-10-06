@@ -35,9 +35,9 @@ end
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top, p14, p24):
+def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3, p14, p24)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     struct3 = check_validity_right(struct1, struct2)
     return struct3
@@ -50,9 +50,9 @@ end
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top, p14, p24):
+def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3, p14, p24)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     struct3 = check_validity_left(struct1, struct2)
     return struct3
@@ -608,7 +608,6 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamfe
     rz = rxryrz[2]
     
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1/2, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -662,7 +661,7 @@ def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamfe
     point_3 = p[atret5[0], atret5[1], z, atret5[3], atret5[4], atret5[5]]
     
     
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5, point1half=point1half)
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
 end
 
@@ -708,7 +707,6 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamfer
     rz = rxryrz[2]
     
     point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
-    point1half = p[x + wd1*listleans[2]/2, y + wd1*listleans[3]/2, z + wd1/2, rx, ry, rz]
     point2 = p[x, y, z, rx, ry, rz]
     
     # convert the headings to rxryrz and insert those values into the relevant points
@@ -766,16 +764,15 @@ def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamfer
     rz = rxryrz[2]
     point_3 = p[point_3[0], point_3[1], z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5, point1half=point1half)
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
     return struct2
 end
 
 # this function analyzes the vertical points
 # calculates the slope of the edge in question
 # specifically, for each inch up in the z direction, what is the change in x and change in y direction
-# then does the same for the halfway point
-# returns a list of [nx, ny, nx2, ny2]
-def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3, p14, p24):
+# returns a list of [nx, ny]
+def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
     # first, find the equations of the planes from the 6 points
     plane1 = findplane(p11, p12, p13)
     plane2 = findplane(p21, p22, p23)
@@ -788,17 +785,7 @@ def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3, p14, p24):
     nx = nx * multiplier
     ny = ny * multiplier
     nz = nz * multiplier # should become equal to 1
-    # now do the same for the mid point
-    plane3 = findplane(p11, p12, p14)
-    plane4 = findplane(p21, p22, p24)
-    nx2 = plane3[1]*plane4[2] - plane3[2]*plane4[1]
-    ny2 = plane3[2]*plane4[0] - plane3[0]*plane4[2]
-    nz2 = plane3[0]*plane4[1] - plane3[1]*plane4[0]
-    multiplier = 1 / nz2
-    nx2 = nx2 * multiplier
-    ny2 = ny2 * multiplier
-    nz2 = nz2 * multiplier # should become equal to 1
-    ret = [nx, ny, nx2, ny2]
+    ret = [nx, ny]
     return ret
 end
 
@@ -1056,29 +1043,14 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   if pointtop[2] == 0:
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] < ph2[2] + .05: # if the top point is less than 5 cm higher than the homing points
-    ph2up = p[ph2[0], ph2[1], ph2[2]+.05, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], ph4[2]+.05, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] > 1.0: # (deprecated) 0.914m = 36 inches
-    ph2up = p[ph2[0], ph2[1], 1.0, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], 1.0, ph4[3], ph4[4], ph4[5]]
+  elif pointtop[2] > p0z + 0.914: # 0.914m = 36 inches
+    ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
   else:
     ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
   end
-  
-  # add the MIDDLE vertical touchpoints
-  if pointtop[2] > ph2[2] + .05:
-    # calculate halfwayz
-    halfwayz = (ph2up[2] + ph2[2])/2
-    ph2uphalf = p[ph2[0], ph2[1], halfwayz, ph2[3], ph2[4], ph2[5]]
-    ph4uphalf = p[ph4[0], ph4[1], halfwayz, ph4[3], ph4[4], ph4[5]]
-  else:
-    halfwayz = (ph2up[2] + ph2[2])/2
-    ph2uphalf = p[ph2[0], ph2[1], halfwayz, ph2[3], ph2[4], ph2[5]]
-    ph4uphalf = p[ph4[0], ph4[1], halfwayz, ph4[3], ph4[4], ph4[5]]
-  end
-  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up, ph2uphalf=ph2uphalf, ph4uphalf=ph4uphalf)
+  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
   is_robot_at_reachable_spot(point0, ret)
   return ret
 end
@@ -1499,13 +1471,11 @@ def floor_corner_lift_column_extend_right(struct2):
   testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
   origp5 = struct2[3]
   testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
-  origp1half = struct2[9]
-  testp1half = p[origp1half[0], origp1half[1], origp1half[2] - liftColumnHeightTest / 1000, origp1half[3], origp1half[4], origp1half[5]]
   
   
   
   liftcolumnzneeded = liftColumnHeightTest
-  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point1half=testp1half)
+  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
   return ret
   
 end
@@ -1558,9 +1528,6 @@ def floor_corner_lift_column_extend_left(struct2):
   orig_joints = [-0.010297442586766533, -0.5996951309852511, 1.356295361724792, 3.9566614142711405, -1.5564846269285415, 0.8518952078984314]
   valid = valid and can_pose_be_reached_without_twist(testp5, orig_joints)
   
-  origp1half = struct2[9]
-  testp1half = p[origp1half[0], origp1half[1], origp1half[2] - liftColumnHeightTest / 1000, origp1half[3], origp1half[4], origp1half[5]]
-  
   if not valid:
     # display
     popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
@@ -1570,7 +1537,7 @@ def floor_corner_lift_column_extend_left(struct2):
     end
   else:
     liftcolumnzneeded = liftColumnHeightTest
-    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point1half=testp1half)
+    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
     return ret
   end
 end
