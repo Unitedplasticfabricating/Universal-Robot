@@ -89,7 +89,7 @@ def copyFilesFromFlashDrive():
     '''
     deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
     '''
-    source_folder = 'D:\\programs'
+    source_folder = 'E:\\programs'
     destination_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
