@@ -851,3 +851,38 @@ def analyze_touchpoints_only_cover(p11, p12, p21, p3):
     ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
     return ret
 end
+
+
+def get_corner_homing_45_pathpoints_cover(point0):
+    p0x = point0[0]
+    p0y = point0[1]
+    p0z = point0[2]
+    p0rx = point0[3]
+    p0ry = point0[4]
+    p0rz = point0[5]
+    
+    #constants
+    #distances of how far away from point the touchpoints are
+    d0 = 0.10 # how far from the box to retreat and approach
+    d1 = 0.04 # first distance from init point
+    d2 = 0.15 # second distance from init point
+    d4 = 0.06 # top distance from init point - larger to avoid large chamfers
+    sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
+    
+    ph1 = p[p0x + d0, p0y, p0z + d1, p0rx, p0ry, p0rz] #approach point for turn
+    
+    ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z-d1, 1.446, -0.8, -0.733]
+    ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z-d1, 1.446, -0.8, -0.733]
+    ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z-d1, 0.626, -1.993, -1.813]
+    #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
+    
+    # approach point for top
+    ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner. 
+    
+    # top point
+    ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
+    
+    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
+    is_robot_at_reachable_spot(point0, ret)
+    return ret
+end

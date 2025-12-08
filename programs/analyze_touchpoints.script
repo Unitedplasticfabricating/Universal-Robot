@@ -1033,94 +1033,6 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   return ret
 end
 
-def get_corner_homing_45_pathpoints_cover(point0):
-    p0x = point0[0]
-    p0y = point0[1]
-    p0z = point0[2]
-    p0rx = point0[3]
-    p0ry = point0[4]
-    p0rz = point0[5]
-    
-    #constants
-    #distances of how far away from point the touchpoints are
-    d0 = 0.10 # how far from the box to retreat and approach
-    d1 = 0.04 # first distance from init point
-    d2 = 0.15 # second distance from init point
-    d4 = 0.06 # top distance from init point - larger to avoid large chamfers
-    sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
-    
-    ph1 = p[p0x + d0, p0y, p0z + d1, p0rx, p0ry, p0rz] #approach point for turn
-    
-    ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z-d1, 1.446, -0.8, -0.733]
-    ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z-d1, 1.446, -0.8, -0.733]
-    ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z-d1, 0.626, -1.993, -1.813]
-    #ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z-d1, 0.626, -1.993, -1.813]
-    
-    # approach point for top
-    ph6 = p[p0x + d0 * 2, p0y, p0z+0.05, 0.138, 3.104, -0.072] # double the d0 in the x direction because it was getting VERY close to smacking the corner. 
-    
-    # top point
-    ph7 = p[p0x - d4, p0y, p0z+0.05, 0.138, 3.104, -0.072]
-    
-    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph4, ph6=ph6, ph7=ph7)
-    is_robot_at_reachable_spot(point0, ret)
-    return ret
-end
-
-# this function determines the starting touchpoints for homing in on cover straight geometry
-# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
-def get_straight_homing_pathpoints_cover(leftpoint, rightpoint):
-    # get the teach position points
-    lpx = leftpoint[0]
-    lpy = leftpoint[1]
-    lpz = leftpoint[2]
-    rpx = rightpoint[0]
-    rpy = rightpoint[1]
-    rpz = rightpoint[2]
-    
-    # specify the distances from
-    d0 = 0.05 # how far from the planes to approach from
-    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
-    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
-    
-    # calculate the points (the rxryrz are given in pretend_welder_top coordinates. they match pure rotations of 90 degrees)
-    ph1 = p[lpx + d0, lpy, lpz - d1, 1.209, -1.209, -1.209] # left side approach
-    ph2 = p[rpx + d0, rpy, rpz - d1, 1.209, -1.209, -1.209] # right side approach
-    ph3 = p[lpx - d2, lpy, lpz + d0, 2.221, -2.221, 0] # left top approach
-    ph4 = p[rpx - d2, rpy, rpz + d0, 2.221, -2.221, 0] # right top approach
-    
-    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
-    is_robot_at_reachable_spot(leftpoint, ret)
-    return ret
-end
-
-# this function determines the starting touchpoints for homing in on cover straight geometry
-# includes two side points to determine the sidewall plane (assumed vertical) and two top points to determine top plane (assumed perpendicular to sidewall plane)
-def get_straight_homing_pathpoints_floor(leftpoint, rightpoint):
-    # get the teach position points
-    lpx = leftpoint[0]
-    lpy = leftpoint[1]
-    lpz = leftpoint[2]
-    rpx = rightpoint[0]
-    rpy = rightpoint[1]
-    rpz = rightpoint[2]
-    
-    # specify the distances from
-    d0 = 0.05 # how far from the planes to approach from
-    d1 = 0.03 # how far from the teach point to home from, when there is no chamfer to avoid
-    d2 = 0.06 # how far from the teach point to home from, when there is a chamfer to avoid
-    
-    # calculate the points
-    ph1 = p[lpx + d0, lpy, lpz + d1, 1.209, -1.209, -1.209] # left side approach
-    ph2 = p[rpx + d0, rpy, rpz + d1, 1.209, -1.209, -1.209] # right side approach
-    ph3 = p[lpx - d1, lpy, lpz - d0, 0, 0, 0] # left bottom approach
-    ph4 = p[rpx - d1, rpy, rpz - d0, 0, 0, 0] # right bottom approach
-    
-    ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4)
-    is_robot_at_reachable_spot(leftpoint, ret, 4)
-    return ret
-end
-
 # this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
 # if everything looks good, it continues.
 # if it detects a problem, it infinite loops a popup
@@ -1137,8 +1049,6 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints, structlength = 9):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
-  
-  
   
   # next, check whether the touchpoints are reachable
   allvalid = check_structofpoints_validity(struct_touchpoints)
@@ -1165,7 +1075,6 @@ def is_robot_at_reachable_spot(point0, struct_touchpoints, structlength = 9):
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   end
-  
 end
 
 # checks the validity of all points during a left weld
@@ -1497,44 +1406,6 @@ def floor_corner_lift_column_extend_left(struct2):
     ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
     return ret
   end
-end
-
-# this function calculates whether a given pose can be reached, and if it can, whether it requires a wrist twist (from the seed joint angles)
-# arguments are target pose (p[x,y,z,rx,ry,rz]) and orig_joints which is the 6 joint angles of a pose that is close by the target pose and has the desired joint angles
-# returns true if the pose is valid and requires no twist. If pose is valid but requires a twist, returns false. If pose is invalid, returns false.
-def can_pose_be_reached_without_twist(pose, orig_joints):
-  # first, determine if the pose is valid
-  valid = get_inverse_kin_has_solution(pose)
-  if not valid:
-    return False
-  end
-  valid = get_inverse_kin_has_solution(pose, orig_joints)
-  if not valid:
-    return False
-  else:
-    joints_1 = get_inverse_kin(pose, orig_joints)
-    #iterate through the 6 joints
-    allGood = True
-    i = 0
-    structlength = 6
-    while i < structlength:
-      joint_curr = joints_1[i]
-      # check for anything that exceeds joint limits
-      degreesmax = 360 * pi / 180 
-      if joint_curr > degreesmax or joint_curr < degreesmax * -1:
-        allGood = False
-      end
-      # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-      maxdifference = 150 * pi / 180 
-      difference = joint_curr - orig_joints[i]
-      if difference > maxdifference or difference * -1 > maxdifference:
-        allGood = False
-      end
-      i = i + 1
-    end
-    return allGood
-  end
-  
 end
 
 def floor_corner_right_p_3_reduce(struct2, orig_joints):
