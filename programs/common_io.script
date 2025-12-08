@@ -3,7 +3,7 @@
 # includes rs232 commands, lift column commands, and calls to native universal robots functions (like get_inverse_kin_has_solution())
 
 
-# Section: rs232 commands
+# Section: rs232 commands ###############################
 
 # this function sends a signal to turn extrusion on
 def turn_extrusion_on():
@@ -101,7 +101,10 @@ def welder_state_ready():
 end
 
 
-# Section: lift column commands
+# Section: lift column commands ##################################
+
+# initialize a lift column extension needed of 0.0
+global liftcolumnzneeded = 0.0 # set this variable in mm
 
 def get_lift_column_height():
   # begin: URCap Program Node
@@ -145,7 +148,7 @@ def get_lift_column_height_condensed():
 end
 
 
-# Section: Native UR commands
+# Section: Native UR commands ###################################
 
 # this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
 # this function does NOT check for weird twists or joint limits
@@ -166,4 +169,18 @@ def check_structofpoints_validity(inputstruct):
     i = i + 1
   end
   return True
+end
+
+# this function takes in a struct of only points. it checks those points for validity. 
+# if one of them is not valid, it throws a popup loop
+def check_validity_only(struct2):
+  validity = check_structofpoints_validity(struct2)
+  if not validity:
+    # bad
+    popuptext = "Not all weldpoints are valid. "
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Position Error",blocking=True)
+    end
+  end
 end
