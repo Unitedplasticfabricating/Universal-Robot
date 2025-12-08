@@ -1,0 +1,169 @@
+# common_io.script
+# this file contains IO (input/output) commands, commonly used by robot programs
+# includes rs232 commands, lift column commands, and calls to native universal robots functions (like get_inverse_kin_has_solution())
+
+
+# Section: rs232 commands
+
+# this function sends a signal to turn extrusion on
+def turn_extrusion_on():
+  # flush the channel
+  resp0 = send_serial_signal(["u", "r", "?"])
+  # send the signal
+  resp1 = send_serial_signal(["u", "R", "1"])
+  # if resp <> "uR1"
+  if resp1 != [252,82,49]:
+    # turn off extrusion and heating. inform calvin
+    resp2 = send_serial_signal(["u", "R", "0"])
+    resp3 = send_serial_signal(["u", "H", "0"])
+    popuptext = "Error code encountered while trying to start extrusion. Find Calvin. "
+    while 1==1:
+      popup(popuptext, title="Extrusion Error Code",blocking=True)
+      popup(resp1, blocking=True)
+    end
+  end    
+end
+
+# this function sends a signal and receives a response
+# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
+def send_serial_signal(signal):
+  signal2char = signal[1]
+  signal3char = signal[2]
+  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
+  resp1 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", listsignal, True)
+  return resp1
+end
+
+# this function converts a letter into its ascii number
+def get_corr_number(letter):
+  if letter == "A":
+    return 65
+  elif letter == "H":
+    return 72
+  elif letter == "R":
+    return 82
+  elif letter == "M":
+    return 77
+  elif letter == "E":
+    return 69
+  elif letter == "a":
+    return 97
+  elif letter == "b":
+    return 98
+  elif letter == "h":
+    return 104
+  elif letter == "r":
+    return 114
+  elif letter == "s":
+    return 115
+  elif letter == "m":
+    return 109
+  elif letter == "0":
+    return 48
+  elif letter == "1":
+    return 49
+  elif letter == "2":
+    return 50
+  elif letter == "3":
+    return 51
+  elif letter == "4":
+    return 52
+  elif letter == "5":
+    return 53
+  elif letter == "6":
+    return 54
+  elif letter == "7":
+    return 55
+  elif letter == "8":
+    return 56
+  elif letter == "9":
+    return 57
+  elif letter == "?":
+    return 63
+  end
+end
+
+# this function checks whether the welder is in the ready state. 
+# to be called at the beginning of Main Program
+def welder_state_ready():
+  # flush the channel
+  resp0 = send_serial_signal(["u", "s", "?"])
+  # send the signal
+  resp1 = send_serial_signal(["u", "s", "?"])
+  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
+  if resp1 != [252,115,49]:
+    popuptext = "Welder is not ready for extrusion. Follow the instructions to start heating welder. "
+    while 1==1:
+      popup(popuptext, title="Welder Not Ready",blocking=True)
+    end
+  end
+  
+end
+
+
+# Section: lift column commands
+
+def get_lift_column_height():
+  # begin: URCap Program Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  #$ 5 "MachineLogic Get Position"
+  while isVentionMovementBusyMachineMotion1==True:
+    sleep(0.05)
+  end
+  if(isVentionMovementBusyMachineMotion1 == False):
+    isVentionMovementBusyMachineMotion1 = True
+    socket_send_string("estop/status;", "MachineMotion1")
+    temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+    while(temp_estop_var_vention=="estop/status true"):
+      if temp_estop_var_vention=="estop/status true":
+        sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
+      end
+      socket_send_string("estop/status;", "MachineMotion1")
+      temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
+      if temp_estop_var_vention=="estop/status true":
+        popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
+      end
+    end
+  else:
+    popup("resource is being used already: MachineMotion1")
+    halt
+  end
+  socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+  temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+  global var_1 = temp_drive[1]
+  isVentionMovementBusyMachineMotion1 = False
+  sleep(0.03)
+  # end: URCap Program Node
+end
+
+def get_lift_column_height_condensed():
+  socket_send_string("GET im_get_controller_pos_axis_1;", "MachineMotion1")
+  temp_drive = socket_read_ascii_float(1, "MachineMotion1",timeout=15)
+  ret = temp_drive[1]
+  return ret
+end
+
+
+# Section: Native UR commands
+
+# this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
+# this function does NOT check for weird twists or joint limits
+# inputstruct must contain only points
+# it returns true if all points are valid. it returns false if any points are valid
+# a list of length 0 indicates that all points are valid
+def check_structofpoints_validity(inputstruct):
+  # next, check whether the touchpoints are reachable
+  structlength = length(inputstruct)
+  i = 0
+  allvalid = True
+  while i < structlength:
+    curr = inputstruct[i]
+    valid = get_inverse_kin_has_solution(curr)
+    if not valid:
+      return False
+    end
+    i = i + 1
+  end
+  return True
+end
