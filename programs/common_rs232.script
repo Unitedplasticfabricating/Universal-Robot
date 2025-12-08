@@ -1,0 +1,94 @@
+# this function sends a signal to turn extrusion on
+def turn_extrusion_on():
+  # flush the channel
+  resp0 = send_serial_signal(["u", "r", "?"])
+  # send the signal
+  resp1 = send_serial_signal(["u", "R", "1"])
+  # if resp <> "uR1"
+  if resp1 != [252,82,49]:
+    # turn off extrusion and heating. inform calvin
+    resp2 = send_serial_signal(["u", "R", "0"])
+    resp3 = send_serial_signal(["u", "H", "0"])
+    popuptext = "Error code encountered while trying to start extrusion. Find Calvin. "
+    while 1==1:
+      popup(popuptext, title="Extrusion Error Code",blocking=True)
+      popup(resp1, blocking=True)
+    end
+  end    
+end
+
+# this function sends a signal and receives a response
+# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
+def send_serial_signal(signal):
+  signal2char = signal[1]
+  signal3char = signal[2]
+  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
+  resp1 = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", listsignal, True)
+  return resp1
+end
+
+# this function converts a letter into its ascii number
+def get_corr_number(letter):
+  if letter == "A":
+    return 65
+  elif letter == "H":
+    return 72
+  elif letter == "R":
+    return 82
+  elif letter == "M":
+    return 77
+  elif letter == "E":
+    return 69
+  elif letter == "a":
+    return 97
+  elif letter == "b":
+    return 98
+  elif letter == "h":
+    return 104
+  elif letter == "r":
+    return 114
+  elif letter == "s":
+    return 115
+  elif letter == "m":
+    return 109
+  elif letter == "0":
+    return 48
+  elif letter == "1":
+    return 49
+  elif letter == "2":
+    return 50
+  elif letter == "3":
+    return 51
+  elif letter == "4":
+    return 52
+  elif letter == "5":
+    return 53
+  elif letter == "6":
+    return 54
+  elif letter == "7":
+    return 55
+  elif letter == "8":
+    return 56
+  elif letter == "9":
+    return 57
+  elif letter == "?":
+    return 63
+  end
+end
+
+# this function checks whether the welder is in the ready state. 
+# to be called at the beginning of Main Program
+def welder_state_ready():
+  # flush the channel
+  resp0 = send_serial_signal(["u", "s", "?"])
+  # send the signal
+  resp1 = send_serial_signal(["u", "s", "?"])
+  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
+  if resp1 != [252,115,49]:
+    popuptext = "Welder is not ready for extrusion. Follow the instructions to start heating welder. "
+    while 1==1:
+      popup(popuptext, title="Welder Not Ready",blocking=True)
+    end
+  end
+  
+end

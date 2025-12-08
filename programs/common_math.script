@@ -1,0 +1,307 @@
+# given 3 points, this finds the plane and its equation
+# rereturns ax + by + cz + d = 0 in a list of [a, b, c, d]
+def findplane(p11, p12, p13):
+    # extract coordinates
+    x1 = p11[0]
+    y1 = p11[1]
+    z1 = p11[2]
+    x2 = p12[0]
+    y2 = p12[1]
+    z2 = p12[2]
+    x3 = p13[0]
+    y3 = p13[1]
+    z3 = p13[2]
+    # create vectors from the points
+    v1x = x2-x1
+    v1y = y2-y1
+    v1z = z2-z1
+    v2x = x3-x1
+    v2y = y3-y1
+    v2z = z3-z1
+    #calculate the normal vector using the cross product
+    nx = v1y*v2z - v1z*v2y # i component
+    ny = v1z*v2x - v1x*v2z # j component
+    nz = v1x*v2y - v1y*v2x # k component
+    # calculate d in the plane equation
+    d = -1 * (nx*x1 + ny*y1 + nz*z1)
+    ret = [nx, ny, nz, d]
+    return ret
+end
+
+# given a heading, (ccw from +x axis), find the mx+b slope
+# fails if exactly vertical
+def get_slope_from_heading(heading):
+    return tan(heading)
+end
+
+# this function converts a unit vector to its heading angle ccw from x+ axis
+# takes uvx and uvy
+# returns heading in radians
+def convert_uv_to_heading(uvx, uvy):
+  baseang = atan(uvy/uvx)
+  if uvx < 0:
+    ang = baseang + pi
+  elif uvy < 0:
+    ang = baseang + pi * 2
+  else:
+    ang = baseang
+  end
+  return ang
+end
+
+# this function finds the equation of a line, perpendicular to a given line, and going through a given point
+# takes 3 arguments: m (the original line's slope), x (point's x coord), y (point's y coord). the b of the original line is not needed
+# returns a list of [m,b] (the slope and intercept of the new line)
+def find_perpendicular_line(origm, x, y):
+  m = (1/origm) * -1
+  b = y - m*x
+  ret = [m, b]
+  return ret
+end
+
+# this function finds the intersection point between two lines in the xy plane
+# takes 4 arguments: m1, b1, m2, b2
+# returns a list of [x,y] (the point of intersection)
+def find_intersection(m1, b1, m2, b2):
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  x = (b2-b1) / (m1-m2)
+  y = m1 * x + b1
+  ret = [x, y]
+  return ret
+end
+
+# this function finds the distance between 2 points in 3d space
+# it takes 6 arguments: x1, y1, z1, x2, y2, z2
+# it returns a distance
+def distance_between(x1, y1, z1, x2, y2, z2):
+  distsquared = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1)
+  dist = sqrt(distsquared)
+  return dist
+end
+
+# this function takes a point, a unit vector, and a distance, and adds the distance to the point in the direction of the unit vector (3d space)
+# it returns a point as a list of coordinates
+def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
+  xf = xi + uvx * delta
+  yf = yi + uvy * delta
+  zf = zi + uvz * delta
+  ret = [xf, yf, zf]
+  return ret
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function takes two rotation matrices, and multiplies them together, returning one matrix. 
+# all matrices are in the form of a list.
+# all matrix values have constant values (no variables)
+def multiply_matrix(matrix1, matrix2):
+    # retrieve values
+    a11 = matrix1[0]
+    a12 = matrix1[1]
+    a13 = matrix1[2]
+    a21 = matrix1[3]
+    a22 = matrix1[4]
+    a23 = matrix1[5]
+    a31 = matrix1[6]
+    a32 = matrix1[7]
+    a33 = matrix1[8]
+    b11 = matrix2[0]
+    b12 = matrix2[1]
+    b13 = matrix2[2]
+    b21 = matrix2[3]
+    b22 = matrix2[4]
+    b23 = matrix2[5]
+    b31 = matrix2[6]
+    b32 = matrix2[7]
+    b33 = matrix2[8]
+    #calculate c values
+    c11 = a11*b11 + a12*b21 + a13*b31
+    c12 = a11*b12 + a12*b22 + a13*b32
+    c13 = a11*b13 + a12*b23 + a13*b33
+    c21 = a21*b11 + a22*b21 + a23*b31
+    c22 = a21*b12 + a22*b22 + a23*b32
+    c23 = a21*b13 + a22*b23 + a23*b33
+    c31 = a31*b11 + a32*b21 + a33*b31
+    c32 = a31*b12 + a32*b22 + a33*b32
+    c33 = a31*b13 + a32*b23 + a33*b33
+    # return resulting matrix
+    ret = [c11, c12, c13, c21, c22, c23, c31, c32, c33]
+    return ret
+end
+
+# this function converts a matrix to axis angle representations
+# this matrix is usually a resulting matrix (result of matrix multiplication) in normal use, given as a list
+# returns a list of [rx,ry,rz]
+def convert_matrix_to_axang(matrix1):
+    # retrieve values
+    a11 = matrix1[0]
+    a12 = matrix1[1]
+    a13 = matrix1[2]
+    a21 = matrix1[3]
+    a22 = matrix1[4]
+    a23 = matrix1[5]
+    a31 = matrix1[6]
+    a32 = matrix1[7]
+    a33 = matrix1[8]
+    
+    # First Half: find the angle    
+    # find the trace
+    # using the formula: trace = a11 + a22 + a33
+    trace = a11 + a22 + a33
+    # find the angle using the formula: trace(matrix) = 1 + 2 cos(angle)
+    angle = acos((trace - 1.0)/2.0)
+    
+    # Second Half: calculate the rotation axis
+    axisxraw = a32 - a23
+    axisyraw = a13 - a31
+    axiszraw = a21 - a12
+    # normalize axis
+    magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+    axisxunit = axisxraw / magnitude
+    axisyunit = axisyraw / magnitude
+    axiszunit = axiszraw / magnitude
+    
+    # combine axis and angle into rxryrz representation
+    rxout = axisxunit * angle
+    ryout = axisyunit * angle
+    rzout = axiszunit * angle
+    return [rxout, ryout, rzout]
+end
+
+# this function takes a rotation and calculates the corresponding rotation matrix
+# input is (axis, direction, angle in radians)
+# example is ("x", 1, pi/6) = a 30 degree turn around the x axis in the positive direction (right hand rule)
+# returns a matrix (a list of 9 values)
+def get_rotation_matrix_from_description(axis, direction, angle):
+    # get the angle
+    a = angle * direction
+    # get the axis
+    if axis == "x" or axis == "X":
+        matrix = [1, 0, 0, 0, cos(a), -1 * sin(a), 0, sin(a), cos(a)]
+        return matrix
+    end
+    if axis == "y" or axis == "Y":
+        matrix = [cos(a), 0, sin(a), 0, 1, 0, -1*sin(a), 0, cos(a)]
+        return matrix
+    end
+    if axis == "z" or axis == "Z":
+        matrix = [cos(a), -1*sin(a), 0, sin(a), cos(a), 0, 0, 0, 1]
+        return matrix
+    end
+    # bad
+    popuptext = "Error in get_rotation_matrix_from_description. "
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Code Error",blocking=True)
+    end
+end
+
+# given a round over distance (in mm), calculate (based on 90 degrees) the distance from corner (line intersection) to midpoint of arc
+# returns a value (in mm) that you need to move from line intersection to midpoint (actual distance will be this times sqrt(2))
+def calc_rod_midpoint_90deg(rod):
+    # the factor is (1- 1/sqrt(2))
+    factor = 0.292893
+    ret = rod * factor
+    return ret
+end
+
+def crossproduct(vec1, vec2):
+    nx = vec1[1]*vec2[2] - vec1[2]*vec2[1]
+    ny = vec1[2]*vec2[0] - vec1[0]*vec2[2]
+    nz = vec1[0]*vec2[1] - vec1[1]*vec2[0]
+    ret = [nx, ny, nz]
+    return ret
+end
+
