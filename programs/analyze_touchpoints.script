@@ -1,8 +1,4 @@
 # this file creates the function for analyzing touchpoints
-# define pi
-pi = 3.1415926535
-# initialize a lift column extension needed of 0.0
-global liftcolumnzneeded = 0.0 # set this variable in mm
 
 # this is the main entry point for calculations.
 # it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
@@ -261,72 +257,38 @@ def analyze_touchpoints(p11, p12, p21, p22, p3):
   return ret
 end
 
-# based on a Corner Homing 45 Cover pattern of touchpoints
-# this uses those touchpoints to create a representation of the corner in 3d robot space. 
-def analyze_touchpoints_only_cover(p11, p12, p21, p3):
-    zcoord=p3[2]
-    
-    # get the raw points from the first line
-    l1p1x=p11[0]
-    l1p1y=p11[1]
-    l1p2x=p12[0]
-    l1p2y=p12[1]
-
-    # equate the first line in 2d space
-    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
-
-    # b = y - mx
-    bl1 = l1p1y - ml1 * l1p1x
-
-    # get the raw points from the second line
-    l2p1x=p21[0]
-    l2p1y=p21[1]
-
-    # equate the second line in 2d space
-    # ml2 = opposite reciprocal of ml1 (because they are perpendicular) (assume perpendicular to make calculation of weldpath much easier)
-    ml2 = -1 / ml1
-
-    # b = y - mx
-    bl2 = l2p1y - ml2 * l2p1x
-
-    # find the intersection of the two lines
-    # m1x+b1 = m2x+b2
-    # m1x - m2x = b2 - b1
-    # x = (b2-b1) / (m1-m2)
-    xintersect = (bl2-bl1) / (ml1-ml2)
-    yintersect = ml1 * xintersect + bl1
-
-    pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
-
-    #FIND THE VECTORS
-    #define a vector from the intersection to the second point on the first line
-    l1delxfull = l1p2x - xintersect
-    l1delyfull = l1p2y - yintersect
-
-    l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
-
-    l1delxunit = l1delxfull / l1delmag
-    l1delyunit = l1delyfull / l1delmag
+# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
+# used in original analyze_touchpoints() function
+def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
   
-    #define a vector from the intersection to the second point on the second line
-    l2delxfull = l2p1x - xintersect
-    l2delyfull = l2p1y - yintersect
-
-    l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
-
-    l2delxunit = l2delxfull / l2delmag
-    l2delyunit = l2delyfull / l2delmag
-
-    #FIND HEADINGS
-    #for each heading, find the angle of the line with respect to the pos x axis. this line is from pointintersect and along each edge of the corner
-    heading1 = convert_uv_to_heading(l1delxunit, l1delyunit)
-    heading3 = convert_uv_to_heading(l2delxunit, l2delyunit)
-    # find halfway heading
-    heading2 = (heading1 + heading3)/2
-
-    #RETURN STRUCT
-    ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
-    return ret
+  # find right side stuff
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l1delxunit * offset
+  y = pointintersect[1] + l1delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading1)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2r1 = p[x, y, z, rx, ry, rz]
+  path2r2 = p[x, y, z + wd, rx, ry, rz]
+  
+  # find left side 
+  # find the point in 3d space that is .375 up and .375 over
+  x = pointintersect[0] + l2delxunit * offset
+  y = pointintersect[1] + l2delyunit * offset
+  z = pointintersect[2] + offset
+  # find rxryrz
+  rxryrz = convert_heading_to_axang_preheatup(heading3)
+  rx = rxryrz[0]
+  ry = rxryrz[1]
+  rz = rxryrz[2]
+  path2l1 = p[x, y, z, rx, ry, rz]
+  path2l2 = p[x, y, z + wd, rx, ry, rz]
+  
+  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
+  return ret  
 end
 
 # it takes 5 arguments as points
@@ -1023,39 +985,6 @@ def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
     nz = nz * multiplier # should become equal to 1
     ret = [nx, ny]
     return ret
-end
-
-# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
-def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
-  
-  # find right side stuff
-  # find the point in 3d space that is .375 up and .375 over
-  x = pointintersect[0] + l1delxunit * offset
-  y = pointintersect[1] + l1delyunit * offset
-  z = pointintersect[2] + offset
-  # find rxryrz
-  rxryrz = convert_heading_to_axang_preheatup(heading1)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  path2r1 = p[x, y, z, rx, ry, rz]
-  path2r2 = p[x, y, z + wd, rx, ry, rz]
-  
-  # find left side 
-  # find the point in 3d space that is .375 up and .375 over
-  x = pointintersect[0] + l2delxunit * offset
-  y = pointintersect[1] + l2delyunit * offset
-  z = pointintersect[2] + offset
-  # find rxryrz
-  rxryrz = convert_heading_to_axang_preheatup(heading3)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  path2l1 = p[x, y, z, rx, ry, rz]
-  path2l2 = p[x, y, z + wd, rx, ry, rz]
-  
-  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
-  return ret  
 end
 
 # this function is for getting the points along the path of the corner homing 45
