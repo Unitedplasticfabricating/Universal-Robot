@@ -1203,6 +1203,68 @@ def floor_corner_lift_column_extend_left(struct2):
   end
 end
 
+# the same as floor_corner_lift_column_extend_left() but includes additional modifies for the additional points
+def floor_corner_lift_column_extend_left_tilt(struct2):
+  # we know that p1 cannot be accessed without a twist 
+  # calculate the height needed to get to p1
+  liftcolumnincrement = 2 # mm
+  enoughHeightAdded = False
+  liftColumnHeightTest = 0
+  while not enoughHeightAdded:
+    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
+    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
+    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
+    # get the modified point:
+    origp1 = struct2[0]
+    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
+    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
+  end
+  
+  
+  # check whether the other 3 points are valid
+  valid = True
+  # get the modified point
+  origp2 = struct2[1]
+  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
+  # p2 demo was joint angles of [-0.45, -21.2, 56.98, 321.95, -130.97, 87.85] (degrees)
+  # which equals [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  orig_joints = [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
+  valid = valid and can_pose_be_reached_without_twist(testp2, orig_joints)
+  # get the modified point
+  origp4 = struct2[2]
+  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
+  # p4 demo was joint angles of [-8.62, -43.23, 99.53, 213.86, -89.19, 40.78] (degrees)
+  # which equals [-0.15044738152191103, -0.7545058356371478, 1.7371262045099545, 3.7325611383150696, -1.556659159853741, 0.7117452689632868]
+  orig_joints = [-0.15044738152191103, -0.7545058356371478, 1.7371262045099545, 3.7325611383150696, -1.556659159853741, 0.7117452689632868]
+  valid = valid and can_pose_be_reached_without_twist(testp4, orig_joints)
+  # get the modified point
+  origp5 = struct2[3]
+  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
+  # p5 demo was joint angles of [-0.59, -34.36, 77.71, 226.7, -89.18, 48.81] (degrees)
+  # which equals [-0.010297442586766533, -0.5996951309852511, 1.356295361724792, 3.9566614142711405, -1.5564846269285415, 0.8518952078984314]
+  orig_joints = [-0.010297442586766533, -0.5996951309852511, 1.356295361724792, 3.9566614142711405, -1.5564846269285415, 0.8518952078984314]
+  valid = valid and can_pose_be_reached_without_twist(testp5, orig_joints)
+  
+  # also modify the 3 other points
+  testp6 = p[origp6[0], origp6[1], origp6[2] - liftColumnHeightTest / 1000, origp6[3], origp6[4], origp6[5]]
+  testp7 = p[origp7[0], origp7[1], origp7[2] - liftColumnHeightTest / 1000, origp7[3], origp7[4], origp7[5]]
+  testp8 = p[origp8[0], origp8[1], origp8[2] - liftColumnHeightTest / 1000, origp8[3], origp8[4], origp8[5]]
+  
+  if not valid:
+    # display
+    popuptext = "Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. "
+    # infinite loop
+    while 1==1:
+      popup(popuptext, title="Robot Positioning Warning",blocking=True)
+    end
+  else:
+    liftcolumnzneeded = liftColumnHeightTest
+    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point6=testp6, point7=testp7, point8=testp8, point_6=struct2[12], point_7=struct2[13], point_8=struct2[14])
+    return ret
+  end
+end
+
 def floor_corner_right_p_3_reduce(struct2, orig_joints):
   # we know that p_5 cannot be accessed without a twist 
   # calculate the distance p_5 needs to be changed (in the direction of p_4)
@@ -1351,8 +1413,8 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     # find locations 8 inches away from  intersect point
     # CONST
     # welddistance1 = 8 # vertical weld distance
-    welddistance2 = 3.5 # first path second leg actual distance to top end of ramp
-    welddistance3 = 4.0 # second path second leg
+    welddistance2 = 3.5 # first path second leg actual distance to top end of ramp from midline of vertical chamfer
+    welddistance3 = 4.0 # second path actual distance to top end of ramp from pointintersect
     
     # inches
     # wd1 = welddistance1 * 25.4 / 1000
@@ -1459,9 +1521,9 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     point_4 = p[x, y, z, rx, ry, rz]
     
     # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * 0.5 * 25.4/1000.0
-    y = pointintersect[1] + l1delyunit * 0.5 * 25.4/1000.0
-    point_5 = p[x, y, z, rx, ry, rz]
+    p_5x = pointintersect[0] + l1delxunit * 0.5 * 25.4/1000.0
+    p_5y = pointintersect[1] + l1delyunit * 0.5 * 25.4/1000.0
+    point_5 = p[p_5x, p_5y, z, rx, ry, rz]
     
     # in order to do the tilt back and ride on this side, i need to switch back to tcp=pretend_welder at some point.
     # it needs to be in backofhole for the around part. 
@@ -1486,7 +1548,33 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     ryt = rxryrzt[1]
     rzt = rxryrzt[2]
     
+    # set the "where dist from" point
+    x = pointintersect[0]
+    y = pointintersect[1]
+    z = zcoord
     
+    # point _6 is the start of the tilt back
+    # 1.5 inches in from end
+    dist = -1.5 * 25.4 / 1000.0
+    p_6x = x + v3[0] * dist
+    p_6y = y + v3[1] * dist
+    p_6z = z + v3[2] * dist
+    point_6 = p[p_6x, p_6y, p_6z, rx, ry, rz]
+    
+    # point _7 is the end of the tilt back
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    dist = -0.5 * 25.4 / 1000.0 
+    p_7x = x + v3[0] * dist + v4[0] * tiltraise
+    p_7y = y + v3[1] * dist + v4[1] * tiltraise
+    p_7z = z + v3[2] * dist
+    point_7 = p[p_7x, p_7y, p_7z, rxt, ryt, rzt]
+    
+    # point _8 is the end of smear
+    dist = 2 * 25.4 / 1000.0 
+    p_8x = x + v3[0] * dist + v4[0] * tiltraise
+    p_8y = y + v3[1] * dist + v4[1] * tiltraise
+    p_8z = z + v3[2] * dist
+    point_8 = p[p_8x, p_8y, p_8z, rxt, ryt, rzt]
     
     #FIND POINT 3
     # by calling analyze_touchpoints()
@@ -1499,6 +1587,6 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     rz = rxryrz[2]
     point_3 = p[point_3[0], point_3[1], z, rx, ry, rz]
     
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5, point6=point6, point7=point7, point8=point8, point_6=point_6, point_7=point_7, point_8=point_8)
     return struct2
 end
