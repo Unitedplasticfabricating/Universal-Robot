@@ -8,7 +8,7 @@ def main_calculate_right(p11, p12, p21, p22, p3, p13, p23, chamferover):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    validity = check_validity_right(struct1, struct2)
+    validity = check_validity_right(struct1, struct2, False)
     return struct2
 end
 
@@ -35,7 +35,7 @@ def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover,
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_right(struct1, struct2)
+    struct3 = check_validity_right(struct1, struct2, False)
     return struct3
 end
 
@@ -66,7 +66,7 @@ def main_calculate_right_step_extended(p11, p12, p21, p22, p3, p13, p23, chamfer
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_right_step_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_right(struct1, struct2)
+    struct3 = check_validity_right(struct1, struct2, True)
     return struct3
 end
 
@@ -968,7 +968,7 @@ def check_validity_left(struct1, struct2, stepyesno):
 end
 
 # checks the validity of all points during a right weld
-def check_validity_right(struct1, struct2):
+def check_validity_right(struct1, struct2, stepyesno):
   # first, check whether the right pivot will bonk itself
   pointintersect = struct1[0]
   heading1 = struct1[1] # this is the direction that the welder will face when doing the right side of the box
@@ -1077,44 +1077,49 @@ def check_validity_right(struct1, struct2):
   end
   
   if not allGood:
-    struct2 = floor_corner_lift_column_extend_right(struct2)
-  end
-  
-  # check whether the path involves weird turns or joint limits. final position (end of leg 3)
-  joints_raa4 = [-0.8909156958209437, -1.3431089532426377, 2.273750130330221, 0.7266384798237304, 1.5611975193023682, 1.8127720355987549]
-  joints_p_3 = get_inverse_kin(struct2[6], joints_raa4) # struct2[6] is p_3
-  joints_p_4 = get_inverse_kin(struct2[7], joints_p_3) # struct2[7] is p_4
-  joints_p_5 = get_inverse_kin(struct2[8], joints_p_4) # struct2[8] is p_5
-  joints_1 = joints_p_5
-  p_prev = joints_p_4
-  allGood = True
-  i = 0
-  structlength = 6
-  while i < structlength:
-    joint_curr = joints_1[i]
-    # check for anything that exceeds joint limits
-    degreesmax = 360 * pi / 180 
-    if joint_curr > degreesmax or joint_curr < degreesmax * -1:
-      allGood = False
+    if stepyesno:
+        struct2 = floor_corner_lift_column_extend_right(struct2, True)
+    else:
+        struct2 = floor_corner_lift_column_extend_right(struct2, False)
     end
-    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-    maxdifference = 150 * pi / 180 
-    difference = joint_curr - p_prev[i]
-    if difference > maxdifference or difference * -1 > maxdifference:
-      allGood = False
-    end
-    i = i + 1
   end
   
-  if not allGood:
-    struct2 = floor_corner_right_p_3_reduce(struct2)
+  if not stepyesno:  
+      # check whether the path involves weird turns or joint limits. final position (end of leg 3)
+      joints_raa4 = [-0.8909156958209437, -1.3431089532426377, 2.273750130330221, 0.7266384798237304, 1.5611975193023682, 1.8127720355987549]
+      joints_p_3 = get_inverse_kin(struct2[6], joints_raa4) # struct2[6] is p_3
+      joints_p_4 = get_inverse_kin(struct2[7], joints_p_3) # struct2[7] is p_4
+      joints_p_5 = get_inverse_kin(struct2[8], joints_p_4) # struct2[8] is p_5
+      joints_1 = joints_p_5
+      p_prev = joints_p_4
+      allGood = True
+      i = 0
+      structlength = 6
+      while i < structlength:
+        joint_curr = joints_1[i]
+        # check for anything that exceeds joint limits
+        degreesmax = 360 * pi / 180 
+        if joint_curr > degreesmax or joint_curr < degreesmax * -1:
+          allGood = False
+        end
+        # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
+        maxdifference = 150 * pi / 180 
+        difference = joint_curr - p_prev[i]
+        if difference > maxdifference or difference * -1 > maxdifference:
+          allGood = False
+        end
+        i = i + 1
+      end
+      
+      if not allGood:
+        struct2 = floor_corner_right_p_3_reduce(struct2)
+      end
   end
-  
   # return struct2 back
   return struct2
 end
 
-def floor_corner_lift_column_extend_right(struct2):
+def floor_corner_lift_column_extend_right(struct2, stepyesno):
   # we know that p1 cannot be accessed without a twist 
   # calculate the height needed to get to p1
   liftcolumnincrement = 2.0 # mm
@@ -1132,16 +1137,27 @@ def floor_corner_lift_column_extend_right(struct2):
     enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints) and can_pose_be_reached_without_twist(testpa1, orig_joints)
   end
   
+  liftcolumnzneeded = liftColumnHeightTest
+  
   origp2 = struct2[1]
   testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000.0, origp2[3], origp2[4], origp2[5]]
   origp4 = struct2[2]
   testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
   origp5 = struct2[3]
   testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
+  if stepyesno:
+    origp6 = struct2[9]
+    testp6 = p[origp6[0], origp6[1], origp6[2] - liftColumnHeightTest / 1000, origp6[3], origp6[4], origp6[5]]
+    origp7 = struct2[9]
+    testp7 = p[origp7[0], origp7[1], origp7[2] - liftColumnHeightTest / 1000, origp7[3], origp7[4], origp7[5]]
+    origp8 = struct2[9]
+    testp8 = p[origp8[0], origp8[1], origp8[2] - liftColumnHeightTest / 1000, origp8[3], origp8[4], origp8[5
+    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8], point6=testp6, point7=testp7, point8=testp8, point_6=struct2[12], point_7=struct2[13], point_8=struct2[14])
+    return ret
+  end
   
   
   
-  liftcolumnzneeded = liftColumnHeightTest
   ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
   return ret
   
@@ -1361,6 +1377,47 @@ def calculate_DOtA_points_right_step_extended(struct1, listleans, chamferover, c
     y = y + l1delyunit * wd2
     point5 = p[x, y, z, rx, ry, rz]
     
+    # in order to find the tilt back and ride points like the floor straight, i first need to calculate the rxryrz of the tilt back
+    # and i also need to calculate the v3 and v4 unit vectors. v3 points parallel with the path. v4 points perpendicular, out from box
+    v3 = [l1delxunit, l1delyunit, 0]
+    # to get v4 i will use v3 and rotate that vector 90 degrees
+    # to rotate a 2d vector (x, y) 90 degrees, the simplest method is to swap the components and negate one. clockwise gives (y, -x)
+    v4 = [l1delyunit, -1 * l1delxunit, 0]
+    # heading 1 is the heading from +x axis to pushing in to the right side of the box. that is the heading we need to turn to get rxryrz 
+    # from the 0 position, we need to rotate -90 deg about y axis. then rotate heading1 - 180 deg about the +z axis. then 10 degrees less for the tiltback. 
+    # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
+    m1 = get_rotation_matrix_from_description("y", 1, -90 * pi / 180) 
+    # second rotation is about 225 degrees about the z axis. heading1 minus 90 degrees plus 10 degrees. 
+    m2 = get_rotation_matrix_from_description("z", 1, heading1 - 180*pi/180- 10*pi/180)
+    m4 = multiply_matrix(m2, m1)
+    rxryrzt = convert_matrix_to_axang(m4)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    
+    # point 6 is the start of the tilt back
+    # 1.5 inches in from end
+    dist = -1.5 * 25.4 / 1000.0
+    p6x = x + v3[0] * dist
+    p6y = y + v3[1] * dist
+    p6z = z + v3[2] * dist
+    point6 = p[p6x, p6y, p6z, rx, ry, rz]
+    
+    # point 7 is the end of the tilt back
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    dist = -0.5 * 25.4 / 1000.0 
+    p7x = x + v3[0] * dist + v4[0] * tiltraise
+    p7y = y + v3[1] * dist + v4[1] * tiltraise
+    p7z = z + v3[2] * dist
+    point7 = p[p7x, p7y, p7z, rxt, ryt, rzt]
+    
+    # point 8 is the end of smear
+    dist = 2 * 25.4 / 1000.0 
+    p8x = x + v3[0] * dist + v4[0] * tiltraise
+    p8y = y + v3[1] * dist + v4[1] * tiltraise
+    p8z = z + v3[2] * dist
+    point8 = p[p8x, p8y, p8z, rxt, ryt, rzt]
+    
     # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
     roundoverdistance = 0.05
     rod = roundoverdistance * 25.4 / 1000
@@ -1394,6 +1451,55 @@ def calculate_DOtA_points_right_step_extended(struct1, listleans, chamferover, c
     y = pointintersect[1] + l2delyunit * wd3
     point_5 = p[x, y, z, rx, ry, rz]
     
+    # in order to find the tilt back and ride points like the floor straight, i first need to calculate the rxryrz of the tilt back
+    # and i also need to calculate the v3 and v4 unit vectors. v3 points parallel with the path. v4 points perpendicular, out from box
+    v3 = [l2delxunit, l2delyunit, 0]
+    # to get v4 i will use v3 and rotate that vector 90 degrees
+    # to rotate a 2d vector (x, y) 90 degrees, the simplest method is to swap the components and negate one. counter clockwise gives (-y, x)
+    v4 = [-1 * l2delyunit, l2delxunit, 0]
+    # heading 3 is the heading from +x axis to pushing in to the left side of the box. that is the heading we need to turn to get rxryrz
+    # from the 0 position, we need to rotate +90 deg about y axis. then rotate heading3 deg about the +z axis. then 10 degrees more for the tiltback. 
+    # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
+    m1 = get_rotation_matrix_from_description("y", 1, 90 * pi / 180) 
+    # second rotation is about 165 degrees about the z axis. heading3 plus 10 degrees. 
+    m2 = get_rotation_matrix_from_description("z", 1, heading3 + 10*pi/180)
+    m4 = multiply_matrix(m2, m1)
+    rxryrzt = convert_matrix_to_axang(m4)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    
+    # set the "where dist from" point
+    x = pointintersect[0]
+    y = pointintersect[1]
+    z = z
+    
+    x = x + v3[0] * wd3
+    y = y + v3[1] * wd3
+    
+    # point _6 is the start of the tilt back
+    # 1.5 inches in from end
+    dist = -1.5 * 25.4 / 1000.0
+    p_6x = x + v3[0] * dist
+    p_6y = y + v3[1] * dist
+    p_6z = z + v3[2] * dist
+    point_6 = p[p_6x, p_6y, p_6z, rx, ry, rz]
+    
+    # point _7 is the end of the tilt back
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    dist = -0.5 * 25.4 / 1000.0 
+    p_7x = x + v3[0] * dist + v4[0] * tiltraise
+    p_7y = y + v3[1] * dist + v4[1] * tiltraise
+    p_7z = z + v3[2] * dist
+    point_7 = p[p_7x, p_7y, p_7z, rxt, ryt, rzt]
+    
+    # point _8 is the end of smear
+    dist = 2 * 25.4 / 1000.0 
+    p_8x = x + v3[0] * dist + v4[0] * tiltraise
+    p_8y = y + v3[1] * dist + v4[1] * tiltraise
+    p_8z = z + v3[2] * dist
+    point_8 = p[p_8x, p_8y, p_8z, rxt, ryt, rzt]
+    
     #FIND POINT 3
     # by calling analyze_touchpoints()
     atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
@@ -1401,7 +1507,7 @@ def calculate_DOtA_points_right_step_extended(struct1, listleans, chamferover, c
     point_3 = p[atret5[0], atret5[1], z, atret5[3], atret5[4], atret5[5]]
     
     
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
+    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5, point6=point6, point7=point7, point8=point8, point_6=point_6, point_7=point_7, point_8=point_8)
     return struct2
 end
 
