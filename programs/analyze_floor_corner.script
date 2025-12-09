@@ -20,7 +20,7 @@ def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left(struct1, list1, chamferover)
-    validity = check_validity_left(struct1, struct2, false)
+    validity = check_validity_left(struct1, struct2, False)
     return struct2
 end
 
@@ -50,7 +50,7 @@ def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, 
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_left(struct1, struct2, false)
+    struct3 = check_validity_left(struct1, struct2, False)
     return struct3
 end
 
@@ -81,7 +81,7 @@ def main_calculate_left_step_extended(p11, p12, p21, p22, p3, p13, p23, chamfero
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
     struct2 = calculate_DOtA_points_left_step_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_left(struct1, struct2, true)
+    struct3 = check_validity_left(struct1, struct2, True)
     return struct3
 end
 
@@ -1253,6 +1253,9 @@ def floor_corner_lift_column_extend_left_tilt(struct2):
   valid = valid and can_pose_be_reached_without_twist(testp5, orig_joints)
   
   # also modify the 3 other points
+  origp6 = struct2[9]
+  origp7 = struct2[10]
+  origp8 = struct2[11]
   testp6 = p[origp6[0], origp6[1], origp6[2] - liftColumnHeightTest / 1000, origp6[3], origp6[4], origp6[5]]
   testp7 = p[origp7[0], origp7[1], origp7[2] - liftColumnHeightTest / 1000, origp7[3], origp7[4], origp7[5]]
   testp8 = p[origp8[0], origp8[1], origp8[2] - liftColumnHeightTest / 1000, origp8[3], origp8[4], origp8[5]]
@@ -1470,7 +1473,7 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     # second rotation is about 165 degrees about the z axis. heading3 plus 10 degrees. 
     m2 = get_rotation_matrix_from_description("z", 1, heading3 + 10*pi/180)
     m4 = multiply_matrix(m2, m1)
-    rxryrzt = convert_matrix_to_axang(m5)
+    rxryrzt = convert_matrix_to_axang(m4)
     rxt = rxryrzt[0]
     ryt = rxryrzt[1]
     rzt = rxryrzt[2]
@@ -1542,14 +1545,14 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     # to get v4 i will use v3 and rotate that vector 90 degrees
     # to rotate a 2d vector (x, y) 90 degrees, the simplest method is to swap the components and negate one. clockwise gives (y, -x)
     v4 = [l1delyunit, -1 * l1delxunit, 0]
-    # heading 1 is the heading from +x axis to pushing in to the left side of the box. that is the heading we need to turn to get rxryrz 
-    # from the 0 position, we need to rotate +90 deg about y axis. then rotate heading1 deg about the +z axis. then 10 degrees less for the tiltback. 
+    # heading 1 is the heading from +x axis to pushing in to the right side of the box. that is the heading we need to turn to get rxryrz 
+    # from the 0 position, we need to rotate -90 deg about y axis. then rotate heading1 - 180 deg about the +z axis. then 10 degrees less for the tiltback. 
     # first rotation is 90 degrees about y axis. positive direction. gun is now pointing in the x+ direction with preheat facing +y direction
-    m1 = get_rotation_matrix_from_description("y", 1, 90 * pi / 180) 
+    m1 = get_rotation_matrix_from_description("y", 1, -90 * pi / 180) 
     # second rotation is about 225 degrees about the z axis. heading1 minus 90 degrees plus 10 degrees. 
-    m2 = get_rotation_matrix_from_description("z", 1, heading1 - 10*pi/180)
+    m2 = get_rotation_matrix_from_description("z", 1, heading1 - 180*pi/180- 10*pi/180)
     m4 = multiply_matrix(m2, m1)
-    rxryrzt = convert_matrix_to_axang(m5)
+    rxryrzt = convert_matrix_to_axang(m4)
     rxt = rxryrzt[0]
     ryt = rxryrzt[1]
     rzt = rxryrzt[2]
@@ -1557,7 +1560,7 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     # set the "where dist from" point
     x = pointintersect[0]
     y = pointintersect[1]
-    z = zcoord
+    z = z
     
     x = x + v3[0] * wd3
     y = y + v3[1] * wd3
