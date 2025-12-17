@@ -1,0 +1,50 @@
+ Program
+   Variables Setup
+   BeforeStart
+     Set
+     go home
+       v≔get_actual_tcp_pose()
+       MoveJ
+         v
+       If v[0]<.3
+         MoveJ
+           Waypoint_1
+           Waypoint_3
+           Waypoint_4
+           oldhome
+   Robot Program
+     Home
+     align_ready_for_welding()
+     curjoints≔get_actual_joint_positions()
+     'var_1≔p[-1.24879,.40417,.97369,-.78436,-1.71072,1.71072]'
+     'has≔get_inverse_kin_has_solution(var_1)'
+     'pa1≔p[-1.19879,.45417,.97369,-.78436,-1.71072,1.71072]'
+     'has2≔get_inverse_kin_has_solution(pa1)'
+     Script: analyze_touchpoints.script
+     'can≔can_pose_be_reached_without_twist(var_1,curjoints)'
+     'str≔struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)'
+     'p1red≔p[-1,.20417,.097369,-.78436,-1.71072,1.71072]'
+     'str≔struct(point1=var_1,point2=v,point4=v,point5=v,point_1=v,point_2=v,point_3=v,point_4=v,point_5=v)'
+     'str2≔floor_corner_lift_column_extend_right(str)'
+     'newp1≔str2[0]'
+     'curpose≔get_actual_tcp_pose()'
+     'Popup: here'
+     'jj≔get_inverse_kin(var_1)'
+     'jj2≔get_inverse_kin(var_1,curjoints)'
+     'MoveJ'
+     'jjnew≔get_inverse_kin(newp1)'
+     'MoveJ'
+     'Popup: at position'
+     Script
+     MoveJ
+       Waypoint_1
+       Waypoint_3
+       Waypoint_4
+       oldhome
+   align_ready_for_welding
+     'this program takes the welder from home to a position alined ready for welding (vertically down)'
+     MoveJ
+       oldhome
+       Waypoint_4
+       Waypoint_3
+       Waypoint_1

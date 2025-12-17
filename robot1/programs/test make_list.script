@@ -1,0 +1,169 @@
+def test_make_list():
+  global _hidden_verificationVariable=0
+  step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = 0.0
+  thread Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89():
+    while (True):
+      step_count_a2416ea4_cf31_44d2_a405_df90891c5051 = step_count_a2416ea4_cf31_44d2_a405_df90891c5051 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_15f17497_b945_4186_aba7_8c005dbfed89()
+  set_standard_analog_input_domain(0, 1)
+  set_standard_analog_input_domain(1, 1)
+  set_tool_analog_input_domain(0, 1)
+  set_tool_analog_input_domain(1, 1)
+  set_analog_outputdomain(0, 0)
+  set_analog_outputdomain(1, 0)
+  set_input_actions_to_default()
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_target_payload(10.450000, [0.000000, -0.064000, 0.064000], [0.076889, 0.076889, 0.076889, 0.000000, 0.000000, 0.000000])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_tcp(p[0.00451,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  # begin: URCap Installation Node
+  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
+  #   Type: MachineLogic for Universal Robots
+  def waitForResponse(expected_response_vention, cname_vention):
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  while response_vention != expected_response_vention:
+  sleep(0.01)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  end
+  sleep(0.01)
+  sync()
+  end
+  def sendString(string_vention, expected_response_vention, cname_vention):
+  socket_send_string(str_cat(string_vention,";"), cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  while response_vention != expected_response_vention:
+  sleep(0.01)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  end
+  sleep(0.01)
+  sync()
+  end
+  def sendStringNAck(string_vention, expected_response_vention, cname_vention):
+  socket_send_string(str_cat(string_vention,";"), cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  while(response_vention != expected_response_vention and response_vention != "nAck"):
+  sleep(0.01)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received",blocking=True)
+  end
+  end
+  sleep(0.01)
+  sync()
+  end
+  def sendStringWithTimeout(string_vention, expected_response_vention, cname_vention):
+  socket_send_string(str_cat(string_vention,";"), cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=10)
+  if(response_vention == "nAck"):
+  popup("nAck received"+string_vention)
+  end
+  sleep(0.01)
+  sync()
+  end
+  def pollString(string_vention, expected_response_vention, cname_vention):
+  socket_send_string(str_cat(string_vention,";"), cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  while response_vention != expected_response_vention:
+  sleep(1)
+  socket_send_string(str_cat(string_vention,";"), cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  end
+  sleep(0.01)
+  sync()
+  end
+  def sendVariable(var_vention, data_vention, expected_response_vention, cname_vention):
+  socket_set_var(var_vention, data_vention, cname_vention)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  while response_vention != expected_response_vention:
+  sleep(0.01)
+  response_vention = socket_read_string(cname_vention,timeout=15)
+  if(response_vention == "nAck"):
+  popup("nAck received")
+  end
+  end
+  sleep(0.01)
+  sync()
+  end
+  def intToString(integer_vention,cname_vention):
+  stringFix=""
+  multiplier_vention123=1
+  if integer_vention<0:
+  stringFix="-"
+  multiplier_vention123=-1
+  end
+  socket_set_var("GetString",integer_vention*multiplier_vention123,cname_vention)
+  string_vention=""
+  while string_vention=="":
+  sleep(0.01)
+  string_vention=socket_read_string(cname_vention,timeout=15)
+  end
+  sleep(0.01)
+  sync()
+  string_vention=stringFix+string_vention
+  return string_vention
+  end
+  string_vention=""
+  isVentionMovementBusy = False
+  isVentionParallelMovementSendingScript = False
+  ventionThreadHandle = 1
+  isVentionMovementBusyMachineMotion1 = False
+  isVentionParallelMovementSendingScriptMachineMotion1 = False
+  socket_vention = socket_open("192.168.3.52", 9999, "MachineMotion1")
+  if socket_vention==False:
+  popup("Check configuration, can't connect to MachineMotion")
+  end
+  waitForResponse("MachineMotion connection established", "MachineMotion1")
+  sendString("isReady", "MachineMotion isReady = true", "MachineMotion1")
+  sendStringWithTimeout("setURCapVersion2", "setURCapVersion loaded", "MachineMotion1")
+  sendString("SET speed_v2 1000000", "Ack", "MachineMotion1")
+  sendString("SET acceleration_v2 100000", "Ack", "MachineMotion1")
+  sendString("SET de_axis_1_microsteps_config 8", "Ack", "MachineMotion1")
+  sendString("SET de_axis_1_mechanical_gain_config_v2 150000.0", "Ack", "MachineMotion1")
+  sendString("SET de_axis_1_direction_config 1", "Ack", "MachineMotion1")
+  sendString("SET de_axis_1_type_config Custom Actuator ", "Ack", "MachineMotion1")
+  sendString("de_axis_1_config_exec", "Ack", "MachineMotion1")
+  # end: URCap Installation Node
+  # begin: URCap Installation Node
+  #   Source: WireTank Serial, 4.9.0, WireTank, LLC
+  #   Type: WireTank Serial
+  WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
+  # end: URCap Installation Node
+  while (True):
+    $ 2 "Robot Program"
+    $ 3 "var_1≔4"
+    global var_1=4
+    $ 4 "l1=make_list(3,4)"
+    l1=make_list(3,4)
+    $ 5 "var_1≔length(l1)"
+    global var_1=length(l1)
+    $ 6 "var_2≔l1"
+    global var_2=l1
+  end
+end

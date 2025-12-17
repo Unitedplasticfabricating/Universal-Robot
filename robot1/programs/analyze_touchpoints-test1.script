@@ -1,0 +1,87 @@
+# this file creates the function for analyzing touchpoints
+# define pi
+pi = 3.1415926535
+
+
+# this function converts a unit vector to its heading angle ccw from x+ axis
+# takes uvx and uvy
+# returns heading in radians
+def convert_uv_to_heading(uvx, uvy):
+  baseang = atan(uvy/uvx)
+  if uvx < 0:
+    ang = baseang + pi
+  elif uvy < 0:
+    ang = baseang + pi * 2
+  else:
+    ang = baseang
+  end
+  return ang
+end
+
+# this function finds the equation of a line, perpendicular to a given line, and going through a given point
+# takes 3 arguments: m (the original line's slope), x (point's x coord), y (point's y coord). the b of the original line is not needed
+# returns a list of [m,b] (the slope and intercept of the new line)
+def find_perpendicular_line(origm, x, y):
+  m = (1/origm) * -1
+  b = y - m*x
+  ret = [m, b]
+  return ret
+end
+
+# this function finds the intersection point between two lines in the xy plane
+# takes 4 arguments: m1, b1, m2, b2
+# returns a list of [x,y] (the point of intersection)
+def find_intersection(m1, b1, m2, b2):
+  # m1x+b1 = m2x+b2
+  # m1x - m2x = b2 - b1
+  # x = (b2-b1) / (m1-m2)
+  x = (b2-b1) / (m1-m2)
+  y = m1 * x + b1
+  ret = [x, y]
+  return ret
+end
+
+# this function finds the distance between 2 points in 3d space
+# it takes 6 arguments: x1, y1, z1, x2, y2, z2
+# it returns a distance
+def distance_between(x1, y1, z1, x2, y2, z2):
+  distsquared = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1)
+  dist = sqrt(distsquared)
+  return dist
+end
+
+# this function takes a point, a unit vector, and a distance, and adds the distance to the point in the direction of the unit vector (3d space)
+# it returns a point as a list of coordinates
+def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
+  xf = xi + uvx * delta
+  yf = yi + uvy * delta
+  zf = zi + uvz * delta
+  ret = [xf, yf, zf]
+  return ret
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+def convert_heading_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+
+
+
+
