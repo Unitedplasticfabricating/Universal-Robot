@@ -913,7 +913,7 @@ def check_validity_left(struct1, struct2, stepyesno):
     curr = struct2[i]
     valid = get_inverse_kin_has_solution(curr)
     if not valid:
-      if i > 0:
+      if i > 0: # skip the first point, because if it's not valid it can become valid by lifting. 
         allvalid = False
         listproblems = listproblems + listnames[i]
       end
@@ -932,7 +932,11 @@ def check_validity_left(struct1, struct2, stepyesno):
   
   # check whether the path involves weird turns or joint limits. currently just checks the first position
   p_prev = [-0.021118, -1.26292, 2.43578, 5.07088, -2.29912, 1.53362] #last point of left weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  if p1valid:
+      joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  else:
+      joints_1 = [0, 0, 0, 0, 0, 100] # if invalid, force correction without throwing an error
+  end
   allGood = True
   i = 0
   structlength = 6
@@ -1056,7 +1060,12 @@ def check_validity_right(struct1, struct2, stepyesno):
   
   # check whether the path involves weird turns or joint limits. first position
   p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  p1valid = get_inverse_kin_has_solution(struct2[0])
+  if p1valid:
+      joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  else:
+      joints_1 = [0, 0, 0, 0, 0, 100] # force correction, without throwing an error
+  end
   allGood = True
   i = 0
   structlength = 6
