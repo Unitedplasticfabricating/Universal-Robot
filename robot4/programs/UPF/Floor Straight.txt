@@ -1,0 +1,390 @@
+ Program
+   Variables Setup
+   BeforeStart
+     Safe Home Folder
+       'if robot is not at home, send it back to home safely'
+       'make sure the tcp is welder'
+       Set
+       sp≔get_actual_tcp_pose()
+       MoveL
+         sp
+         'if first move is to a variable, skip automove'
+       'turn off welder'
+       Serial Bridge uR0
+       Set DO[0]=Off
+       jp≔get_actual_joint_positions()
+       If sp[0]>0.600
+         'if x > 600 then above then home'
+         MoveJ
+           'Waypoint_47'
+           Waypoint_76
+         Home
+       Else
+         Popup: retreating to home
+         'for rules 2-8, finish with oldhome then above then home'
+         If -1.74<jp[4] and jp[4]<1.05 and -1.74<jp[3] and jp[3]<1.74
+           'if oldhome, test teach, then go straight to oldhome'
+         ElseIf sp[0]<-.5 and jp[3]>3.14 and -2.62<jp[4] and jp[4]<-0.87
+           'if left side weld approach, left weld approach in reverse'
+           MoveJ
+             Waypoint_50
+             Waypoint_51
+             Waypoint_52
+             Waypoint_53
+         ElseIf sp[0]<0 and 0<jp[3] and jp[3]<1.74 and 0.87<jp[4] and jp[4]<2.62
+           'if right side around, move back then wapoint 24 then oldhome'
+           If sp[0]<-1.0
+             xback≔p[-1.0,sp[1],sp[2],sp[3],sp[4],sp[5]]
+             MoveJ
+               xback
+           MoveJ
+             Waypoint_54
+         ElseIf jp[3]>2.62 and jp[4]<-3.84
+           'if left side second half, then left weld ending sequence'
+           If jp[5]<0.35
+             MoveJ
+               Waypoint_65
+           MoveJ
+             'Waypoint_61'
+             'Waypoint_62'
+             'Waypoint_63'
+             'Waypoint_64'
+             'above is testing, below is real'
+             Waypoint_55
+             'Waypoint_60'
+             Waypoint_59
+             Waypoint_71
+             Waypoint_58
+             Waypoint_56
+             Waypoint_57
+         ElseIf jp[3]<-2.09
+           'bottom homing'
+           MoveJ
+             'Waypoint_66'
+             Comment
+             If sp[0]<-0.95
+               xback≔p[-0.95,sp[1],sp[2],sp[3],sp[4],sp[5]]
+               MoveL
+                 xback
+             Waypoint_67
+         ElseIf jp[3]<0 and jp[4]<-3.14
+           'if left side homing, special unspin'
+           MoveJ
+             'Waypoint_68'
+             Comment
+             Waypoint_69
+             Waypoint_70
+         ElseIf (sp[4]<-3 or sp[4]>3) and -0.02<sp[5] and sp[5]<0.02
+           'go straight to home'
+         ElseIf -1.74<jp[3] and jp[3]<-.52 and .52<jp[4] and jp[4]<2.09 and -.87<jp[5] and jp[5]<.87
+           'go to oldhome'
+         ElseIf 2>1
+           'if none of the other options, then error continuously'
+           Loop 2>1
+             Popup: Unknown Position. Find Calvin for Assistance
+         'insert logic for how to get back to oldhome'
+         'finish with oldhome then above then home'
+         MoveJ
+           Waypoint_49
+           'Waypoint_48'
+           Waypoint_75
+         Home
+       MachineLogic Homing
+   Robot Program
+     'start of main program'
+     Set
+     Home
+     Script: analyze_touchpoints.script
+     'welder_state_ready()'
+     sidewallchoice≔'Is the floor 3/4 inch?'
+     If sidewallchoice
+       sidewall≔0.628
+     Else
+       sidewall≔0.375
+     'Set'
+     'MoveL'
+     Set
+     MoveJ
+       Waypoint_75
+     Set
+     MoveJ
+       'Waypoint_46'
+       Waypoint_21
+     Test_Teach_Straight()
+     Set
+     kill threadId_Thread_1
+     Straight_Homing_Floor_2()
+     Set
+     'path1≔analyze_touchpoints(p11,p12,p21,p22,p3)'
+     'Call '
+     'MoveJ'
+     pathturn≔main_calculate_floor_straight(p11,p12,p21,p22,sidewall, tcp_pose_left, tcp_pose_right)
+     extrude_knife3()
+     'move_path_cover_left3()'
+     'pointtopvcham≔pathturn[0]'
+     'MachineLogic Move to Position'
+     'MoveJ'
+     align_for_floor_straight()
+     move_path_floor_straight()
+     'MoveJ'
+     'MachineLogic Homing'
+     Home
+   Test_Teach_Straight
+     Set
+     'MoveL'
+     MoveJ
+       Waypoint_40
+       'above waypoint is home'
+       Waypoint_2
+     Set
+     freedrive_m_var≔ False 
+     freedrive_m_var≔ True 
+     Popup: Move the TCP to the left side of the weld (very end of the V chisel), then click 'Continue'
+     tcp_pose_left≔get_actual_tcp_pose()
+     Popup: Move the TCP to the right side of the weld (very end of the V chisel), then click 'Continue'
+     tcp_pose_right≔get_actual_tcp_pose()
+     freedrive_m_var≔ False 
+     Wait: 0.25
+     sync()
+   align_for_floor_straight
+     'dummypoints'
+     MoveJ
+       Waypoint_5
+       'Waypoint_3'
+       Waypoint_4
+       'Waypoint_5'
+       'Waypoint_6'
+       'Waypoint_8'
+       'Waypoint_7'
+   move_path_floor_straight
+     p1≔pathturn[1]
+     p2≔pathturn[2]
+     p3≔pathturn[3]
+     p4≔pathturn[4]
+     p5≔pathturn[5]
+     p6≔pathturn[6]
+     pa1≔p[p1[0]+0.05,p1[1],p1[2],p1[3],p1[4],p1[5]]
+     pret≔p[p6[0]+0.05,p6[1],p6[2],p6[3],p6[4],p6[5]]
+     pret2≔p[-0.81,p6[1],p6[2],p6[3],p6[4],p6[5]]
+     'go to preheat'
+     Set
+     MoveJ
+       pa1
+     MoveL
+       p1
+     Wait: 4.0
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 1.0
+     MoveL
+       p2
+       p3
+       p4
+       p5
+     Serial Bridge uR0
+     Set DO[0]=Off
+     MoveL
+       p6
+     Wait: 1.0
+     MoveL
+       pret
+       pret2
+     MoveJ
+       Waypoint_18
+   extrude_knife3
+     pre program stuff
+       Set
+       ek_sp≔get_actual_tcp_pose()
+       MoveL
+         ek_sp
+     'list possible points'
+     robot 1 moves
+       If 1≟2
+         MoveJ
+           r1_ek_oldhome
+           r1_ek_extrude
+           r1_ek_front
+           r1_ek_middle
+           r1_ek_middle2
+           r1_ek_bottom
+           r1_ek_end
+     robot 2 moves
+       If 1≟2
+         MoveJ
+           r2_ek_oldhome
+           'Waypoint_1'
+           r2_ek_extrude
+           r2_ek_front
+           r2_ek_middle
+           r2_ek_bottom
+           r2_ek_end
+     robot 4 moves
+       If 1≟2
+         MoveJ
+           r4_ek_oldhome
+           r4_ek_extrude
+           r4_ek_front
+           r4_ek_middle
+           r4_ek_bottom
+           r4_ek_end
+     'detemine correct points for which robot'
+     If robot_number≟1
+       robot1 positions
+         ek_oldhome≔r1_ek_oldhome_p
+         ek_extrude≔r1_ek_extrude_p
+         ek_front≔r1_ek_front_p
+         ek_middle≔r1_ek_middle_p
+         ek_middle2≔r1_ek_middle2_p
+         ek_bottom≔r1_ek_bottom_p
+         ek_end≔r1_ek_end_q
+     ElseIf robot_number≟2
+       robot2 positions
+         ek_oldhome≔r2_ek_oldhome_p
+         ek_extrude≔r2_ek_extrude_p
+         ek_front≔r2_ek_front_p
+         ek_middle≔r2_ek_middle_p
+         ek_middle2≔r2_ek_middle_p
+         ek_bottom≔r2_ek_bottom_p
+         ek_end≔r2_ek_end_q
+     ElseIf robot_number≟4
+       robot4 positions
+         ek_oldhome≔r4_ek_oldhome_p
+         ek_extrude≔r4_ek_extrude_p
+         ek_front≔r4_ek_front_p
+         ek_middle≔r4_ek_middle_p
+         ek_middle2≔r4_ek_middle_p
+         ek_bottom≔r4_ek_bottom_p
+         ek_end≔r4_ek_end_q
+     'start of program'
+     'Home'
+     Set
+     MoveJ
+       Waypoint_14
+       'fixed position above. use JA. '
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'move above bucket'
+     MoveJ
+       'r1_ek_extrude'
+       ek_extrude
+     'extrude out a foot'
+     'turn_extrusion_on()'
+     Serial Bridge uR1
+     Set DO[0]=On
+     Wait: 24.0
+     Serial Bridge uR0
+     Wait: 1.0
+     Set DO[0]=Off
+     'slice'
+     MoveL
+       'r1_ek_front'
+       'r1_ek_middle'
+       'r1_ek_middle2'
+       'r1_ek_bottom'
+       'r1_ek_end'
+       ek_front
+       ek_middle
+       ek_middle2
+       ek_bottom
+       ek_end
+     MoveJ
+       'r1_ek_oldhome'
+       ek_oldhome
+       'above waypoint is home'
+     'Home'
+   Straight_Homing_Floor_2
+     Set
+     'dummy move below for debug'
+     'dummy points'
+     'Home'
+     'MoveJ'
+     'MoveJ'
+     Wait: 1.0
+     'tp≔get_actual_tcp_pose()'
+     Script: analyze_touchpoints.script
+     path_pre≔get_straight_homing_pathpoints_floor(tcp_pose_left,tcp_pose_right)
+     ph1≔path_pre[0]
+     ph2≔path_pre[1]
+     ph3≔path_pre[2]
+     ph4≔path_pre[3]
+     ph4a≔p[ph4[0]+0.1,ph4[1],ph4[2],ph4[3],ph4[4],ph4[5]]
+     MoveL
+       Direction: Base X+
+         Until (distance)
+     'MoveJ'
+     MoveL
+       ph2
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     p12≔get_actual_tcp_pose()
+     MoveL
+       ph2
+       ph1
+     MoveL
+       Direction: Base X-
+         Until (tool_contact_detection)
+     'p13≔get_actual_tcp_pose()'
+     'MoveJ'
+     'MoveL'
+     p11≔get_actual_tcp_pose()
+     MoveJ
+       ph1
+     'MoveJ'
+     'start of new section'
+     ph_back≔p[-0.85,ph1[1],ph1[2],ph1[3],ph1[4],ph1[5]]
+     'start spin'
+     MoveL
+       ph_back
+     MoveJ
+       Waypoint_1
+       'Waypoint_3'
+       Waypoint_6
+     ph3a≔p[ph3[0]+0.1,ph3[1],ph3[2],ph3[3],ph3[4],ph3[5]]
+     MoveL
+       ph3a
+       ph3
+     Wait: 0.5
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p21≔get_actual_tcp_pose()
+     MoveL
+       ph3
+       ph3a
+       ph4a
+       ph4
+     Wait: 0.5
+     MoveL
+       Direction: Base Z+
+         Until (tool_contact_detection)
+     p22≔get_actual_tcp_pose()
+     MoveL
+       ph4
+       ph4a
+     'retreat'
+     MoveJ
+       Waypoint_8
+     MoveL
+       'Waypoint_20'
+       Waypoint_24
+       Waypoint_23
+     MoveJ
+       Waypoint_22
+     Home
+     'end of new section'
+     'MoveJ'
+     'MoveJ'
+     'old'
+   Thread_1
+     Loop  True 
+       If freedrive_m_var≟ True 
+         freedrive_mode()
+         free_dr_already≔ True 
+       Else
+         If free_dr_already
+           end_freedrive_mode()
+       sync()
+   'Thread_2'
