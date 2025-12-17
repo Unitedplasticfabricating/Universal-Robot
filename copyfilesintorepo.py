@@ -6,18 +6,19 @@ from pathlib import Path
 import gzip
 
 def main():
+    robot_number = input('Enter Robot Number: ')
     user_input = input('Copy Journal? (Y/N): ')
     if isUserInputYes(user_input):
         copyJournal()
     user_input = input('Copy Files From Flash Drive? (Y/N): ')
     if isUserInputYes(user_input):
-        copyFilesFromFlashDrive()
+        copyFilesFromFlashDrive(robot_number)
     user_input = input('Extract .unc files? (Y/N): ')
     if isUserInputYes(user_input):
-        extractUncFiles()
+        extractUncFiles(robot_number)
     user_input = input('Delete .bak and .old files? (Y/N): ')
     if isUserInputYes(user_input):
-        delete_bak_old_files()
+        delete_bak_old_files(robot_number)
     
 def isUserInputYes(input_string):
     # Convert input string to lowercase for case-insensitive comparison
@@ -85,12 +86,13 @@ def copy_folder(source_folder, destination_folder):
         return False
     return ret
 
-def copyFilesFromFlashDrive():
+def copyFilesFromFlashDrive(robot_number):
     '''
     deletes destination folder. then recursively copies source folder into destination folder. then deletes source folder. 
     '''
     source_folder = 'E:\\programs'
-    destination_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    robotnumberstring = 'robot' + robot_number
+    destination_folder = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'programs')
     # delete destination folder if it exists and if source_folder exists
     if os.path.isdir(source_folder):
         if os.path.isdir(destination_folder):
@@ -105,13 +107,14 @@ def copyFilesFromFlashDrive():
     else:
         print(f"Error: Source folder '{source_folder}' not found.")
 
-def extractUncFiles():
+def extractUncFiles(robot_number):
     '''
     Takes the .unc files in the Universal-Robot/programs folder and extracts them into other .urp files in the extracted folder.
     Currently does nothing for nested folders. 
     '''
-    source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
-    destination_folder = os.path.join('C:\\Dev\\universal-robot', 'extracted')
+    robotnumberstring = 'robot' + robot_number
+    source_folder = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'programs')
+    destination_folder = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'extracted')
     # first, delete the extacted folder
     if os.path.isdir(destination_folder):
         shutil.rmtree(destination_folder)
@@ -199,12 +202,13 @@ def decompress_gzip(gzip_file, extract_folder):
         print(f"Error: Failed to decompress '{gzip_file}'. Error: {e}")
         
         
-def delete_bak_old_files(folder1 = ""):
+def delete_bak_old_files(robot_number, folder1 = ""):
     '''
     Deletes all files in Universal-Robot/programs folder and nested folders that contain .bak or .old
     '''
+    robotnumberstring = 'robot' + robot_number
     if folder1 == "":
-        source_folder = os.path.join('C:\\Dev\\universal-robot', 'programs')
+        source_folder = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'programs')
     else:
         source_folder = folder1 
     # Iterate through all files and subdirectories in the source folder
@@ -212,7 +216,7 @@ def delete_bak_old_files(folder1 = ""):
         source_item = os.path.join(source_folder, item)
         # if this is a folder, skip for now
         if os.path.isdir(source_item):
-            delete_bak_old_files(source_item)
+            delete_bak_old_files(robot_number, source_item)
             continue
         # find the extension
         filename, file_extension = os.path.splitext(source_item)
