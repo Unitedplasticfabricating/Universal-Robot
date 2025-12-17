@@ -126,7 +126,7 @@ def extractUncFiles(robot_number):
         source_item = os.path.join(source_folder, item)
         ###destination_item = os.path.join(destination_folder, item)
         if os.path.isdir(source_item):
-            extractUncFilesNested(item)
+            extractUncFilesNested(robot_number, item)
         filename, file_extension = os.path.splitext(source_item)
         if ((file_extension != '.urp') and (file_extension != '.installation') and (file_extension != '.variables')):
             continue # do nothing
@@ -137,14 +137,15 @@ def extractUncFiles(robot_number):
         extract_folder = destination_folder
         decompress_gzip(gzip_file, extract_folder)
         
-def extractUncFilesNested(subfolderName):
+def extractUncFilesNested(robot_number, subfolderName):
     '''
     If there is one layer of nest, this function also extracts those files from inside a single layer of nest
     '''
+    robotnumberstring = 'robot' + robot_number
     # first, get the modified folder names (source and dest)
-    source_folder1 = os.path.join('C:\\Dev\\universal-robot', 'programs')
+    source_folder1 = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'programs')
     source_folder = os.path.join(source_folder1, subfolderName)
-    destination_folder1 = os.path.join('C:\\Dev\\universal-robot', 'extracted')
+    destination_folder1 = os.path.join('C:\\Dev\\universal-robot', robotnumberstring, 'extracted')
     destination_folder = os.path.join(destination_folder1, subfolderName)
     # then, do the exact same thing as extractUncFiles()
     
