@@ -1,14 +1,14 @@
-<URProgram name="extrude_knife3" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.21.3" lastSavedIn="5.21.3" robotSerialNumber="20246801938" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="extrude_knife3" installation="default" installationRelativePath="default" directory="/programs" createdIn="5.21.2" lastSavedIn="5.21.2" robotSerialNumber="20256802612" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
-    <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
-    <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
-    <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
-    <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
-    <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+    <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+    <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+    <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+    <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+    <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
   </kinematics>
   <children>
     <InitVariablesNode/>
-    <MainProgram runOnlyOnce="true" InitVariablesNode="false">
+    <MainProgram runOnlyOnce="false" InitVariablesNode="false">
       <children>
         <Folder name="pre program stuff" keepHidden="false">
           <children>
@@ -34,1634 +34,6 @@
                 </Waypoint>
               </children>
             </Move>
-            <Script type="File">
-              <cachedContents># this file creates the function for analyzing touchpoints
-# define pi
-pi = 3.1415926535
-# initialize a lift column extension needed of 0.0
-global liftcolumnzneeded = 0.0
-
-# this is the main entry point for calculations.
-# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
-# specifically for Down, Over, then Around (DOtA)
-# specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right(p11, p12, p21, p22, p3, p13, p23, chamferover):
-    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_right(struct1, list1, chamferover)
-    validity = check_validity_right(struct1, struct2)
-    return struct2
-end
-
-# this is the main entry point for calculations.
-# it takes in the 5 points, analyzes the shape of the box, and then calculates path points and returns them
-# specifically for Down, Over, then Around (DOtA)
-# specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left(p11, p12, p21, p22, p3, p13, p23, chamferover):
-    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_left(struct1, list1, chamferover)
-    validity = check_validity_left(struct1, struct2)
-    return struct2
-end
-
-# this is the main entry point for calculations, for Floor Corner Extended.
-# it takes in the 7 touchpoints, analyzes the shape of the box. 
-# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
-# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
-# returns the pathpoints
-# specifically for Down, Over, then Around (DOtA)
-# specifically for right-sided boxes (vertical weld on right side of edge)
-def main_calculate_right_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
-    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_right_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_right(struct1, struct2)
-    return struct3
-end
-
-# this is the main entry point for calculations, for Floor Corner Extended.
-# it takes in the 7 touchpoints, analyzes the shape of the box. 
-# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
-# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
-# returns the pathpoints
-# specifically for Down, Over, then Around (DOtA)
-# specifically for left-sided boxes (vertical weld on left side of edge)
-def main_calculate_left_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
-    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
-    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
-    struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
-    struct3 = check_validity_left(struct1, struct2)
-    return struct3
-end
-
-# it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, pointapproach1, pointapproach2, point1, point2, point3, point4, point5, pointreturn1, heading1, heading2, heading3, path2r1, path2r2, path2l1, path2l2)
-# specifically for Around then Up (AtU)
-def analyze_touchpoints(p11, p12, p21, p22, p3):
-  # FIND THE INTERSECTION
-  # comment get the z
-  zcoord=p3[2]
-
-  # get the raw points from the first line
-  l1p1x=p11[0]
-  l1p1y=p11[1]
-  l1p2x=p12[0]
-  l1p2y=p12[1]
-
-  # equate the first line in 2d space
-  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
-
-  # b = y - mx
-  bl1 = l1p1y - ml1 * l1p1x
-
-  # get the raw points from the second line
-  l2p1x=p21[0]
-  l2p1y=p21[1]
-  l2p2x=p22[0]
-  l2p2y=p22[1]
-
-  # equate the second line in 2d space
-  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
-
-  # b = y - mx
-  bl2 = l2p1y - ml2 * l2p1x
-
-
-  # find the intersection of the two lines
-  # m1x+b1 = m2x+b2
-  # m1x - m2x = b2 - b1
-  # x = (b2-b1) / (m1-m2)
-  xintersect = (bl2-bl1) / (ml1-ml2)
-  yintersect = ml1 * xintersect + bl1
-
-  #FIND THE VECTORS
-  #define a vector from the intersection to the second point on the first line
-  l1delxfull = l1p2x - xintersect
-  l1delyfull = l1p2y - yintersect
-
-  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
-
-  l1delxunit = l1delxfull / l1delmag
-  l1delyunit = l1delyfull / l1delmag
-  
-  #define a vector from the intersection to the second point on the second line
-  l2delxfull = l2p2x - xintersect
-  l2delyfull = l2p2y - yintersect
-
-  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
-
-  l2delxunit = l2delxfull / l2delmag
-  l2delyunit = l2delyfull / l2delmag
-  
-  # FIND THE FOUR POINTS ON THE LINES
-  # find locations 8 inches away from  intersect point
-  # CONST
-  welddistance = 8
-  roundoverdistance = 0.05
-  zup = .375
-  # inches
-  wd = welddistance * 25.4 / 1000
-  rod = roundoverdistance * 25.4 / 1000
-  zup = zup * 25.4 / 1000
-
-  # now we have the unit vector. extend the weld distance from the intersection
-  x = xintersect + l1delxunit * wd
-  y = yintersect + l1delyunit * wd
-  z = zcoord + zup
-
-  point1 = p[x,y,z,1.570796,0,0] # dummy orientation for now
-
-  x = xintersect + l1delxunit * rod
-  y = yintersect + l1delyunit * rod
-
-  point2 = p[x,y,z,1.570796,0,0]
-
-  # now we have the unit vector. extend the weld distance from the intersection
-  x = xintersect + l2delxunit * wd
-  y = yintersect + l2delyunit * wd
-
-  point5 = p[x,y,z,0,-1.570796,0]
-
-  x = xintersect + l2delxunit * rod
-  y = yintersect + l2delyunit * rod
-
-  point4 = p[x,y,z,0,-1.570796,0]
-
-  #DEFINE APPROACH POINTS
-  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
-  pointapproach1 = p[xintersect+0.1,yintersect+0.1,z,1.570796,0,0]
-  pointapproach2 = p[point1[0], point1[1]+0.1, point1[2], point1[3], point1[4], point1[5]]
-  pointreturn1 = p[point5[0]+0.1, point5[1], point5[2], point5[3], point5[4], point5[5]]
-  
-  #FIND HEADINGS
-  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
-  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
-  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
-  # find halfway heading
-  heading2 = (headingvector1 + headingvector2)/2
-  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
-  heading1 = headingvector1 + pi/2
-  heading3 = headingvector2 - pi/2
-  
-  #FIND POINT 3
-  #see if we have to / can find point 3
-  findpoint3 = True
-  if roundoverdistance == 0:
-    findpoint3 = False
-  end
-  if findpoint3:
-    # i need to find the point3 such that the arc from p2 to p3 to p4 is tangent to p1-p2 and p4-p5. making this a smooth path will be good
-    # the direction of movement is from pointintersect in the direction of heading2
-    # how much movement though? this will depend on whether it is actually a 90 degree angle or not. 
-    # first, find the perpendicular lines through points 2 and 4
-    perp2 = find_perpendicular_line(ml1, point2[0], point2[1])
-    perp4 = find_perpendicular_line(ml2, point4[0], point4[1])
-    # next, find the intersection of those two lines
-    perpintersect = find_intersection(perp2[0], perp2[1], perp4[0], perp4[1])
-    radiusofcircle = distance_between(perpintersect[0], perpintersect[1], 0, point2[0], point2[1], 0)
-    # find a vector the direction of heading2
-    uvx = cos(heading2)
-    uvy = sin(heading2)
-    # compute point3. pass in negative radius because the direction is into the tank but we want to move from the intersection out to the rounded edge
-    point3coords = add_vectordistance_to_point(perpintersect[0], perpintersect[1], z, uvx, uvy, 0, -1 * radiusofcircle)
-    point3 = p[point3coords[0], point3coords[1], point3coords[2], 0, 0, 0]
-  end
-  
-  #APPLY ACTUAL RXRYRZ TO POINTS
-  # convert the headings to rxryrz and insert those values into the relevant points
-  rxryrz = convert_heading_to_axang(heading1)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  pointapproach1 = p[pointapproach1[0], pointapproach1[1], pointapproach1[2], rx, ry, rz]
-  pointapproach2 = p[pointapproach2[0], pointapproach2[1], pointapproach2[2], rx, ry, rz]
-  point1 = p[point1[0], point1[1], point1[2], rx, ry, rz]
-  point2 = p[point2[0], point2[1], point2[2], rx, ry, rz]
-  rxryrz = convert_heading_to_axang(heading2)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  if findpoint3:
-    point3 = p[point3[0], point3[1], point3[2], rx, ry, rz]
-  else:
-    point3 = point2
-  end
-  rxryrz = convert_heading_to_axang(heading3)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  point4 = p[point4[0], point4[1], point4[2], rx, ry, rz]
-  point5 = p[point5[0], point5[1], point5[2], rx, ry, rz]
-  pointreturn1 = p[pointreturn1[0], pointreturn1[1], pointreturn1[2], rx, ry, rz]
-  
-  #find path2 (the part that goes up)
-  four_vertical_points = find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, zup, wd, heading1, heading3)
-  path2r1 = four_vertical_points[0]
-  path2r2 = four_vertical_points[1]
-  path2l1 = four_vertical_points[2]
-  path2l2 = four_vertical_points[3]
-  
-  #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, pointapproach1=pointapproach1, pointapproach2=pointapproach2, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, pointreturn1=pointreturn1, heading1=heading1, heading2=heading2, heading3=heading3, path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
-  return ret
-end
-
-# it takes 5 arguments as points
-# it returns a struct containing: (pointintersect, heading1, heading2, heading3, l1delxunit, l1delyunit, l2delxunit, l2delyunit)
-def analyze_touchpoints_only(p11, p12, p21, p22, p3):
-  # FIND THE INTERSECTION
-  # comment get the z
-  zcoord=p3[2]
-
-  # get the raw points from the first line
-  l1p1x=p11[0]
-  l1p1y=p11[1]
-  l1p2x=p12[0]
-  l1p2y=p12[1]
-
-  # equate the first line in 2d space
-  ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
-
-  # b = y - mx
-  bl1 = l1p1y - ml1 * l1p1x
-
-  # get the raw points from the second line
-  l2p1x=p21[0]
-  l2p1y=p21[1]
-  l2p2x=p22[0]
-  l2p2y=p22[1]
-
-  # equate the second line in 2d space
-  ml2 = (l2p2y-l2p1y) / (l2p2x-l2p1x)
-
-  # b = y - mx
-  bl2 = l2p1y - ml2 * l2p1x
-
-
-  # find the intersection of the two lines
-  # m1x+b1 = m2x+b2
-  # m1x - m2x = b2 - b1
-  # x = (b2-b1) / (m1-m2)
-  xintersect = (bl2-bl1) / (ml1-ml2)
-  yintersect = ml1 * xintersect + bl1
-  
-  pointintersect = p[xintersect,yintersect,zcoord,0,0,0]
-  
-  #FIND THE VECTORS
-  #define a vector from the intersection to the second point on the first line
-  l1delxfull = l1p2x - xintersect
-  l1delyfull = l1p2y - yintersect
-
-  l1delmag = sqrt(l1delxfull*l1delxfull + l1delyfull*l1delyfull)
-
-  l1delxunit = l1delxfull / l1delmag
-  l1delyunit = l1delyfull / l1delmag
-  
-  #define a vector from the intersection to the second point on the second line
-  l2delxfull = l2p2x - xintersect
-  l2delyfull = l2p2y - yintersect
-
-  l2delmag = sqrt(l2delxfull*l2delxfull + l2delyfull*l2delyfull)
-
-  l2delxunit = l2delxfull / l2delmag
-  l2delyunit = l2delyfull / l2delmag
-  
-  #FIND HEADINGS
-  #for each heading, find the angle of the line with respect to the pos x axis. then add/subtract 90 degrees because you want to be perpendicular to that
-  headingvector1 = convert_uv_to_heading(l1delxunit, l1delyunit)
-  headingvector2 = convert_uv_to_heading(l2delxunit, l2delyunit)
-  # find halfway heading
-  heading2 = (headingvector1 + headingvector2)/2
-  # find headings that the robot should face while traveling, perpendicular to the vectors of the sides of the box
-  heading1 = headingvector1 + pi/2
-  heading3 = headingvector2 - pi/2
-  
-  #RETURN STRUCT
-  ret = struct(pointintersect=pointintersect, heading1=heading1, heading2=heading2, heading3=heading3, l1delxunit=l1delxunit, l1delyunit=l1delyunit, l2delxunit=l2delxunit, l2delyunit=l2delyunit)
-  return ret
-end
-
-# given a struct from analyze_touchpoints_only(), calculate the points 
-# for right, for non-extended
-def calculate_DOtA_points_right(struct1, listleans, chamferover):
-    # get the stuff from the struct
-    pointintersect = struct1[0]
-    heading1 = struct1[1]
-    heading2 = struct1[2]
-    heading3 = struct1[3]
-    l1delxunit = struct1[4]
-    l1delyunit = struct1[5]
-    l2delxunit = struct1[6]
-    l2delyunit = struct1[7]
-    
-    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
-    # find locations 8 inches away from  intersect point
-    # CONST
-    welddistance1 = 8 # vertical weld distance
-    welddistance2 = 6 # first path second leg
-    welddistance3 = 8 # second path second leg
-    zup = .375
-    # inches
-    wd1 = welddistance1 * 25.4 / 1000
-    wd2 = welddistance2 * 25.4 / 1000
-    wd3 = welddistance3 * 25.4 / 1000
-    zup = zup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
-    
-    x = pointintersect[0] + l1delxunit * chamferovermm
-    y = pointintersect[1] + l1delyunit * chamferovermm
-    z = pointintersect[2] + zup
-    
-    #apply actual rxryrz to points
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_preheatdown(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    point2 = p[x, y, z, rx, ry, rz]
-    
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point4 = p[x, y, z, rx, ry, rz]
-    x = x + l1delxunit * wd2
-    y = y + l1delyunit * wd2
-    point5 = p[x, y, z, rx, ry, rz]
-    
-    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
-    roundoverdistance = 0.05
-    rod = roundoverdistance * 25.4 / 1000
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * chamferovermm
-    y = pointintersect[1] + l1delyunit * chamferovermm
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_1 = p[x, y, z, rx, ry, rz]
-
-    x = pointintersect[0] + l1delxunit * rod
-    y = pointintersect[1] + l1delyunit * rod
-    point_2 = p[x, y, z, rx, ry, rz]
-
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * wd3
-    y = pointintersect[1] + l2delyunit * wd3
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_5 = p[x, y, z, rx, ry, rz]
-
-    x = pointintersect[0] + l2delxunit * rod
-    y = pointintersect[1] + l2delyunit * rod
-    point_4 = p[x, y, z, rx, ry, rz]
-    
-    #FIND POINT 3
-    # by calling analyze_touchpoints()
-    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
-    
-    
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
-    return struct2
-end
-
-# given a struct from analyze_touchpoints_only(), calculate the points 
-# for left, for non-extended
-def calculate_DOtA_points_left(struct1, listleans, chamferover):
-    # get the stuff from the struct
-    pointintersect = struct1[0]
-    heading1 = struct1[1]
-    heading2 = struct1[2]
-    heading3 = struct1[3]
-    l1delxunit = struct1[4]
-    l1delyunit = struct1[5]
-    l2delxunit = struct1[6]
-    l2delyunit = struct1[7]
-    
-    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
-    # find locations 8 inches away from  intersect point
-    # CONST
-    welddistance1 = 8 # vertical weld distance
-    welddistance2 = 6 # first path second leg
-    welddistance3 = 8 # second path second leg
-    zup = .375
-    # inches
-    wd1 = welddistance1 * 25.4 / 1000
-    wd2 = welddistance2 * 25.4 / 1000
-    wd3 = welddistance3 * 25.4 / 1000
-    zup = zup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
-    
-    x = pointintersect[0] + l2delxunit * chamferovermm
-    y = pointintersect[1] + l2delyunit * chamferovermm
-    z = pointintersect[2] + zup
-    
-    #apply actual rxryrz to points
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_preheatdown(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
-    point2 = p[x, y, z, rx, ry, rz]
-    
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point4 = p[x, y, z, rx, ry, rz]
-    x = x + l2delxunit * wd2
-    y = y + l2delyunit * wd2
-    point5 = p[x, y, z, rx, ry, rz]
-    
-    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
-    roundoverdistance = 0.05
-    rod = roundoverdistance * 25.4 / 1000
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * chamferovermm
-    y = pointintersect[1] + l2delyunit * chamferovermm
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_1 = p[x, y, z, rx, ry, rz]
-    
-    x = pointintersect[0] + l2delxunit * rod
-    y = pointintersect[1] + l2delyunit * rod
-    point_2 = p[x, y, z, rx, ry, rz]
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * wd3
-    y = pointintersect[1] + l1delyunit * wd3
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_5 = p[x, y, z, rx, ry, rz]
-    
-    x = pointintersect[0] + l1delxunit * rod
-    y = pointintersect[1] + l1delyunit * rod
-    point_4 = p[x, y, z, rx, ry, rz]
-    
-    #FIND POINT 3
-    # by calling analyze_touchpoints()
-    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
-    #point 3 will not have the correct rxryrz though because now the gun needs to be face up. 
-    rxryrz = convert_heading_to_axang_ccw(heading2)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
-    
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
-    return struct2
-end
-
-# given a struct from analyze_touchpoints_only(), calculate the points 
-# for right, for extended
-def calculate_DOtA_points_right_extended(struct1, listleans, chamferover, chamferup, tcp_pose_top):
-    # get the stuff from the struct
-    pointintersect = struct1[0]
-    heading1 = struct1[1]
-    heading2 = struct1[2]
-    heading3 = struct1[3]
-    l1delxunit = struct1[4]
-    l1delyunit = struct1[5]
-    l2delxunit = struct1[6]
-    l2delyunit = struct1[7]
-    
-    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
-    # find locations 8 inches away from  intersect point
-    # CONST
-    # welddistance1 = 8 # vertical weld distance
-    welddistance2 = 6 # first path second leg
-    welddistance3 = 8 # second path second leg
-    
-    # inches
-    # wd1 = welddistance1 * 25.4 / 1000
-    wd2 = welddistance2 * 25.4 / 1000
-    wd3 = welddistance3 * 25.4 / 1000
-    zup = chamferup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
-    
-    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
-    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
-    
-    x = pointintersect[0] + l1delxunit * chamferovermm
-    y = pointintersect[1] + l1delyunit * chamferovermm
-    z = pointintersect[2] + zup
-    
-    #apply actual rxryrz to points
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_preheatdown(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz] # add in the listleans factor to follow the face of the box as we move up
-    point2 = p[x, y, z, rx, ry, rz]
-    
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point4 = p[x, y, z, rx, ry, rz]
-    x = x + l1delxunit * wd2
-    y = y + l1delyunit * wd2
-    point5 = p[x, y, z, rx, ry, rz]
-    
-    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
-    roundoverdistance = 0.05
-    rod = roundoverdistance * 25.4 / 1000
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * chamferovermm
-    y = pointintersect[1] + l1delyunit * chamferovermm
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_1 = p[x, y, z, rx, ry, rz]
-
-    x = pointintersect[0] + l1delxunit * rod
-    y = pointintersect[1] + l1delyunit * rod
-    point_2 = p[x, y, z, rx, ry, rz]
-
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    x = pointintersect[0] + l2delxunit * rod
-    y = pointintersect[1] + l2delyunit * rod
-    point_4 = p[x, y, z, rx, ry, rz]
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * wd3
-    y = pointintersect[1] + l2delyunit * wd3
-    point_5 = p[x, y, z, rx, ry, rz]
-    
-    #FIND POINT 3
-    # by calling analyze_touchpoints()
-    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
-    
-    
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
-    return struct2
-end
-
-# given a struct from analyze_touchpoints_only(), calculate the points 
-# for left, for extended
-def calculate_DOtA_points_left_extended(struct1, listleans, chamferover, chamferup, tcp_pose_top):
-    # get the stuff from the struct
-    pointintersect = struct1[0]
-    heading1 = struct1[1]
-    heading2 = struct1[2]
-    heading3 = struct1[3]
-    l1delxunit = struct1[4]
-    l1delyunit = struct1[5]
-    l2delxunit = struct1[6]
-    l2delyunit = struct1[7]
-    
-    # FIND THE POINTS ON THE LINES OF THE FIRST TURN PATH
-    # find locations 8 inches away from  intersect point
-    # CONST
-    # welddistance1 = 8 # vertical weld distance
-    welddistance2 = 6 # first path second leg
-    welddistance3 = 8 # second path second leg
-    
-    # inches
-    # wd1 = welddistance1 * 25.4 / 1000
-    wd2 = welddistance2 * 25.4 / 1000
-    wd3 = welddistance3 * 25.4 / 1000
-    zup = chamferup * 25.4 / 1000
-    chamferovermm =  chamferover * 25.4 / 1000
-    
-    # weld distance is the distance that it will weld. this will make it start at the z height that the user specified
-    wd1 = tcp_pose_top[2] - pointintersect[2] - zup 
-    
-    x = pointintersect[0] + l2delxunit * chamferovermm
-    y = pointintersect[1] + l2delyunit * chamferovermm
-    z = pointintersect[2] + zup
-    
-    #apply actual rxryrz to points
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_preheatdown(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point1 = p[x + wd1*listleans[0], y + wd1*listleans[1], z + wd1, rx, ry, rz]
-    point2 = p[x, y, z, rx, ry, rz]
-    
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    point4 = p[x, y, z, rx, ry, rz]
-    x = x + l2delxunit * wd2
-    y = y + l2delyunit * wd2
-    point5 = p[x, y, z, rx, ry, rz]
-    
-    # FIND THE POINTS ON THE LINES OF THE SECOND AROUND PATH
-    roundoverdistance = 0.05
-    rod = roundoverdistance * 25.4 / 1000
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l2delxunit * chamferovermm
-    y = pointintersect[1] + l2delyunit * chamferovermm
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading3)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_1 = p[x, y, z, rx, ry, rz]
-    
-    x = pointintersect[0] + l2delxunit * rod
-    y = pointintersect[1] + l2delyunit * rod
-    point_2 = p[x, y, z, rx, ry, rz]
-    
-    # convert the headings to rxryrz and insert those values into the relevant points
-    rxryrz = convert_heading_to_axang_ccw(heading1)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    
-    x = pointintersect[0] + l1delxunit * rod
-    y = pointintersect[1] + l1delyunit * rod
-    point_4 = p[x, y, z, rx, ry, rz]
-    
-    # now we have the unit vector. extend the weld distance from the intersection
-    x = pointintersect[0] + l1delxunit * wd3
-    y = pointintersect[1] + l1delyunit * wd3
-    point_5 = p[x, y, z, rx, ry, rz]
-    
-    #FIND POINT 3
-    # by calling analyze_touchpoints()
-    atret = analyze_touchpoints(point_2, point_1, point_4, point_5, pointintersect)
-    point_3 = atret[5]
-    #point 3 will not have the correct rxryrz though because now the gun needs to be face up 
-    rxryrz = convert_heading_to_axang_ccw(heading2)
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
-    point_3 = p[point_3[0], point_3[1], point_3[2], rx, ry, rz]
-    
-    struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5)
-    return struct2
-end
-
-# this function analyzes the vertical points
-# calculates the slope of the edge in question
-# specifically, for each inch up in the z direction, what is the change in x and change in y direction
-# returns a list of [nx, ny]
-def analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3):
-    # first, find the equations of the planes from the 6 points
-    plane1 = findplane(p11, p12, p13)
-    plane2 = findplane(p21, p22, p23)
-    # Find the Direction Vector of the Line: The direction vector d of the line of intersection can be found by taking the cross product of the normal vectors of each plane (a, b, and c)
-    nx = plane1[1]*plane2[2] - plane1[2]*plane2[1]
-    ny = plane1[2]*plane2[0] - plane1[0]*plane2[2]
-    nz = plane1[0]*plane2[1] - plane1[1]*plane2[0]
-    # normalize the vector so the z length is 1
-    multiplier = 1 / nz
-    nx = nx * multiplier
-    ny = ny * multiplier
-    nz = nz * multiplier # should become equal to 1
-    ret = [nx, ny]
-    return ret
-end
-
-# given 3 points, this finds the plane and its equation
-# rereturns ax + by + cz + d = 0 in a list of [a, b, c, d]
-def findplane(p11, p12, p13):
-    # extract coordinates
-    x1 = p11[0]
-    y1 = p11[1]
-    z1 = p11[2]
-    x2 = p12[0]
-    y2 = p12[1]
-    z2 = p12[2]
-    x3 = p13[0]
-    y3 = p13[1]
-    z3 = p13[2]
-    # create vectors from the points
-    v1x = x2-x1
-    v1y = y2-y1
-    v1z = z2-z1
-    v2x = x3-x1
-    v2y = y3-y1
-    v2z = z3-z1
-    #calculate the normal vector using the cross product
-    nx = v1y*v2z - v1z*v2y # i component
-    ny = v1z*v2x - v1x*v2z # j component
-    nz = v1x*v2y - v1y*v2x # k component
-    # calculate d in the plane equation
-    d = -1 * (nx*x1 + ny*y1 + nz*z1)
-    ret = [nx, ny, nz, d]
-    return ret
-end
-
-# given a heading, (ccw from +x axis), find the mx+b slope
-# fails if exactly vertical
-def get_slope_from_heading(heading):
-    return tan(heading)
-end
-
-
-
-# this function finds the points (and rxryrz) of the 2 points (start and end) of vertical weld section
-def find_vertical_points(pointintersect, l1delxunit, l1delyunit, l2delxunit, l2delyunit, offset, wd, heading1, heading3):
-  
-  # find right side stuff
-  # find the point in 3d space that is .375 up and .375 over
-  x = pointintersect[0] + l1delxunit * offset
-  y = pointintersect[1] + l1delyunit * offset
-  z = pointintersect[2] + offset
-  # find rxryrz
-  rxryrz = convert_heading_to_axang_preheatup(heading1)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  path2r1 = p[x, y, z, rx, ry, rz]
-  path2r2 = p[x, y, z + wd, rx, ry, rz]
-  
-  # find left side 
-  # find the point in 3d space that is .375 up and .375 over
-  x = pointintersect[0] + l2delxunit * offset
-  y = pointintersect[1] + l2delyunit * offset
-  z = pointintersect[2] + offset
-  # find rxryrz
-  rxryrz = convert_heading_to_axang_preheatup(heading3)
-  rx = rxryrz[0]
-  ry = rxryrz[1]
-  rz = rxryrz[2]
-  path2l1 = p[x, y, z, rx, ry, rz]
-  path2l2 = p[x, y, z + wd, rx, ry, rz]
-  
-  ret = struct(path2r1=path2r1, path2r2=path2r2, path2l1=path2l1, path2l2=path2l2)
-  return ret  
-end
-
-# this function converts a unit vector to its heading angle ccw from x+ axis
-# takes uvx and uvy
-# returns heading in radians
-def convert_uv_to_heading(uvx, uvy):
-  baseang = atan(uvy/uvx)
-  if uvx &lt; 0:
-    ang = baseang + pi
-  elif uvy &lt; 0:
-    ang = baseang + pi * 2
-  else:
-    ang = baseang
-  end
-  return ang
-end
-
-# this function finds the equation of a line, perpendicular to a given line, and going through a given point
-# takes 3 arguments: m (the original line&apos;s slope), x (point&apos;s x coord), y (point&apos;s y coord). the b of the original line is not needed
-# returns a list of [m,b] (the slope and intercept of the new line)
-def find_perpendicular_line(origm, x, y):
-  m = (1/origm) * -1
-  b = y - m*x
-  ret = [m, b]
-  return ret
-end
-
-# this function finds the intersection point between two lines in the xy plane
-# takes 4 arguments: m1, b1, m2, b2
-# returns a list of [x,y] (the point of intersection)
-def find_intersection(m1, b1, m2, b2):
-  # m1x+b1 = m2x+b2
-  # m1x - m2x = b2 - b1
-  # x = (b2-b1) / (m1-m2)
-  x = (b2-b1) / (m1-m2)
-  y = m1 * x + b1
-  ret = [x, y]
-  return ret
-end
-
-# this function finds the distance between 2 points in 3d space
-# it takes 6 arguments: x1, y1, z1, x2, y2, z2
-# it returns a distance
-def distance_between(x1, y1, z1, x2, y2, z2):
-  distsquared = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1)
-  dist = sqrt(distsquared)
-  return dist
-end
-
-# this function takes a point, a unit vector, and a distance, and adds the distance to the point in the direction of the unit vector (3d space)
-# it returns a point as a list of coordinates
-def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
-  xf = xi + uvx * delta
-  yf = yi + uvy * delta
-  zf = zi + uvz * delta
-  ret = [xf, yf, zf]
-  return ret
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the bottom side of the gun facing up. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang(heading):
- axisxraw = -1 * sin(heading)
- axisyraw = cos(heading) + 1
- axiszraw = sin(heading)
-
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
-
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
-
- angle = acos( (cos(heading) - 1) / 2 )
-
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatup(heading):
- axisxraw = -sin(heading) + 1
- axisyraw = cos(heading)
- axiszraw = cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatdown(heading):
- axisxraw = -sin(heading) - 1
- axisyraw = cos(heading)
- axiszraw = -cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_ccw(heading):
- axisxraw = -sin(heading) 
- axisyraw = cos(heading) - 1
- axiszraw = -sin(heading) 
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-cos(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function takes two rotation matrices, and multiplies them together, returning one matrix. 
-# all matrices are in the form of a list.
-# all matrix values have constant values (no variables)
-def multiply_matrix(matrix1, matrix2):
-    # retrieve values
-    a11 = matrix1[0]
-    a12 = matrix1[1]
-    a13 = matrix1[2]
-    a21 = matrix1[3]
-    a22 = matrix1[4]
-    a23 = matrix1[5]
-    a31 = matrix1[6]
-    a32 = matrix1[7]
-    a33 = matrix1[8]
-    b11 = matrix2[0]
-    b12 = matrix2[1]
-    b13 = matrix2[2]
-    b21 = matrix2[3]
-    b22 = matrix2[4]
-    b23 = matrix2[5]
-    b31 = matrix2[6]
-    b32 = matrix2[7]
-    b33 = matrix2[8]
-    #calculate c values
-    c11 = a11*b11 + a12*b21 + a13*b31
-    c12 = a11*b12 + a12*b22 + a13*b32
-    c13 = a11*b13 + a12*b23 + a13*b33
-    c21 = a21*b11 + a22*b21 + a23*b31
-    c22 = a21*b12 + a22*b22 + a23*b32
-    c23 = a21*b13 + a22*b23 + a23*b33
-    c31 = a31*b11 + a32*b21 + a33*b31
-    c32 = a31*b12 + a32*b22 + a33*b32
-    c33 = a31*b13 + a32*b23 + a33*b33
-    # return resulting matrix
-    ret = [c11, c12, c13, c21, c22, c23, c31, c32, c33]
-    return ret
-end
-
-# this function converts a matrix to axis angle representations
-# this matrix is usually a resulting matrix (result of matrix multiplication) in normal use, given as a list
-# returns a list of [rx,ry,rz]
-def convert_matrix_to_axang(matrix1):
-    # retrieve values
-    a11 = matrix1[0]
-    a12 = matrix1[1]
-    a13 = matrix1[2]
-    a21 = matrix1[3]
-    a22 = matrix1[4]
-    a23 = matrix1[5]
-    a31 = matrix1[6]
-    a32 = matrix1[7]
-    a33 = matrix1[8]
-    
-    # First Half: find the angle    
-    # find the trace
-    # using the formula: trace = a11 + a22 + a33
-    trace = a11 + a22 + a33
-    # find the angle using the formula: trace(matrix) = 1 + 2 cos(angle)
-    angle = acos((trace - 1.0)/2.0)
-    
-    # Second Half: calculate the rotation axis
-    axisxraw = a32 - a23
-    axisyraw = a13 - a31
-    axiszraw = a21 - a12
-    # normalize axis
-    magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
-    axisxunit = axisxraw / magnitude
-    axisyunit = axisyraw / magnitude
-    axiszunit = axiszraw / magnitude
-    
-    # combine axis and angle into rxryrz representation
-    rxout = axisxunit * angle
-    ryout = axisyunit * angle
-    rzout = axiszunit * angle
-    return [rxout, ryout, rzout]
-end
-
-# this function takes a rotation and calculates the corresponding rotation matrix
-# input is (axis, direction, angle in radians)
-# example is (&quot;x&quot;, 1, pi/6) = a 30 degree turn around the x axis in the positive direction (right hand rule)
-# returns a matrix (a list of 9 values)
-def get_rotation_matrix_from_description(axis, direction, angle):
-    # get the angle
-    a = angle * direction
-    # get the axis
-    if axis == &quot;x&quot; or axis == &quot;X&quot;:
-        matrix = [1, 0, 0, 0, cos(a), -1 * sin(a), 0, sin(a), cos(a)]
-        return matrix
-    end
-    if axis == &quot;y&quot; or axis == &quot;Y&quot;:
-        matrix = [cos(a), 0, sin(a), 0, 1, 0, -1*sin(a), 0, cos(a)]
-        return matrix
-    end
-    if axis == &quot;z&quot; or axis == &quot;Z&quot;:
-        matrix = [cos(a), -1*sin(a), 0, sin(a), cos(a), 0, 0, 0, 1]
-        return matrix
-    end
-    # bad
-    popuptext = &quot;Error in get_rotation_matrix_from_description. &quot;
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Code Error&quot;,blocking=True)
-    end
-end
-
-# this function is for getting the points along the path of the corner homing 45
-# point0 is the point where they touched
-def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
-  p0x = point0[0]
-  p0y = point0[1]
-  p0z = point0[2]
-  p0rx = point0[3]
-  p0ry = point0[4]
-  p0rz = point0[5]
-  
-  #constants
-  #distances of how far away from point the touchpoints are
-  d0 = 0.10 # how far from the box to retreat and approach
-  d1 = 0.03 # first distance from init point
-  d2 = 0.15 # second distance from init point
-  d3 = 0.125 #vertical distance from first point
-  sqrt2 = 0.707106781 # 1/sqrt(2) , the inverse of the sqrt(2)
-  
-  ph1 = p[p0x + d0, p0y, p0z + d1, p0rx, p0ry, p0rz] #approach point for turn
-  
-  ph2 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y+d0*0.5+sqrt2*d1, p0z+d1, 1.446, -0.8, -0.733]
-  ph3 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y+d0*0.5+sqrt2*d2, p0z+d1, 1.446, -0.8, -0.733]
-  ph4 = p[p0x+d0-d0*0.5-sqrt2*d1, p0y-d0*0.5-sqrt2*d1, p0z+d1, 0.626, -1.993, -1.813]
-  ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 0.626, -1.993, -1.813]
-  
-  # go back to ph1
-  ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, 0] # approach point for under turn
-  # moveL from ph1 to ph6
-  ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, 0]
-  
-  # add the vertical touch points
-  if pointtop[2] == 0:
-    ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] &gt; p0z + 0.914: # 0.914m = 36 inches
-    ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
-  else:
-    ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
-  end
-  ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
-  is_robot_at_reachable_spot(point0, ret)
-  return ret
-end
-
-# this function checks whether the touchpoints are reachable AKA is the robot positioned in the right spot
-# if everything looks good, it continues.
-# if it detects a problem, it infinite loops a popup
-def is_robot_at_reachable_spot(point0, struct_touchpoints):
-  # first, check whether the corner is too low to the ground that the bottom homing will hit the ground (z &lt; -400)
-  lc_height = get_lift_column_height_condensed()
-  # total height = zeroed lift column height (41.25 inches) (1.04775 m) plus lift column height plus robot relative height
-  totalheight = 1.04775 + lc_height + point0[2]
-  if totalheight &lt; 1.04775 - 0.400:
-    # bad
-    popuptext = &quot;Tank Corner is too low to the ground. Collisions will occur. Stop Program and raise tank. &quot;
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-  
-  
-  
-  # next, check whether the touchpoints are reachable
-  allvalid = check_structofpoints_validity(struct_touchpoints)
-  if not allvalid:
-      
-    # then unreachable
-    # generate message
-    listproblems = &quot;&quot;
-    listnames = [&quot;ph1&quot;, &quot;ph2&quot;, &quot;ph3&quot;, &quot;ph4&quot;, &quot;ph5&quot;, &quot;ph6&quot;, &quot;ph7&quot;, &quot;ph2up&quot;, &quot;ph4up&quot;]
-    i = 0
-    structlength = 9
-    while i &lt; structlength:
-      curr = struct_touchpoints[i]
-      valid = get_inverse_kin_has_solution(curr)
-      if not valid:
-        listproblems = listproblems + listnames[i]
-      end
-      i = i + 1
-    end
-    # display
-    popuptext = &quot;Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. &quot; + listproblems
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-  
-end
-
-# this function takes a struct of points as an argument, and checks whether every point in the list is reachable using get_inverse_kin_has_solution()
-# this function does NOT check for weird twists or joint limits
-# inputstruct must contain only points
-# it returns true if all points are valid. it returns false if any points are valid
-# a list of length 0 indicates that all points are valid
-def check_structofpoints_validity(inputstruct):
-  # next, check whether the touchpoints are reachable
-  structlength = length(inputstruct)
-  i = 0
-  allvalid = True
-  while i &lt; structlength:
-    curr = inputstruct[i]
-    valid = get_inverse_kin_has_solution(curr)
-    if not valid:
-      return False
-    end
-    i = i + 1
-  end
-  return True
-end
-
-# checks the validity of all points during a left weld
-# takes 2 arguments: struct1 (struct1[0] has to contain pointintersect) and struct2 (contains all the points (9) of the weld path)
-def check_validity_left(struct1, struct2):
-  #first, check whether robot is too close
-  pointintersect = struct1[0]
-  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X &gt; -1300)
-  # if y &lt; 0, then x &lt; -1300. if y &lt; 480, then y &gt; (1300+x)*8. if y &gt; 480, then y &gt; (1235+x)*4 + 500
-  toocloseleftweld = False
-  if pointintersect[1] &lt; 0:
-    if pointintersect[0] &gt; -1.300:
-      toocloseleftweld = True
-    end
-  elif pointintersect[1] &lt; 0.480:
-    if pointintersect[1] &lt; (1.300 + pointintersect[0])*8:
-      toocloseleftweld = True
-    end
-  else:
-    if pointintersect[1] &lt; (1.235 + pointintersect[0])*4 + 0.500:
-      toocloseleftweld = True
-    end
-  end
-  if toocloseleftweld:
-    # bad
-    popuptext = &quot;Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. &quot;
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-  
-  #next, check whether all the points in the weldpath are valid
-  structlength = 9
-  i = 0
-  allvalid = True
-  listproblems = &quot;&quot;
-  listnames = [&quot;point1&quot;, &quot;point2&quot;, &quot;point4&quot;, &quot;point5&quot;, &quot;point_1&quot;, &quot;point_2&quot;, &quot;point_3&quot;, &quot;point_4&quot;, &quot;point_5&quot;]
-  while i &lt; structlength:
-    curr = struct2[i]
-    valid = get_inverse_kin_has_solution(curr)
-    if not valid:
-      allvalid = False
-      listproblems = listproblems + listnames[i]
-    end
-    i = i + 1
-  end
-  
-  if not allvalid:
-    # display
-    popuptext = &quot;Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. &quot; + listproblems
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-  
-  # check whether the path involves weird turns or joint limits. currently just checks the first position
-  p_prev = [-0.021118, -1.26292, 2.43578, 5.07088, -2.29912, 1.53362] #last point of left weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
-  allGood = True
-  i = 0
-  structlength = 6
-  while i &lt; structlength:
-    joint_curr = joints_1[i]
-    # check for anything that exceeds joint limits
-    degreesmax = 360 * pi / 180 
-    if joint_curr &gt; degreesmax or joint_curr &lt; degreesmax * -1:
-      allGood = False
-    end
-    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-    maxdifference = 150 * pi / 180 
-    difference = joint_curr - p_prev[i]
-    if difference &gt; maxdifference or difference * -1 &gt; maxdifference:
-      allGood = False
-    end
-    i = i + 1
-  end
-  
-  if not allGood:
-    # call lift column extend function
-    struct2 = floor_corner_lift_column_extend_left(struct2)
-    
-  end
-  
-  # return struct2 back
-  return struct2
-end
-
-# checks the validity of all points during a right weld
-def check_validity_right(struct1, struct2):
-  # first, check whether the right pivot will bonk itself
-  pointintersect = struct1[0]
-  heading1 = struct1[1] # this is the direction that the welder will face when doing the right side of the box
-  
-  #first, check whether the heading is just too far offset
-  # more than 15 degrees off of 45 is too much
-  # normal heading is 216 degrees
-  #201 degrees to 231 degrees
-  heading1degrees = heading1 * 180 / pi
-  if heading1degrees &lt; 201 or heading1degrees &gt; 231 :
-    # then out of range
-    popuptext = &quot;Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=&quot; + str_cat(&quot;&quot;,heading1degrees)
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-    
-  #TODO: add the checks for whether x is too close, given the heading
-  # add checks for whether x is too close, given the heading
-  # different equations for whether heading offset &gt; 5 degrees or less (inc. negative)
-  headingoffset = heading1degrees - 216
-  if headingoffset &lt; 5:
-    # then calculate a and b
-    a = 0.4584 + -0.02369 * headingoffset
-    b = (-1151.4 + 13.83 * headingoffset) / 1000
-    # check whether x &gt; a*y+b
-    if pointintersect[0] &gt; a * pointintersect[1] + b:
-      # bad
-      popuptext = &quot;Robot is too close to tank corner or not at the right angle. Collisions may occur. Stop Program and align robot. &quot; 
-      # infinite loop
-      while 1==1:
-        popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-      end
-    end
-  else:
-    # headingoffset &gt; 5 degrees
-    if pointintersect[1] &lt; 0:
-      if pointintersect[0] &gt; -1150.0 / 1000.0:
-        #bad
-        popuptext = &quot;Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. &quot; 
-        # infinite loop
-        while 1==1:
-          popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-        end
-      end
-    else:
-      # if x &gt; .7736 y - 1101.9 then bad
-      if pointintersect[0] &gt; 0.7736 * pointintersect[1] - 1101.9 / 1000:
-        popuptext = &quot;Robot is too close to tank corner. Collisions may occur. Stop Program and align robot. &quot; 
-        # infinite loop
-        while 1==1:
-          popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-        end
-      end
-    end
-  end
-  
-  #next, check whether all the points in the weldpath are valid
-  structlength = 9
-  i = 0
-  allvalid = True
-  listproblems = &quot;&quot;
-  listnames = [&quot;point1&quot;, &quot;point2&quot;, &quot;point4&quot;, &quot;point5&quot;, &quot;point_1&quot;, &quot;point_2&quot;, &quot;point_3&quot;, &quot;point_4&quot;, &quot;point_5&quot;]
-  while i &lt; structlength:
-    curr = struct2[i]
-    valid = get_inverse_kin_has_solution(curr)
-    if not valid:
-      allvalid = False
-      listproblems = listproblems + listnames[i]
-    end
-    i = i + 1
-  end
-  
-  if not allvalid:
-    # display
-    popuptext = &quot;Robot is too far from tank corner. Cannot reach some necessary positions. Stop Program and move robot closer. &quot; + listproblems
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  end
-  
-  # check whether the path involves weird turns or joint limits. currently just checks the first position
-  p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
-  allGood = True
-  i = 0
-  structlength = 6
-  while i &lt; structlength:
-    joint_curr = joints_1[i]
-    # check for anything that exceeds joint limits
-    degreesmax = 360 * pi / 180 
-    if joint_curr &gt; degreesmax or joint_curr &lt; degreesmax * -1:
-      allGood = False
-    end
-    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-    maxdifference = 150 * pi / 180 
-    difference = joint_curr - p_prev[i]
-    if difference &gt; maxdifference or difference * -1 &gt; maxdifference:
-      allGood = False
-    end
-    i = i + 1
-  end
-  
-  if not allGood:
-    struct2 = floor_corner_lift_column_extend_right(struct2)
-  end
-  
-  # return struct2 back
-  return struct2
-end
-
-def floor_corner_lift_column_extend_right(struct2):
-  # we know that p1 cannot be accessed without a twist 
-  # calculate the height needed to get to p1
-  liftcolumnincrement = 2.0 # mm
-  enoughHeightAdded = False
-  liftColumnHeightTest = 0
-  while not enoughHeightAdded:
-    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
-    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
-    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
-    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
-    # get the modified point:
-    origp1 = struct2[0]
-    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000.0, origp1[3], origp1[4], origp1[5]]
-    testpa1 = p[origp1[0]+0.05, origp1[1]+0.05, origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
-    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints) and can_pose_be_reached_without_twist(testpa1, orig_joints)
-  end
-  
-  origp2 = struct2[1]
-  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000.0, origp2[3], origp2[4], origp2[5]]
-  origp4 = struct2[2]
-  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
-  origp5 = struct2[3]
-  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
-  
-  
-  
-  liftcolumnzneeded = liftColumnHeightTest
-  ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
-  return ret
-  
-end
-
-# this function gets called if you are doing a left floor corner extended, and the top is too high to reach (twists, etc.)
-# this function takes the struct2 of weld points and modifies them (by subtracting from z) until the first weld point is reachable. 
-# it determines the height that the lift column needs to raise to make the first point reachable
-# it then checks whether that height will allow the other points to be reachable
-# if its all good, it sets the global variable liftcolumnzneeded, modifies struct2&apos;s points, and returns struct2
-# if its not all good, then it displays an error message popup. 
-def floor_corner_lift_column_extend_left(struct2):
-  # we know that p1 cannot be accessed without a twist 
-  # calculate the height needed to get to p1
-  liftcolumnincrement = 2 # mm
-  enoughHeightAdded = False
-  liftColumnHeightTest = 0
-  while not enoughHeightAdded:
-    liftColumnHeightTest = liftColumnHeightTest + liftcolumnincrement
-    # set the orig_joints for p1. p1 demo was joint angles of [-0.45, -31.79, 56.47, 333.06, -130.98, 87.87] (degrees)
-    # which equals [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
-    orig_joints = [-0.007853981633974475, -0.5548401692089968, 0.985587428601197, 5.812993606692308, -2.28603225426217, 1.5336208137274159]
-    # get the modified point:
-    origp1 = struct2[0]
-    testp1 = p[origp1[0], origp1[1], origp1[2] - liftColumnHeightTest / 1000, origp1[3], origp1[4], origp1[5]]
-    enoughHeightAdded = can_pose_be_reached_without_twist(testp1, orig_joints)
-  end
-  
-  # check whether the other 3 points are valid
-  valid = True
-  # get the modified point
-  origp2 = struct2[1]
-  testp2 = p[origp2[0], origp2[1], origp2[2] - liftColumnHeightTest / 1000, origp2[3], origp2[4], origp2[5]]
-  # p2 demo was joint angles of [-0.45, -21.2, 56.98, 321.95, -130.97, 87.85] (degrees)
-  # which equals [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
-  orig_joints = [-0.007853981633974475, -0.3700098014227975, 0.9944886077863679, 5.619087526795738, -2.285857721336971, 1.5332717478770168]
-  valid = valid and can_pose_be_reached_without_twist(testp2, orig_joints)
-  # get the modified point
-  origp4 = struct2[2]
-  testp4 = p[origp4[0], origp4[1], origp4[2] - liftColumnHeightTest / 1000, origp4[3], origp4[4], origp4[5]]
-  # p4 demo was joint angles of [-8.62, -43.23, 99.53, 213.86, -89.19, 40.78] (degrees)
-  # which equals [-0.15044738152191103, -0.7545058356371478, 1.7371262045099545, 3.7325611383150696, -1.556659159853741, 0.7117452689632868]
-  orig_joints = [-0.15044738152191103, -0.7545058356371478, 1.7371262045099545, 3.7325611383150696, -1.556659159853741, 0.7117452689632868]
-  valid = valid and can_pose_be_reached_without_twist(testp4, orig_joints)
-  # get the modified point
-  origp5 = struct2[3]
-  testp5 = p[origp5[0], origp5[1], origp5[2] - liftColumnHeightTest / 1000, origp5[3], origp5[4], origp5[5]]
-  # p5 demo was joint angles of [-0.59, -34.36, 77.71, 226.7, -89.18, 48.81] (degrees)
-  # which equals [-0.010297442586766533, -0.5996951309852511, 1.356295361724792, 3.9566614142711405, -1.5564846269285415, 0.8518952078984314]
-  orig_joints = [-0.010297442586766533, -0.5996951309852511, 1.356295361724792, 3.9566614142711405, -1.5564846269285415, 0.8518952078984314]
-  valid = valid and can_pose_be_reached_without_twist(testp5, orig_joints)
-  
-  if not valid:
-    # display
-    popuptext = &quot;Top of Weld is too high above robot. Cannot reach some necessary positions. Stop Program and try again with a lower top point. &quot;
-    # infinite loop
-    while 1==1:
-      popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
-    end
-  else:
-    liftcolumnzneeded = liftColumnHeightTest
-    ret = struct(point1=testp1,point2=testp2,point4=testp4,point5=testp5,point_1=struct2[4],point_2=struct2[5],point_3=struct2[6],point_4=struct2[7],point_5=struct2[8])
-    return ret
-  end
-end
-
-# this function calculates whether a given pose can be reached, and if it can, whether it requires a wrist twist (from the seed joint angles)
-# arguments are target pose (p[x,y,z,rx,ry,rz]) and orig_joints which is the 6 joint angles of a pose that is close by the target pose and has the desired joint angles
-# returns true if the pose is valid and requires no twist. If pose is valid but requires a twist, returns false. If pose is invalid, returns false.
-def can_pose_be_reached_without_twist(pose, orig_joints):
-  # first, determine if the pose is valid
-  valid = get_inverse_kin_has_solution(pose)
-  if not valid:
-    return False
-  end
-  joints_1 = get_inverse_kin(pose, orig_joints)
-  #iterate through the 6 joints
-  allGood = True
-  i = 0
-  structlength = 6
-  while i &lt; structlength:
-    joint_curr = joints_1[i]
-    # check for anything that exceeds joint limits
-    degreesmax = 360 * pi / 180 
-    if joint_curr &gt; degreesmax or joint_curr &lt; degreesmax * -1:
-      allGood = False
-    end
-    # check for anything that is significantly different than the aligned approach. could indicate a twist is needed. we dont want that
-    maxdifference = 150 * pi / 180 
-    difference = joint_curr - orig_joints[i]
-    if difference &gt; maxdifference or difference * -1 &gt; maxdifference:
-      allGood = False
-    end
-    i = i + 1
-  end
-  return allGood
-end
-
-# this function sends a signal to turn extrusion on
-def turn_extrusion_on():
-  # flush the channel
-  resp0 = send_serial_signal([&quot;u&quot;, &quot;r&quot;, &quot;?&quot;])
-  # send the signal
-  resp1 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;1&quot;])
-  # if resp &lt;&gt; &quot;uR1&quot;
-  if resp1 != [252,82,49]:
-    # turn off extrusion and heating. inform calvin
-    resp2 = send_serial_signal([&quot;u&quot;, &quot;R&quot;, &quot;0&quot;])
-    resp3 = send_serial_signal([&quot;u&quot;, &quot;H&quot;, &quot;0&quot;])
-    popuptext = &quot;Error code encountered while trying to start extrusion. Find Calvin. &quot;
-    while 1==1:
-      popup(popuptext, title=&quot;Extrusion Error Code&quot;,blocking=True)
-      popup(resp1, blocking=True)
-    end
-  end    
-end
-
-# this function sends a signal and receives a response
-# signal is a list of 3 strings, 1 character each. first is u. second is the next character. third is final character
-def send_serial_signal(signal):
-  signal2char = signal[1]
-  signal3char = signal[2]
-  listsignal = [252, get_corr_number(signal2char), get_corr_number(signal3char)]
-  resp1 = WTSerialBridge.send_command(&quot;/dev/ttyUSB0&quot;,1200, 8, &quot;None&quot;, &quot;One&quot;, &quot;None&quot;, 1000, &quot;None&quot;, &quot;None&quot;, listsignal, True)
-  return resp1
-end
-
-# this function converts a letter into its ascii number
-def get_corr_number(letter):
-  if letter == &quot;A&quot;:
-    return 65
-  elif letter == &quot;H&quot;:
-    return 72
-  elif letter == &quot;R&quot;:
-    return 82
-  elif letter == &quot;M&quot;:
-    return 77
-  elif letter == &quot;E&quot;:
-    return 69
-  elif letter == &quot;a&quot;:
-    return 97
-  elif letter == &quot;b&quot;:
-    return 98
-  elif letter == &quot;h&quot;:
-    return 104
-  elif letter == &quot;r&quot;:
-    return 114
-  elif letter == &quot;s&quot;:
-    return 115
-  elif letter == &quot;m&quot;:
-    return 109
-  elif letter == &quot;0&quot;:
-    return 48
-  elif letter == &quot;1&quot;:
-    return 49
-  elif letter == &quot;2&quot;:
-    return 50
-  elif letter == &quot;3&quot;:
-    return 51
-  elif letter == &quot;4&quot;:
-    return 52
-  elif letter == &quot;5&quot;:
-    return 53
-  elif letter == &quot;6&quot;:
-    return 54
-  elif letter == &quot;7&quot;:
-    return 55
-  elif letter == &quot;8&quot;:
-    return 56
-  elif letter == &quot;9&quot;:
-    return 57
-  elif letter == &quot;?&quot;:
-    return 63
-  end
-end
-
-# this function checks whether the welder is in the ready state. 
-# to be called at the beginning of Main Program
-def welder_state_ready():
-  # flush the channel
-  resp0 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
-  # send the signal
-  resp1 = send_serial_signal([&quot;u&quot;, &quot;s&quot;, &quot;?&quot;])
-  # if resp1 == [252,115,49] (us1) then it is ready. otherwise, it is not
-  if resp1 != [252,115,49]:
-    popuptext = &quot;Welder is not ready for extrusion. Follow the instructions to start heating welder. &quot;
-    while 1==1:
-      popup(popuptext, title=&quot;Welder Not Ready&quot;,blocking=True)
-    end
-  end
-  
-end
-
-def get_lift_column_height():
-  # begin: URCap Program Node
-  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
-  #   Type: MachineLogic for Universal Robots
-  #$ 5 &quot;MachineLogic Get Position&quot;
-  while isVentionMovementBusyMachineMotion1==True:
-    sleep(0.05)
-  end
-  if(isVentionMovementBusyMachineMotion1 == False):
-    isVentionMovementBusyMachineMotion1 = True
-    socket_send_string(&quot;estop/status;&quot;, &quot;MachineMotion1&quot;)
-    temp_estop_var_vention = socket_read_string(&quot;MachineMotion1&quot;,timeout=15)
-    while(temp_estop_var_vention==&quot;estop/status true&quot;):
-      if temp_estop_var_vention==&quot;estop/status true&quot;:
-        sendStringWithTimeout(&quot;estop/systemreset/request&quot;,&quot;Ack estop/systemreset/request;&quot;,&quot;MachineMotion1&quot;)
-      end
-      socket_send_string(&quot;estop/status;&quot;, &quot;MachineMotion1&quot;)
-      temp_estop_var_vention = socket_read_string(&quot;MachineMotion1&quot;,timeout=15)
-      if temp_estop_var_vention==&quot;estop/status true&quot;:
-        popup(&quot;MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.&quot;,blocking=True)
-      end
-    end
-  else:
-    popup(&quot;resource is being used already: MachineMotion1&quot;)
-    halt
-  end
-  socket_send_string(&quot;GET im_get_controller_pos_axis_1;&quot;, &quot;MachineMotion1&quot;)
-  temp_drive = socket_read_ascii_float(1, &quot;MachineMotion1&quot;,timeout=15)
-  global var_1 = temp_drive[1]
-  isVentionMovementBusyMachineMotion1 = False
-  sleep(0.03)
-  # end: URCap Program Node
-end
-
-def get_lift_column_height_condensed():
-  socket_send_string(&quot;GET im_get_controller_pos_axis_1;&quot;, &quot;MachineMotion1&quot;)
-  temp_drive = socket_read_ascii_float(1, &quot;MachineMotion1&quot;,timeout=15)
-  ret = temp_drive[1]
-  return ret
-end
-</cachedContents>
-              <file>/programs/analyze_touchpoints.script</file>
-            </Script>
           </children>
         </Folder>
         <Comment comment="list possible points"/>
@@ -1913,6 +285,222 @@ end
             </If>
           </children>
         </Folder>
+        <Folder name="robot 3 moves" keepHidden="false">
+          <children>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="≟"/>
+                <ExpressionChar character="2"/>
+              </expression>
+              <children>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+                  <feature class="GeomFeatureReference" reference="../../../../../../Folder/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="r3_ek_oldhome" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.4600108097540825, -2.084533794186367, 2.2686976909438377, -0.1444297831854957, -0.20178034518575938, -0.10248789488416588"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r3_ek_extrude" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.1980123446153748, -1.538400201434774, 2.229744902146236, -0.6115506790497731, -0.09278008251792791, -0.15193191663383665"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r3_ek_front" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.1980123446153748, -1.538400201434774, 2.229744902146236, -0.6115506790497731, -0.09278008251792791, -0.15193191663383665"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r3_ek_middle" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.1980123446153748, -1.538400201434774, 2.229744902146236, -0.6115506790497731, -0.09278008251792791, -0.15193191663383665"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r3_ek_bottom" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.1980123446153748, -1.538400201434774, 2.229744902146236, -0.6115506790497731, -0.09278008251792791, -0.15193191663383665"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r3_ek_end" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.1980123446153748, -1.538400201434774, 2.229744902146236, -0.6115506790497731, -0.09278008251792791, -0.15193191663383665"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+              </children>
+            </If>
+          </children>
+        </Folder>
+        <Folder name="robot 4 moves" keepHidden="false">
+          <children>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="≟"/>
+                <ExpressionChar character="2"/>
+              </expression>
+              <children>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+                  <feature class="GeomFeatureReference" reference="../../../../../../Folder/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="r4_ek_oldhome" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.4680860338785493, -2.070376223306912, 2.3329367157510497, -0.22828162349163783, -0.20619604348947362, -0.09694130604598783"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r4_ek_extrude" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.224306558956634, -1.7135315940479465, 2.43410270276974, -0.6768839938806144, -0.1154143142053492, -0.11562209601533713"/>
+                        <TCPOffset pose="-0.011699999999999999, -0.328, 0.105, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r4_ek_front" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.2223885287117087, -1.7265329174617632, 2.4434355314143925, -0.6644243149558609, -0.06512925128431313, -0.01659929377642566"/>
+                        <TCPOffset pose="-0.006900000000000001, -0.329, 0.10490000000000001, 1.2220414998940743, -1.2008968373596998, 1.2220414998940743"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r4_ek_middle" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.2295441306515738, -1.774240686665987, 2.4822688267544946, -0.6583601229072489, -0.07232201786773373, -0.0137735297523216"/>
+                        <TCPOffset pose="-0.006900000000000001, -0.329, 0.10490000000000001, 1.2220414998940743, -1.2008968373596998, 1.2220414998940743"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r4_ek_bottom" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.2295577467539287, -1.7778480193330992, 2.4794176409730713, -0.6518633442593682, -0.07233077879629679, -0.013811892538432069"/>
+                        <TCPOffset pose="-0.006900000000000001, -0.329, 0.10490000000000001, 1.2220414998940743, -1.2008968373596998, 1.2220414998940743"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Waypoint type="Fixed" name="r4_ek_end" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-3.2341047638544715, -1.8072551968371293, 2.4987903200913473, -0.6435011221874376, -0.07689850609233773, -0.01212997029934737"/>
+                        <TCPOffset pose="-0.006900000000000001, -0.329, 0.10490000000000001, 1.2220414998940743, -1.2008968373596998, 1.2220414998940743"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
+                          <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
+                          <d value="0.23639117110104094, 17.789329010163666, -71.780948659189, 54.19201683168005, 0.15910323872688711, 0.15417382890939046"/>
+                          <alpha value="1.5702826124306255, -0.0040939122984711895, -0.0022177633998317374, 1.5704222258701614, -1.5706874926026075, 0.0"/>
+                          <jointChecksum value="-1455187798, -1455103986, 686280215, -1463366417, -1451964821, -1453447095"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                  </children>
+                </Move>
+              </children>
+            </If>
+          </children>
+        </Folder>
         <Comment comment="detemine correct points for which robot"/>
         <If type="If" checkContinuously="false">
           <expression>
@@ -2102,7 +690,7 @@ end
             <ExpressionChar character="2"/>
           </expression>
           <children>
-            <Folder name="robot1 positions" keepHidden="false">
+            <Folder name="robot2 positions" keepHidden="false">
               <children>
                 <Assignment valueSource="Expression">
                   <variable reference="../../../../../../If/children/Folder/children/Assignment/variable"/>
@@ -2239,6 +827,316 @@ end
             </Folder>
           </children>
         </If>
+        <If type="ElseIf" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="b"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="b"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="≟"/>
+            <ExpressionChar character="3"/>
+          </expression>
+          <children>
+            <Folder name="robot3 positions" keepHidden="false">
+              <children>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[2]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="x"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="u"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[3]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="f"/>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[4]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="i"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[5]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="i"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[6]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="b"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[7]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="3"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="q"/>
+                  </expression>
+                </Assignment>
+              </children>
+            </Folder>
+          </children>
+        </If>
+        <If type="ElseIf" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="b"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="m"/>
+            <ExpressionChar character="b"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="≟"/>
+            <ExpressionChar character="4"/>
+          </expression>
+          <children>
+            <Folder name="robot4 positions" keepHidden="false">
+              <children>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="h"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[2]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="x"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="u"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[3]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="f"/>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[4]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="i"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[5]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="i"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="l"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[6]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="b"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="t"/>
+                    <ExpressionChar character="o"/>
+                    <ExpressionChar character="m"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="p"/>
+                  </expression>
+                </Assignment>
+                <Assignment valueSource="Expression">
+                  <variable reference="../../../../../../If/children/Folder/children/Assignment[7]/variable"/>
+                  <expression>
+                    <ExpressionChar character="r"/>
+                    <ExpressionChar character="4"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="k"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="e"/>
+                    <ExpressionChar character="n"/>
+                    <ExpressionChar character="d"/>
+                    <ExpressionChar character="_"/>
+                    <ExpressionChar character="q"/>
+                  </expression>
+                </Assignment>
+              </children>
+            </Folder>
+          </children>
+        </If>
         <Comment comment="start of program"/>
         <SuppressedNode>
           <suppressedNode class="SafeHome" positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
@@ -2301,45 +1199,45 @@ end
           </children>
         </Move>
         <Comment comment="extrude out a foot"/>
-        <Script type="Line">
-          <expression>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="e"/>
-            <ExpressionChar character="x"/>
-            <ExpressionChar character="t"/>
-            <ExpressionChar character="r"/>
-            <ExpressionChar character="u"/>
-            <ExpressionChar character="s"/>
-            <ExpressionChar character="i"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="_"/>
-            <ExpressionChar character="o"/>
-            <ExpressionChar character="n"/>
-            <ExpressionChar character="("/>
-            <ExpressionChar character=")"/>
-          </expression>
-        </Script>
         <SuppressedNode>
-          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
-            <dataModel>
-              <data key="NODE_TITLE" value="Serial Bridge uR1"/>
-              <data key="Command" value="[252,82,49]"/>
-              <data key="QUERY" value="false"/>
-              <data key="byte_array" value="true"/>
-              <data key="OUTPUT_ENTRY" value="Static"/>
-              <Variable key="OUTPUT_VARIABLE">
-                <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                  <initializeExpression/>
-                </variable>
-              </Variable>
-            </dataModel>
+          <suppressedNode class="Script" type="Line">
+            <expression>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="e"/>
+              <ExpressionChar character="x"/>
+              <ExpressionChar character="t"/>
+              <ExpressionChar character="r"/>
+              <ExpressionChar character="u"/>
+              <ExpressionChar character="s"/>
+              <ExpressionChar character="i"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="_"/>
+              <ExpressionChar character="o"/>
+              <ExpressionChar character="n"/>
+              <ExpressionChar character="("/>
+              <ExpressionChar character=")"/>
+            </expression>
           </suppressedNode>
         </SuppressedNode>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="NODE_TITLE" value="Serial Bridge uR1"/>
+            <data key="Command" value="[252,82,49]"/>
+            <data key="QUERY" value="false"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+            </Variable>
+          </dataModel>
+        </Contributed>
         <Set type="DigitalOutput">
           <pin referencedName="digital_out[0]"/>
           <digitalValue>1</digitalValue>
@@ -2355,9 +1253,7 @@ end
             <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>

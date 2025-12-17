@@ -120,30 +120,34 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_left_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       pathturn≔main_calculate_left_step_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
-       'Call move_path_3left'
-       move_path_3left()
+       'Call move_path_left_sc'
+       move_path_left_sc()
      Else
-       pathturn≔main_calculate_right_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       pathturn≔main_calculate_right_step_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
        extrude_knife3()
-       move_path_3right()
+       move_path_right_sc()
      'Popup'
      MoveJ
        'Waypoint_46'
        Waypoint_20
      Home
-   move_path_3right
+   move_path_right_sc
      'this is the path for Down, Over, then Back Around'
      Comment
      'MoveJ'
      align_ready_for_welding()
      Comment
+     Set
      p1≔pathturn[0]
      p2≔pathturn[1]
      p4≔pathturn[2]
      p5≔pathturn[3]
      pa1≔p[p1[0]+0.05,p1[1]+0.05,p1[2],p1[3],p1[4],p1[5]]
+     p6≔pathturn[9]
+     p7≔pathturn[10]
+     p8≔pathturn[11]
      liftcolumnup
        liftcolumnz≔liftcolumnzneeded
        If liftcolumnz>0
@@ -171,9 +175,14 @@
      'turn_extrusion_on()'
      Set DO[0]=On
      MoveL
-       p5
+       'p5'
+       p6
+       p7
      Serial Bridge uR0
-     Wait: 2.0
+     Set DO[0]=Off
+     MoveL
+       p8
+     'Wait: 2.0'
      Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
@@ -185,6 +194,9 @@
      p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      p_pre_ret≔p[p_1[0]+.03,p_1[1]+.03,p_1[2],p_1[3],p_1[4],p_1[5]]
      p_pre_ret2≔p[p_3[0]+.1,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     p_6≔pathturn[12]
+     p_7≔pathturn[13]
+     p_8≔pathturn[14]
      'twist'
      MoveJ
        pret1
@@ -224,8 +236,15 @@
          p_4
      MoveL
        p_5
+     Set
+     MoveL
+       p_6
+       p_7
      Serial Bridge uR0
-     Wait: 2.0
+     Set DO[0]=Off
+     'Wait: 2.0'
+     MoveL
+       p_8
      Set DO[0]=Off
      MoveL
        Waypoint_23
@@ -233,7 +252,7 @@
        Waypoint_24
        Waypoint_39
        'above waypoint is home'
-   move_path_3left
+   move_path_left_sc
      'this is the path for Down, Over, then Back Around'
      Comment
      MoveJ
@@ -253,11 +272,15 @@
        'Waypoint_3'
        'Home'
      Comment
+     Set
      p1≔pathturn[0]
      p2≔pathturn[1]
      p4≔pathturn[2]
      p5≔pathturn[3]
      pa1≔p[p1[0]+0.05,p1[1]-0.05,p1[2],p1[3],p1[4],p1[5]]
+     p6≔pathturn[9]
+     p7≔pathturn[10]
+     p8≔pathturn[11]
      MoveJ
        pa1
      MoveL
@@ -281,9 +304,14 @@
      'turn_extrusion_on()'
      Set DO[0]=On
      MoveL
-       p5
+       'p5'
+       p6
+       p7
      Serial Bridge uR0
-     Wait: 2.0
+     Set DO[0]=Off
+     MoveL
+       p8
+     'Wait: 2.0'
      Set DO[0]=Off
      Comment
      pret1≔p[p5[0]+.1,p5[1],p5[2],p5[3],p5[4],p5[5]]
@@ -295,6 +323,9 @@
      p_preheat≔p[p_3[0]+.01,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
      p_pre_ret≔p[p_1[0]+.03,p_1[1]-.03,p_1[2],p_1[3],p_1[4],p_1[5]]
      p_pre_ret2≔p[p_3[0]+.03,p_3[1],p_3[2],p_3[3],p_3[4],p_3[5]]
+     p_6≔pathturn[12]
+     p_7≔pathturn[13]
+     p_8≔pathturn[14]
      MoveJ
        pret1
        Waypoint_28
@@ -333,8 +364,15 @@
          p_4
      MoveL
        p_5
+     Set
+     MoveL
+       p_6
+       p_7
      Serial Bridge uR0
-     Wait: 2.0
+     'Wait: 2.0'
+     Set DO[0]=Off
+     MoveL
+       p_8
      Set DO[0]=Off
      'MoveL'
      'MoveJ'
