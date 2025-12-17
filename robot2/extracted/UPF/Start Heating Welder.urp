@@ -1,0 +1,289 @@
+<URProgram name="Start Heating Welder" installation="default" installationRelativePath="../default" directory="/programs/UPF" createdIn="5.14.5" lastSavedIn="5.21.3" robotSerialNumber="20246801938" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+  <kinematics status="LINEARIZED" validChecksum="true">
+    <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+    <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+    <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+    <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+    <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+  </kinematics>
+  <children>
+    <InitVariablesNode/>
+    <MainProgram runOnlyOnce="true" InitVariablesNode="true">
+      <children>
+        <Assignment valueSource="Expression">
+          <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionChar character="&quot;"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="c"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="h"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="&quot;"/>
+          </expression>
+        </Assignment>
+        <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+          <dataModel>
+            <data key="Command" value="[252,72,49]"/>
+            <data key="NODE_TITLE" value="Serial Bridge uH1"/>
+            <data key="byte_array" value="true"/>
+            <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="QUERY" value="false"/>
+            <Variable key="OUTPUT_VARIABLE">
+              <variable reference="../../../../Assignment/variable"/>
+            </Variable>
+          </dataModel>
+        </Contributed>
+        <Comment/>
+        <Comment/>
+        <Folder name="Folder1" keepHidden="false">
+          <children>
+            <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+              <dataModel>
+                <data key="NODE_TITLE" value="Serial Bridge uh?"/>
+                <data key="Command" value="[252,104,63]"/>
+                <data key="byte_array" value="true"/>
+                <data key="QUERY" value="true"/>
+                <data key="OUTPUT_ENTRY" value="Static"/>
+                <Variable key="OUTPUT_VARIABLE">
+                  <variable name="purge" prefersPersistentValue="false" favourite="false">
+                    <initializeExpression/>
+                  </variable>
+                </Variable>
+              </dataModel>
+            </Contributed>
+            <Assignment valueSource="Expression">
+              <variable name="target" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character="5"/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="7"/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="4"/>
+                <ExpressionChar character="9"/>
+                <ExpressionChar character="]"/>
+              </expression>
+            </Assignment>
+            <Assignment valueSource="Expression">
+              <variable name="resp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="3"/>
+                <ExpressionChar character="]"/>
+              </expression>
+            </Assignment>
+            <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+              <dataModel>
+                <data key="Command" value="[252,72,49]"/>
+                <data key="NODE_TITLE" value="Serial Bridge uH1"/>
+                <data key="byte_array" value="true"/>
+                <data key="QUERY" value="true"/>
+                <data key="OUTPUT_ENTRY" value="Static"/>
+                <Variable key="OUTPUT_VARIABLE">
+                  <variable reference="../../../../Assignment[2]/variable"/>
+                </Variable>
+              </dataModel>
+            </Contributed>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="≠"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="g"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="t"/>
+              </expression>
+              <children>
+                <Popup type="Message" haltProgram="false" message="could not confirm that heating started. check connection. " inputType="Text"/>
+              </children>
+            </If>
+          </children>
+        </Folder>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>5.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Popup" type="Message" haltProgram="false" message="heating started. push to stop" inputType="Text"/>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="NODE_TITLE" value="Serial Bridge uh?"/>
+              <data key="byte_array" value="true"/>
+              <data key="Command" value="[252,104,63]"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <data key="QUERY" value="true"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../Assignment/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Popup" type="Message" haltProgram="false" inputType="Variable">
+            <variable reference="../../../Assignment/variable"/>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Wait" type="Sleep">
+            <waitTime>20.0</waitTime>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Contributed" strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
+            <dataModel>
+              <data key="byte_array" value="true"/>
+              <data key="Command" value="[252,72,48]"/>
+              <data key="NODE_TITLE" value="Serial Bridge uH0"/>
+              <data key="QUERY" value="false"/>
+              <data key="OUTPUT_ENTRY" value="Static"/>
+              <Variable key="OUTPUT_VARIABLE">
+                <variable reference="../../../../../Assignment/variable"/>
+              </Variable>
+            </dataModel>
+          </suppressedNode>
+        </SuppressedNode>
+        <SuppressedNode>
+          <suppressedNode class="Popup" type="Message" haltProgram="false" message="heating stopped. push to start" inputType="Text"/>
+        </SuppressedNode>
+        <Comment comment="set the temp reader to high voltage (off) when program is running and low volt (on) when program not running"/>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character="2"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="3"/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+        <Comment comment="set 5V power to munsch powerbox to high (on) when a program is started and low on unscheduled stop"/>
+        <Script type="Line">
+          <expression>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="s"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="n"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="r"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="d"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="g"/>
+            <ExpressionChar character="i"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="p"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="t"/>
+            <ExpressionChar character="o"/>
+            <ExpressionChar character="_"/>
+            <ExpressionChar character="v"/>
+            <ExpressionChar character="a"/>
+            <ExpressionChar character="l"/>
+            <ExpressionChar character="u"/>
+            <ExpressionChar character="e"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character=","/>
+            <ExpressionChar character="5"/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Script>
+      </children>
+    </MainProgram>
+  </children>
+</URProgram>
