@@ -156,14 +156,21 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     d1 = 0.03 # how far the touchpints are pushed closer to the robot
     d2 = 0.00 # how far inwards the touchpoints are pushed
     
-    # rxryrz
-    rxryrz = [0.334, 3.124, 0]
+    # rxryrz of left point (point 1, taken second): preheat back towards robot to avoid collision with divider wall
+    rxryrz = [2.014, -2.411, 0]
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
     
     # calculate the points
     ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    
+    # rxryrz of right point (point 2, taken first): preheat to the left (front) of the tank. 
+    rxryrz = [0.334, 3.124, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
     ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
     
     ret = struct(ph1=ph1, ph2=ph2)
