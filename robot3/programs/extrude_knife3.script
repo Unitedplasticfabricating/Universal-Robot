@@ -212,6 +212,8 @@ def extrude_knife3():
   global r4_ek_bottom_q=[-3.2295577467539287, -1.7778480193330992, 2.4794176409730713, -0.6518633442593682, -0.07233077879629679, -0.013811892538432069]
   global r4_ek_end_p=p[.366757227289, .429305279628, .122809894538, -2.206701899780, -2.177374452501, .052747240380]
   global r4_ek_end_q=[-3.2341047638544715, -1.8072551968371293, 2.4987903200913473, -0.6435011221874376, -0.07689850609233773, -0.01212997029934737]
+  global Waypoint_2_p=p[.397385850131, .356252441346, .369809999696, 2.316320575836, 2.057576093691, .074125563417]
+  global Waypoint_2_q=[-3.4607526847793646, -2.0810779994496613, 2.2670702358413193, -0.1463790324724492, -0.20252143988217952, -0.10236457463665882]
   $ 2 "Robot Program"
   $ 3 "pre program stuff"
   $ 4 "Set"
@@ -375,53 +377,58 @@ def extrude_knife3():
   $ 86 "Set"
   set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
   $ 87 "MoveJ"
-  $ 89 "ek_oldhome" "breakAfter"
+  $ 88 "Waypoint_2" "breakAfter"
+  movej(Waypoint_2_q, a=1.3962634015954636, v=1.0471975511965976)
+  $ 89 "'joint angles for fixed position'"
+  # 'joint angles for fixed position'
+  $ 90 "MoveJ"
+  $ 92 "ek_oldhome" "breakAfter"
   movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-  $ 90 "'above waypoint is home'"
+  $ 93 "'above waypoint is home'"
   # 'above waypoint is home'
-  $ 91 "'move above bucket'"
+  $ 94 "'move above bucket'"
   # 'move above bucket'
-  $ 92 "MoveJ"
-  $ 94 "ek_extrude" "breakAfter"
+  $ 95 "MoveJ"
+  $ 97 "ek_extrude" "breakAfter"
   movej(ek_extrude, a=1.3962634015954636, v=1.0471975511965976)
-  $ 95 "'extrude out a foot'"
+  $ 98 "'extrude out a foot'"
   # 'extrude out a foot'
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.9.0, WireTank, LLC
   #   Type: WireTank Serial
-  $ 97 "Serial Bridge uR1"
+  $ 100 "Serial Bridge uR1"
   SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,49], False)
   # end: URCap Program Node
-  $ 98 "Set DO[0]=On"
+  $ 101 "Set DO[0]=On"
   set_standard_digital_out(0, True)
-  $ 99 "Wait: 24.0"
+  $ 102 "Wait: 24.0"
   sleep(24.0)
   # begin: URCap Program Node
   #   Source: WireTank Serial, 4.9.0, WireTank, LLC
   #   Type: WireTank Serial
-  $ 100 "Serial Bridge uR0"
+  $ 103 "Serial Bridge uR0"
   SerialResponse = WTSerialBridge.send_command("/dev/ttyUSB0",1200, 8, "None", "One", "None", 1000, "None", "None", [252,82,48], False)
   # end: URCap Program Node
-  $ 101 "Wait: 1.0"
+  $ 104 "Wait: 1.0"
   sleep(1.0)
-  $ 102 "Set DO[0]=Off"
+  $ 105 "Set DO[0]=Off"
   set_standard_digital_out(0, False)
-  $ 103 "'slice'"
+  $ 106 "'slice'"
   # 'slice'
-  $ 104 "MoveL"
-  $ 110 "ek_front" "breakAfter"
+  $ 107 "MoveL"
+  $ 113 "ek_front" "breakAfter"
   movel(ek_front, a=0.05, v=0.03)
-  $ 111 "ek_middle" "breakAfter"
+  $ 114 "ek_middle" "breakAfter"
   movel(ek_middle, a=0.05, v=0.03)
-  $ 112 "ek_middle2" "breakAfter"
+  $ 115 "ek_middle2" "breakAfter"
   movel(ek_middle2, a=0.05, v=0.03)
-  $ 113 "ek_bottom" "breakAfter"
+  $ 116 "ek_bottom" "breakAfter"
   movel(ek_bottom, a=0.05, v=0.03)
-  $ 114 "ek_end" "breakAfter"
+  $ 117 "ek_end" "breakAfter"
   movel(ek_end, a=0.05, v=0.03)
-  $ 115 "MoveJ"
-  $ 117 "ek_oldhome" "breakAfter"
+  $ 118 "MoveJ"
+  $ 120 "ek_oldhome" "breakAfter"
   movej(ek_oldhome, a=1.3962634015954636, v=1.0471975511965976)
-  $ 118 "'above waypoint is home'"
+  $ 121 "'above waypoint is home'"
   # 'above waypoint is home'
 end
