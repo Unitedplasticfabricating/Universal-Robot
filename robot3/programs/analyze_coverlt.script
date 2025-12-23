@@ -1,0 +1,178 @@
+def main_calculate_cover_lt(p11, p12, leftpoint, rightpoint):
+    struct1 = analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint)
+    struct2 = calculate_points_cover_lt(struct1)
+    #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    #struct3 = check_validity_left(struct1, struct2)
+    return struct2
+    
+end
+
+def analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint):
+    # calculate the slope of the groove in xy plane
+    l1p1x = leftpoint[0]
+    l1p1y = leftpoint[1]
+    l1p2x = rightpoint[0]
+    l1p2y = rightpoint[1]
+    
+    # equate the first line in 2d space
+    ml1 = (l1p2y-l1p1y) / (l1p2x-l1p1x)
+
+    # b = y - mx
+    bl1 = l1p1y - ml1 * l1p1x
+    
+    # zraise (how much the z value changes from left point to right point
+    zraise = p12[2] - p11[2]
+    
+    #get the calcpoints
+    leftcalcpoint = [leftpoint[0], leftpoint[1], p11[2]]
+    rightcalcpoint = [rightpoint[0], rightpoint[1], p12[2]]
+    # get the vector from a to b
+    vec = [rightcalcpoint[0] - leftcalcpoint[0], rightcalcpoint[1] - leftcalcpoint[1], rightcalcpoint[2] - leftcalcpoint[2]]
+    # get the unit vector in 3d
+    mag3d = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2])
+    vec3dunit = [vec[0]/mag3d, vec[1]/mag3d, vec[2]/mag3d]
+    # get the unit vector in 2d
+    mag2d = sqrt(vec[0]*vec[0]+vec[1]*vec[1])
+    vec2dunit = [vec[0]/mag2d, vec[1]/mag2d]
+    # get the heading
+    heading1 = convert_uv_to_heading(vec2dunit[0], vec2dunit[1])
+    
+    ret = struct(leftcalcpoint=leftcalcpoint, rightcalcpoint=rightcalcpoint, vxunit=vec3dunit[0], vyunit=vec3dunit[1], vzunit=vec3dunit[2], heading1=heading1)
+    return ret
+end
+
+def calculate_points_cover_lt(struct1):
+    # get the stuff from struct
+    leftcalcpoint = struct1[0]
+    x = leftcalcpoint[0]
+    y = leftcalcpoint[1]
+    z = leftcalcpoint[2]
+    rightcalcpoint = struct1[1]
+    x2 = rightcalcpoint[0]
+    y2 = rightcalcpoint[1]
+    z2 = rightcalcpoint[2]
+    v3xunit = struct1[2]
+    v3yunit = struct1[3]
+    v3zunit = struct1[4]
+    heading1 = struct1[5]
+    
+    # first calculate rxryrz f normal and tiltback
+    # calculate rxryrz for tilted back
+    # 3 rotations to make this happen. 
+    # start point is straight up with the preheat pointed in the +y direction. 
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180) 
+    # second rotation is a 10 degree turn about the x axis (negative direction)
+    m2 = get_rotation_matrix_from_description("x", -1, 10 * pi / 180)
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+    # combine them by multiplying m3 * m2 * m1
+    # matrix multiplication is not commutative but it IS associative, so you can do this whichever order
+    m4 = multiply_matrix(m2, m1)
+    m5 = multiply_matrix(m3, m4)
+    rxryrzt = convert_matrix_to_axang(m5)
+    rxt = rxryrzt[0]
+    ryt = rxryrzt[1]
+    rzt = rxryrzt[2]
+    
+    # calculate rxryrz for nontilted
+    # first rotation is 180 degrees about x direction. gun is now pointing straight down with preheat facing -y direction
+    m1 = get_rotation_matrix_from_description("x", 1, 180 * pi / 180) 
+    # third rotation is about 180 degrees about the z axis. starting from the -y axis, go until you get to heading1. that will equal heading1 plus 90 degrees
+    m3 = get_rotation_matrix_from_description("z", 1, pi/2 + heading1)
+    m5 = multiply_matrix(m3, m1)
+    rxryrz = convert_matrix_to_axang(m5)
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    tiltraise = 0.006 # 6 mm raise needed for the tip to clear the plane during tiltback
+    
+    # calculate points 1-3
+    # calculate point1 (preheat)
+    dist = -1 * 25.4 / 1000.0 # move back 1 inch from 
+    p1x = x + dist * v3xunit
+    p1y = y + dist * v3yunit
+    p1z = z + dist * v3zunit + tiltraise
+    point1 = p[p1x, p1y, p1z, rxt, ryt, rzt]
+    
+    # calculate point2 (start of flatten)
+    dist = 0.5 * 25.4 / 1000.0  # half an inch past the top of v chamfer
+    p2x = x + dist * v3xunit
+    p2y = y + dist * v3yunit
+    p2z = z + dist * v3zunit + tiltraise
+    point2 = p[p2x, p2y, p2z, rxt, ryt, rzt]
+    
+    # calculate point3 (end of flatten)
+    dist = 1.5 * 25.4 / 1000.0  # 1.5 inches past top of v chamfer
+    p3x = x + dist * v3xunit
+    p3y = y + dist * v3yunit
+    p3z = z + dist * v3zunit
+    point3 = p[p3x, p3y, p3z, rx, ry, rz]
+    
+    # calculate points 4-6
+    # calculate point4 (start of unflatten)
+    dist = -1.5 * 25.4 / 1000.0 
+    p4x = x2 + v3xunit * dist
+    p4y = y2 + v3yunit * dist
+    p4z = z2 + v3zunit * dist
+    point4 = p[p4x, p4y, p4z, rx, ry, rz]
+    
+    # calculate point5 (end of unflatten)
+    dist = -0.5 * 25.4 / 1000.0 
+    p5x = x2 + v3xunit * dist
+    p5y = y2 + v3yunit * dist
+    p5z = z2 + v3zunit * dist + tiltraise
+    point5 = p[p5x, p5y, p5z, rxt, ryt, rzt]
+    
+    # calculate point6 (end of smear)
+    dist = 2 * 25.4 / 1000.0 
+    p6x = x2 + v3xunit * dist
+    p6y = y2 + v3yunit * dist
+    p6z = z2 + v3zunit * dist + tiltraise
+    point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
+    
+    # return struct
+    ret = struct(pointtopvcham=leftcalcpoint, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    return ret
+    
+end
+
+
+# this function determines the starting touchpoints for homing in on cover lt geometry
+# includes two points above the cover lt, closer to the robot than the lt, facing down
+def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # specify the distances from (in meters)
+    d0 = 0.05 # how far from the cover to approach from
+    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d2 = 0.00 # how far inwards the touchpoints are pushed
+    
+    # rxryrz of left point (point 1, taken second): preheat back towards robot to avoid collision with divider wall
+    rxryrz = [2.014, -2.411, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    # calculate the points
+    ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    
+    # rxryrz of right point (point 2, taken first): preheat to the left (front) of the tank. 
+    rxryrz = [0.334, 3.124, 0]
+    rx = rxryrz[0]
+    ry = rxryrz[1]
+    rz = rxryrz[2]
+    
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    
+    ret = struct(ph1=ph1, ph2=ph2)
+    check_validity_only(ret)
+    return ret
+end
