@@ -1714,6 +1714,33 @@ at some point (before i give florida the step corner program) i will have to mer
 
 calibration offset for welder tip: calibrate welder tip then subtract ?~ 5 mm.
 
+we put the robot 3 out there in station 15 express wi for welding cover lts.
+it works absolutely great on cover lts
+we found out that there are a lot of covers where the xvs cut.
+this is a new change since i was in print production.
+there is a thing where if the weld is to the right of the robot's center and its an xv, it aligns with the wrong direction spin after approaching.
+also, there is a thing where the xv can be too long for the robot to reach. 
+right now it goes to weld and it starts welding and clunks out when it's almost all the way there. 
+the solution for this is to call validity on all the weld points, immediately after teaching the first two points.
+(hmm now as im thinking,.... that may involve calling the weld calculate on the bogus points first)
+also we found out that if the lift column is one foot above the cover, that gives maximum reach. 
+we will introduce that check validity checker, and if it's not possible, they will weld by hand. collect data on how many that occurs on. 
+
+also, problems with jose in step corner. 
+at least he's raising the andon flag.
+there have been a couple of very high step corners. 
+the robot cannot reach up that high to probe position and so it fails.
+we tried raising the lift column before starting the program. 
+this allowed it to probe the points successfully.
+but when it went to weld, it welded the space below the step. the current height of the lift column was not taken into account when analyzing the touchpoints. 
+additionally, it said it was too close to tank. 
+on a left weld, that is a problem because of bonking itself during leg 3. but for a higher step, that wouldnt be an issue. 
+maybe i could remove the "too close" checker (or modify it so it is less strict) on high step corner welds. 
+because with the step being that high, it is hard to use the rope to tell if you are within range. 
+i need to remove the lift column home command during back to home of the step corner program. 
+i need to incorporate the code block from coverlt that lowers the lift column during extrude knife and then raises it back up.
+i need to incorporate the current lift column height during analyze touchpoints. 
+
 
 
 
