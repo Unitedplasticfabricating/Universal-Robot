@@ -150,9 +150,17 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     rpy = rightpoint[1]
     rpz = rightpoint[2]
     
+    # determine if the points are parallel (to the tank) or perpendicular
+    xdelt = absolute(lpx - rpx)
+    ydelt = absolute(lpy - rpy)
+    xvcut = False
+    if xdelt > ydelt:
+        xvcut = True
+    end
+    
     # specify the distances from (in meters)
     d0 = 0.05 # how far from the cover to approach from
-    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d1 = 0.03 # how far the touchpoints are pushed closer to the robot, offset from the groove
     d2 = 0.00 # how far inwards the touchpoints are pushed
     
     # rxryrz of left point (point 1, taken second): preheat back towards robot to avoid collision with divider wall
@@ -163,14 +171,20 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     
     # calculate the points
     ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
+    if xvcut:
+        ph1 = p[lpx, lpy - d1, lpz + d0, rx, ry, rz] # left side approach
+    end
     
     # rxryrz of right point (point 2, taken first): preheat to the left (front) of the tank. 
-    rxryrz = [0.334, 3.124, 0]
-    rx = rxryrz[0]
-    ry = rxryrz[1]
-    rz = rxryrz[2]
+    rxryrz2 = [0.334, 3.124, 0]
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
     
-    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx2, ry2, rz2] # right side approach
+    if xvcut:
+        ph2 = p[rpx, rpy - d1, rpz + d0, rx2, ry2, rz2] # right side approach
+    end
     
     ret = struct(ph1=ph1, ph2=ph2)
     check_validity_only(ret)
