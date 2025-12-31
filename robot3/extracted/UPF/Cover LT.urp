@@ -1081,9 +1081,9 @@
               <dataModel>
                 <data key="NODE_TITLE" value="Serial Bridge uR0"/>
                 <data key="Command" value="[252,82,48]"/>
-                <data key="QUERY" value="false"/>
                 <data key="byte_array" value="true"/>
                 <data key="OUTPUT_ENTRY" value="Static"/>
+                <data key="QUERY" value="false"/>
                 <Variable key="OUTPUT_VARIABLE">
                   <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                     <initializeExpression/>
@@ -2701,6 +2701,8 @@ def analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint):
     return ret
 end
 
+# based on the analysis, calculates the weld path points for the ltude welds. 
+# returns a struct of the weld path points. 
 def calculate_points_cover_lt(struct1):
     # get the stuff from struct
     leftcalcpoint = struct1[0]
@@ -2793,7 +2795,7 @@ def calculate_points_cover_lt(struct1):
     point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
     
     # return struct
-    ret = struct(pointtopvcham=leftcalcpoint, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
     return ret
     
 end
@@ -3773,7 +3775,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="1"/>
+            <ExpressionChar character="0"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -3791,7 +3793,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="2"/>
+            <ExpressionChar character="1"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -3809,7 +3811,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="3"/>
+            <ExpressionChar character="2"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -3827,7 +3829,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="4"/>
+            <ExpressionChar character="3"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -3845,7 +3847,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="5"/>
+            <ExpressionChar character="4"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -3863,7 +3865,7 @@ end
             <ExpressionChar character="r"/>
             <ExpressionChar character="n"/>
             <ExpressionChar character="["/>
-            <ExpressionChar character="6"/>
+            <ExpressionChar character="5"/>
             <ExpressionChar character="]"/>
           </expression>
         </Assignment>
@@ -4000,9 +4002,7 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
-                <initializeExpression/>
-              </variable>
+              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4107,7 +4107,9 @@ end
             <data key="OUTPUT_ENTRY" value="Static"/>
             <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
-              <variable reference="../../../../../../SpecialSequence/children/Folder/children/Contributed/dataModel/Variable/variable"/>
+              <variable name="HwResp" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
             </Variable>
           </dataModel>
         </Contributed>
@@ -4211,6 +4213,21 @@ end
                   <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
                   <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
                   <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Waypoint type="Fixed" name="Waypoint_5" kinematicsFlags="1">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-1.8565067253463692, -1.7263051631475914, 2.017775148230644, -0.02687807048071278, 0.6866125277345689, -0.13596114873035958"/>
+                <TCPOffset pose="-0.009269999999999999, -0.328, 0.10571, 1.2092, -1.2092, 1.2092"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                  <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                  <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                  <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                  <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
                 </Kinematics>
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
@@ -10323,6 +10340,27 @@ end
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
           <children>
+            <Waypoint type="Fixed" name="Waypoint_12" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-0.20905310642384123, -1.978059506869366, 2.118528243263782, 4.595066588195277, -1.5488669746452208, -1.5591193035226878"/>
+                <TCPOffset pose="0.0018451128039461973, -0.015648957570072047, 0.2843339884457262, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                  <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                  <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                  <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                  <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <Comment comment="of teach"/>
+          </children>
+        </Move>
+        <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+          <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
+          <children>
             <Waypoint type="Fixed" name="Waypoint_2" kinematicsFlags="3">
               <motionParameters/>
               <position>
@@ -10334,6 +10372,38 @@ end
                   <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
                   <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
                   <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                </Kinematics>
+              </position>
+              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+            </Waypoint>
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_10" kinematicsFlags="3">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-1.8975504180360288, -1.943913170563473, 2.105399983076655, 4.550775079802232, -1.571788252712853, -1.5262726003251128"/>
+                  <TCPOffset pose="0.0018451128039461973, -0.015648957570072047, 0.2843339884457262, 0.0, 0.0, 0.0"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                    <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                    <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                    <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                    <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
+            <Waypoint type="Fixed" name="Waypoint_11" kinematicsFlags="3">
+              <motionParameters/>
+              <position>
+                <JointAngles angles="-3.460662247788024, -2.0636411383834776, 2.3303299823577577, -0.22701123130315537, -0.20258847570680416, -0.1023911410575824"/>
+                <TCPOffset pose="0.0018451128039461973, -0.015648957570072047, 0.2843339884457262, 0.0, 0.0, 0.0"/>
+                <Kinematics status="LINEARIZED" validChecksum="true">
+                  <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                  <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                  <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                  <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                  <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
                 </Kinematics>
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
