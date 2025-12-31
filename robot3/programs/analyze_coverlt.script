@@ -199,3 +199,22 @@ def check_points_reachable(leftpoint, rightpoint):
     allvalid = check_structofpoints_validity(points)
     return allvalid
 end
+
+def is_xvcut(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # determine if the points are parallel (to the tank) or perpendicular
+    xdelt = absolute(lpx - rpx)
+    ydelt = absolute(lpy - rpy)
+    xvcut = False
+    if xdelt > ydelt:
+        xvcut = True
+    end
+    return xvcut
+end

@@ -2859,6 +2859,25 @@ def check_points_reachable(leftpoint, rightpoint):
     allvalid = check_structofpoints_validity(points)
     return allvalid
 end
+
+def is_xvcut(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # determine if the points are parallel (to the tank) or perpendicular
+    xdelt = absolute(lpx - rpx)
+    ydelt = absolute(lpy - rpy)
+    xvcut = False
+    if xdelt &gt; ydelt:
+        xvcut = True
+    end
+    return xvcut
+end
 </cachedContents>
           <file>/programs/analyze_coverlt.script</file>
         </Script>
@@ -3978,8 +3997,8 @@ end
             <data key="NODE_TITLE" value="Serial Bridge uR1"/>
             <data key="Command" value="[252,82,49]"/>
             <data key="QUERY" value="false"/>
-            <data key="byte_array" value="true"/>
             <data key="OUTPUT_ENTRY" value="Static"/>
+            <data key="byte_array" value="true"/>
             <Variable key="OUTPUT_VARIABLE">
               <variable name="HwResp" prefersPersistentValue="false" favourite="false">
                 <initializeExpression/>
@@ -4217,30 +4236,69 @@ end
           <expression>
             <ExpressionChar character="1"/>
             <ExpressionChar character="≟"/>
-            <ExpressionChar character="2"/>
+            <ExpressionChar character="1"/>
           </expression>
           <children>
-            <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
-              <feature class="GeomFeatureReference" reference="../../../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="x"/>
+                <ExpressionChar character="v"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="("/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="1"/>
+                <ExpressionChar character="]"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="u"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="["/>
+                <ExpressionChar character="2"/>
+                <ExpressionChar character="]"/>
+                <ExpressionChar character=")"/>
+              </expression>
               <children>
-                <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
-                  <motionParameters/>
-                  <position>
-                    <JointAngles angles="-0.6685436407672327, -2.098424097100729, 2.2798998991595667, -0.2272131007960816, -0.39710790315736944, 0.02628905698657036"/>
-                    <TCPOffset pose="-0.009269999999999999, -0.328, 0.10571, 1.2092, -1.2092, 1.2092"/>
-                    <Kinematics status="LINEARIZED" validChecksum="true">
-                      <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
-                      <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
-                      <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
-                      <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
-                      <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
-                    </Kinematics>
-                  </position>
-                  <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-                </Waypoint>
-                <Comment comment="this is for xvcut"/>
+                <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
+                  <feature class="GeomFeatureReference" reference="../../../../../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
+                  <children>
+                    <Waypoint type="Fixed" name="Waypoint_4" kinematicsFlags="3">
+                      <motionParameters/>
+                      <position>
+                        <JointAngles angles="-0.6685436407672327, -2.098424097100729, 2.2798998991595667, -0.2272131007960816, -0.39710790315736944, 0.02628905698657036"/>
+                        <TCPOffset pose="-0.009269999999999999, -0.328, 0.10571, 1.2092, -1.2092, 1.2092"/>
+                        <Kinematics status="LINEARIZED" validChecksum="true">
+                          <deltaTheta value="6.292392785642309E-8, 1.1079212737040554, -1.4905802718088523, 0.382654998224512, 8.951745805105271E-7, 4.174077214251504E-8"/>
+                          <a value="-4.159538933971887E-5, -0.38471071603651497, -0.6752573526356647, 5.3372154474934766E-5, -2.646473247486102E-5, 0.0"/>
+                          <d value="0.23631884776989107, 419.7157302561018, -259.41018924728667, -160.10516651519055, 0.15921697032649085, 0.1540509015261025"/>
+                          <alpha value="1.570688776969906, 0.0018367690066439393, -0.0016954368235908021, 1.571673039325506, -1.5705061432705845, 0.0"/>
+                          <jointChecksum value="-1453902900, -1487059218, -1459310697, -1484889403, -1268943731, -1465285463"/>
+                        </Kinematics>
+                      </position>
+                      <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+                    </Waypoint>
+                    <Comment comment="this is for xvcut"/>
+                  </children>
+                </Move>
               </children>
-            </Move>
+            </If>
           </children>
         </If>
       </children>
