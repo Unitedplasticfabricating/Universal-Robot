@@ -2068,6 +2068,7 @@
                   </suppressedNode>
                 </SuppressedNode>
                 <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
+                <Popup type="Message" haltProgram="false" message="home. start program" inputType="Text"/>
               </children>
             </If>
             <SuppressedNode>
@@ -2849,6 +2850,15 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     check_validity_only(ret)
     return ret
 end
+
+# this function runs after the two points have been taught. it checks whether the weld points for this line are reachable.
+# it returns a true or false
+def check_points_reachable(leftpoint, rightpoint):
+    struct1t = analyze_touchpoints_only_cover_lt(leftpoint, rightpoint, leftpoint, rightpoint) # use the z of the actual teach point just for checking
+    points = calculate_points_cover_lt(struct1t)
+    allvalid = check_structofpoints_validity(points)
+    return allvalid
+end
 </cachedContents>
           <file>/programs/analyze_coverlt.script</file>
         </Script>
@@ -2980,6 +2990,87 @@ end
             <ExpressionChar character=")"/>
           </expression>
         </Script>
+        <Folder name="check validity" keepHidden="false">
+          <children>
+            <Comment comment="check validity"/>
+            <Assignment valueSource="Expression">
+              <variable name="valid" prefersPersistentValue="false" favourite="false">
+                <initializeExpression/>
+              </variable>
+              <expression>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="k"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="n"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="b"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="("/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="f"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character=","/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character="c"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="p"/>
+                <ExpressionChar character="o"/>
+                <ExpressionChar character="s"/>
+                <ExpressionChar character="e"/>
+                <ExpressionChar character="_"/>
+                <ExpressionChar character="r"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="g"/>
+                <ExpressionChar character="h"/>
+                <ExpressionChar character="t"/>
+                <ExpressionChar character=")"/>
+              </expression>
+            </Assignment>
+            <If type="If" checkContinuously="false">
+              <expression>
+                <ExpressionToken token=" not "/>
+                <ExpressionChar character="v"/>
+                <ExpressionChar character="a"/>
+                <ExpressionChar character="l"/>
+                <ExpressionChar character="i"/>
+                <ExpressionChar character="d"/>
+              </expression>
+              <children>
+                <Loop type="Forever">
+                  <children>
+                    <Popup type="Message" haltProgram="false" message="cannot reach. stop program and retry" inputType="Text"/>
+                  </children>
+                </Loop>
+              </children>
+            </If>
+          </children>
+        </Folder>
         <Set type="NoAction">
           <tcp reference="../../Set[2]/tcp"/>
         </Set>

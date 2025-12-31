@@ -32,6 +32,7 @@
          'finish with oldhome then above then home'
          'MoveJ'
          Home
+         Popup: home. start program
        'MachineLogic Homing'
    Robot Program
      'start of main program'
@@ -48,6 +49,12 @@
        Waypoint_46
      Set
      Test_Teach_Cover_LT()
+     check validity
+       'check validity'
+       valid≔check_points_reachable(tcp_pose_left,tcp_pose_right)
+       If  not valid
+         Loop
+           Popup: cannot reach. stop program and retry
      Set
      kill threadId_Thread_1
      Cover_LT_Homing()
