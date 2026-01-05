@@ -218,6 +218,8 @@ def check_points_reachable(leftpoint, rightpoint):
         prev = wayp7q
     end
     structlength = 6 # length of points
+    #listpointnames
+    lpn = ["p1","p2","p3","p4","p5","p6"]
     i = 0
     while i < structlength:
         curr = points[i]
@@ -225,18 +227,26 @@ def check_points_reachable(leftpoint, rightpoint):
         joints_1 = get_inverse_kin(curr, prev)
         shoulder = joints_1[1]
         if shoulder > 0:
+            popuptext = "shoulder point " + lpn[i]
+            popup(popuptext, title="Position Error", blocking=True)
             return False
         end
         elbow = joints_1[2]
         if elbow < 0:
+            popuptext = "elbow point " + lpn[i]
+            popup(popuptext, title="Position Error", blocking=True)
             return False
         end
         wrist1 = joints_1[3] * 180/pi
         if ((wrist1 < -200) or (wrist1 > 100)):
+            popuptext = "wrist1 point " + lpn[i]
+            popup(popuptext, title="Position Error", blocking=True)
             return False
         end
         wrist3 = joints_1[5] * 180/pi
         if ((wrist3 < -100) or (wrist3 > 100)):
+            popuptext = "wrist3 point " + lpn[i]
+            popup(popuptext, title="Position Error", blocking=True)
             return False
         end
         # end of loop
