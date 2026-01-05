@@ -1,3 +1,5 @@
+# this file contains math equations and operations, not specific to any one feature
+
 # define pi
 pi = 3.1415926535
 
@@ -31,37 +33,6 @@ def findplane(p11, p12, p13):
     return ret
 end
 
-# given a heading, (ccw from +x axis), find the mx+b slope
-# fails if exactly vertical
-def get_slope_from_heading(heading):
-    return tan(heading)
-end
-
-# this function converts a unit vector to its heading angle ccw from x+ axis
-# takes uvx and uvy
-# returns heading in radians
-def convert_uv_to_heading(uvx, uvy):
-  baseang = atan(uvy/uvx)
-  if uvx < 0:
-    ang = baseang + pi
-  elif uvy < 0:
-    ang = baseang + pi * 2
-  else:
-    ang = baseang
-  end
-  return ang
-end
-
-# this function finds the equation of a line, perpendicular to a given line, and going through a given point
-# takes 3 arguments: m (the original line's slope), x (point's x coord), y (point's y coord). the b of the original line is not needed
-# returns a list of [m,b] (the slope and intercept of the new line)
-def find_perpendicular_line(origm, x, y):
-  m = (1/origm) * -1
-  b = y - m*x
-  ret = [m, b]
-  return ret
-end
-
 # this function finds the intersection point between two lines in the xy plane
 # takes 4 arguments: m1, b1, m2, b2
 # returns a list of [x,y] (the point of intersection)
@@ -92,98 +63,6 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
   zf = zi + uvz * delta
   ret = [xf, yf, zf]
   return ret
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the bottom side of the gun facing up. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang(heading):
- axisxraw = -1 * sin(heading)
- axisyraw = cos(heading) + 1
- axiszraw = sin(heading)
-
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
-
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
-
- angle = acos( (cos(heading) - 1) / 2 )
-
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatup(heading):
- axisxraw = -sin(heading) + 1
- axisyraw = cos(heading)
- axiszraw = cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatdown(heading):
- axisxraw = -sin(heading) - 1
- axisyraw = cos(heading)
- axiszraw = -cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_ccw(heading):
- axisxraw = -sin(heading) 
- axisyraw = cos(heading) - 1
- axiszraw = -sin(heading) 
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-cos(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
 end
 
 # this function takes two rotation matrices, and multiplies them together, returning one matrix. 
@@ -308,3 +187,136 @@ def crossproduct(vec1, vec2):
     return ret
 end
 
+# Section: headings, angles, slopes conversions
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# given a heading, (ccw from +x axis), find the mx+b slope
+# fails if exactly vertical
+def get_slope_from_heading(heading):
+    return tan(heading)
+end
+
+# this function converts a unit vector to its heading angle ccw from x+ axis
+# takes uvx and uvy
+# returns heading in radians
+def convert_uv_to_heading(uvx, uvy):
+  baseang = atan(uvy/uvx)
+  if uvx < 0:
+    ang = baseang + pi
+  elif uvy < 0:
+    ang = baseang + pi * 2
+  else:
+    ang = baseang
+  end
+  return ang
+end
+
+# this function finds the equation of a line, perpendicular to a given line, and going through a given point
+# takes 3 arguments: m (the original line's slope), x (point's x coord), y (point's y coord). the b of the original line is not needed
+# returns a list of [m,b] (the slope and intercept of the new line)
+def find_perpendicular_line(origm, x, y):
+  m = (1/origm) * -1
+  b = y - m*x
+  ret = [m, b]
+  return ret
+end
+
+# returns the absolute value of a number
+def absolute(x):
+    ret = x
+    if x < 0:
+        ret = -1 * x
+    end
+    return ret
+end
