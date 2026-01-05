@@ -32,12 +32,15 @@
          'finish with oldhome then above then home'
          'MoveJ'
          Home
+         Popup: home. start program
        'MachineLogic Homing'
    Robot Program
      'start of main program'
      Set
      Home
-     Script: analyze_touchpoints.script
+     Script: common_math.script
+     Script: common_io.script
+     Script: analyze_coverlt.script
      'welder_state_ready()'
      'sidewallchoice≔'Is the sidewall 3/4 inch?''
      'If sidewallchoice'
@@ -46,6 +49,10 @@
        Waypoint_46
      Set
      Test_Teach_Cover_LT()
+     check validity
+       'check validity'
+       valid≔check_points_reachable(tcp_pose_left,tcp_pose_right)
+       'If  not valid'
      Set
      kill threadId_Thread_1
      Cover_LT_Homing()
@@ -92,16 +99,19 @@
      Wait: 0.25
      sync()
    move_path_cover_lt
-     p1≔pathturn[1]
-     p2≔pathturn[2]
-     p3≔pathturn[3]
-     p4≔pathturn[4]
-     p5≔pathturn[5]
-     p6≔pathturn[6]
+     p1≔pathturn[0]
+     p2≔pathturn[1]
+     p3≔pathturn[2]
+     p4≔pathturn[3]
+     p5≔pathturn[4]
+     p6≔pathturn[5]
      pa1≔p[p1[0],p1[1],p1[2]+0.05,p1[3],p1[4],p1[5]]
      pret≔p[p6[0],p6[1],p6[2]+0.05,p6[3],p6[4],p6[5]]
      'go to preheat'
      Set
+     If 1≟2
+       'testing bs'
+       Set
      MoveJ
        pa1
      MoveL
@@ -127,14 +137,19 @@
      'dummypoints'
      MoveJ
        Waypoint_6
+       Waypoint_5
        Waypoint_7
+     If 1≟1
+       If is_xvcut(pathturn[1],pathturn[2])
+         MoveJ
+           Waypoint_4
+           'this is for xvcut'
    extrude_knife3
      pre program stuff
        Set
        ek_sp≔get_actual_tcp_pose()
        MoveL
          ek_sp
-       'Script: analyze_touchpoints.script'
      'list possible points'
      robot 1 moves
        If 1≟2
@@ -156,6 +171,24 @@
            r2_ek_middle
            r2_ek_bottom
            r2_ek_end
+     robot 3 moves
+       If 1≟2
+         MoveJ
+           r3_ek_oldhome
+           r3_ek_extrude
+           r3_ek_front
+           r3_ek_middle
+           r3_ek_bottom
+           r3_ek_end
+     robot 4 moves
+       If 1≟2
+         MoveJ
+           r4_ek_oldhome
+           r4_ek_extrude
+           r4_ek_front
+           r4_ek_middle
+           r4_ek_bottom
+           r4_ek_end
      'detemine correct points for which robot'
      If robot_number≟1
        robot1 positions
@@ -167,7 +200,7 @@
          ek_bottom≔r1_ek_bottom_p
          ek_end≔r1_ek_end_q
      ElseIf robot_number≟2
-       robot1 positions
+       robot2 positions
          ek_oldhome≔r2_ek_oldhome_p
          ek_extrude≔r2_ek_extrude_p
          ek_front≔r2_ek_front_p
@@ -175,9 +208,30 @@
          ek_middle2≔r2_ek_middle_p
          ek_bottom≔r2_ek_bottom_p
          ek_end≔r2_ek_end_q
+     ElseIf robot_number≟3
+       robot3 positions
+         ek_oldhome≔r3_ek_oldhome_p
+         ek_extrude≔r3_ek_extrude_p
+         ek_front≔r3_ek_front_p
+         ek_middle≔r3_ek_middle_p
+         ek_middle2≔r3_ek_middle_p
+         ek_bottom≔r3_ek_bottom_p
+         ek_end≔r3_ek_end_q
+     ElseIf robot_number≟4
+       robot4 positions
+         ek_oldhome≔r4_ek_oldhome_p
+         ek_extrude≔r4_ek_extrude_p
+         ek_front≔r4_ek_front_p
+         ek_middle≔r4_ek_middle_p
+         ek_middle2≔r4_ek_middle_p
+         ek_bottom≔r4_ek_bottom_p
+         ek_end≔r4_ek_end_q
      'start of program'
      'Home'
      Set
+     MoveJ
+       Waypoint_3
+       'joint angles for fixed position'
      MoveJ
        'r1_ek_oldhome'
        ek_oldhome
@@ -190,7 +244,7 @@
      'turn_extrusion_on()'
      Serial Bridge uR1
      Set DO[0]=On
-     Wait: 24.0
+     Wait: 4.0
      Serial Bridge uR0
      Wait: 1.0
      Set DO[0]=Off
@@ -219,7 +273,7 @@
      'MoveJ'
      Wait: 1.0
      'tp≔get_actual_tcp_pose()'
-     Script: analyze_touchpoints.script
+     'Script: analyze_touchpoints.script'
      path_pre≔get_coverlt_homing_pathpoints(tcp_pose_left,tcp_pose_right)
      ph1≔path_pre[0]
      ph2≔path_pre[1]

@@ -2102,7 +2102,9 @@
         </Set>
         <SafeHome positionOptionType="SPEED_AND_ACCELERATION" speed="1.0471975511965976" acceleration="1.3962634015954636" nextMotionTime="2.0"/>
         <Script type="File">
-          <cachedContents># define pi
+          <cachedContents># this file contains math equations and operations, not specific to any one feature
+
+# define pi
 pi = 3.1415926535
 
 # given 3 points, this finds the plane and its equation
@@ -2135,37 +2137,6 @@ def findplane(p11, p12, p13):
     return ret
 end
 
-# given a heading, (ccw from +x axis), find the mx+b slope
-# fails if exactly vertical
-def get_slope_from_heading(heading):
-    return tan(heading)
-end
-
-# this function converts a unit vector to its heading angle ccw from x+ axis
-# takes uvx and uvy
-# returns heading in radians
-def convert_uv_to_heading(uvx, uvy):
-  baseang = atan(uvy/uvx)
-  if uvx &lt; 0:
-    ang = baseang + pi
-  elif uvy &lt; 0:
-    ang = baseang + pi * 2
-  else:
-    ang = baseang
-  end
-  return ang
-end
-
-# this function finds the equation of a line, perpendicular to a given line, and going through a given point
-# takes 3 arguments: m (the original line&apos;s slope), x (point&apos;s x coord), y (point&apos;s y coord). the b of the original line is not needed
-# returns a list of [m,b] (the slope and intercept of the new line)
-def find_perpendicular_line(origm, x, y):
-  m = (1/origm) * -1
-  b = y - m*x
-  ret = [m, b]
-  return ret
-end
-
 # this function finds the intersection point between two lines in the xy plane
 # takes 4 arguments: m1, b1, m2, b2
 # returns a list of [x,y] (the point of intersection)
@@ -2196,98 +2167,6 @@ def add_vectordistance_to_point(xi, yi, zi, uvx, uvy, uvz, delta):
   zf = zi + uvz * delta
   ret = [xf, yf, zf]
   return ret
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the bottom side of the gun facing up. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang(heading):
- axisxraw = -1 * sin(heading)
- axisyraw = cos(heading) + 1
- axiszraw = sin(heading)
-
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
-
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
-
- angle = acos( (cos(heading) - 1) / 2 )
-
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatup(heading):
- axisxraw = -sin(heading) + 1
- axisyraw = cos(heading)
- axiszraw = cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_preheatdown(heading):
- axisxraw = -sin(heading) - 1
- axisyraw = cos(heading)
- axiszraw = -cos(heading)
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (sin(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
-end
-
-# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
-# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
-# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
-def convert_heading_to_axang_ccw(heading):
- axisxraw = -sin(heading) 
- axisyraw = cos(heading) - 1
- axiszraw = -sin(heading) 
- 
- magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
- 
- axisxunit = axisxraw / magnitude
- axisyunit = axisyraw / magnitude
- axiszunit = axiszraw / magnitude
- 
- angle = acos( (-cos(heading) - 1) / 2 )
- 
- rxout = axisxunit * angle
- ryout = axisyunit * angle
- rzout = axiszunit * angle
- 
- return [rxout, ryout, rzout]
 end
 
 # this function takes two rotation matrices, and multiplies them together, returning one matrix. 
@@ -2412,6 +2291,139 @@ def crossproduct(vec1, vec2):
     return ret
 end
 
+# Section: headings, angles, slopes conversions
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the bottom side of the gun facing up. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang(heading):
+ axisxraw = -1 * sin(heading)
+ axisyraw = cos(heading) + 1
+ axiszraw = sin(heading)
+
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+
+ angle = acos( (cos(heading) - 1) / 2 )
+
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing up. Used for welding in a vertical path. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatup(heading):
+ axisxraw = -sin(heading) + 1
+ axisyraw = cos(heading)
+ axiszraw = cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing down. Used for welding in a vertical path downwards. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_preheatdown(heading):
+ axisxraw = -sin(heading) - 1
+ axisyraw = cos(heading)
+ axiszraw = -cos(heading)
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (sin(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# this function converts a heading (ccw radians from the positive x axis) into rxryrz to be put into a point p[]
+# this will point the gun in this heading with the preheat side of the gun tip facing right. Used for welding counterclockwise around the box. 
+# the values used in this program were calculated by doing rotation matrix math in the file on WI-CALVINB10 C. Documents. Theory for converting rotations into axis angle representations
+def convert_heading_to_axang_ccw(heading):
+ axisxraw = -sin(heading) 
+ axisyraw = cos(heading) - 1
+ axiszraw = -sin(heading) 
+ 
+ magnitude = sqrt(axisxraw*axisxraw + axisyraw*axisyraw + axiszraw*axiszraw)
+ 
+ axisxunit = axisxraw / magnitude
+ axisyunit = axisyraw / magnitude
+ axiszunit = axiszraw / magnitude
+ 
+ angle = acos( (-cos(heading) - 1) / 2 )
+ 
+ rxout = axisxunit * angle
+ ryout = axisyunit * angle
+ rzout = axiszunit * angle
+ 
+ return [rxout, ryout, rzout]
+end
+
+# given a heading, (ccw from +x axis), find the mx+b slope
+# fails if exactly vertical
+def get_slope_from_heading(heading):
+    return tan(heading)
+end
+
+# this function converts a unit vector to its heading angle ccw from x+ axis
+# takes uvx and uvy
+# returns heading in radians
+def convert_uv_to_heading(uvx, uvy):
+  baseang = atan(uvy/uvx)
+  if uvx &lt; 0:
+    ang = baseang + pi
+  elif uvy &lt; 0:
+    ang = baseang + pi * 2
+  else:
+    ang = baseang
+  end
+  return ang
+end
+
+# this function finds the equation of a line, perpendicular to a given line, and going through a given point
+# takes 3 arguments: m (the original line&apos;s slope), x (point&apos;s x coord), y (point&apos;s y coord). the b of the original line is not needed
+# returns a list of [m,b] (the slope and intercept of the new line)
+def find_perpendicular_line(origm, x, y):
+  m = (1/origm) * -1
+  b = y - m*x
+  ret = [m, b]
+  return ret
+end
+
+# returns the absolute value of a number
+def absolute(x):
+    ret = x
+    if x &lt; 0:
+        ret = -1 * x
+    end
+    return ret
+end
 </cachedContents>
           <file>/programs/common_math.script</file>
         </Script>
@@ -2646,8 +2658,7 @@ end
           <file>/programs/common_io.script</file>
         </Script>
         <Script type="File">
-          <cachedContents>
-def main_calculate_cover_lt(p11, p12, leftpoint, rightpoint):
+          <cachedContents>def main_calculate_cover_lt(p11, p12, leftpoint, rightpoint):
     struct1 = analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint)
     struct2 = calculate_points_cover_lt(struct1)
     #struct2 = calculate_DOtA_points_left_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
@@ -2690,6 +2701,8 @@ def analyze_touchpoints_only_cover_lt(p11, p12, leftpoint, rightpoint):
     return ret
 end
 
+# based on the analysis, calculates the weld path points for the ltude welds. 
+# returns a struct of the weld path points. 
 def calculate_points_cover_lt(struct1):
     # get the stuff from struct
     leftcalcpoint = struct1[0]
@@ -2782,7 +2795,7 @@ def calculate_points_cover_lt(struct1):
     point6 = p[p6x, p6y, p6z, rxt, ryt, rzt]
     
     # return struct
-    ret = struct(pointtopvcham=leftcalcpoint, point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
+    ret = struct(point1=point1, point2=point2, point3=point3, point4=point4, point5=point5, point6=point6)
     return ret
     
 end
@@ -2799,26 +2812,130 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     rpy = rightpoint[1]
     rpz = rightpoint[2]
     
+    # determine if the points are parallel (to the tank) or perpendicular
+    xdelt = absolute(lpx - rpx)
+    ydelt = absolute(lpy - rpy)
+    xvcut = False
+    if xdelt &gt; ydelt:
+        xvcut = True
+    end
+    
     # specify the distances from (in meters)
     d0 = 0.05 # how far from the cover to approach from
-    d1 = 0.03 # how far the touchpints are pushed closer to the robot
+    d1 = 0.03 # how far the touchpoints are pushed closer to the robot, offset from the groove
     d2 = 0.00 # how far inwards the touchpoints are pushed
     
-    # rxryrz
-    rxryrz = [0.334, 3.124, 0]
+    # rxryrz of left point (point 1, taken second): preheat back towards robot to avoid collision with divider wall
+    rxryrz = [2.014, -2.411, 0]
     rx = rxryrz[0]
     ry = rxryrz[1]
     rz = rxryrz[2]
     
     # calculate the points
     ph1 = p[lpx + d1, lpy + d2, lpz + d0, rx, ry, rz] # left side approach
-    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx, ry, rz] # right side approach
+    if xvcut:
+        ph1 = p[lpx, lpy - d1, lpz + d0, rx, ry, rz] # left side approach
+    end
+    
+    # rxryrz of right point (point 2, taken first): preheat to the left (front) of the tank. 
+    rxryrz2 = [0.334, 3.124, 0]
+    rx2 = rxryrz2[0]
+    ry2 = rxryrz2[1]
+    rz2 = rxryrz2[2]
+    
+    ph2 = p[rpx + d1, rpy - d2, rpz + d0, rx2, ry2, rz2] # right side approach
+    if xvcut:
+        ph2 = p[rpx, rpy - d1, rpz + d0, rx2, ry2, rz2] # right side approach
+    end
     
     ret = struct(ph1=ph1, ph2=ph2)
-    is_robot_at_reachable_spot(leftpoint, ret)
+    check_validity_only(ret)
     return ret
 end
 
+# this function runs after the two points have been taught for cover lt. it checks whether the weld points for this line are reachable.
+# it returns a true or false
+def check_points_reachable(leftpoint, rightpoint):
+    struct1t = analyze_touchpoints_only_cover_lt(leftpoint, rightpoint, leftpoint, rightpoint) # use the z of the actual teach point just for checking
+    points = calculate_points_cover_lt(struct1t)
+    allvalid = check_structofpoints_validity(points)
+    if not allvalid:
+        return False
+    end
+    
+    # now that they are all valid, check if there are any weird turns
+    # what are the normal joint positions of a regular LT weld?
+    # left to right: actually left to right and front to back have the same criteria for valid. 
+    # need to get the pre-point
+    wayp7 = p[-.262598515057, -.117910587405, .443766749060, .115341915577, 3.114598670938, .265717910023]
+    wayp7q = [0.09593799853302087, -2.4789207352067226, 2.256866488629104, 0.22882056286890795, 1.7417236956390747, -0.16791597406715297]
+    wayp4 = p[-.433664641517, -.217871332139, .358001604360, -1.895549759225, 2.498965706218, .036945701764]
+    wayp4q = [-0.6685436407672327, -2.098424097100729, 2.2798998991595667, -0.2272131007960816, -0.39710790315736944, 0.02628905698657036]
+    if is_xvcut(leftpoint, rightpoint):
+        prev = wayp4q
+    else:
+        prev = wayp7q
+    end
+    structlength = 6 # length of points
+    #listpointnames
+    lpn = [&quot;p1&quot;,&quot;p2&quot;,&quot;p3&quot;,&quot;p4&quot;,&quot;p5&quot;,&quot;p6&quot;]
+    #pretend_welder_tcp
+    pwt = p[-0.0117, -0.328, 0.105, 1.2092, -1.2092, 1.2092]
+    i = 0
+    while i &lt; structlength:
+        curr = points[i]
+        # test this point for nontwist
+        joints_1 = get_inverse_kin(curr, prev, tcp=pwt)
+        shoulder = joints_1[1]
+        if shoulder &gt; 0:
+            popuptext = &quot;shoulder point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        elbow = joints_1[2]
+        if elbow &lt; 0:
+            popuptext = &quot;elbow point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        wrist1 = joints_1[3] * 180/pi
+        if ((wrist1 &lt; -200) or (wrist1 &gt; 100)):
+            popuptext = &quot;wrist1 point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        wrist3 = joints_1[5] * 180/pi
+        if ((wrist3 &lt; -100) or (wrist3 &gt; 100)):
+            popuptext = &quot;wrist3 point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        # end of loop
+        prev = joints_1
+        i = i + 1
+    end
+    
+    return allvalid
+end
+
+def is_xvcut(leftpoint, rightpoint):
+    # get the teach position points
+    lpx = leftpoint[0]
+    lpy = leftpoint[1]
+    lpz = leftpoint[2]
+    rpx = rightpoint[0]
+    rpy = rightpoint[1]
+    rpz = rightpoint[2]
+    
+    # determine if the points are parallel (to the tank) or perpendicular
+    xdelt = absolute(lpx - rpx)
+    ydelt = absolute(lpy - rpy)
+    xvcut = False
+    if xdelt &gt; ydelt:
+        xvcut = True
+    end
+    return xvcut
+end
 </cachedContents>
           <file>/programs/analyze_coverlt.script</file>
         </Script>
@@ -3012,23 +3129,25 @@ end
                 <ExpressionChar character=")"/>
               </expression>
             </Assignment>
-            <If type="If" checkContinuously="false">
-              <expression>
-                <ExpressionToken token=" not "/>
-                <ExpressionChar character="v"/>
-                <ExpressionChar character="a"/>
-                <ExpressionChar character="l"/>
-                <ExpressionChar character="i"/>
-                <ExpressionChar character="d"/>
-              </expression>
-              <children>
-                <Loop type="Forever">
-                  <children>
-                    <Popup type="Message" haltProgram="false" message="cannot reach. stop program and retry" inputType="Text"/>
-                  </children>
-                </Loop>
-              </children>
-            </If>
+            <SuppressedNode>
+              <suppressedNode class="If" type="If" checkContinuously="false">
+                <expression>
+                  <ExpressionToken token=" not "/>
+                  <ExpressionChar character="v"/>
+                  <ExpressionChar character="a"/>
+                  <ExpressionChar character="l"/>
+                  <ExpressionChar character="i"/>
+                  <ExpressionChar character="d"/>
+                </expression>
+                <children>
+                  <Loop type="Forever">
+                    <children>
+                      <Popup type="Message" haltProgram="false" message="cannot reach. stop program and retry" inputType="Text"/>
+                    </children>
+                  </Loop>
+                </children>
+              </suppressedNode>
+            </SuppressedNode>
           </children>
         </Folder>
         <Set type="NoAction">
@@ -3912,6 +4031,19 @@ end
         <Set type="NoAction">
           <tcp reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Set/tcp"/>
         </Set>
+        <If type="If" checkContinuously="false">
+          <expression>
+            <ExpressionChar character="1"/>
+            <ExpressionChar character="≟"/>
+            <ExpressionChar character="2"/>
+          </expression>
+          <children>
+            <Comment comment="testing bs"/>
+            <Set type="NoAction">
+              <tcp reference="../../../../../../MainProgram/children/Set[2]/tcp"/>
+            </Set>
+          </children>
+        </If>
         <Move motionType="MoveJ" speed="1.0471975511965976" acceleration="1.3962634015954636" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/SuppressedNode/suppressedNode/children/Move/feature"/>
           <children>
@@ -5516,7 +5648,7 @@ end
           <digitalValue>1</digitalValue>
         </Set>
         <Wait type="Sleep">
-          <waitTime>24.0</waitTime>
+          <waitTime>4.0</waitTime>
         </Wait>
         <Contributed strategyClass="com.wiretank.WireTank-Serial.WireTankSerial" strategyProgramNodeType="WireTank Serial" strategyURCapDeveloper="WireTank, LLC" strategyURCapName="WireTank Serial">
           <dataModel>
