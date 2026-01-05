@@ -220,11 +220,13 @@ def check_points_reachable(leftpoint, rightpoint):
     structlength = 6 # length of points
     #listpointnames
     lpn = ["p1","p2","p3","p4","p5","p6"]
+    #pretend_welder_tcp
+    pwt = p[-0.0117, -0.328, 0.105, 1.2092, -1.2092, 1.2092]
     i = 0
     while i < structlength:
         curr = points[i]
         # test this point for nontwist
-        joints_1 = get_inverse_kin(curr, prev)
+        joints_1 = get_inverse_kin(curr, prev, tcp=pwt)
         shoulder = joints_1[1]
         if shoulder > 0:
             popuptext = "shoulder point " + lpn[i]
