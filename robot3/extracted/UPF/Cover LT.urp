@@ -2853,12 +2853,68 @@ def get_coverlt_homing_pathpoints(leftpoint, rightpoint):
     return ret
 end
 
-# this function runs after the two points have been taught. it checks whether the weld points for this line are reachable.
+# this function runs after the two points have been taught for cover lt. it checks whether the weld points for this line are reachable.
 # it returns a true or false
 def check_points_reachable(leftpoint, rightpoint):
     struct1t = analyze_touchpoints_only_cover_lt(leftpoint, rightpoint, leftpoint, rightpoint) # use the z of the actual teach point just for checking
     points = calculate_points_cover_lt(struct1t)
     allvalid = check_structofpoints_validity(points)
+    if not allvalid:
+        return False
+    end
+    
+    # now that they are all valid, check if there are any weird turns
+    # what are the normal joint positions of a regular LT weld?
+    # left to right: actually left to right and front to back have the same criteria for valid. 
+    # need to get the pre-point
+    wayp7 = p[-.262598515057, -.117910587405, .443766749060, .115341915577, 3.114598670938, .265717910023]
+    wayp7q = [0.09593799853302087, -2.4789207352067226, 2.256866488629104, 0.22882056286890795, 1.7417236956390747, -0.16791597406715297]
+    wayp4 = p[-.433664641517, -.217871332139, .358001604360, -1.895549759225, 2.498965706218, .036945701764]
+    wayp4q = [-0.6685436407672327, -2.098424097100729, 2.2798998991595667, -0.2272131007960816, -0.39710790315736944, 0.02628905698657036]
+    if is_xvcut(leftpoint, rightpoint):
+        prev = wayp4q
+    else:
+        prev = wayp7q
+    end
+    structlength = 6 # length of points
+    #listpointnames
+    lpn = [&quot;p1&quot;,&quot;p2&quot;,&quot;p3&quot;,&quot;p4&quot;,&quot;p5&quot;,&quot;p6&quot;]
+    #pretend_welder_tcp
+    pwt = p[-0.0117, -0.328, 0.105, 1.2092, -1.2092, 1.2092]
+    i = 0
+    while i &lt; structlength:
+        curr = points[i]
+        # test this point for nontwist
+        joints_1 = get_inverse_kin(curr, prev, tcp=pwt)
+        shoulder = joints_1[1]
+        if shoulder &gt; 0:
+            popuptext = &quot;shoulder point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        elbow = joints_1[2]
+        if elbow &lt; 0:
+            popuptext = &quot;elbow point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        wrist1 = joints_1[3] * 180/pi
+        if ((wrist1 &lt; -200) or (wrist1 &gt; 100)):
+            popuptext = &quot;wrist1 point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        wrist3 = joints_1[5] * 180/pi
+        if ((wrist3 &lt; -100) or (wrist3 &gt; 100)):
+            popuptext = &quot;wrist3 point &quot; + lpn[i]
+            popup(popuptext, title=&quot;Position Error&quot;, blocking=True)
+            return False
+        end
+        # end of loop
+        prev = joints_1
+        i = i + 1
+    end
+    
     return allvalid
 end
 
