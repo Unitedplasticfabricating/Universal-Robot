@@ -1750,11 +1750,12 @@ end
 # returns struct1 back, but with pointintersect modified
 # based on a struct1 with _ elements
 def at_adjust_lch(struct1):
-    lch = get_lift_column_height_condensed() # this returns a value in meters
-    popup(lch, blocking=True)
+    lch = get_lift_column_height_condensed() # this returns a value in mm
+    lch2 = lch / 1000.0 # convert to meters
+    popup(lch2, blocking=True)
     pio = struct1[0] #pointintersect old
     oldz = pio[2]
-    newz = oldz + lch
+    newz = oldz + lch2
     pointintersect = p[pio[0], pio[1], newz, pio[3], pio[4], pio[5]]
     ret = struct(pointintersect=pointintersect, heading1=struct1[1], heading2=struct1[2], heading3=struct1[3], l1delxunit=struct1[4], l1delyunit=struct1[5], l2delxunit=struct1[6], l2delyunit=struct1[7])
     return ret
