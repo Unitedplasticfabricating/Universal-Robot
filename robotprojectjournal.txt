@@ -1741,6 +1741,29 @@ i need to remove the lift column home command during back to home of the step co
 i need to incorporate the code block from coverlt that lowers the lift column during extrude knife and then raises it back up.
 i need to incorporate the current lift column height during analyze touchpoints. 
 
+removed the lift column home command from beforestart
+there is no lift column anything in get_corner_homing_45_pathpoints(). so i can raise the lift column before the start of the program, and run this as is. it will home correctly even with a lift column that's raised. 
+correction: it calls is_robot_at_reachable_spot(), which checks the lch. already incorporates it into checking for a corner thats too close to the ground. 
+then i call analyze_touchpoints_only() and analyze_vertical_touchpoints()
+then i adjust the values of those structs (based on current lift column height) before passing those structs to calculate_DOtA_points_left_step_extended()
+the only point i should have to adjust from struct1 (analyze_touchpoints_only) is pointintersect ([0]), its z value. the rest of the things are headings and vectors. 
+analyze_vertical_touchpoints only returns a vector, so I don't have to change anything. 
+i use get_lift_column_height_condensed()
+and then after i fix it, i can run the regular program. i just need to send the lc down to zero before extruding knife. 
+
+get_lift_column_height_condensed() returns its value in mm.
+it returned 150. 
+i corrected that
+now it does all the other points right, just no the first starting (top) point. 
+because its still using that original teach point's z value. tcp_pose_top. 
+i will have to modify tcp_pose_top as well. 
+
+confirmed that it does work. it works for low step corners (normal) both with and without lift column up. 
+it works for high step corners, able to reach high ones that the previous program wouldnt be able to reach. (this was the entire point of doing this).
+now i will see how height affects the reachability
+specifically on a left weld first. hopefully with the higher wraparound, we should get more clearance, and be able to perform the weld from closer in. 
+
+
 
 
 
