@@ -1,4 +1,4 @@
-<URProgram name="Step Corner Extended" installation="robot4" installationRelativePath="robot4" directory="/programs/UPF" createdIn="5.14.5" lastSavedIn="5.21.2" robotSerialNumber="20256802633" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
+<URProgram name="Step Corner Extended" installation="robot4" installationRelativePath="../robot4" directory="/programs/UPF" createdIn="5.14.5" lastSavedIn="5.21.2" robotSerialNumber="20256802633" createdInPolyscopeProgramVersion="2" lastSavedInPolycopeProgramVersion="2" crcValue="924418886">
   <kinematics status="LINEARIZED" validChecksum="true">
     <deltaTheta value="8.565159791140697E-8, -0.08467014235421201, 6.533104758751235, -0.16525733997629635, -3.948158030917491E-6, 1.41380070520572E-7"/>
     <a value="-4.295731642172E-5, -0.8581149454924624, -0.7179835240216721, 1.4906859016830852E-5, -4.68344986143713E-5, 0.0"/>
@@ -2418,9 +2418,9 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   if pointtop[2] == 0:
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] &gt; p0z + 0.914: # 0.914m = 36 inches
-    ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
+  elif (pointtop[2] &gt; p0z + 0.614) and (pointtop[2] &gt; 0.914): # 0.914m = 36 inches
+    ph2up = p[ph2[0], ph2[1], 0.914, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], 0.914, ph4[3], ph4[4], ph4[5]]
   else:
     ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
@@ -12869,6 +12869,16 @@ end
         <Wait type="Sleep">
           <waitTime>0.5</waitTime>
         </Wait>
+        <Assignment valueSource="Expression">
+          <variable name="ph2joints" prefersPersistentValue="false" favourite="false">
+            <initializeExpression/>
+          </variable>
+          <expression>
+            <ExpressionToken token="get_actual_joint_positions"/>
+            <ExpressionChar character="("/>
+            <ExpressionChar character=")"/>
+          </expression>
+        </Assignment>
         <Move motionType="MoveL" speed="0.02" acceleration="0.1" useActiveTCP="true" positionType="CartesianPose" optimoveEnabled="false" optiMoveSpeed="0.3" optiMoveAcceleration="0.09">
           <feature class="GeomFeatureReference" reference="../../../../SpecialSequence/children/Folder/children/Move/feature"/>
           <children>
@@ -12961,6 +12971,10 @@ end
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
               <variable reference="../../../../Assignment[10]/variable"/>
+            </Waypoint>
+            <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
+              <motionParameters/>
+              <variable reference="../../../../Assignment[12]/variable"/>
             </Waypoint>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
