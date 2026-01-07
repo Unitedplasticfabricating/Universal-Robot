@@ -903,22 +903,31 @@ end
 def check_validity_left(struct1, struct2, stepyesno):
   #first, check whether robot is too close
   pointintersect = struct1[0]
-  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
-  # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
-  toocloseleftweld = False
-  if pointintersect[1] < 0:
-    if pointintersect[0] > -1.300:
-      toocloseleftweld = True
-    end
-  elif pointintersect[1] < 0.480:
-    if pointintersect[1] < (1.300 + pointintersect[0])*8:
-      toocloseleftweld = True
+  toocloseleftweld = False # init value
+  # next, check if the z is low or high. use the old formula for tooclose if z is low, but use new more lax formula is z is high
+  if pointintersect[2] < 0.250:
+    # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
+    # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
+    
+    if pointintersect[1] < 0:
+      if pointintersect[0] > -1.300:
+        toocloseleftweld = True
+      end
+    elif pointintersect[1] < 0.480:
+      if pointintersect[1] < (1.300 + pointintersect[0])*8:
+        toocloseleftweld = True
+      end
+    else:
+      if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+        toocloseleftweld = True
+      end
     end
   else:
-    if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+    if pointintersect[0] > -1.100:
       toocloseleftweld = True
     end
   end
+  
   if toocloseleftweld:
     # bad
     popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. "
