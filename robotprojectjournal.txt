@@ -1767,6 +1767,56 @@ jose said that on the bottom touchpoint of corner welds (step corner in particul
 he said that if the gun was rotated a diffeerent direction, with the gun tip pointed to the left (instead of the right) that it would have better clearance on both sides of the tank left and right. 
 i think that is definitely at least worth a try. i had him drive it to the angle he wanted and took pictures. 
 
+trying to make the check_validity_left more loose if the step corner is raised. 
+from the previous iteration:
+for all normal y values, the limit on x is in the -1200s. 
+for z values above 250mm, i reduced the minimum distance from x < -1300 to x < -1100.
+that gives 20 extra centimeters of leeway when aligning the cart for a step (in the too close direction)
+now i want to figure out what the limiting factor of a right weld is. 
+the left corners goes heavy on the distance formula.
+the right corners goes heavy on the angle alignment formula. 
+i checked the journal from around the time i made it. i see nothing regarding this. however, there is something about post-this, changing joint combos to do the weld. 
+its possible this requirement is outdated. 
+ill run through a close right weld and see if anything happens
+i did a low one (normal tank height) at the very minimum of the tape. pushed right away so the calculated corner is probably about 2 inches closer than the tape (into the nogo zone). 
+it finished its calculations and went on to extruding knife. 
+first leg has absolutely so much space in every direction. 
+start of the second leg might maybe have an issue if certain conditions were met. 
+position is p[-1236,173,-150,.6,-1.48,.61] [-32,-5,92,182,-270,77]
+if it were a lot closer than this, and the gun was turned cw, the butt of the gun could hit the forearm like a left around. but thatd be pretty crazy. 
+third leg has absolutely no problems
+i gotta go through a weird angle one and see if it still works from a weird angle. i know that angle thing has caused the floor people a lot of trouble
+i can probably get rid of that requirement, which will make aligning the cart a lot easier. 
+i ran right corner at a super weird angle. the first thing i notice is that the touchpoint taps the box at a really weird angle, almost like sliding over it. it doesnt slide though on this attempt. it gets good points. 
+the robot alignment error does pop up. to test this i will need to remove that requirement. 
+under the straight angle req., there are some distance formulas depending on the angle. they are very complicated. i will leave those for now and see if they trigger. 
+ran it again. we got the same alignment error (but this time we can click through it). heading1degres is 241 degrees. 
+none of the other checks triggereed.
+plenty of leeway on the first, second, and third passes. i will say that the accuracy wasn't quite as precise on the second pass. could be due to those weird touchpoints. 
+i will remove all distance requirements on a right side weld. i will change the alignment requirement to be within 40 degrees of perfect 45. (so, at least a 5 degrees tilt). 
+there is the factor of the robot base not being positioned squarely on the pedestal. 
+approach points are hardcoded their rxryrz. 
+at least on robot 2, the angle is always 7-8 degrees short of what it should be. straight back is 82 when it should be 90. 
+i thought it was 15. not on robot 2. idk about the other robots. theres only an 8 degree offset on robot 2. 
+comment says that a "normal heading is 216 degrees". why?
+180 + 45 is 225.
+oh. the 9 degrees (8 degrees). 
+so if i want 40 degrees of leeway (actually i'll go 30 each direction), then my numbers need to be 186 -> 246.
+yeah that'l do well. 
+i do have a whole section in my previous dist calc about "right weld pivot collisions".
+it says specifically if the box is more than 70 degrees CLOCKWISE then the arm will collide. 
+my test was ccw.
+ill try the other direction.
+we are trying maybe 10 degrees offset from right face. short end of string but still in range. 
+tcp collided with box.
+too extreme of an angle. lets try like 15 degrees. 
+nothing was triggerred. 
+fucking how
+theres no way the heading was between 201 and 231. but somehow it was. 
+the pivot did not collide, but maybe it would have if it were a foot closer. 
+i'll increase the max angle but leave the angle calcs for distance
+
+
 
 
 
