@@ -120,12 +120,14 @@
      'Call '
      'MoveJ'
      If leftchoice≟ True 
-       pathturn≔main_calculate_left_step_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       pathturn≔main_calculate_left_step_extended2(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       MachineLogic Homing
        extrude_knife3()
        'Call move_path_left_sc'
        move_path_left_sc()
      Else
-       pathturn≔main_calculate_right_step_extended(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       pathturn≔main_calculate_right_step_extended2(p11,p12,p21,p22,p3,p13,p23,sidewall,floorthick,tcp_pose_top)
+       MachineLogic Homing
        extrude_knife3()
        move_path_right_sc()
      'Popup'
@@ -506,7 +508,7 @@
      'turn_extrusion_on()'
      Serial Bridge uR1
      Set DO[0]=On
-     Wait: 24.0
+     Wait: 4.0
      Serial Bridge uR0
      Wait: 1.0
      Set DO[0]=Off
@@ -627,7 +629,7 @@
      MoveJ
        Waypoint_4
        Waypoint_13
-       Waypoint_1
+       'Waypoint_1'
        ph6
        ph7
      Wait: 1.0

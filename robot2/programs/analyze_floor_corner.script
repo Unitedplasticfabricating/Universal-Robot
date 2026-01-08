@@ -57,7 +57,6 @@ end
 # this is the main entry point for calculations, for Floor Corner Extended, but on a step so tilt back and ride both of the two exits.
 # it takes in the 7 touchpoints, analyzes the shape of the box. 
 # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
-# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for right-sided boxes (vertical weld on right side of edge)
@@ -73,13 +72,39 @@ end
 # this is the main entry point for calculations, for Floor Corner Extended, but on a step so tilt back and ride both of the two exits.
 # it takes in the 7 touchpoints, analyzes the shape of the box. 
 # takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
-# loopingly tries to calculate the extension along the sidewall that fulfills get_inverse_kin_has_solution() and provides the farthest extension possible
 # returns the pathpoints
 # specifically for Down, Over, then Around (DOtA)
 # specifically for left-sided boxes (vertical weld on left side of edge)
 def main_calculate_left_step_extended(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
     struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
     list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct2 = calculate_DOtA_points_left_step_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    struct3 = check_validity_left(struct1, struct2, True)
+    return struct3
+end
+
+# like step_extended(), but includes functionality for starting the program with the lift column already raised
+def main_calculate_right_step_extended2(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct1 = at_adjust_lch(struct1)
+    tcp_pose_top = adjust_tcptop(tcp_pose_top)
+    struct2 = calculate_DOtA_points_right_step_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
+    struct3 = check_validity_right(struct1, struct2, True)
+    return struct3
+end
+
+# this is the main entry point for calculations, for Floor Corner Extended, but on a step so tilt back and ride both of the two exits.
+# it takes in the 7 touchpoints, analyzes the shape of the box. 
+# takes in the user defined point for the top of the weld (tcp_pose_top) and then calculates path points 
+# returns the pathpoints
+# specifically for Down, Over, then Around (DOtA)
+# specifically for left-sided boxes (vertical weld on left side of edge)
+def main_calculate_left_step_extended2(p11, p12, p21, p22, p3, p13, p23, chamferover, chamferup, tcp_pose_top):
+    struct1 = analyze_touchpoints_only(p11, p12, p21, p22, p3)
+    list1 = analyze_vertical_touchpoints(p11, p12, p13, p21, p22, p23, p3)
+    struct1 = at_adjust_lch(struct1)
+    tcp_pose_top = adjust_tcptop(tcp_pose_top)
     struct2 = calculate_DOtA_points_left_step_extended(struct1, list1, chamferover, chamferup, tcp_pose_top)
     struct3 = check_validity_left(struct1, struct2, True)
     return struct3
@@ -808,23 +833,24 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 0.626, -1.993, -1.813]
   
   # go back to ph1
-  ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, pi] # approach point for under turn
+  ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, 0] # approach point for under turn
   # moveL from ph1 to ph6
-  ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, pi]
+  ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, 0]
   
   # add the vertical touch points
   if pointtop[2] == 0:
     ph2up = p[ph2[0], ph2[1], ph2[2]+d3, ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], ph4[2]+d3, ph4[3], ph4[4], ph4[5]]
-  elif pointtop[2] > p0z + 0.914: # 0.914m = 36 inches
-    ph2up = p[ph2[0], ph2[1], p0z + 0.914, ph2[3], ph2[4], ph2[5]]
-    ph4up = p[ph4[0], ph4[1], p0z + 0.914, ph4[3], ph4[4], ph4[5]]
+  elif (pointtop[2] > p0z + 0.614) and (pointtop[2] > 0.914): # 0.914m = 36 inches
+    ph2up = p[ph2[0], ph2[1], 0.914, ph2[3], ph2[4], ph2[5]]
+    ph4up = p[ph4[0], ph4[1], 0.914, ph4[3], ph4[4], ph4[5]]
   else:
     ph2up = p[ph2[0], ph2[1], pointtop[2], ph2[3], ph2[4], ph2[5]]
     ph4up = p[ph4[0], ph4[1], pointtop[2], ph4[3], ph4[4], ph4[5]]
   end
   ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
   is_robot_at_reachable_spot(point0, ret)
+  is_robot_position_likely_invalid(point0)
   return ret
 end
 
@@ -878,22 +904,34 @@ end
 def check_validity_left(struct1, struct2, stepyesno):
   #first, check whether robot is too close
   pointintersect = struct1[0]
-  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
-  # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
-  toocloseleftweld = False
-  if pointintersect[1] < 0:
-    if pointintersect[0] > -1.300:
-      toocloseleftweld = True
+  toocloseleftweld = False # init value
+  # next, check if the z is low or high. use the old formula for tooclose if z is low, but use new more lax formula is z is high
+  if pointintersect[2] < 0.250:
+    # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
+    # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
+    
+    if pointintersect[1] < 0:
+      if pointintersect[0] > -1.300:
+        toocloseleftweld = True
+      end
+    elif pointintersect[1] < 0.480:
+      if pointintersect[1] < (1.300 + pointintersect[0])*8:
+        toocloseleftweld = True
+      end
+    else:
+      if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+        toocloseleftweld = True
+      end
     end
-  elif pointintersect[1] < 0.480:
-    if pointintersect[1] < (1.300 + pointintersect[0])*8:
-      toocloseleftweld = True
-    end
+    #popup("low corner")
   else:
-    if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+    if pointintersect[0] > -1.100:
       toocloseleftweld = True
+      #popup("high corner fail")
     end
+    #popup("high corner")
   end
+  
   if toocloseleftweld:
     # bad
     popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. "
@@ -913,7 +951,7 @@ def check_validity_left(struct1, struct2, stepyesno):
     curr = struct2[i]
     valid = get_inverse_kin_has_solution(curr)
     if not valid:
-      if i > 0:
+      if i > 0: # skip the first point, because if it's not valid it can become valid by lifting. 
         allvalid = False
         listproblems = listproblems + listnames[i]
       end
@@ -932,7 +970,12 @@ def check_validity_left(struct1, struct2, stepyesno):
   
   # check whether the path involves weird turns or joint limits. currently just checks the first position
   p_prev = [-0.021118, -1.26292, 2.43578, 5.07088, -2.29912, 1.53362] #last point of left weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  p1valid = get_inverse_kin_has_solution(struct2[0])
+  if p1valid:
+      joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  else:
+      joints_1 = [0, 0, 0, 0, 0, 100] # if invalid, force correction without throwing an error
+  end
   allGood = True
   i = 0
   structlength = 6
@@ -978,13 +1021,14 @@ def check_validity_right(struct1, struct2, stepyesno):
   # normal heading is 216 degrees
   #201 degrees to 231 degrees
   heading1degrees = heading1 * 180 / pi
-  if heading1degrees < 201 or heading1degrees > 231 :
+  if heading1degrees < 186 or heading1degrees > 246 :
     # then out of range
     popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + str_cat("",heading1degrees)
     # infinite loop
     while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
+    # popup(popuptext, title="Robot Positioning Warning",blocking=True)
   end
     
   #TODO: add the checks for whether x is too close, given the heading
@@ -1056,7 +1100,12 @@ def check_validity_right(struct1, struct2, stepyesno):
   
   # check whether the path involves weird turns or joint limits. first position
   p_prev = [-1.13307, -1.48911, 2.84785, 4.92357, -4.89059, 1.57184] #last point of right weld prerotate
-  joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  p1valid = get_inverse_kin_has_solution(struct2[0])
+  if p1valid:
+      joints_1 = get_inverse_kin(struct2[0], p_prev) # struct2[0] is point1
+  else:
+      joints_1 = [0, 0, 0, 0, 0, 100] # force correction, without throwing an error
+  end
   allGood = True
   i = 0
   structlength = 6
@@ -1710,4 +1759,39 @@ def calculate_DOtA_points_left_step_extended(struct1, listleans, chamferover, ch
     
     struct2 = struct(point1=point1, point2=point2, point4=point4, point5=point5, point_1=point_1, point_2=point_2, point_3=point_3, point_4=point_4, point_5=point_5, point6=point6, point7=point7, point8=point8, point_6=point_6, point_7=point_7, point_8=point_8)
     return struct2
+end
+
+# analyze touchpoints adjust for lift column height
+# this function adjusts the struct1 returned by analyze_touchpoints_only and modifies it based on if the lift column was raised when the points were found
+# returns struct1 back, but with pointintersect modified
+# based on a struct1 with _ elements
+def at_adjust_lch(struct1):
+    lch = get_lift_column_height_condensed() # this returns a value in mm
+    lch2 = lch / 1000.0 # convert to meters
+    #popup(lch2, blocking=True)
+    pio = struct1[0] #pointintersect old
+    oldz = pio[2]
+    newz = oldz + lch2
+    pointintersect = p[pio[0], pio[1], newz, pio[3], pio[4], pio[5]]
+    ret = struct(pointintersect=pointintersect, heading1=struct1[1], heading2=struct1[2], heading3=struct1[3], l1delxunit=struct1[4], l1delyunit=struct1[5], l2delxunit=struct1[6], l2delyunit=struct1[7])
+    return ret
+    
+end
+
+# this function takes the tcp_pose_top gathered by the teach, and adjusts it if there was a lift column active when it was collected
+# returns the tcp_pose, with added z to account for lift column
+def adjust_tcptop(tcp_pose_top):
+    lch = get_lift_column_height_condensed() # this returns a value in mm
+    lch2 = lch / 1000.0 # convert to meters
+    
+    oldz = tcp_pose_top[2]
+    newz = oldz + lch2
+    ret = p[tcp_pose_top[0], tcp_pose_top[1], newz, tcp_pose_top[3], tcp_pose_top[4], tcp_pose_top[5]]
+    return ret
+end
+
+# this function checks if the robot cart is not aligned, to give early warning that the positioning will not allow the weld to be completed. 
+# it is a pain to teach the points, have it go through its homing, and THEN tell you the cart is positioned wrong. 
+def is_robot_position_likely_invalid(point0):
+    
 end
