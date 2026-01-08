@@ -850,6 +850,7 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   end
   ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
   is_robot_at_reachable_spot(point0, ret)
+  is_robot_position_likely_invalid(point0)
   return ret
 end
 
@@ -1027,6 +1028,7 @@ def check_validity_right(struct1, struct2, stepyesno):
     while 1==1:
       popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
+    # popup(popuptext, title="Robot Positioning Warning",blocking=True)
   end
     
   #TODO: add the checks for whether x is too close, given the heading
@@ -1786,4 +1788,10 @@ def adjust_tcptop(tcp_pose_top):
     newz = oldz + lch2
     ret = p[tcp_pose_top[0], tcp_pose_top[1], newz, tcp_pose_top[3], tcp_pose_top[4], tcp_pose_top[5]]
     return ret
+end
+
+# this function checks if the robot cart is not aligned, to give early warning that the positioning will not allow the weld to be completed. 
+# it is a pain to teach the points, have it go through its homing, and THEN tell you the cart is positioned wrong. 
+def is_robot_position_likely_invalid(point0):
+    
 end
