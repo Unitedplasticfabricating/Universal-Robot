@@ -1,9 +1,6 @@
 def Turn_Off_Heating():
   global _hidden_verificationVariable=0
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -11,6 +8,9 @@ def Turn_Off_Heating():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_tcp(p[-0.00394,-0.328,0.10639,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
@@ -154,14 +154,14 @@ def Turn_Off_Heating():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
-  step_count_4ac6fefa_1e82_4f13_89af_ad3af1f3513b = 0.0
-  thread Step_Counter_Thread_f5a8d8ed_79ad_48ea_909f_58a4e5af9b96():
+  step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = 0.0
+  thread Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d():
     while (True):
-      step_count_4ac6fefa_1e82_4f13_89af_ad3af1f3513b = step_count_4ac6fefa_1e82_4f13_89af_ad3af1f3513b + 1.0
+      step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_f5a8d8ed_79ad_48ea_909f_58a4e5af9b96()
+  run Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d()
   $ 2 "Robot Program"
   $ 3 "HwResp≔'placeholder'"
   global HwResp="placeholder"

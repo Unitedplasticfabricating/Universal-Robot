@@ -1,13 +1,5 @@
 def Cover_LT():
   global _hidden_verificationVariable=0
-  step_count_9298e4ac_981d_464c_9d50_669ddab16d9d = 0.0
-  thread Step_Counter_Thread_a97be163_533d_4060_bb85_745d53f63080():
-    while (True):
-      step_count_9298e4ac_981d_464c_9d50_669ddab16d9d = step_count_9298e4ac_981d_464c_9d50_669ddab16d9d + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_a97be163_533d_4060_bb85_745d53f63080()
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
@@ -16,8 +8,8 @@ def Cover_LT():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   set_safety_mode_transition_hardness(1)
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
   set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
@@ -162,6 +154,14 @@ def Cover_LT():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = 0.0
+  thread Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d():
+    while (True):
+      step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d()
   global free_dr_already=  False  
   global freedrive_m_var=  False  
   global Waypoint_76_p=p[.886939072471, .356263001241, .442999104957, 2.316306590719, 2.057646408592, .074101958719]
@@ -307,7 +307,7 @@ def Cover_LT():
     $ 206 "'go to preheat'"
     # 'go to preheat'
     $ 207 "Set"
-    set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
     $ 208 "MoveJ"
     $ 209 "pa1" "breakAfter"
     movej(pa1, a=1.3962634015954636, v=1.0471975511965976)
@@ -380,7 +380,7 @@ def Cover_LT():
     $ 255 "extrude_knife3" "noBreak"
     $ 256 "pre program stuff"
     $ 257 "Set"
-    set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
     $ 258 "ek_sp≔get_actual_tcp_pose()"
     global ek_sp= get_actual_tcp_pose ()
     $ 259 "MoveL"
@@ -538,7 +538,7 @@ def Cover_LT():
     $ 337 "'start of program'"
     # 'start of program'
     $ 339 "Set"
-    set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+    set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
     $ 340 "MoveJ"
     $ 341 "Waypoint_3" "breakAfter"
     movej(Waypoint_3_q, a=1.3962634015954636, v=1.0471975511965976)
@@ -737,7 +737,7 @@ def Cover_LT():
   $ 93 "'make sure the tcp is welder'"
   # 'make sure the tcp is welder'
   $ 94 "Set"
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   $ 95 "sp≔get_actual_tcp_pose()"
   global sp= get_actual_tcp_pose ()
   $ 96 "MoveL"
@@ -828,7 +828,7 @@ def Cover_LT():
   $ 127 "'start of main program'"
   # 'start of main program'
   $ 128 "Set"
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   $ 129 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
   $ 130 "Script: common_math.script"
@@ -1687,7 +1687,7 @@ def Cover_LT():
   $ 150 "Cover_LT_Homing()"
   Cover_LT_Homing()
   $ 151 "Set"
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   $ 156 "pathturn≔main_calculate_cover_lt(p11,p12, tcp_pose_left, tcp_pose_right)"
   global pathturn=main_calculate_cover_lt(p11,p12, tcp_pose_left, tcp_pose_right)
   $ 157 "extrude knife"
@@ -1778,38 +1778,6 @@ def Cover_LT():
   movej(get_inverse_kin(Waypoint_8_p, qnear=Waypoint_8_q), a=1.3962634015954636, v=1.0471975511965976)
   $ 174 "Waypoint_9" "breakAfter"
   movej(get_inverse_kin(Waypoint_9_p, qnear=Waypoint_9_q), a=1.3962634015954636, v=1.0471975511965976)
-  # begin: URCap Program Node
-  #   Source: MachineLogic for Universal Robots, 3.1.7, Vention Inc.
-  #   Type: MachineLogic for Universal Robots
-  $ 175 "MachineLogic Homing"
-  while isVentionMovementBusyMachineMotion1==True:
-  sleep(0.05)
-  end
-  if(isVentionMovementBusyMachineMotion1 == False):
-  isVentionMovementBusyMachineMotion1 = True
-  socket_send_string("estop/status;", "MachineMotion1")
-  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
-  while(temp_estop_var_vention=="estop/status true"):
-  if temp_estop_var_vention=="estop/status true":
-  sendStringWithTimeout("estop/systemreset/request","Ack estop/systemreset/request;","MachineMotion1")
-  end
-  socket_send_string("estop/status;", "MachineMotion1")
-  temp_estop_var_vention = socket_read_string("MachineMotion1",timeout=15)
-  if temp_estop_var_vention=="estop/status true":
-  popup("MachineMotion in estop, make sure you have all emergency modules released manually. If you continue the system will try to reset MachineMotion automatically.",blocking=True)
-  end
-  end
-  else:
-  popup("resource is being used already: MachineMotion1")
-  halt
-  end
-  isVentionMovementBusyMachineMotion1 = True
-  sendString("im_home_axis_1", "MachineMotion im_home_axis_1 = completed", "MachineMotion1")
-  isVentionMovementBusyMachineMotion1 = False
-  sendString("SET im_set_encoder_pos_aux_1 0.000", "Ack", "MachineMotion1")
-  isVentionMovementBusyMachineMotion1 = False
-  sleep(0.03)
-  # end: URCap Program Node
   $ 176 "Home"
   movej([-3.266929759358355, -1.2139462677784536, 1.5878387874396154, 1.1069165929565088, -0.0023738326664366483, -1.7891447305770605], a=1.3962634015954636, v=1.0471975511965976)
 end

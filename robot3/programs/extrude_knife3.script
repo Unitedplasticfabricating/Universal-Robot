@@ -1,20 +1,6 @@
 def extrude_knife3():
   global _hidden_verificationVariable=0
-  step_count_f9da0ad4_2e26_4a5d_862e_523b87ff36dd = 0.0
-  thread Step_Counter_Thread_38516438_d722_470d_9a48_d4ca0603cd26():
-    while (True):
-      step_count_f9da0ad4_2e26_4a5d_862e_523b87ff36dd = step_count_f9da0ad4_2e26_4a5d_862e_523b87ff36dd + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_38516438_d722_470d_9a48_d4ca0603cd26()
-  set_safety_mode_transition_hardness(1)
   set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -22,8 +8,14 @@ def extrude_knife3():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
+  set_safety_mode_transition_hardness(1)
   set_gravity([0.0, 0.0, 9.82])
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
   global robot_number=3
   global Point_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
   global Point_2=p[0.0,0.0,0.0,0.0,0.0,0.0]
@@ -162,6 +154,14 @@ def extrude_knife3():
   #   Type: WireTank Serial
   WTSerialBridge = rpc_factory("xmlrpc","http://127.0.0.1:40511/RPC2")
   # end: URCap Installation Node
+  step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = 0.0
+  thread Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d():
+    while (True):
+      step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 = step_count_5d76c32b_1c09_42cf_b918_96e0378ce409 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_b4832686_13e8_4f71_a2f2_48018f0e632d()
   global r1_ek_oldhome_p=p[.397380247322, .356253634699, .319820846021, 2.316316320871, 2.057594704604, .074118471609]
   global r1_ek_oldhome_q=[-3.457949940358297, -2.056894441644186, 2.32658034959902, -0.2270551484874268, -0.19935208955873662, -0.10533696809877569]
   global r1_ek_extrude_p=p[.454852104155, .405448828659, .064015413765, 2.316807606413, 2.051392071696, .076664825947]
@@ -217,7 +217,7 @@ def extrude_knife3():
   $ 2 "Robot Program"
   $ 3 "pre program stuff"
   $ 4 "Set"
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   $ 5 "ek_sp≔get_actual_tcp_pose()"
   global ek_sp= get_actual_tcp_pose ()
   $ 6 "MoveL"
@@ -375,7 +375,7 @@ def extrude_knife3():
   $ 84 "'start of program'"
   # 'start of program'
   $ 86 "Set"
-  set_tcp(p[-0.009269999999999999,-0.328,0.10571,1.2092,-1.2092,1.2092])
+  set_tcp(p[-0.002,-0.325,0.10639,1.2092,-1.2092,1.2092])
   $ 87 "MoveJ"
   $ 88 "Waypoint_2" "breakAfter"
   movej(Waypoint_2_q, a=1.3962634015954636, v=1.0471975511965976)
