@@ -2437,9 +2437,9 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 0.626, -1.993, -1.813]
   
   # go back to ph1
-  ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, pi] # approach point for under turn
+  ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, 0] # approach point for under turn
   # moveL from ph1 to ph6
-  ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, pi]
+  ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, 0]
   
   # add the vertical touch points
   if pointtop[2] == 0:
@@ -2454,6 +2454,7 @@ def get_corner_homing_45_pathpoints(point0, pointtop = p[0,0,0,0,0,0]):
   end
   ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
   is_robot_at_reachable_spot(point0, ret)
+  is_robot_position_likely_invalid(point0)
   return ret
 end
 
@@ -2507,22 +2508,34 @@ end
 def check_validity_left(struct1, struct2, stepyesno):
   #first, check whether robot is too close
   pointintersect = struct1[0]
-  # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X &gt; -1300)
-  # if y &lt; 0, then x &lt; -1300. if y &lt; 480, then y &gt; (1300+x)*8. if y &gt; 480, then y &gt; (1235+x)*4 + 500
-  toocloseleftweld = False
-  if pointintersect[1] &lt; 0:
-    if pointintersect[0] &gt; -1.300:
-      toocloseleftweld = True
+  toocloseleftweld = False # init value
+  # next, check if the z is low or high. use the old formula for tooclose if z is low, but use new more lax formula is z is high
+  if pointintersect[2] &lt; 0.250:
+    # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X &gt; -1300)
+    # if y &lt; 0, then x &lt; -1300. if y &lt; 480, then y &gt; (1300+x)*8. if y &gt; 480, then y &gt; (1235+x)*4 + 500
+    
+    if pointintersect[1] &lt; 0:
+      if pointintersect[0] &gt; -1.300:
+        toocloseleftweld = True
+      end
+    elif pointintersect[1] &lt; 0.480:
+      if pointintersect[1] &lt; (1.300 + pointintersect[0])*8:
+        toocloseleftweld = True
+      end
+    else:
+      if pointintersect[1] &lt; (1.235 + pointintersect[0])*4 + 0.500:
+        toocloseleftweld = True
+      end
     end
-  elif pointintersect[1] &lt; 0.480:
-    if pointintersect[1] &lt; (1.300 + pointintersect[0])*8:
-      toocloseleftweld = True
-    end
+    #popup(&quot;low corner&quot;)
   else:
-    if pointintersect[1] &lt; (1.235 + pointintersect[0])*4 + 0.500:
+    if pointintersect[0] &gt; -1.100:
       toocloseleftweld = True
+      #popup(&quot;high corner fail&quot;)
     end
+    #popup(&quot;high corner&quot;)
   end
+  
   if toocloseleftweld:
     # bad
     popuptext = &quot;Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. &quot;
@@ -2612,13 +2625,14 @@ def check_validity_right(struct1, struct2, stepyesno):
   # normal heading is 216 degrees
   #201 degrees to 231 degrees
   heading1degrees = heading1 * 180 / pi
-  if heading1degrees &lt; 201 or heading1degrees &gt; 231 :
+  if heading1degrees &lt; 186 or heading1degrees &gt; 246 :
     # then out of range
     popuptext = &quot;Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=&quot; + str_cat(&quot;&quot;,heading1degrees)
     # infinite loop
     while 1==1:
       popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
     end
+    # popup(popuptext, title=&quot;Robot Positioning Warning&quot;,blocking=True)
   end
     
   #TODO: add the checks for whether x is too close, given the heading
@@ -3378,6 +3392,12 @@ def adjust_tcptop(tcp_pose_top):
     newz = oldz + lch2
     ret = p[tcp_pose_top[0], tcp_pose_top[1], newz, tcp_pose_top[3], tcp_pose_top[4], tcp_pose_top[5]]
     return ret
+end
+
+# this function checks if the robot cart is not aligned, to give early warning that the positioning will not allow the weld to be completed. 
+# it is a pain to teach the points, have it go through its homing, and THEN tell you the cart is positioned wrong. 
+def is_robot_position_likely_invalid(point0):
+    
 end
 </cachedContents>
           <file>/programs/analyze_floor_corner.script</file>
@@ -13512,21 +13532,23 @@ end
               </position>
               <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
             </Waypoint>
-            <Waypoint type="Fixed" name="Waypoint_1" kinematicsFlags="1">
-              <motionParameters/>
-              <position>
-                <JointAngles angles="-1.3432858302651205, -0.8819789687502322, 2.478150442072055, -3.1920490209023007, 1.5816449765089289, -0.1549241290366341"/>
-                <TCPOffset pose="-3.4459194423430706E-4, -0.016122577745637523, 0.2834979079810125, 0.0, 0.0, 0.0"/>
-                <Kinematics status="LINEARIZED" validChecksum="true">
-                  <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
-                  <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
-                  <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
-                  <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
-                  <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
-                </Kinematics>
-              </position>
-              <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
-            </Waypoint>
+            <SuppressedNode>
+              <suppressedNode class="Waypoint" type="Fixed" name="Waypoint_1" kinematicsFlags="1">
+                <motionParameters/>
+                <position>
+                  <JointAngles angles="-1.3432858302651205, -0.8819789687502322, 2.478150442072055, -3.1920490209023007, 1.5816449765089289, -0.1549241290366341"/>
+                  <TCPOffset pose="-3.4459194423430706E-4, -0.016122577745637523, 0.2834979079810125, 0.0, 0.0, 0.0"/>
+                  <Kinematics status="LINEARIZED" validChecksum="true">
+                    <deltaTheta value="-1.5962755862096445E-7, -0.4093566246988793, 7.293325569322967, -0.6007835331993939, -9.474458176003415E-7, -6.462621208922457E-7"/>
+                    <a value="-7.133902600040746E-5, -0.7902806658119381, -0.6006938928654277, 6.0657740713218347E-5, -3.875010694163168E-5, 0.0"/>
+                    <d value="0.2362715792740406, 604.4659451309549, 132.1165125128308, -736.3822386147384, 0.15926769713534844, 0.15400525677887147"/>
+                    <alpha value="1.5702541303342112, -5.67239338460821E-4, 5.588615929674638E-4, 1.5717091054691175, -1.5699900472530834, 0.0"/>
+                    <jointChecksum value="-1455923929, -1469580461, 686663807, -1452292534, -1484659803, -1456257139"/>
+                  </Kinematics>
+                </position>
+                <BaseToFeature pose="0.0, 0.0, 0.0, 0.0, 0.0, 0.0"/>
+              </suppressedNode>
+            </SuppressedNode>
             <Waypoint type="Variable" name="Variable" kinematicsFlags="-1">
               <motionParameters/>
               <variable reference="../../../../Assignment[8]/variable"/>

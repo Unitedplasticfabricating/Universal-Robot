@@ -1,21 +1,22 @@
 def Step_Corner_Extended():
   global _hidden_verificationVariable=0
-  step_count_4ad3a0ee_40b9_4e6c_8e13_2bc7f5cc5a12 = 0.0
-  thread Step_Counter_Thread_c1e6c702_a94f_4dff_a8f5_9f4291244bf2():
+  step_count_4fbf0bca_4399_4b80_8eb4_f260fb97a063 = 0.0
+  thread Step_Counter_Thread_28972cbc_80ce_442b_9ddf_4c7230fe32c5():
     while (True):
-      step_count_4ad3a0ee_40b9_4e6c_8e13_2bc7f5cc5a12 = step_count_4ad3a0ee_40b9_4e6c_8e13_2bc7f5cc5a12 + 1.0
+      step_count_4fbf0bca_4399_4b80_8eb4_f260fb97a063 = step_count_4fbf0bca_4399_4b80_8eb4_f260fb97a063 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_c1e6c702_a94f_4dff_a8f5_9f4291244bf2()
+  run Step_Counter_Thread_28972cbc_80ce_442b_9ddf_4c7230fe32c5()
+  set_safety_mode_transition_hardness(1)
+  set_tcp(p[-0.006900000000000001,-0.329,0.10490000000000001,1.2220414998940743,-1.2008968373596993,1.2220414998940738])
+  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_gravity([0.0, 0.0, 9.82])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_tcp(p[-0.006900000000000001,-0.329,0.10490000000000001,1.2220414998940743,-1.2008968373596993,1.2220414998940738])
-  set_target_payload(10.800000, [-0.001000, -0.053000, 0.068000], [0.081228, 0.081228, 0.081228, 0.000000, 0.000000, 0.000000])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -23,7 +24,6 @@ def Step_Corner_Extended():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_safety_mode_transition_hardness(1)
   global robot_number=4
   # begin: URCap Installation Node
   #   Source: UR Connect, 1.13.79, Universal Robots
@@ -328,8 +328,6 @@ def Step_Corner_Extended():
   global Waypoint_4_q=[-1.350241486226217, -0.9702387017062684, 2.492185179387228, -1.7834822140135707, -0.33723670641054326, 1.8489984273910522]
   global Waypoint_13_p=p[-.343952006273, .632142227752, .615174722549, -.025948978133, -.008794819136, -.567469912202]
   global Waypoint_13_q=[-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708]
-  global Waypoint_1_p=p[-.343952006258, .632142227456, .615174722551, -.025016780489, .033118613186, -3.068519793995]
-  global Waypoint_1_q=[-1.3432858302651205, -0.8819789687502322, 2.478150442072055, -3.1920490209023007, 1.5816449765089289, -0.1549241290366341]
   global Waypoint_14_p=p[-.343952006273, .632142227752, .615174722549, -.025948978133, -.008794819136, -.567469912202]
   global Waypoint_14_q=[-1.350241486226217, -0.9702451390079041, 2.492171827946798, -3.0669099293150843, 1.575993537902832, 2.355180025100708]
   global Waypoint_41_p=p[.392127936214, .533269017847, .644148583936, .057822570580, 2.125982462550, 2.134033989912]
@@ -1562,8 +1560,6 @@ def Step_Corner_Extended():
     movej(get_inverse_kin(Waypoint_4_p, qnear=Waypoint_4_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 671 "Waypoint_13" "breakAfter"
     movej(get_inverse_kin(Waypoint_13_p, qnear=Waypoint_13_q), a=1.3962634015954636, v=1.0471975511965976)
-    $ 672 "Waypoint_1" "breakAfter"
-    movej(get_inverse_kin(Waypoint_1_p, qnear=Waypoint_1_q), a=1.3962634015954636, v=1.0471975511965976)
     $ 673 "ph6" "breakAfter"
     movej(ph6, a=1.3962634015954636, v=1.0471975511965976)
     $ 674 "ph7" "breakAfter"
@@ -3203,9 +3199,9 @@ def Step_Corner_Extended():
     ph5 = p[p0x+d0-d0*0.5-sqrt2*d2, p0y-d0*0.5-sqrt2*d2, p0z+d1, 0.626, -1.993, -1.813]
   
     # go back to ph1
-    ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, pi] # approach point for under turn
+    ph6 = p[p0x + d0, p0y, p0z -0.05, 0, 0, 0] # approach point for under turn
     # moveL from ph1 to ph6
-    ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, pi]
+    ph7 = p[p0x-d1, p0y, p0z-0.05, 0, 0, 0]
   
     # add the vertical touch points
     if pointtop[2] == 0:
@@ -3220,6 +3216,7 @@ def Step_Corner_Extended():
     end
     ret = struct(ph1=ph1, ph2=ph2, ph3=ph3, ph4=ph4, ph5=ph5, ph6=ph6, ph7=ph7, ph2up=ph2up, ph4up=ph4up)
     is_robot_at_reachable_spot(point0, ret)
+    is_robot_position_likely_invalid(point0)
     return ret
   end
   
@@ -3273,22 +3270,34 @@ def Step_Corner_Extended():
   def check_validity_left(struct1, struct2, stepyesno):
     #first, check whether robot is too close
     pointintersect = struct1[0]
-    # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
-    # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
-    toocloseleftweld = False
-    if pointintersect[1] < 0:
-      if pointintersect[0] > -1.300:
-        toocloseleftweld = True
+    toocloseleftweld = False # init value
+    # next, check if the z is low or high. use the old formula for tooclose if z is low, but use new more lax formula is z is high
+    if pointintersect[2] < 0.250:
+      # next, check if the corner is too close to the robot to do a left around weld (complex but approximately X > -1300)
+      # if y < 0, then x < -1300. if y < 480, then y > (1300+x)*8. if y > 480, then y > (1235+x)*4 + 500
+  
+      if pointintersect[1] < 0:
+        if pointintersect[0] > -1.300:
+          toocloseleftweld = True
+        end
+      elif pointintersect[1] < 0.480:
+        if pointintersect[1] < (1.300 + pointintersect[0])*8:
+          toocloseleftweld = True
+        end
+      else:
+        if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+          toocloseleftweld = True
+        end
       end
-    elif pointintersect[1] < 0.480:
-      if pointintersect[1] < (1.300 + pointintersect[0])*8:
-        toocloseleftweld = True
-      end
+      #popup("low corner")
     else:
-      if pointintersect[1] < (1.235 + pointintersect[0])*4 + 0.500:
+      if pointintersect[0] > -1.100:
         toocloseleftweld = True
+        #popup("high corner fail")
       end
+      #popup("high corner")
     end
+  
     if toocloseleftweld:
       # bad
       popuptext = "Robot is too close to tank corner. Collisions may occur. Stop Program and move robot farther. "
@@ -3378,13 +3387,14 @@ def Step_Corner_Extended():
     # normal heading is 216 degrees
     #201 degrees to 231 degrees
     heading1degrees = heading1 * 180 / pi
-    if heading1degrees < 201 or heading1degrees > 231 :
+    if heading1degrees < 186 or heading1degrees > 246 :
       # then out of range
       popuptext = "Robot is not aligned at a 45 degree angle of corner (15 degree leeway). Collisions may occur. Stop Program and align robot. heading1degrees=" + str_cat("",heading1degrees)
       # infinite loop
       while 1==1:
         popup(popuptext, title="Robot Positioning Warning",blocking=True)
       end
+      # popup(popuptext, title="Robot Positioning Warning",blocking=True)
     end
   
     #TODO: add the checks for whether x is too close, given the heading
@@ -4144,6 +4154,12 @@ def Step_Corner_Extended():
       newz = oldz + lch2
       ret = p[tcp_pose_top[0], tcp_pose_top[1], newz, tcp_pose_top[3], tcp_pose_top[4], tcp_pose_top[5]]
       return ret
+  end
+  
+  # this function checks if the robot cart is not aligned, to give early warning that the positioning will not allow the weld to be completed.
+  # it is a pain to teach the points, have it go through its homing, and THEN tell you the cart is positioned wrong.
+  def is_robot_position_likely_invalid(point0):
+  
   end
   $ 98 "leftchoice≔'Select Yes for a Left side weld, or select No for a Right Side weld.'"
   global leftchoice=request_boolean_from_primary_client("Select Yes for a Left side weld, or select No for a Right Side weld.")
